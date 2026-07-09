@@ -29,14 +29,13 @@ import java.util.List;
 public class BeltBlockEntity extends BlockEntity {
     public static final int LENGTH_TICKS = 10;
     public static final double MIN_GAP = 0.15;
-    private static final long RESYNC_INTERVAL_TICKS = 5;
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
 
     private long lastSyncTick = 0;
-    private int previousItemCount = -1;
-    private boolean previousFrontAtExit = false;
+    private long previousAcceptedCount = -1;
+    private long previousDischargedCount = -1;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(InternalEngineBlockEntities.BELT.get(), pos, state);
@@ -94,13 +93,8 @@ public class BeltBlockEntity extends BlockEntity {
         Belt belt = blockEntity.belt;
         if (belt == null) return;
 
-        boolean stateChanged = belt.getItemCount() != blockEntity.previousItemCount || belt.isFrontAtExit() != blockEntity.previousFrontAtExit;
-        boolean resyncDue = level.getGameTime() - blockEntity.lastSyncTick >= RESYNC_INTERVAL_TICKS;
-
-        blockEntity.previousItemCount = belt.getItemCount();
-        blockEntity.previousFrontAtExit = belt.isFrontAtExit();
-
-        if (!stateChanged && !resyncDue) return;
+        boolean eventOccurred = belt.getTotalAccepted() != blockEntity.previousAcceptedCount || belt.getTotalDischarged() != blockEntity.previousDischargedCount;
+        if (!eventOccurred) return;
 
         blockEntity.captureRenderSnapshot(level.getGameTime());
         blockEntity.setChanged();
@@ -110,8 +104,8 @@ public class BeltBlockEntity extends BlockEntity {
     private void captureRenderSnapshot(long gameTime) {
         renderItems = belt.getItemSnapshots();
         lastSyncTick = gameTime;
-        previousItemCount = belt.getItemCount();
-        previousFrontAtExit = belt.isFrontAtExit();
+        previousAcceptedCount = belt.getTotalAccepted();
+        previousDischargedCount = belt.getTotalDischarged();
     }
 
     @Override

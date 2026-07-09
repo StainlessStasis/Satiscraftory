@@ -21,6 +21,8 @@ public class Belt implements Port {
     private final double speed;
     private final double minGap;
     private Port output;
+    private long totalAccepted = 0;
+    private long totalDischarged = 0;
 
     private final List<BeltItem> items = new ArrayList<>();
 
@@ -46,6 +48,7 @@ public class Belt implements Port {
     public void accept(Payload payload) {
         if (!canAccept(payload)) throw new IllegalStateException("Belt is jammed at entry");
         items.add(new BeltItem(payload, 0));
+        totalAccepted++;
     }
 
     public void tick(long currentTick) {
@@ -64,6 +67,7 @@ public class Belt implements Port {
                 if (output != null && output.canAccept(front.payload)) {
                     output.accept(front.payload);
                     items.removeFirst();
+                    totalDischarged++;
                 }
             }
         }
@@ -97,6 +101,14 @@ public class Belt implements Port {
 
     public double getMinGap() {
         return minGap;
+    }
+
+    public long getTotalAccepted() {
+        return totalAccepted;
+    }
+
+    public long getTotalDischarged() {
+        return totalDischarged;
     }
 
     public List<ItemSnapshot> getItemSnapshots() {
