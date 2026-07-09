@@ -1,5 +1,6 @@
 package com.example.examplemod.engine_internal.block_entity;
 
+import com.example.examplemod.engine_internal.PayloadItems;
 import com.example.examplemod.engine_internal.Producer;
 import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
@@ -14,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class ProducerBlockEntity extends BlockEntity {
-    private static final String ITEM_TYPE = Items.RAW_IRON.toString();
+    private static final String ITEM_TYPE = PayloadItems.typeIdOf(Items.RAW_IRON);
     private static final long INTERVAL_TICKS = 100;
 
     private Producer producer;

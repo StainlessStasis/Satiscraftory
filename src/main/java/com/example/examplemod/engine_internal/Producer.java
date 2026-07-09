@@ -26,8 +26,6 @@ public class Producer {
 
     public Producer(String itemType, long interval, Port output, Scheduler scheduler) {
         this(itemType, interval, output, scheduler, true, null);
-        System.out.println("[Producer] NEW instance created @ " + System.identityHashCode(this)
-                + ", scheduling first production at tick " + (scheduler.getCurrentTick() + interval));
         scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
@@ -50,15 +48,10 @@ public class Producer {
     }
 
     private void produce() {
-        System.out.println("TRY PRODUCE");
-        System.out.println("Active: "+active);
         if (!active) return;
-        System.out.println("Pending: "+pending);
         if (pending != null) return;
 
         Payload payload = new Payload(itemType);
-        System.out.println("Payload: "+payload);
-        System.out.println("Output can accept: "+output.canAccept(payload));
         if (output.canAccept(payload)) {
             output.accept(payload);
             scheduleNextProduction(scheduler.getCurrentTick());

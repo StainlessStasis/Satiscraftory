@@ -86,8 +86,6 @@ public class FactoryNetwork extends SavedData {
     public void linkProducerOutput(BlockPos producerPos, BlockPos outputPos) {
         Producer producer = producers.get(producerPos);
         Port port = getPortAt(outputPos);
-        System.out.println("[Link] producer@" + producerPos + " -> outputPos=" + outputPos
-                + ", producerFound=" + (producer != null) + ", portFound=" + (port != null));
         if (producer != null && port != null) {
             producer.setOutput(port);
             producerOutputPos.put(producerPos, outputPos);
@@ -98,8 +96,6 @@ public class FactoryNetwork extends SavedData {
     public void linkBeltOutput(BlockPos beltPos, BlockPos outputPos) {
         Belt belt = belts.get(beltPos);
         Port port = getPortAt(outputPos);
-        System.out.println("[Link] belt@" + beltPos + " -> outputPos=" + outputPos
-                + ", producerFound=" + (belt != null) + ", portFound=" + (port != null));
         if (belt != null && port != null) {
             belt.setOutput(port);
             beltOutputPos.put(beltPos, outputPos);
