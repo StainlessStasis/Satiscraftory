@@ -1,6 +1,7 @@
-package com.example.examplemod.factory;
+package com.example.examplemod.block;
 
 import com.example.examplemod.engine.Consumer;
+import com.example.examplemod.engine.FactoryLinking;
 import com.example.examplemod.engine.FactoryNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +26,8 @@ public class ConsumerBlockEntity extends BlockEntity {
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         consumer = network.getOrCreateConsumer(getBlockPos(), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
+
+        FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
     public Consumer getEngineConsumer() {

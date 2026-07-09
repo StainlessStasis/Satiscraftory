@@ -1,23 +1,23 @@
-package com.example.examplemod.factory;
+package com.example.examplemod.block;
 
+import com.example.examplemod.engine.Belt;
+import com.example.examplemod.engine.FactoryLinking;
 import com.example.examplemod.engine.FactoryNetwork;
-import com.example.examplemod.engine.Producer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class ProducerBlockEntity extends BlockEntity {
-    private static final String ITEM_TYPE = Items.RAW_IRON.toString();
-    private static final long INTERVAL_TICKS = 100;
+public class BeltBlockEntity extends BlockEntity {
+    private static final int LENGTH_TICKS = 10;
+    private static final double MIN_GAP = 0.15;
 
-    private Producer producer;
+    private Belt belt;
 
-    public ProducerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public BeltBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
@@ -27,14 +27,20 @@ public class ProducerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        producer = network.getOrCreateProducer(getBlockPos(),
-                () -> new Producer(ITEM_TYPE, INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
+        belt = network.getOrCreateBelt(getBlockPos(), () -> new Belt(LENGTH_TICKS, MIN_GAP));
 
         relink(network);
+        FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
     public void relink(FactoryNetwork network) {
-        network.linkProducerOutput(getBlockPos(), resolveOutputPos());
+        network.linkBeltOutput(getBlockPos(), resolveOutputPos());
+    }
+
+    public void onNeighborChanged() {
+        if (level instanceof ServerLevel serverLevel) {
+            relink(FactoryNetwork.get(serverLevel));
+        }
     }
 
     private BlockPos resolveOutputPos() {
@@ -42,12 +48,12 @@ public class ProducerBlockEntity extends BlockEntity {
         return getBlockPos().relative(facing);
     }
 
-    public Producer getProducer() {
-        return producer;
+    public Belt getBelt() {
+        return belt;
     }
 
     public static void onBlockBroken(ServerLevel level, BlockPos pos) {
-        FactoryNetwork.get(level).removeProducer(pos);
+        FactoryNetwork.get(level).removeBelt(pos);
     }
 }
 
