@@ -53,6 +53,8 @@ public class BeltBlockEntity extends BlockEntity {
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         belt = network.getOrCreateBelt(getBlockPos(), () -> new Belt(LENGTH_TICKS, MIN_GAP));
 
+        captureRenderSnapshot(serverLevel.getGameTime());
+
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
@@ -91,21 +93,19 @@ public class BeltBlockEntity extends BlockEntity {
         Belt belt = blockEntity.belt;
         if (belt == null) return;
 
-        int itemCount = belt.getItemCount();
-        boolean frontAtExit = belt.isFrontAtExit();
-
-        boolean needsSync = itemCount != blockEntity.previousItemCount
-                || frontAtExit != blockEntity.previousFrontAtExit;
-
-        blockEntity.previousItemCount = itemCount;
-        blockEntity.previousFrontAtExit = frontAtExit;
-
+        boolean needsSync = belt.getItemCount() != blockEntity.previousItemCount || belt.isFrontAtExit() != blockEntity.previousFrontAtExit;
         if (!needsSync) return;
 
-        blockEntity.renderItems = belt.getItemSnapshots();
-        blockEntity.lastSyncTick = level.getGameTime();
+        blockEntity.captureRenderSnapshot(level.getGameTime());
         blockEntity.setChanged();
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+    }
+
+    private void captureRenderSnapshot(long gameTime) {
+        renderItems = belt.getItemSnapshots();
+        lastSyncTick = gameTime;
+        previousItemCount = belt.getItemCount();
+        previousFrontAtExit = belt.isFrontAtExit();
     }
 
     @Override
