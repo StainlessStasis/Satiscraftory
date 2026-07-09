@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -40,8 +41,12 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             @NonNull BeltBlockEntity blockEntity, @NonNull BeltRenderState renderState, float partialTick,
             @NonNull Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay
     ) {
-        BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
-
+        renderState.blockPos = blockEntity.getBlockPos();
+        renderState.blockState = blockEntity.getBlockState();
+        renderState.blockEntityType = blockEntity.getType();
+        BlockPos blockPos = blockEntity.getBlockPos().above();
+        renderState.lightCoords = blockEntity.getLevel() != null ? LevelRenderer.getLightCoords(blockEntity.getLevel(), blockPos) : 15728880;
+        renderState.breakProgress = crumblingOverlay;
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
 
         List<Belt.ItemSnapshot> currentItems = blockEntity.getRenderItems();
