@@ -39,14 +39,6 @@ public class ProducerBlockEntity extends BlockEntity {
         relink(network);
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            FactoryNetwork.get(serverLevel).removeProducer(getBlockPos());
-        }
-    }
-
     public void relink(FactoryNetwork network) {
         network.linkProducerOutput(getBlockPos(), resolveOutputPos());
     }
@@ -64,10 +56,6 @@ public class ProducerBlockEntity extends BlockEntity {
 
     public Producer getProducer() {
         return producer;
-    }
-
-    public static void onBlockBroken(ServerLevel level, BlockPos pos) {
-        FactoryNetwork.get(level).removeProducer(pos);
     }
 }
 

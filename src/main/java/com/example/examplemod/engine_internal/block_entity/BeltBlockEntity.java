@@ -38,14 +38,6 @@ public class BeltBlockEntity extends BlockEntity {
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            FactoryNetwork.get(serverLevel).removeBelt(getBlockPos());
-        }
-    }
-
     public void relink(FactoryNetwork network) {
         network.linkBeltOutput(getBlockPos(), resolveOutputPos());
     }
@@ -63,10 +55,6 @@ public class BeltBlockEntity extends BlockEntity {
 
     public Belt getBelt() {
         return belt;
-    }
-
-    public static void onBlockBroken(ServerLevel level, BlockPos pos) {
-        FactoryNetwork.get(level).removeBelt(pos);
     }
 }
 

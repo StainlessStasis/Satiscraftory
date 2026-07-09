@@ -42,14 +42,6 @@ public class MachineBlockEntity extends BlockEntity {
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            FactoryNetwork.get(serverLevel).removeMachine(getBlockPos());
-        }
-    }
-
     public void relink(FactoryNetwork network) {
         network.linkMachineOutput(getBlockPos(), resolveOutputPos());
     }
@@ -67,9 +59,5 @@ public class MachineBlockEntity extends BlockEntity {
 
     public Machine getMachine() {
         return machine;
-    }
-
-    public static void onBlockBroken(ServerLevel level, BlockPos pos) {
-        FactoryNetwork.get(level).removeMachine(pos);
     }
 }

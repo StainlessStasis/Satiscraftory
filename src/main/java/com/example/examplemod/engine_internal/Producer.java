@@ -26,14 +26,14 @@ public class Producer {
 
     public Producer(String itemType, long interval, Port output, Scheduler scheduler) {
         this(itemType, interval, output, scheduler, true, null);
-        schedule(scheduler.getCurrentTick() + interval);
+        scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
     public static Producer restore(
             String itemType, long interval, Port output, Scheduler scheduler, boolean active, Payload pending, long nextProductionTick) {
         Producer producer = new Producer(itemType, interval, output, scheduler, active, pending);
         if (pending == null) {
-            producer.schedule(nextProductionTick);
+            producer.scheduleNextProduction(nextProductionTick);
         }
         return producer;
     }
@@ -42,16 +42,13 @@ public class Producer {
         this.output = output;
     }
 
-    private void scheduleNextProduction(long fromTick) {
-        schedule(fromTick + interval);
-    }
-
-    private void schedule(long atTick) {
-        this.nextProductionTick = atTick;
-        scheduler.schedule(atTick, this::produce);
+    private void scheduleNextProduction(long nextProductionTick) {
+        this.nextProductionTick = nextProductionTick;
+        scheduler.schedule(nextProductionTick, this::produce);
     }
 
     private void produce() {
+        System.out.println("TRY PRODUCE");
         if (!active) return;
         if (pending != null) return;
 

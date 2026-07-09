@@ -35,20 +35,8 @@ public class ConsumerBlockEntity extends BlockEntity {
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            FactoryNetwork.get(serverLevel).removeConsumer(getBlockPos());
-        }
-    }
-
-    public Consumer getEngineConsumer() {
+    public Consumer getConsumer() {
         return consumer;
-    }
-
-    public static void onBlockBroken(ServerLevel level, BlockPos pos) {
-        FactoryNetwork.get(level).removeConsumer(pos);
     }
 }
 

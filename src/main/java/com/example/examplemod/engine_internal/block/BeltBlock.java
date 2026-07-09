@@ -1,6 +1,7 @@
 package com.example.examplemod.engine_internal.block;
 
 import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
+import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -31,5 +32,11 @@ public class BeltBlock extends AbstractFactoryBlock {
     @Override
     protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
         if (blockEntity instanceof BeltBlockEntity beltBE) beltBE.onNeighborChanged();
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        FactoryNetwork.get(level).removeBelt(pos);
     }
 }

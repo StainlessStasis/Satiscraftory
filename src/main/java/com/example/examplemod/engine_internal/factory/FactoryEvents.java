@@ -8,7 +8,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public class FactoryEvents {
     @SubscribeEvent
     static void onTick(ServerTickEvent.Post event) {
-        var server = event.getServer();
-        FactoryNetwork.get(server.overworld()).tickAll(server.getTickCount());
+        var overworld = event.getServer().overworld();
+        FactoryNetwork.get(overworld).tickAll(overworld.getGameTime());
     }
 }
