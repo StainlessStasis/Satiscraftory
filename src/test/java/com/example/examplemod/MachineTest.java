@@ -1,6 +1,6 @@
 package com.example.examplemod;
 
-import com.example.examplemod.core.*;
+import com.example.examplemod.engine.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

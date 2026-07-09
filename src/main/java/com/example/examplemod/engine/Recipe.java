@@ -1,4 +1,4 @@
-package com.example.examplemod.core;
+package com.example.examplemod.engine;
 
 
 public record Recipe(String inputTypeId, String outputTypeId, long durationTicks) {

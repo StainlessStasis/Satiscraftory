@@ -1,0 +1,65 @@
+package com.example.examplemod.engine;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
+
+import java.util.List;
+import java.util.Optional;
+
+final class Persisted {
+    private Persisted() {}
+
+    record BeltItem(double position, String typeId) {
+        static final Codec<BeltItem> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.DOUBLE.fieldOf("position").forGetter(BeltItem::position),
+                Codec.STRING.fieldOf("typeId").forGetter(BeltItem::typeId)
+        ).apply(i, BeltItem::new));
+    }
+
+    record Belt(BlockPos pos, int lengthTicks, double minGap, Optional<BlockPos> outputPos, List<BeltItem> items) {
+        static final Codec<Belt> CODEC = RecordCodecBuilder.create(i -> i.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(Belt::pos),
+                Codec.INT.fieldOf("lengthTicks").forGetter(Belt::lengthTicks),
+                Codec.DOUBLE.fieldOf("minGap").forGetter(Belt::minGap),
+                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Belt::outputPos),
+                BeltItem.CODEC.listOf().fieldOf("items").forGetter(Belt::items)
+        ).apply(i, Belt::new));
+    }
+
+    record Producer(BlockPos pos, String itemType, long interval, Optional<BlockPos> outputPos,
+                    boolean active, Optional<String> pendingTypeId, long nextProductionTick) {
+        static final Codec<Producer> CODEC = RecordCodecBuilder.create(i -> i.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
+                Codec.STRING.fieldOf("itemType").forGetter(Producer::itemType),
+                Codec.LONG.fieldOf("interval").forGetter(Producer::interval),
+                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
+                Codec.BOOL.fieldOf("active").forGetter(Producer::active),
+                Codec.STRING.optionalFieldOf("pendingTypeId").forGetter(Producer::pendingTypeId),
+                Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick)
+        ).apply(i, Producer::new));
+    }
+
+    record Consumer(BlockPos pos, int capacity, int processTime, List<String> bufferedTypeIds,
+                    Optional<String> processingTypeId, long processStartTick, int consumedCount) {
+        static final Codec<Consumer> CODEC = RecordCodecBuilder.create(i -> i.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(Consumer::pos),
+                Codec.INT.fieldOf("capacity").forGetter(Consumer::capacity),
+                Codec.INT.fieldOf("processTime").forGetter(Consumer::processTime),
+                Codec.STRING.listOf().fieldOf("bufferedTypeIds").forGetter(Consumer::bufferedTypeIds),
+                Codec.STRING.optionalFieldOf("processingTypeId").forGetter(Consumer::processingTypeId),
+                Codec.LONG.fieldOf("processStartTick").forGetter(Consumer::processStartTick),
+                Codec.INT.fieldOf("consumedCount").forGetter(Consumer::consumedCount)
+        ).apply(i, Consumer::new));
+    }
+
+    /** The full snapshot of everything FactoryNetwork tracks*/
+    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers) {
+        static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
+                Belt.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
+                Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers)
+        ).apply(i, Snapshot::new));
+    }
+}
+

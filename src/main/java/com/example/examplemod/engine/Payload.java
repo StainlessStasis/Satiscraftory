@@ -1,4 +1,4 @@
-package com.example.examplemod.core;
+package com.example.examplemod.engine;
 
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
