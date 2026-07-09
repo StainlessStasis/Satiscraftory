@@ -1,4 +1,4 @@
-package com.example.examplemod.engine;
+package com.example.examplemod.engine_internal.factory;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

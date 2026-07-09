@@ -1,8 +1,9 @@
-package com.example.examplemod.block;
+package com.example.examplemod.engine_internal.block_entity;
 
-import com.example.examplemod.engine.Belt;
-import com.example.examplemod.engine.FactoryLinking;
-import com.example.examplemod.engine.FactoryNetwork;
+import com.example.examplemod.engine_internal.Belt;
+import com.example.examplemod.engine_internal.factory.FactoryLinking;
+import com.example.examplemod.engine_internal.factory.FactoryNetwork;
+import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +17,10 @@ public class BeltBlockEntity extends BlockEntity {
     private static final double MIN_GAP = 0.15;
 
     private Belt belt;
+
+    public BeltBlockEntity(BlockPos pos, BlockState state) {
+        super(InternalEngineBlockEntities.BELT.get(), pos, state);
+    }
 
     public BeltBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -31,6 +36,14 @@ public class BeltBlockEntity extends BlockEntity {
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level instanceof ServerLevel serverLevel) {
+            FactoryNetwork.get(serverLevel).removeBelt(getBlockPos());
+        }
     }
 
     public void relink(FactoryNetwork network) {

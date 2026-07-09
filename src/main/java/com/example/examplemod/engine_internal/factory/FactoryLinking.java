@@ -1,8 +1,8 @@
-package com.example.examplemod.engine;
+package com.example.examplemod.engine_internal.factory;
 
 
-import com.example.examplemod.block.BeltBlockEntity;
-import com.example.examplemod.block.ProducerBlockEntity;
+import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
+import com.example.examplemod.engine_internal.block_entity.ProducerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

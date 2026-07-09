@@ -1,8 +1,9 @@
-package com.example.examplemod.block;
+package com.example.examplemod.engine_internal.block_entity;
 
-import com.example.examplemod.engine.Consumer;
-import com.example.examplemod.engine.FactoryLinking;
-import com.example.examplemod.engine.FactoryNetwork;
+import com.example.examplemod.engine_internal.Consumer;
+import com.example.examplemod.engine_internal.factory.FactoryLinking;
+import com.example.examplemod.engine_internal.factory.FactoryNetwork;
+import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,6 +15,10 @@ public class ConsumerBlockEntity extends BlockEntity {
     private static final int PROCESS_TIME_TICKS = 40; // 2 seconds
 
     private Consumer consumer;
+
+    public ConsumerBlockEntity(BlockPos pos, BlockState state) {
+        super(InternalEngineBlockEntities.CONSUMER.get(), pos, state);
+    }
 
     public ConsumerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -28,6 +33,14 @@ public class ConsumerBlockEntity extends BlockEntity {
         consumer = network.getOrCreateConsumer(getBlockPos(), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
 
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level instanceof ServerLevel serverLevel) {
+            FactoryNetwork.get(serverLevel).removeConsumer(getBlockPos());
+        }
     }
 
     public Consumer getEngineConsumer() {

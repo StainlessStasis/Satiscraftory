@@ -1,9 +1,10 @@
-package com.example.examplemod.block;
+package com.example.examplemod.engine_internal.block_entity;
 
-import com.example.examplemod.engine.FactoryLinking;
-import com.example.examplemod.engine.FactoryNetwork;
-import com.example.examplemod.engine.Machine;
-import com.example.examplemod.engine.Recipe;
+import com.example.examplemod.engine_internal.factory.FactoryLinking;
+import com.example.examplemod.engine_internal.factory.FactoryNetwork;
+import com.example.examplemod.engine_internal.Machine;
+import com.example.examplemod.engine_internal.Recipe;
+import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +21,10 @@ public class MachineBlockEntity extends BlockEntity {
 
     private Machine machine;
 
+    public MachineBlockEntity(BlockPos pos, BlockState state) {
+        super(InternalEngineBlockEntities.MACHINE.get(), pos, state);
+    }
+
     public MachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
@@ -35,6 +40,14 @@ public class MachineBlockEntity extends BlockEntity {
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level instanceof ServerLevel serverLevel) {
+            FactoryNetwork.get(serverLevel).removeMachine(getBlockPos());
+        }
     }
 
     public void relink(FactoryNetwork network) {

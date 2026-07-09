@@ -1,7 +1,9 @@
-package com.example.examplemod.block;
+package com.example.examplemod.engine_internal.block_entity;
 
-import com.example.examplemod.engine.Producer;
-import com.example.examplemod.engine.FactoryNetwork;
+import com.example.examplemod.engine_internal.Producer;
+import com.example.examplemod.engine_internal.factory.FactoryNetwork;
+import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
+import com.example.examplemod.engine_internal.registry.InternalEngineBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -17,6 +19,10 @@ public class ProducerBlockEntity extends BlockEntity {
 
     private Producer producer;
 
+    public ProducerBlockEntity(BlockPos pos, BlockState state) {
+        super(InternalEngineBlockEntities.PRODUCER.get(), pos, state);
+    }
+
     public ProducerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
@@ -31,6 +37,14 @@ public class ProducerBlockEntity extends BlockEntity {
                 () -> new Producer(ITEM_TYPE, INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
 
         relink(network);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level instanceof ServerLevel serverLevel) {
+            FactoryNetwork.get(serverLevel).removeProducer(getBlockPos());
+        }
     }
 
     public void relink(FactoryNetwork network) {

@@ -1,4 +1,4 @@
-package com.example.examplemod.engine;
+package com.example.examplemod.engine_internal.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

@@ -1,4 +1,4 @@
-package com.example.examplemod.engine;
+package com.example.examplemod.engine_internal;
 
 /**
  * Anything that can receive a payload implements this: belts, machine inputs/outputs, etc.

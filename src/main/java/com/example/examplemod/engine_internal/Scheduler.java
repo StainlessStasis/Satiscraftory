@@ -1,4 +1,4 @@
-package com.example.examplemod.engine;
+package com.example.examplemod.engine_internal;
 
 import java.util.PriorityQueue;
 
