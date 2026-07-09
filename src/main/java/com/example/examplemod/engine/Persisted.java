@@ -53,12 +53,29 @@ final class Persisted {
         ).apply(i, Consumer::new));
     }
 
+    record Machine(BlockPos pos, String inputTypeId, String outputTypeId, long durationTicks,
+                   Optional<BlockPos> outputPos, boolean crafting,
+                   Optional<String> pendingOutputTypeId, long craftCompletionTick) {
+        static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
+                Codec.STRING.fieldOf("inputTypeId").forGetter(Machine::inputTypeId),
+                Codec.STRING.fieldOf("outputTypeId").forGetter(Machine::outputTypeId),
+                Codec.LONG.fieldOf("durationTicks").forGetter(Machine::durationTicks),
+                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Machine::outputPos),
+                Codec.BOOL.fieldOf("crafting").forGetter(Machine::crafting),
+                Codec.STRING.optionalFieldOf("pendingOutputTypeId").forGetter(Machine::pendingOutputTypeId),
+                Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick)
+        ).apply(i, Machine::new));
+    }
+
+
     /** The full snapshot of everything FactoryNetwork tracks*/
-    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers) {
+    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers, List<Machine> machines) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 Belt.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
-                Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers)
+                Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers),
+                Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines)
         ).apply(i, Snapshot::new));
     }
 }

@@ -26,12 +26,13 @@ public class FactoryNetwork extends SavedData {
     private final Map<BlockPos, Producer> producers = new HashMap<>();
     private final Map<BlockPos, Belt> belts = new HashMap<>();
     private final Map<BlockPos, Consumer> consumers = new HashMap<>();
+    private final Map<BlockPos, Machine> machines = new HashMap<>();
 
     private final Map<BlockPos, BlockPos> producerOutputPos = new HashMap<>();
     private final Map<BlockPos, BlockPos> beltOutputPos = new HashMap<>();
+    private final Map<BlockPos, BlockPos> machineOutputPos = new HashMap<>();
 
-    public FactoryNetwork() {
-    }
+    public FactoryNetwork() {}
 
     /**
      * Attached to the Overworld specifically, so there's one shared network
@@ -68,6 +69,13 @@ public class FactoryNetwork extends SavedData {
         });
     }
 
+    public Machine getOrCreateMachine(BlockPos pos, Supplier<Machine> factory) {
+        return machines.computeIfAbsent(pos, _ -> {
+            setDirty();
+            return factory.get();
+        });
+    }
+
     public Port getPortAt(BlockPos pos) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
@@ -94,6 +102,16 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
+    public void linkMachineOutput(BlockPos machinePos, BlockPos outputPos) {
+        Machine machine = machines.get(machinePos);
+        Port port = getPortAt(outputPos);
+        if (machine != null && port != null) {
+            machine.setOutput(port);
+            machineOutputPos.put(machinePos, outputPos);
+            setDirty();
+        }
+    }
+
 
     public void removeProducer(BlockPos pos) {
         if (producers.remove(pos) != null) {
@@ -113,12 +131,19 @@ public class FactoryNetwork extends SavedData {
         if (consumers.remove(pos) != null) setDirty();
     }
 
+    public void removeMachine(BlockPos pos) {
+        if (machines.remove(pos) != null) {
+            machineOutputPos.remove(pos);
+            setDirty();
+        }
+    }
 
     public void tickAll(long currentTick) {
         scheduler.tick(currentTick);
         for (Belt belt : belts.values()) belt.tick(currentTick);
         for (Producer producer : producers.values()) producer.tick(currentTick);
         for (Consumer consumer : consumers.values()) consumer.tick(currentTick);
+        for (Machine machine : machines.values()) machine.tick(currentTick);
     }
 
 
@@ -161,13 +186,26 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers);
+        List<Persisted.Machine> persistedMachines = new ArrayList<>();
+        for (Map.Entry<BlockPos, Machine> entry : machines.entrySet()) {
+            BlockPos pos = entry.getKey();
+            Machine machine = entry.getValue();
+            Recipe recipe = machine.getRecipe();
+            persistedMachines.add(new Persisted.Machine(
+                    pos, recipe.inputTypeId(), recipe.outputTypeId(), recipe.durationTicks(),
+                    Optional.ofNullable(machineOutputPos.get(pos)),
+                    machine.isCrafting(),
+                    Optional.ofNullable(machine.getPendingOutputTypeId()),
+                    machine.getCraftCompletionTick()
+            ));
+        }
+        return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines);
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
 
-        // Create every belt, consumer, and producer with a temporary no-op output
+        // Create every producer, belt, consumer, and machine with a temporary no-op output
         // Nothing here depends on anything else existing yet
         for (Persisted.Belt beltData : snapshot.belts()) {
             Belt belt = new Belt(beltData.lengthTicks(), beltData.minGap());
@@ -194,14 +232,31 @@ public class FactoryNetwork extends SavedData {
             producerData.outputPos().ifPresent(outPos -> network.producerOutputPos.put(producerData.pos(), outPos));
         }
 
+        for (Persisted.Machine machineData : snapshot.machines()) {
+            Payload pendingOutput = machineData.pendingOutputTypeId().map(Payload::new).orElse(null);
+            Recipe recipe = new Recipe(machineData.inputTypeId(), machineData.outputTypeId(), machineData.durationTicks());
+            Machine machine = Machine.restore(
+                    recipe, network.scheduler, NO_OP_PORT,
+                    machineData.crafting(), pendingOutput, machineData.craftCompletionTick()
+            );
+            network.machines.put(machineData.pos(), machine);
+            machineData.outputPos().ifPresent(outPos -> network.machineOutputPos.put(machineData.pos(), outPos));
+        }
+
         // Now that every belt/consumer/producer exists, resolve the real output links
         for (Map.Entry<BlockPos, BlockPos> entry : network.beltOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.belts.get(entry.getKey()).setOutput(port);
         }
+
         for (Map.Entry<BlockPos, BlockPos> entry : network.producerOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
+        }
+
+        for (Map.Entry<BlockPos, BlockPos> entry : network.machineOutputPos.entrySet()) {
+            Port port = network.getPortAt(entry.getValue());
+            if (port != null) network.machines.get(entry.getKey()).setOutput(port);
         }
 
         return network;
