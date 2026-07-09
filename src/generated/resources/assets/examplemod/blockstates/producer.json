@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "examplemod:block/producer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "examplemod:block/producer"
+    },
+    "facing=south": {
+      "model": "examplemod:block/producer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "examplemod:block/producer",
+      "y": 270
+    }
+  }
+}

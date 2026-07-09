@@ -8,6 +8,7 @@ public class Scheduler {
 
     public void schedule(long tick, Runnable action) {
         events.add(new ScheduledEvent(tick, action));
+        System.out.println("[Scheduler] scheduled for tick " + tick + " (now=" + currentTick + ")");
     }
 
     public void tick(long currentTick) {
