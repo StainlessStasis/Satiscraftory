@@ -69,6 +69,14 @@ public class Belt implements Port {
         }
     }
 
+    /**
+     * True whenever the front item is sitting at the exit
+     * (jammed waiting on the output, or about to discharge this same tick)
+     **/
+    public boolean isFrontAtExit() {
+        return !items.isEmpty() && items.getFirst().position >= 1d;
+    }
+
     public int getItemCount() {
         return items.size();
     }
@@ -81,6 +89,10 @@ public class Belt implements Port {
 
     public int getLengthTicks() {
         return lengthTicks;
+    }
+
+    public double getSpeed() {
+        return speed;
     }
 
     public double getMinGap() {
@@ -97,4 +109,3 @@ public class Belt implements Port {
         items.add(new BeltItem(new Payload(typeId), position));
     }
 }
-

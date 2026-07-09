@@ -34,7 +34,9 @@ public class BeltBlock extends AbstractFactoryBlock {
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> blockEntityType) {
-        if (level.isClientSide()) return null;
+        if (level.isClientSide()) {
+            return null;
+        }
         return createTickerHelper(blockEntityType, InternalEngineBlockEntities.BELT.get(), BeltBlockEntity::serverTick);
     }
 

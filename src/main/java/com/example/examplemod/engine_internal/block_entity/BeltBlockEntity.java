@@ -15,6 +15,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,12 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
-    private static final int LENGTH_TICKS = 10;
-    private static final double MIN_GAP = 0.15;
+    public static final int LENGTH_TICKS = 60;
+    public static final double MIN_GAP = 0.15;
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
-    private List<Belt.ItemSnapshot> previousRenderItems = List.of();
+
+    private long lastSyncTick = 0;
+    private int previousItemCount = -1;
+    private boolean previousFrontAtExit = false;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(InternalEngineBlockEntities.BELT.get(), pos, state);
@@ -76,19 +80,32 @@ public class BeltBlockEntity extends BlockEntity {
         return renderItems;
     }
 
-    public List<Belt.ItemSnapshot> getPreviousRenderItems() {
-        return previousRenderItems;
+    public long getLastSyncTick() {
+        return lastSyncTick;
     }
 
     /**
      * Only handles render sync. The belt's actual state is simulated via FactoryNetwork.tickAll(), independent of chunk loading
      */
     public static void serverTick(Level level, BlockPos pos, BlockState state, BeltBlockEntity blockEntity) {
-        if (blockEntity.belt == null) return;
+        Belt belt = blockEntity.belt;
+        if (belt == null) return;
 
-        blockEntity.renderItems = blockEntity.belt.getItemSnapshots();
+        int itemCount = belt.getItemCount();
+        boolean frontAtExit = belt.isFrontAtExit();
+
+        boolean needsSync = itemCount != blockEntity.previousItemCount
+                || frontAtExit != blockEntity.previousFrontAtExit;
+
+        blockEntity.previousItemCount = itemCount;
+        blockEntity.previousFrontAtExit = frontAtExit;
+
+        if (!needsSync) return;
+
+        blockEntity.renderItems = belt.getItemSnapshots();
+        blockEntity.lastSyncTick = level.getGameTime();
         blockEntity.setChanged();
-        level.sendBlockUpdated(pos, state, state, 3);
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
     }
 
     @Override
@@ -102,6 +119,7 @@ public class BeltBlockEntity extends BlockEntity {
             itemsTag.add(itemTag);
         }
         tag.put("renderItems", itemsTag);
+        tag.putLong("syncTick", lastSyncTick);
         return tag;
     }
 
@@ -124,8 +142,8 @@ public class BeltBlockEntity extends BlockEntity {
             String typeId = itemInput.getStringOr("typeId", "");
             parsedItems.add(new Belt.ItemSnapshot(position, typeId));
         }
-        previousRenderItems = renderItems;
         renderItems = parsedItems;
+        lastSyncTick = input.getLongOr("syncTick", lastSyncTick);
     }
 
     @Override
@@ -133,5 +151,3 @@ public class BeltBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 }
-
-
