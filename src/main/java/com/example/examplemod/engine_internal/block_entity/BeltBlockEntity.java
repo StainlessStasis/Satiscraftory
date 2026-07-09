@@ -31,6 +31,7 @@ public class BeltBlockEntity extends BlockEntity {
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
+    private List<Belt.ItemSnapshot> previousRenderItems = List.of();
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(InternalEngineBlockEntities.BELT.get(), pos, state);
@@ -73,6 +74,10 @@ public class BeltBlockEntity extends BlockEntity {
 
     public List<Belt.ItemSnapshot> getRenderItems() {
         return renderItems;
+    }
+
+    public List<Belt.ItemSnapshot> getPreviousRenderItems() {
+        return previousRenderItems;
     }
 
     /**
@@ -119,6 +124,7 @@ public class BeltBlockEntity extends BlockEntity {
             String typeId = itemInput.getStringOr("typeId", "");
             parsedItems.add(new Belt.ItemSnapshot(position, typeId));
         }
+        previousRenderItems = renderItems;
         renderItems = parsedItems;
     }
 

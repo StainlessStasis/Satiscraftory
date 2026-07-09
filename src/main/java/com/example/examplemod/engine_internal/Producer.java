@@ -54,7 +54,7 @@ public class Producer {
         Payload payload = new Payload(itemType);
         if (output.canAccept(payload)) {
             output.accept(payload);
-            scheduleNextProduction(scheduler.getCurrentTick());
+            scheduleNextProduction(scheduler.getCurrentTick() + interval);
         } else {
             pending = payload;
         }
@@ -67,7 +67,7 @@ public class Producer {
         if (pending != null && output.canAccept(pending)) {
             output.accept(pending);
             pending = null;
-            scheduleNextProduction(currentTick);
+            scheduleNextProduction(currentTick + interval);
         }
     }
 
