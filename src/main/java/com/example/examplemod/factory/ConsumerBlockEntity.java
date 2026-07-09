@@ -1,0 +1,38 @@
+package com.example.examplemod.factory;
+
+import com.example.examplemod.engine.Consumer;
+import com.example.examplemod.engine.FactoryNetwork;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+public class ConsumerBlockEntity extends BlockEntity {
+    private static final int CAPACITY = 8;
+    private static final int PROCESS_TIME_TICKS = 40; // 2 seconds
+
+    private Consumer consumer;
+
+    public ConsumerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        FactoryNetwork network = FactoryNetwork.get(serverLevel);
+        consumer = network.getOrCreateConsumer(getBlockPos(), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
+    }
+
+    public Consumer getEngineConsumer() {
+        return consumer;
+    }
+
+    public static void onBlockBroken(ServerLevel level, BlockPos pos) {
+        FactoryNetwork.get(level).removeConsumer(pos);
+    }
+}
+

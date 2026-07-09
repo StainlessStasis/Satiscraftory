@@ -17,7 +17,7 @@ public class FactoryNetwork extends SavedData {
             Persisted.Snapshot.CODEC.xmap(FactoryNetwork::fromSnapshot, FactoryNetwork::toSnapshot)
     );
 
-    static final Port NO_OP_PORT = new Port() {
+    public static final Port NO_OP_PORT = new Port() {
         @Override public boolean canAccept(Payload payload) { return false; }
         @Override public void accept(Payload payload) {}
     };
