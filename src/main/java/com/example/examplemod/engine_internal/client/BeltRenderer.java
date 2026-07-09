@@ -3,6 +3,7 @@ package com.example.examplemod.engine_internal.client;
 import com.example.examplemod.engine_internal.PayloadItems;
 import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
@@ -37,6 +39,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
 
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        if (blockEntity.getLevel() instanceof Level level) {
+            renderState.packedLight = LevelRenderer.BrightnessGetter.DEFAULT.packedBrightness(level, blockEntity.getBlockPos());
+        }
         renderState.items.clear();
 
         for (var itemSnapshot : blockEntity.getRenderItems()) {
@@ -59,10 +64,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             double offsetZ = renderState.facing.getStepZ() * travelOffset;
 
             poseStack.pushPose();
-            poseStack.translate(0.5 + offsetX, 1, 0.5 + offsetZ);
+            poseStack.translate(0.5 + offsetX, 1.25, 0.5 + offsetZ);
             poseStack.scale(0.3f, 0.3f, 0.3f);
 
-            itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.lightCoords, 0, 0);
+            itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.packedLight, 0, 0);
 
             poseStack.popPose();
         }

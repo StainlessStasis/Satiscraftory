@@ -9,6 +9,7 @@ import java.util.List;
 
 public class BeltRenderState extends BlockEntityRenderState {
     Direction facing = Direction.NORTH;
+    int packedLight = 0;
     final List<BeltItemRenderData> items = new ArrayList<>();
 
     static final class BeltItemRenderData {

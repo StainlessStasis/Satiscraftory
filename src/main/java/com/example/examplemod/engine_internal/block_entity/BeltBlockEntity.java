@@ -9,6 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -102,6 +103,16 @@ public class BeltBlockEntity extends BlockEntity {
     @Override
     public void handleUpdateTag(@NonNull ValueInput input) {
         super.handleUpdateTag(input);
+        parseRenderItems(input);
+    }
+
+    @Override
+    public void onDataPacket(@NonNull Connection connection, @NonNull ValueInput input) {
+        super.onDataPacket(connection, input);
+        parseRenderItems(input);
+    }
+
+    private void parseRenderItems(ValueInput input) {
         List<Belt.ItemSnapshot> parsedItems = new ArrayList<>();
         for (ValueInput itemInput : input.childrenListOrEmpty("renderItems")) {
             double position = itemInput.getDoubleOr("position", 0);
