@@ -26,6 +26,7 @@ public class FactoryNetwork extends SavedData {
     };
 
     private final Scheduler scheduler = new Scheduler();
+    private List<BlockPos> tickOrder = null;
     private final Map<BlockPos, Producer> producers = new HashMap<>();
     private final Map<BlockPos, Belt> belts = new HashMap<>();
     private final Map<BlockPos, Consumer> consumers = new HashMap<>();
@@ -141,12 +142,28 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
+    @Override
+    public void setDirty() {
+        super.setDirty();
+        tickOrder = null;
+    }
+
     public void tickAll(ServerLevel level, long currentTick) {
         scheduler.tick(currentTick);
-        for (Producer producer : producers.values()) producer.tick(currentTick);
-        for (Belt belt : belts.values()) belt.tick(currentTick);
-        for (Consumer consumer : consumers.values()) consumer.tick(currentTick);
-        for (Machine machine : machines.values()) machine.tick(currentTick);
+
+        if (tickOrder == null) tickOrder = computeTickOrder();
+
+        System.out.println(tickOrder);
+        for (BlockPos pos : tickOrder) {
+            Producer producer = producers.get(pos);
+            if (producer != null) { producer.tick(currentTick); continue; }
+            Belt belt = belts.get(pos);
+            if (belt != null) { belt.tick(currentTick); continue; }
+            Machine machine = machines.get(pos);
+            if (machine != null) { machine.tick(currentTick); continue; }
+            Consumer consumer = consumers.get(pos);
+            if (consumer != null) consumer.tick(currentTick);
+        }
 
         for (var entry : belts.entrySet()) {
             Belt belt = entry.getValue();
@@ -159,6 +176,59 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
+    private List<BlockPos> computeTickOrder() {
+        System.out.println("compute tick order");
+        List<BlockPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
+        Set<BlockPos> visited = new HashSet<>();
+
+        Set<BlockPos> allNodes = new LinkedHashSet<>();
+        allNodes.addAll(producers.keySet());
+        allNodes.addAll(belts.keySet());
+        allNodes.addAll(machines.keySet());
+        allNodes.addAll(consumers.keySet());
+
+        for (BlockPos start : allNodes) {
+            if (!visited.contains(start)) visitIterative(start, order, visited);
+        }
+        return order;
+    }
+
+    private BlockPos outputOf(BlockPos pos) {
+        if (belts.containsKey(pos)) return beltOutputPos.get(pos);
+        if (producers.containsKey(pos)) return producerOutputPos.get(pos);
+        if (machines.containsKey(pos)) return machineOutputPos.get(pos);
+        return null; // consumers have no output
+    }
+
+    private boolean isTrackedNode(BlockPos pos) {
+        return pos != null && (belts.containsKey(pos) || producers.containsKey(pos)
+                || machines.containsKey(pos) || consumers.containsKey(pos));
+    }
+
+    private void visitIterative(BlockPos start, List<BlockPos> order, Set<BlockPos> visited) {
+        Deque<BlockPos> stack = new ArrayDeque<>();
+        Set<BlockPos> onStack = new HashSet<>();
+        stack.push(start);
+        onStack.add(start);
+
+        while (!stack.isEmpty()) {
+            BlockPos pos = stack.peek();
+            if (visited.contains(pos)) { stack.pop(); onStack.remove(pos); continue; }
+
+            BlockPos next = outputOf(pos);
+            if (isTrackedNode(next) && !visited.contains(next) && !onStack.contains(next)) {
+                stack.push(next);
+                onStack.add(next);
+                continue;
+            }
+
+            // next is unresolved, already visited, or would close a cycle
+            stack.pop();
+            onStack.remove(pos);
+            visited.add(pos);
+            order.add(pos);
+        }
+    }
 
     private Persisted.Snapshot toSnapshot() {
         List<Persisted.Producer> persistedProducers = new ArrayList<>();
