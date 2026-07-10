@@ -58,12 +58,5 @@ public class ProducerBlockEntity extends BlockEntity {
     public Producer getProducer() {
         return producer;
     }
-
-    public String getDebugInfo() {
-        if (producer == null) return "no producer";
-        return String.format("Producer[item=%s, active=%s, blocked=%s, pending=%s, nextTick=%d]",
-                producer.getItemType(), producer.isActive(), producer.isBlocked(),
-                producer.getPending(), producer.getNextProductionTick());
-    }
 }
 

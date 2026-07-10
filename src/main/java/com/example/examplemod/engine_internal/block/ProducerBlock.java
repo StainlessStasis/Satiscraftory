@@ -44,13 +44,4 @@ public class ProducerBlock extends AbstractFactoryBlock {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         FactoryNetwork.get(level).removeProducer(pos);
     }
-
-    @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level instanceof ServerLevel serverLevel
-                && serverLevel.getBlockEntity(pos) instanceof ProducerBlockEntity be) {
-            player.sendSystemMessage(Component.literal(be.getDebugInfo()));
-        }
-        return InteractionResult.SUCCESS;
-    }
 }
