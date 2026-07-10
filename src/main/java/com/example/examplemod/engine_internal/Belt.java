@@ -55,7 +55,13 @@ public class Belt implements Port {
     @Override
     public void acceptWithOverflow(Payload payload, double overflowAmount) {
         if (!canAccept(payload)) throw new IllegalStateException("Belt is jammed at entry");
-        items.add(new BeltItem(payload, Math.max(overflowAmount, 0)));
+
+        double insertPosition = Math.max(overflowAmount, 0);
+        if (!items.isEmpty()) {
+            double maxAllowed = items.getLast().position - minGap;
+            insertPosition = Math.clamp(maxAllowed, 0, insertPosition);
+        }
+        items.add(new BeltItem(payload, insertPosition));
         totalAccepted++;
     }
 
@@ -70,7 +76,7 @@ public class Belt implements Port {
 
         double previousClamped = 1;
         for (int index = 0; index < size; index++) {
-            double cap = (index == 0) ? 1 : previousClamped - minGap;
+            double cap = (index == 0) ? 1 : Math.max(previousClamped - minGap, 0);
             previousClamped = Math.clamp(proposed[index], 0, cap);
             items.get(index).position = previousClamped;
         }
@@ -84,7 +90,7 @@ public class Belt implements Port {
 
             double recomputedPrevious = 1;
             for (int index = 0; index < items.size(); index++) {
-                double cap = (index == 0) ? 1 : recomputedPrevious - minGap;
+                double cap = (index == 0) ? 1 : Math.max(recomputedPrevious - minGap, 0);
                 recomputedPrevious = Math.clamp(proposed[index + 1], 0, cap);
                 items.get(index).position = recomputedPrevious;
             }

@@ -153,7 +153,6 @@ public class FactoryNetwork extends SavedData {
 
         if (tickOrder == null) tickOrder = computeTickOrder();
 
-        System.out.println(tickOrder);
         for (BlockPos pos : tickOrder) {
             Producer producer = producers.get(pos);
             if (producer != null) { producer.tick(currentTick); continue; }
@@ -177,7 +176,6 @@ public class FactoryNetwork extends SavedData {
     }
 
     private List<BlockPos> computeTickOrder() {
-        System.out.println("compute tick order");
         List<BlockPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
         Set<BlockPos> visited = new HashSet<>();
 

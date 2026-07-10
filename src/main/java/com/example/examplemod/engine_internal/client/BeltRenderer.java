@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRenderState> {
@@ -73,9 +74,24 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     }
 
     private void updateItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> syncedItems) {
+        List<BeltRenderState.BeltItemRenderData> oldItems = new ArrayList<>(renderState.items);
+        int oldSize = oldItems.size();
+        int newSize = syncedItems.size();
+        int oldStart = (oldSize > newSize) ? oldSize - newSize : 0;
+
         renderState.items.clear();
-        for (Belt.ItemSnapshot snapshot : syncedItems) {
-            renderState.items.add(buildItemRenderData(blockEntity, snapshot));
+        for (int i = 0; i < newSize; i++) {
+            Belt.ItemSnapshot snapshot = syncedItems.get(i);
+            int reuseIndex = oldStart + i;
+            boolean isReused = reuseIndex < oldSize && oldItems.get(reuseIndex).typeId.equals(snapshot.typeId());
+            BeltRenderState.BeltItemRenderData reused = isReused ? oldItems.get(reuseIndex) : null;
+
+            if (reused != null) {
+                reused.position = snapshot.position();
+                renderState.items.add(reused);
+            } else {
+                renderState.items.add(buildItemRenderData(blockEntity, snapshot));
+            }
         }
     }
 
