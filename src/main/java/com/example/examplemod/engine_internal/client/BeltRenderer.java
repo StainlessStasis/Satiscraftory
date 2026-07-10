@@ -87,12 +87,15 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         BeltBlockEntity output = getNeighborBelt(self, facing);
         if (output == null) return true;
 
-        List<Belt.ItemSnapshot> outputSynced = output.getRenderItems();
-        if (outputSynced.isEmpty()) return true;
+        double[] outputPositions = currentPredictedPositions(output, partialTick);
+        return outputPositions.length == 0 || outputPositions[outputPositions.length - 1] >= BeltBlockEntity.MIN_GAP;
+    }
 
-        double elapsed = (output.getLevel() != null) ? (output.getLevel().getGameTime() - output.getLastSyncedTick()) + partialTick : 0;
-        double[] outputPositions = predictPlain(outputSynced, elapsed);
-        return outputPositions.length == 0 || (outputPositions[outputPositions.length - 1] >= BeltBlockEntity.MIN_GAP);
+    private double[] currentPredictedPositions(BeltBlockEntity belt, float partialTick) {
+        List<Belt.ItemSnapshot> synced = belt.getRenderItems();
+        double elapsed = (belt.getLevel() != null)
+                ? (belt.getLevel().getGameTime() - belt.getLastSyncedTick()) + partialTick : 0;
+        return predictPlain(synced, elapsed);
     }
 
     /**
@@ -107,17 +110,14 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (input == null) return;
         if (input.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING) != facing) return;
 
-        List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
-        if (inputSynced.isEmpty()) return;
-
-        double elapsed = (input.getLevel() != null) ? (input.getLevel().getGameTime() - input.getLastSyncedTick()) + partialTick : 0;
-        double[] inputPositions = predictPlain(inputSynced, elapsed);
+        double[] inputPositions = currentPredictedPositions(input, partialTick);
         if (inputPositions.length == 0 || inputPositions[0] < 1d - EPSILON) return;
 
-        List<Belt.ItemSnapshot> synced = self.getRenderItems();
-        double back = synced.isEmpty() ? 1d : synced.getLast().position();
-        if (back < BeltBlockEntity.MIN_GAP) return;
+        double[] selfPositions = currentPredictedPositions(self, partialTick);
+        double selfBack = selfPositions.length == 0 ? 1d : selfPositions[selfPositions.length - 1];
+        if (selfBack < BeltBlockEntity.MIN_GAP) return;
 
+        List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
         String typeId = inputSynced.getFirst().typeId();
         renderState.itemIncomingActive = true;
         renderState.itemIncoming.position = 0d;
