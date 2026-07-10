@@ -6,5 +6,8 @@ package com.example.examplemod.engine_internal;
 public interface Port {
     boolean canAccept(Payload payload);
     void accept(Payload payload);
+    default void acceptWithOverflow(Payload payload, double overflowAmount) {
+        accept(payload);
+    }
 }
 

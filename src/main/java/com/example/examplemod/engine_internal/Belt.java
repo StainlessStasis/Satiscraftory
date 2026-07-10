@@ -46,18 +46,29 @@ public class Belt implements Port {
 
     @Override
     public void accept(Payload payload) {
+        acceptWithOverflow(payload, 0);
+    }
+
+    @Override
+    public void acceptWithOverflow(Payload payload, double overflowAmount) {
         if (!canAccept(payload)) throw new IllegalStateException("Belt is jammed at entry");
-        items.add(new BeltItem(payload, 0));
+        items.add(new BeltItem(payload, Math.max(overflowAmount, 0)));
         totalAccepted++;
     }
 
     public void tick(long currentTick) {
-        for (int i = 0; i < items.size(); i++) {
-            BeltItem beltItem = items.get(i);
-            double cap = (i == 0) ? 1 : items.get(i - 1).position - minGap;
+        double frontOvershoot = 0;
+
+        for (int index = 0; index < items.size(); index++) {
+            BeltItem beltItem = items.get(index);
+            double cap = (index == 0) ? 1 : items.get(index - 1).position - minGap;
             double proposed = beltItem.position + speed;
-            beltItem.position = Math.min(proposed, cap);
-            if (beltItem.position < 0) beltItem.position = 0;
+
+            if (index == 0 && proposed > 1) {
+                frontOvershoot = proposed - 1;
+            }
+
+            beltItem.position = Math.clamp(proposed, 0, cap);
         }
 
         // try to discharge the front payload if it has reached the exit
@@ -65,7 +76,7 @@ public class Belt implements Port {
             BeltItem front = items.getFirst();
             if (front.position >= 1 - 1.0e-6) {
                 if (output != null && output.canAccept(front.payload)) {
-                    output.accept(front.payload);
+                    output.acceptWithOverflow(front.payload, frontOvershoot);
                     items.removeFirst();
                     totalDischarged++;
                 }
