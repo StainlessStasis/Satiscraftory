@@ -5,6 +5,7 @@ import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -42,6 +43,6 @@ public class ProducerBlock extends AbstractFactoryBlock {
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeProducer(pos);
+        FactoryNetwork.get(level).removeProducer(GlobalPos.of(level.dimension(), pos));
     }
 }

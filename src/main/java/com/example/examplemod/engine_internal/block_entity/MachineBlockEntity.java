@@ -7,6 +7,7 @@ import com.example.examplemod.engine_internal.Recipe;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,7 +36,7 @@ public class MachineBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        machine = network.getOrCreateMachine(getBlockPos(),
+        machine = network.getOrCreateMachine(GlobalPos.of(serverLevel.dimension(), getBlockPos()),
                 () -> new Machine(RECIPE, network.getScheduler(), FactoryNetwork.NO_OP_PORT));
 
         relink(network);
@@ -43,7 +44,11 @@ public class MachineBlockEntity extends BlockEntity {
     }
 
     public void relink(FactoryNetwork network) {
-        network.linkMachineOutput(getBlockPos(), resolveOutputPos());
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        network.linkMachineOutput(
+                GlobalPos.of(serverLevel.dimension(), getBlockPos()),
+                GlobalPos.of(serverLevel.dimension(), resolveOutputPos())
+        );
     }
 
     public void onNeighborChanged() {

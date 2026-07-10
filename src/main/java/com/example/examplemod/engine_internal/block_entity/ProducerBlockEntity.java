@@ -7,6 +7,7 @@ import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntiti
 import com.example.examplemod.engine_internal.registry.InternalEngineBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,14 +35,18 @@ public class ProducerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        producer = network.getOrCreateProducer(getBlockPos(),
+        producer = network.getOrCreateProducer(GlobalPos.of(serverLevel.dimension(), getBlockPos()),
                 () -> new Producer(ITEM_TYPE, INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
 
         relink(network);
     }
 
     public void relink(FactoryNetwork network) {
-        network.linkProducerOutput(getBlockPos(), resolveOutputPos());
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        network.linkProducerOutput(
+                GlobalPos.of(serverLevel.dimension(), getBlockPos()),
+                GlobalPos.of(serverLevel.dimension(), resolveOutputPos())
+        );
     }
 
     public void onNeighborChanged() {

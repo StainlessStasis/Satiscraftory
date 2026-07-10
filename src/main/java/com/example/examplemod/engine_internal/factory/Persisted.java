@@ -3,6 +3,7 @@ package com.example.examplemod.engine_internal.factory;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,33 +18,33 @@ final class Persisted {
         ).apply(i, BeltItem::new));
     }
 
-    record Belt(BlockPos pos, int lengthTicks, double minGap, Optional<BlockPos> outputPos, List<BeltItem> items) {
+    record Belt(GlobalPos pos, int lengthTicks, double minGap, Optional<GlobalPos> outputPos, List<BeltItem> items) {
         static final Codec<Belt> CODEC = RecordCodecBuilder.create(i -> i.group(
-                BlockPos.CODEC.fieldOf("pos").forGetter(Belt::pos),
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Belt::pos),
                 Codec.INT.fieldOf("lengthTicks").forGetter(Belt::lengthTicks),
                 Codec.DOUBLE.fieldOf("minGap").forGetter(Belt::minGap),
-                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Belt::outputPos),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Belt::outputPos),
                 BeltItem.CODEC.listOf().fieldOf("items").forGetter(Belt::items)
         ).apply(i, Belt::new));
     }
 
-    record Producer(BlockPos pos, String itemType, long interval, Optional<BlockPos> outputPos,
+    record Producer(GlobalPos pos, String itemType, long interval, Optional<GlobalPos> outputPos,
                     boolean active, Optional<String> pendingTypeId, long nextProductionTick) {
         static final Codec<Producer> CODEC = RecordCodecBuilder.create(i -> i.group(
-                BlockPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
                 Codec.STRING.fieldOf("itemType").forGetter(Producer::itemType),
                 Codec.LONG.fieldOf("interval").forGetter(Producer::interval),
-                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
                 Codec.BOOL.fieldOf("active").forGetter(Producer::active),
                 Codec.STRING.optionalFieldOf("pendingTypeId").forGetter(Producer::pendingTypeId),
                 Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick)
         ).apply(i, Producer::new));
     }
 
-    record Consumer(BlockPos pos, int capacity, int processTime, List<String> bufferedTypeIds,
+    record Consumer(GlobalPos pos, int capacity, int processTime, List<String> bufferedTypeIds,
                     Optional<String> processingTypeId, long processStartTick, int consumedCount) {
         static final Codec<Consumer> CODEC = RecordCodecBuilder.create(i -> i.group(
-                BlockPos.CODEC.fieldOf("pos").forGetter(Consumer::pos),
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Consumer::pos),
                 Codec.INT.fieldOf("capacity").forGetter(Consumer::capacity),
                 Codec.INT.fieldOf("processTime").forGetter(Consumer::processTime),
                 Codec.STRING.listOf().fieldOf("bufferedTypeIds").forGetter(Consumer::bufferedTypeIds),
@@ -53,15 +54,15 @@ final class Persisted {
         ).apply(i, Consumer::new));
     }
 
-    record Machine(BlockPos pos, String inputTypeId, String outputTypeId, long durationTicks,
-                   Optional<BlockPos> outputPos, boolean crafting,
+    record Machine(GlobalPos pos, String inputTypeId, String outputTypeId, long durationTicks,
+                   Optional<GlobalPos> outputPos, boolean crafting,
                    Optional<String> pendingOutputTypeId, long craftCompletionTick) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
-                BlockPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
                 Codec.STRING.fieldOf("inputTypeId").forGetter(Machine::inputTypeId),
                 Codec.STRING.fieldOf("outputTypeId").forGetter(Machine::outputTypeId),
                 Codec.LONG.fieldOf("durationTicks").forGetter(Machine::durationTicks),
-                BlockPos.CODEC.optionalFieldOf("outputPos").forGetter(Machine::outputPos),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Machine::outputPos),
                 Codec.BOOL.fieldOf("crafting").forGetter(Machine::crafting),
                 Codec.STRING.optionalFieldOf("pendingOutputTypeId").forGetter(Machine::pendingOutputTypeId),
                 Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick)

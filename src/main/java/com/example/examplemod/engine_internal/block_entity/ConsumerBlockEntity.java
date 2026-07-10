@@ -5,6 +5,7 @@ import com.example.examplemod.engine_internal.factory.FactoryLinking;
 import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,7 +31,7 @@ public class ConsumerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        consumer = network.getOrCreateConsumer(getBlockPos(), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
+        consumer = network.getOrCreateConsumer(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
 
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }

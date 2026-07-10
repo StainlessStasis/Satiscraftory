@@ -3,6 +3,7 @@ package com.example.examplemod.engine_internal.factory;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.engine_internal.*;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,21 +27,22 @@ public class FactoryNetwork extends SavedData {
     };
 
     private final Scheduler scheduler = new Scheduler();
-    private List<BlockPos> tickOrder = null;
-    private final Map<BlockPos, Producer> producers = new HashMap<>();
-    private final Map<BlockPos, Belt> belts = new HashMap<>();
-    private final Map<BlockPos, Consumer> consumers = new HashMap<>();
-    private final Map<BlockPos, Machine> machines = new HashMap<>();
+    private final Map<GlobalPos, Producer> producers = new HashMap<>();
+    private final Map<GlobalPos, Belt> belts = new HashMap<>();
+    private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
+    private final Map<GlobalPos, Machine> machines = new HashMap<>();
 
-    private final Map<BlockPos, BlockPos> producerOutputPos = new HashMap<>();
-    private final Map<BlockPos, BlockPos> beltOutputPos = new HashMap<>();
-    private final Map<BlockPos, BlockPos> machineOutputPos = new HashMap<>();
+    private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
+    private final Map<GlobalPos, GlobalPos> beltOutputPos = new HashMap<>();
+    private final Map<GlobalPos, GlobalPos> machineOutputPos = new HashMap<>();
+
+    private List<GlobalPos> tickOrder = null; // cached; null means needs rebuild
 
     public FactoryNetwork() {}
 
     /**
      * Attached to the Overworld specifically, so there's one shared network
-     * across all dimensions rather than a separate one per dimension
+     * across all dimensions rather than a separate one per dimension.
      */
     public static FactoryNetwork get(ServerLevel level) {
         ServerLevel overworld = level.getServer().overworld();
@@ -51,42 +53,41 @@ public class FactoryNetwork extends SavedData {
         return scheduler;
     }
 
-
-    public Producer getOrCreateProducer(BlockPos pos, Supplier<Producer> factory) {
+    public Producer getOrCreateProducer(GlobalPos pos, Supplier<Producer> factory) {
         return producers.computeIfAbsent(pos, _ -> {
             setDirty();
             return factory.get();
         });
     }
 
-    public Belt getOrCreateBelt(BlockPos pos, Supplier<Belt> factory) {
+    public Belt getOrCreateBelt(GlobalPos pos, Supplier<Belt> factory) {
         return belts.computeIfAbsent(pos, _ -> {
             setDirty();
             return factory.get();
         });
     }
 
-    public Consumer getOrCreateConsumer(BlockPos pos, Supplier<Consumer> factory) {
+    public Consumer getOrCreateConsumer(GlobalPos pos, Supplier<Consumer> factory) {
         return consumers.computeIfAbsent(pos, _ -> {
             setDirty();
             return factory.get();
         });
     }
 
-    public Machine getOrCreateMachine(BlockPos pos, Supplier<Machine> factory) {
+    public Machine getOrCreateMachine(GlobalPos pos, Supplier<Machine> factory) {
         return machines.computeIfAbsent(pos, _ -> {
             setDirty();
             return factory.get();
         });
     }
 
-    public Port getPortAt(BlockPos pos) {
+    public Port getPortAt(GlobalPos pos) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
         return consumers.get(pos);
     }
 
-    public void linkProducerOutput(BlockPos producerPos, BlockPos outputPos) {
+    public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos) {
         Producer producer = producers.get(producerPos);
         Port port = getPortAt(outputPos);
         if (producer != null && port != null) {
@@ -96,7 +97,7 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    public void linkBeltOutput(BlockPos beltPos, BlockPos outputPos) {
+    public void linkBeltOutput(GlobalPos beltPos, GlobalPos outputPos) {
         Belt belt = belts.get(beltPos);
         Port port = getPortAt(outputPos);
         if (belt != null && port != null) {
@@ -106,7 +107,7 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    public void linkMachineOutput(BlockPos machinePos, BlockPos outputPos) {
+    public void linkMachineOutput(GlobalPos machinePos, GlobalPos outputPos) {
         Machine machine = machines.get(machinePos);
         Port port = getPortAt(outputPos);
         if (machine != null && port != null) {
@@ -116,26 +117,27 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-
-    public void removeProducer(BlockPos pos) {
+    public void removeProducer(GlobalPos pos) {
         if (producers.remove(pos) != null) {
             producerOutputPos.remove(pos);
             setDirty();
         }
     }
 
-    public void removeBelt(BlockPos pos) {
+    public void removeBelt(GlobalPos pos) {
         if (belts.remove(pos) != null) {
             beltOutputPos.remove(pos);
             setDirty();
         }
     }
 
-    public void removeConsumer(BlockPos pos) {
-        if (consumers.remove(pos) != null) setDirty();
+    public void removeConsumer(GlobalPos pos) {
+        if (consumers.remove(pos) != null) {
+            setDirty();
+        }
     }
 
-    public void removeMachine(BlockPos pos) {
+    public void removeMachine(GlobalPos pos) {
         if (machines.remove(pos) != null) {
             machineOutputPos.remove(pos);
             setDirty();
@@ -143,8 +145,8 @@ public class FactoryNetwork extends SavedData {
     }
 
     @Override
-    public void setDirty() {
-        super.setDirty();
+    public void setDirty(boolean dirty) {
+        super.setDirty(dirty);
         tickOrder = null;
     }
 
@@ -153,7 +155,7 @@ public class FactoryNetwork extends SavedData {
 
         if (tickOrder == null) tickOrder = computeTickOrder();
 
-        for (BlockPos pos : tickOrder) {
+        for (GlobalPos pos : tickOrder) {
             Producer producer = producers.get(pos);
             if (producer != null) { producer.tick(currentTick); continue; }
             Belt belt = belts.get(pos);
@@ -167,7 +169,9 @@ public class FactoryNetwork extends SavedData {
         for (var entry : belts.entrySet()) {
             Belt belt = entry.getValue();
             if (belt.hasUnsyncedChanges()) {
-                BlockPos pos = entry.getKey();
+                GlobalPos globalPos = entry.getKey();
+                if (!globalPos.dimension().equals(level.dimension())) continue;
+                BlockPos pos = globalPos.pos();
                 BlockState state = level.getBlockState(pos);
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 belt.markSynced(currentTick);
@@ -175,52 +179,50 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    private List<BlockPos> computeTickOrder() {
-        List<BlockPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
-        Set<BlockPos> visited = new HashSet<>();
+    private List<GlobalPos> computeTickOrder() {
+        List<GlobalPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
+        Set<GlobalPos> visited = new HashSet<>();
 
-        Set<BlockPos> allNodes = new LinkedHashSet<>();
+        Set<GlobalPos> allNodes = new LinkedHashSet<>();
         allNodes.addAll(producers.keySet());
         allNodes.addAll(belts.keySet());
         allNodes.addAll(machines.keySet());
         allNodes.addAll(consumers.keySet());
 
-        for (BlockPos start : allNodes) {
+        for (GlobalPos start : allNodes) {
             if (!visited.contains(start)) visitIterative(start, order, visited);
         }
         return order;
     }
 
-    private BlockPos outputOf(BlockPos pos) {
+    private GlobalPos outputOf(GlobalPos pos) {
         if (belts.containsKey(pos)) return beltOutputPos.get(pos);
         if (producers.containsKey(pos)) return producerOutputPos.get(pos);
         if (machines.containsKey(pos)) return machineOutputPos.get(pos);
         return null; // consumers have no output
     }
 
-    private boolean isTrackedNode(BlockPos pos) {
+    private boolean isTrackedNode(GlobalPos pos) {
         return pos != null && (belts.containsKey(pos) || producers.containsKey(pos)
                 || machines.containsKey(pos) || consumers.containsKey(pos));
     }
 
-    private void visitIterative(BlockPos start, List<BlockPos> order, Set<BlockPos> visited) {
-        Deque<BlockPos> stack = new ArrayDeque<>();
-        Set<BlockPos> onStack = new HashSet<>();
+    private void visitIterative(GlobalPos start, List<GlobalPos> order, Set<GlobalPos> visited) {
+        Deque<GlobalPos> stack = new ArrayDeque<>();
+        Set<GlobalPos> onStack = new HashSet<>();
         stack.push(start);
         onStack.add(start);
 
         while (!stack.isEmpty()) {
-            BlockPos pos = stack.peek();
+            GlobalPos pos = stack.peek();
             if (visited.contains(pos)) { stack.pop(); onStack.remove(pos); continue; }
 
-            BlockPos next = outputOf(pos);
+            GlobalPos next = outputOf(pos);
             if (isTrackedNode(next) && !visited.contains(next) && !onStack.contains(next)) {
                 stack.push(next);
                 onStack.add(next);
                 continue;
             }
-
-            // next is unresolved, already visited, or would close a cycle
             stack.pop();
             onStack.remove(pos);
             visited.add(pos);
@@ -230,8 +232,8 @@ public class FactoryNetwork extends SavedData {
 
     private Persisted.Snapshot toSnapshot() {
         List<Persisted.Producer> persistedProducers = new ArrayList<>();
-        for (Map.Entry<BlockPos, Producer> entry : producers.entrySet()) {
-            BlockPos pos = entry.getKey();
+        for (Map.Entry<GlobalPos, Producer> entry : producers.entrySet()) {
+            GlobalPos pos = entry.getKey();
             Producer producer = entry.getValue();
             Payload pending = producer.getPending();
             persistedProducers.add(new Persisted.Producer(
@@ -244,22 +246,20 @@ public class FactoryNetwork extends SavedData {
         }
 
         List<Persisted.Belt> persistedBelts = new ArrayList<>();
-        for (Map.Entry<BlockPos, Belt> entry : belts.entrySet()) {
-            BlockPos pos = entry.getKey();
+        for (Map.Entry<GlobalPos, Belt> entry : belts.entrySet()) {
+            GlobalPos pos = entry.getKey();
             Belt belt = entry.getValue();
             List<Persisted.BeltItem> items = new ArrayList<>();
             for (Belt.ItemSnapshot snapshot : belt.getItemSnapshots()) {
-                items.add(new Persisted.BeltItem(
-                        snapshot.position(), snapshot.typeId())
-                );
+                items.add(new Persisted.BeltItem(snapshot.position(), snapshot.typeId()));
             }
             persistedBelts.add(new Persisted.Belt(pos, belt.getLengthTicks(), belt.getMinGap(),
                     Optional.ofNullable(beltOutputPos.get(pos)), items));
         }
 
         List<Persisted.Consumer> persistedConsumers = new ArrayList<>();
-        for (Map.Entry<BlockPos, Consumer> entry : consumers.entrySet()) {
-            BlockPos pos = entry.getKey();
+        for (Map.Entry<GlobalPos, Consumer> entry : consumers.entrySet()) {
+            GlobalPos pos = entry.getKey();
             Consumer consumer = entry.getValue();
             persistedConsumers.add(new Persisted.Consumer(
                     pos, consumer.getCapacity(), consumer.getProcessTime(), consumer.getBufferedTypeIds(),
@@ -268,8 +268,8 @@ public class FactoryNetwork extends SavedData {
         }
 
         List<Persisted.Machine> persistedMachines = new ArrayList<>();
-        for (Map.Entry<BlockPos, Machine> entry : machines.entrySet()) {
-            BlockPos pos = entry.getKey();
+        for (Map.Entry<GlobalPos, Machine> entry : machines.entrySet()) {
+            GlobalPos pos = entry.getKey();
             Machine machine = entry.getValue();
             Recipe recipe = machine.getRecipe();
             persistedMachines.add(new Persisted.Machine(
@@ -286,8 +286,6 @@ public class FactoryNetwork extends SavedData {
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
 
-        // Create every producer, belt, consumer, and machine with a temporary no-op output
-        // Nothing here depends on anything else existing yet
         for (Persisted.Belt beltData : snapshot.belts()) {
             Belt belt = new Belt(beltData.lengthTicks(), beltData.minGap());
             for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.typeId(), item.position());
@@ -324,18 +322,15 @@ public class FactoryNetwork extends SavedData {
             machineData.outputPos().ifPresent(outPos -> network.machineOutputPos.put(machineData.pos(), outPos));
         }
 
-        // Now that every belt/consumer/producer exists, resolve the real output links
-        for (Map.Entry<BlockPos, BlockPos> entry : network.beltOutputPos.entrySet()) {
+        for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.belts.get(entry.getKey()).setOutput(port);
         }
-
-        for (Map.Entry<BlockPos, BlockPos> entry : network.producerOutputPos.entrySet()) {
+        for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
         }
-
-        for (Map.Entry<BlockPos, BlockPos> entry : network.machineOutputPos.entrySet()) {
+        for (Map.Entry<GlobalPos, GlobalPos> entry : network.machineOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.machines.get(entry.getKey()).setOutput(port);
         }
@@ -343,5 +338,3 @@ public class FactoryNetwork extends SavedData {
         return network;
     }
 }
-
-

@@ -6,6 +6,7 @@ import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -47,14 +48,18 @@ public class BeltBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        belt = network.getOrCreateBelt(getBlockPos(), () -> new Belt(LENGTH_TICKS, MIN_GAP));
+        belt = network.getOrCreateBelt(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Belt(LENGTH_TICKS, MIN_GAP));
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
     public void relink(FactoryNetwork network) {
-        network.linkBeltOutput(getBlockPos(), resolveOutputPos());
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        network.linkBeltOutput(
+                GlobalPos.of(serverLevel.dimension(), getBlockPos()),
+                GlobalPos.of(serverLevel.dimension(), resolveOutputPos())
+        );
     }
 
     public void onNeighborChanged() {
