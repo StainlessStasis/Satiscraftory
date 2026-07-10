@@ -12,7 +12,7 @@ public class FactoryEvents {
         var tickRateManger = overworld.tickRateManager();
         boolean isTicking = tickRateManger.runsNormally() || tickRateManger.isSteppingForward();
         if (isTicking) {
-            FactoryNetwork.get(overworld).tickAll(overworld.getGameTime());
+            FactoryNetwork.get(overworld).tickAll(overworld, overworld.getGameTime());
         }
     }
 }

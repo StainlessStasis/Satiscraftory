@@ -52,7 +52,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
 
         List<Belt.ItemSnapshot> syncedItems = blockEntity.getRenderItems();
-        long syncTick = blockEntity.getLastSyncTick();
+        long syncTick = blockEntity.getLastSyncedTick();
 
         // Only rebuild ItemStacks/resolved item models when a new authoritative snapshot has actually arrived
         if (syncedItems != renderState.syncedItems) {
@@ -73,35 +73,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     }
 
     private void updateItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> syncedItems) {
-        long syncedAccepted = blockEntity.getSyncedAcceptedTotal();
-        long syncedDischarged = blockEntity.getSyncedDischargedTotal();
-
-        long acceptedDelta = renderState.initialized ? syncedAccepted - renderState.accountedAccepted : -1;
-        long dischargedDelta = renderState.initialized ? syncedDischarged - renderState.accountedDischarged : -1;
-
-        boolean canDiffIncrementally = renderState.initialized
-                && acceptedDelta >= 0 && dischargedDelta >= 0
-                && dischargedDelta <= renderState.items.size()
-                && renderState.items.size() - dischargedDelta + acceptedDelta == syncedItems.size();
-
-        if (canDiffIncrementally) {
-            for (int i = 0; i < dischargedDelta; i++) {
-                renderState.items.removeFirst();
-            }
-            int startIndex = syncedItems.size() - (int) acceptedDelta;
-            for (int i = startIndex; i < syncedItems.size(); i++) {
-                renderState.items.add(buildItemRenderData(blockEntity, syncedItems.get(i)));
-            }
-        } else {
-            renderState.items.clear();
-            for (Belt.ItemSnapshot snapshot : syncedItems) {
-                renderState.items.add(buildItemRenderData(blockEntity, snapshot));
-            }
+        renderState.items.clear();
+        for (Belt.ItemSnapshot snapshot : syncedItems) {
+            renderState.items.add(buildItemRenderData(blockEntity, snapshot));
         }
-
-        renderState.accountedAccepted = syncedAccepted;
-        renderState.accountedDischarged = syncedDischarged;
-        renderState.initialized = true;
     }
 
     private BeltRenderState.BeltItemRenderData buildItemRenderData(BeltBlockEntity blockEntity, Belt.ItemSnapshot snapshot) {

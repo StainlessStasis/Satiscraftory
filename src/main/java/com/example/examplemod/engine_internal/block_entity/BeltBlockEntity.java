@@ -14,8 +14,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,10 +31,7 @@ public class BeltBlockEntity extends BlockEntity {
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
-
-    private long lastSyncTick = 0;
-    private long previousAcceptedCount = -1;
-    private long previousDischargedCount = -1;
+    private long lastSyncedTick = 0;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(InternalEngineBlockEntities.BELT.get(), pos, state);
@@ -53,8 +48,6 @@ public class BeltBlockEntity extends BlockEntity {
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         belt = network.getOrCreateBelt(getBlockPos(), () -> new Belt(LENGTH_TICKS, MIN_GAP));
-
-        captureRenderSnapshot(serverLevel.getGameTime());
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
@@ -83,54 +76,24 @@ public class BeltBlockEntity extends BlockEntity {
         return renderItems;
     }
 
-    public long getLastSyncTick() {
-        return lastSyncTick;
-    }
-
-    public long getSyncedAcceptedTotal() {
-        return previousAcceptedCount;
-    }
-
-    public long getSyncedDischargedTotal() {
-        return previousDischargedCount;
-    }
-
-    /**
-     * Only handles render sync. The belt's actual state is simulated via FactoryNetwork.tickAll(), independent of chunk loading
-     */
-    public static void serverTick(Level level, BlockPos pos, BlockState state, BeltBlockEntity blockEntity) {
-        Belt belt = blockEntity.belt;
-        if (belt == null) return;
-
-        boolean eventOccurred = belt.getTotalAccepted() != blockEntity.previousAcceptedCount || belt.getTotalDischarged() != blockEntity.previousDischargedCount;
-        if (!eventOccurred) return;
-
-        blockEntity.captureRenderSnapshot(level.getGameTime());
-        blockEntity.setChanged();
-        level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
-    }
-
-    private void captureRenderSnapshot(long gameTime) {
-        renderItems = belt.getItemSnapshots();
-        lastSyncTick = gameTime;
-        previousAcceptedCount = belt.getTotalAccepted();
-        previousDischargedCount = belt.getTotalDischarged();
+    public long getLastSyncedTick() {
+        return lastSyncedTick;
     }
 
     @Override
     public @NonNull CompoundTag getUpdateTag(HolderLookup.@NonNull Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
+        if (belt == null) return tag;
+
         ListTag itemsTag = new ListTag();
-        for (Belt.ItemSnapshot itemSnapshot : renderItems) {
+        for (Belt.ItemSnapshot itemSnapshot : belt.getItemSnapshots()) {
             CompoundTag itemTag = new CompoundTag();
             itemTag.putDouble("position", itemSnapshot.position());
             itemTag.putString("typeId", itemSnapshot.typeId());
             itemsTag.add(itemTag);
         }
         tag.put("renderItems", itemsTag);
-        tag.putLong("syncTick", lastSyncTick);
-        tag.putLong("acceptedTotal", previousAcceptedCount);
-        tag.putLong("dischargedTotal", previousDischargedCount);
+        tag.putLong("syncTick", belt.getLastSyncedTick());
         return tag;
     }
 
@@ -148,15 +111,14 @@ public class BeltBlockEntity extends BlockEntity {
 
     private void parseRenderItems(ValueInput input) {
         List<Belt.ItemSnapshot> parsedItems = new ArrayList<>();
+
         for (ValueInput itemInput : input.childrenListOrEmpty("renderItems")) {
             double position = itemInput.getDoubleOr("position", 0);
             String typeId = itemInput.getStringOr("typeId", "");
             parsedItems.add(new Belt.ItemSnapshot(position, typeId));
         }
         renderItems = parsedItems;
-        lastSyncTick = input.getLongOr("syncTick", lastSyncTick);
-        previousAcceptedCount = input.getLongOr("acceptedTotal", previousAcceptedCount);
-        previousDischargedCount = input.getLongOr("dischargedTotal", previousDischargedCount);
+        lastSyncedTick = input.getLongOr("syncTick", lastSyncedTick);
     }
 
     @Override

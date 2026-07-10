@@ -23,6 +23,9 @@ public class Belt implements Port {
     private Port output;
     private long totalAccepted = 0;
     private long totalDischarged = 0;
+    private long lastSyncedAccepted = 0;
+    private long lastSyncedDischarged = 0;
+    private long lastSyncedTick = 0;
 
     private final List<BeltItem> items = new ArrayList<>();
 
@@ -82,6 +85,20 @@ public class Belt implements Port {
                 }
             }
         }
+    }
+
+    public boolean hasUnsyncedChanges() {
+        return totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
+    }
+
+    public void markSynced(long tick) {
+        lastSyncedAccepted = totalAccepted;
+        lastSyncedDischarged = totalDischarged;
+        lastSyncedTick = tick;
+    }
+
+    public long getLastSyncedTick() {
+        return lastSyncedTick;
     }
 
     /**

@@ -12,9 +12,6 @@ public class BeltRenderState extends BlockEntityRenderState {
     Direction facing = Direction.NORTH;
     List<Belt.ItemSnapshot> syncedItems = List.of();
     long syncTick = 0;
-    boolean initialized = false;
-    long accountedAccepted = 0;
-    long accountedDischarged = 0;
 
     final List<BeltItemRenderData> items = new ArrayList<>();
 
