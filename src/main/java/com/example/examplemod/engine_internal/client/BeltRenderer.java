@@ -160,7 +160,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             poseStack.translate(0.5 + offsetX, 1.015, 0.5 + offsetZ);
             poseStack.mulPose(Axis.YP.rotationDegrees(-yRot));
             poseStack.mulPose(Axis.XP.rotationDegrees(90f));
-            poseStack.scale(0.5f, 0.5f, 0.5f);
+            poseStack.scale(BeltBlockEntity.SCALE, BeltBlockEntity.SCALE, BeltBlockEntity.SCALE);
 
             itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();

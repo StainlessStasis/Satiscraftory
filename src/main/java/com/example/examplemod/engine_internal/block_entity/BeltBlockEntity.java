@@ -27,8 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
-    public static final int LENGTH_TICKS = 40;
-    public static final double MIN_GAP = 0.5;
+    public static final int LENGTH_TICKS = 20;
+    public static final float SCALE = 0.5f;
+    public static final double MIN_GAP = SCALE+0.001;
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
