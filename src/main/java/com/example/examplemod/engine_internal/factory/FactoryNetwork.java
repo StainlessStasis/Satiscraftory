@@ -170,10 +170,12 @@ public class FactoryNetwork extends SavedData {
             Belt belt = entry.getValue();
             if (belt.hasUnsyncedChanges()) {
                 GlobalPos globalPos = entry.getKey();
-                if (!globalPos.dimension().equals(level.dimension())) continue;
-                BlockPos pos = globalPos.pos();
-                BlockState state = level.getBlockState(pos);
-                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+                ServerLevel beltLevel = level.getServer().getLevel(globalPos.dimension());
+                if (beltLevel != null) {
+                    BlockPos pos = globalPos.pos();
+                    BlockState state = beltLevel.getBlockState(pos);
+                    beltLevel.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+                }
                 belt.markSynced(currentTick);
             }
         }
