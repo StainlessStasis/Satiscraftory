@@ -65,44 +65,48 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
         renderState.syncTick = syncTick;
 
-        double elapsedTicks = 0;
-        if (blockEntity.getLevel() != null) {
-            elapsedTicks = (blockEntity.getLevel().getGameTime() - syncTick) + partialTick;
-        }
+        double elapsedTicks = elapsedTicksSince(blockEntity, syncTick, partialTick);
+
         double[] predictedPositions = predictPlain(syncedItems, elapsedTicks);
-
-        renderState.hideFrontItem = predictedPositions.length > 0
-                && predictedPositions[0] >= 1d - EPSILON
-                && downstreamHasRoom(blockEntity, partialTick);
-
         for (int i = 0; i < renderState.items.size() && i < predictedPositions.length; i++) {
             renderState.items.get(i).position = predictedPositions[i];
         }
 
-        updateItemIncoming(blockEntity, renderState, partialTick);
+        // Does the front item need to hand off to the next belt this frame?
+        Direction facing = renderState.facing;
+        BeltBlockEntity output = getNeighborBelt(blockEntity, facing);
+        boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
+        double rawFront = frontRawPosition(syncedItems, elapsedTicks);
+
+        renderState.hideFrontItem = outputHasRoom && rawFront >= 1d - EPSILON;
+
+        updateIncomingItem(blockEntity, renderState, partialTick);
     }
 
-    private boolean downstreamHasRoom(BeltBlockEntity self, float partialTick) {
-        Direction facing = self.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-        BeltBlockEntity output = getNeighborBelt(self, facing);
-        if (output == null) return true;
-
-        double[] outputPositions = currentPredictedPositions(output, partialTick);
-        return outputPositions.length == 0 || outputPositions[outputPositions.length - 1] >= BeltBlockEntity.MIN_GAP;
+    private double frontRawPosition(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
+        if (syncedItems.isEmpty()) return Double.NEGATIVE_INFINITY;
+        return syncedItems.getFirst().position() + BELT_SPEED * Math.max(elapsedTicks, 0);
     }
 
-    private double[] currentPredictedPositions(BeltBlockEntity belt, float partialTick) {
+    private double elapsedTicksSince(BeltBlockEntity belt, long syncTick, float partialTick) {
+        if (belt.getLevel() == null) return 0;
+        return (belt.getLevel().getGameTime() - syncTick) + partialTick;
+    }
+
+    private boolean hasRoomAtBack(BeltBlockEntity belt, float partialTick) {
         List<Belt.ItemSnapshot> synced = belt.getRenderItems();
-        double elapsed = (belt.getLevel() != null)
-                ? (belt.getLevel().getGameTime() - belt.getLastSyncedTick()) + partialTick : 0;
-        return predictPlain(synced, elapsed);
+        if (synced.isEmpty()) return true;
+        double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
+        double[] positions = predictPlain(synced, elapsed);
+        return positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
     /**
-     * If the upstream neighbor's front item is about to hand off,
-     * start drawing it a tick early instead of waiting for the sync packet
+     * If the upstream neighbor's front item has crossed the boundary into this belt,
+     * draw it here and continue from exactly where the upstream belt says it is,
+     * so it hands off smoothly
      */
-    private void updateItemIncoming(BeltBlockEntity self, BeltRenderState renderState, float partialTick) {
+    private void updateIncomingItem(BeltBlockEntity self, BeltRenderState renderState, float partialTick) {
         renderState.itemIncomingActive = false;
 
         Direction facing = self.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -110,17 +114,20 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (input == null) return;
         if (input.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING) != facing) return;
 
-        double[] inputPositions = currentPredictedPositions(input, partialTick);
-        if (inputPositions.length == 0 || inputPositions[0] < 1d - EPSILON) return;
-
-        double[] selfPositions = currentPredictedPositions(self, partialTick);
-        double selfBack = selfPositions.length == 0 ? 1d : selfPositions[selfPositions.length - 1];
-        if (selfBack < BeltBlockEntity.MIN_GAP) return;
-
         List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
+        if (inputSynced.isEmpty()) return;
+
+        double inputElapsed = elapsedTicksSince(input, input.getLastSyncedTick(), partialTick);
+        double inputRawFront = frontRawPosition(inputSynced, inputElapsed);
+
+        boolean selfHasRoom = hasRoomAtBack(self, partialTick);
+        if (!selfHasRoom || inputRawFront < 1d - EPSILON) return;
+
+        double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
+
         String typeId = inputSynced.getFirst().typeId();
         renderState.itemIncomingActive = true;
-        renderState.itemIncoming.position = 0d;
+        renderState.itemIncoming.position = overflow;
         renderState.itemIncoming.typeId = typeId;
 
         if (!typeId.equals(renderState.itemIncomingTypeCached)) {
