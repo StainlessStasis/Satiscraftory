@@ -15,6 +15,11 @@ public class BeltRenderState extends BlockEntityRenderState {
 
     final List<BeltItemRenderData> items = new ArrayList<>();
 
+    boolean hideFrontItem = false;
+    boolean itemIncomingActive = false;
+    String itemIncomingTypeCached = null;
+    final BeltItemRenderData itemIncoming = new BeltItemRenderData();
+
     static final class BeltItemRenderData {
         double position;
         String typeId;
