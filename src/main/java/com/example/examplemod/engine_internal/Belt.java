@@ -63,7 +63,7 @@ public class Belt implements Port {
         // try to discharge the front payload if it has reached the exit
         if (!items.isEmpty()) {
             BeltItem front = items.getFirst();
-            if (front.position >= 1) {
+            if (front.position >= 1 - 1.0e-6) {
                 if (output != null && output.canAccept(front.payload)) {
                     output.accept(front.payload);
                     items.removeFirst();

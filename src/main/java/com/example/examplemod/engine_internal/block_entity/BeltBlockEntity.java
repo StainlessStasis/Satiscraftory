@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
-    public static final int LENGTH_TICKS = 10;
-    public static final double MIN_GAP = 0.15;
+    public static final int LENGTH_TICKS = 40;
+    public static final double MIN_GAP = 0.5;
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
@@ -86,6 +86,14 @@ public class BeltBlockEntity extends BlockEntity {
         return lastSyncTick;
     }
 
+    public long getSyncedAcceptedTotal() {
+        return previousAcceptedCount;
+    }
+
+    public long getSyncedDischargedTotal() {
+        return previousDischargedCount;
+    }
+
     /**
      * Only handles render sync. The belt's actual state is simulated via FactoryNetwork.tickAll(), independent of chunk loading
      */
@@ -120,6 +128,8 @@ public class BeltBlockEntity extends BlockEntity {
         }
         tag.put("renderItems", itemsTag);
         tag.putLong("syncTick", lastSyncTick);
+        tag.putLong("acceptedTotal", previousAcceptedCount);
+        tag.putLong("dischargedTotal", previousDischargedCount);
         return tag;
     }
 
@@ -144,6 +154,8 @@ public class BeltBlockEntity extends BlockEntity {
         }
         renderItems = parsedItems;
         lastSyncTick = input.getLongOr("syncTick", lastSyncTick);
+        previousAcceptedCount = input.getLongOr("acceptedTotal", previousAcceptedCount);
+        previousDischargedCount = input.getLongOr("dischargedTotal", previousDischargedCount);
     }
 
     @Override

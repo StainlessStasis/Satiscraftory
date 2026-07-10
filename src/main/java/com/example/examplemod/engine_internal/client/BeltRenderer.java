@@ -4,6 +4,7 @@ import com.example.examplemod.engine_internal.Belt;
 import com.example.examplemod.engine_internal.PayloadItems;
 import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -56,7 +57,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         // Only rebuild ItemStacks/resolved item models when a new authoritative snapshot has actually arrived
         if (syncedItems != renderState.syncedItems) {
             renderState.syncedItems = syncedItems;
-            rebuildItemCache(blockEntity, renderState, syncedItems);
+            updateItemCache(blockEntity, renderState, syncedItems);
         }
         renderState.syncTick = syncTick;
 
@@ -71,18 +72,48 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
     }
 
-    private void rebuildItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> syncedItems) {
-        renderState.items.clear();
-        for (Belt.ItemSnapshot snapshot : syncedItems) {
-            ItemStack itemStack = PayloadItems.toItemStack(snapshot.typeId(), 1);
-            if (itemStack == null) continue;
+    private void updateItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> syncedItems) {
+        long syncedAccepted = blockEntity.getSyncedAcceptedTotal();
+        long syncedDischarged = blockEntity.getSyncedDischargedTotal();
 
-            BeltRenderState.BeltItemRenderData itemRenderData = new BeltRenderState.BeltItemRenderData();
-            itemRenderData.position = snapshot.position();
-            itemRenderData.typeId = snapshot.typeId();
-            itemModelResolver.updateForTopItem(itemRenderData.itemStackRenderState, itemStack, ItemDisplayContext.FIXED, blockEntity.getLevel(), null, 0);
-            renderState.items.add(itemRenderData);
+        long acceptedDelta = renderState.initialized ? syncedAccepted - renderState.accountedAccepted : -1;
+        long dischargedDelta = renderState.initialized ? syncedDischarged - renderState.accountedDischarged : -1;
+
+        boolean canDiffIncrementally = renderState.initialized
+                && acceptedDelta >= 0 && dischargedDelta >= 0
+                && dischargedDelta <= renderState.items.size()
+                && renderState.items.size() - dischargedDelta + acceptedDelta == syncedItems.size();
+
+        if (canDiffIncrementally) {
+            for (int i = 0; i < dischargedDelta; i++) {
+                renderState.items.removeFirst();
+            }
+            int startIndex = syncedItems.size() - (int) acceptedDelta;
+            for (int i = startIndex; i < syncedItems.size(); i++) {
+                renderState.items.add(buildItemRenderData(blockEntity, syncedItems.get(i)));
+            }
+        } else {
+            renderState.items.clear();
+            for (Belt.ItemSnapshot snapshot : syncedItems) {
+                renderState.items.add(buildItemRenderData(blockEntity, snapshot));
+            }
         }
+
+        renderState.accountedAccepted = syncedAccepted;
+        renderState.accountedDischarged = syncedDischarged;
+        renderState.initialized = true;
+    }
+
+    private BeltRenderState.BeltItemRenderData buildItemRenderData(BeltBlockEntity blockEntity, Belt.ItemSnapshot snapshot) {
+        BeltRenderState.BeltItemRenderData itemRenderData = new BeltRenderState.BeltItemRenderData();
+        itemRenderData.position = snapshot.position();
+        itemRenderData.typeId = snapshot.typeId();
+
+        ItemStack itemStack = PayloadItems.toItemStack(snapshot.typeId(), 1);
+        if (itemStack != null) {
+            itemModelResolver.updateForTopItem(itemRenderData.itemStackRenderState, itemStack, ItemDisplayContext.FIXED, blockEntity.getLevel(), null, 0);
+        }
+        return itemRenderData;
     }
 
     private double[] predictPositions(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
@@ -118,17 +149,20 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     public void submit(
             BeltRenderState renderState, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector, @NonNull CameraRenderState cameraRenderState
     ) {
+        float yRot = renderState.facing.toYRot();
+
         for (BeltRenderState.BeltItemRenderData itemRenderData : renderState.items) {
             double travelOffset = itemRenderData.position - 0.5;
             double offsetX = renderState.facing.getStepX() * travelOffset;
             double offsetZ = renderState.facing.getStepZ() * travelOffset;
 
             poseStack.pushPose();
-            poseStack.translate(0.5 + offsetX, 1.25, 0.5 + offsetZ);
-            poseStack.scale(0.3f, 0.3f, 0.3f);
+            poseStack.translate(0.5 + offsetX, 1.015, 0.5 + offsetZ);
+            poseStack.mulPose(Axis.YP.rotationDegrees(-yRot));
+            poseStack.mulPose(Axis.XP.rotationDegrees(90f));
+            poseStack.scale(0.5f, 0.5f, 0.5f);
 
             itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
-
             poseStack.popPose();
         }
     }
