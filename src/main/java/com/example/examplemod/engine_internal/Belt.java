@@ -60,29 +60,33 @@ public class Belt implements Port {
     }
 
     public void tick(long currentTick) {
-        double frontOvershoot = 0;
+        int size = items.size();
+        if (size == 0) return;
 
-        for (int index = 0; index < items.size(); index++) {
-            BeltItem beltItem = items.get(index);
-            double cap = (index == 0) ? 1 : items.get(index - 1).position - minGap;
-            double proposed = beltItem.position + speed;
-
-            if (index == 0 && proposed > 1) {
-                frontOvershoot = proposed - 1;
-            }
-
-            beltItem.position = Math.clamp(proposed, 0, cap);
+        double[] proposed = new double[size];
+        for (int index = 0; index < size; index++) {
+            proposed[index] = items.get(index).position + speed;
         }
 
-        // try to discharge the front payload if it has reached the exit
-        if (!items.isEmpty()) {
-            BeltItem front = items.getFirst();
-            if (front.position >= 1 - 1.0e-6) {
-                if (output != null && output.canAccept(front.payload)) {
-                    output.acceptWithOverflow(front.payload, frontOvershoot);
-                    items.removeFirst();
-                    totalDischarged++;
-                }
+        double previousClamped = 1;
+        for (int index = 0; index < size; index++) {
+            double cap = (index == 0) ? 1 : previousClamped - minGap;
+            previousClamped = Math.clamp(proposed[index], 0, cap);
+            items.get(index).position = previousClamped;
+        }
+
+        BeltItem front = items.getFirst();
+        if (front.position >= 1 - 1.0e-6 && output != null && output.canAccept(front.payload)) {
+            double frontOvershoot = Math.max(proposed[0] - 1, 0);
+            output.acceptWithOverflow(front.payload, frontOvershoot);
+            items.removeFirst();
+            totalDischarged++;
+
+            double recomputedPrevious = 1;
+            for (int index = 0; index < items.size(); index++) {
+                double cap = (index == 0) ? 1 : recomputedPrevious - minGap;
+                recomputedPrevious = Math.clamp(proposed[index + 1], 0, cap);
+                items.get(index).position = recomputedPrevious;
             }
         }
     }

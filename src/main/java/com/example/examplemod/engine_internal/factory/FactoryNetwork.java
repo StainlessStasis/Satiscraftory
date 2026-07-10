@@ -143,20 +143,20 @@ public class FactoryNetwork extends SavedData {
 
     public void tickAll(ServerLevel level, long currentTick) {
         scheduler.tick(currentTick);
+        for (Producer producer : producers.values()) producer.tick(currentTick);
+        for (Belt belt : belts.values()) belt.tick(currentTick);
+        for (Consumer consumer : consumers.values()) consumer.tick(currentTick);
+        for (Machine machine : machines.values()) machine.tick(currentTick);
+
         for (var entry : belts.entrySet()) {
             Belt belt = entry.getValue();
-            BlockPos pos = entry.getKey();
-
-            belt.tick(currentTick);
             if (belt.hasUnsyncedChanges()) {
+                BlockPos pos = entry.getKey();
                 BlockState state = level.getBlockState(pos);
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 belt.markSynced(currentTick);
             }
         }
-        for (Producer producer : producers.values()) producer.tick(currentTick);
-        for (Consumer consumer : consumers.values()) consumer.tick(currentTick);
-        for (Machine machine : machines.values()) machine.tick(currentTick);
     }
 
 
