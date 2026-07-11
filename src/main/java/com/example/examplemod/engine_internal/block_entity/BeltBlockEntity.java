@@ -1,6 +1,9 @@
 package com.example.examplemod.engine_internal.block_entity;
 
 import com.example.examplemod.engine_internal.Belt;
+import com.example.examplemod.engine_internal.block.belt.BeltBlock;
+import com.example.examplemod.engine_internal.block.belt.BeltShape;
+import com.example.examplemod.engine_internal.block.belt.BeltShapeSolver;
 import com.example.examplemod.engine_internal.factory.FactoryLinking;
 import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
@@ -15,10 +18,10 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import org.jspecify.annotations.NonNull;
 
@@ -28,7 +31,7 @@ import java.util.List;
 public class BeltBlockEntity extends BlockEntity {
     public static final int LENGTH_TICKS = 20;
     public static final float SCALE = 0.5f;
-    public static final double MIN_GAP = SCALE+0.001;
+    public static final double MIN_GAP = SCALE + 0.001;
 
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
@@ -51,7 +54,9 @@ public class BeltBlockEntity extends BlockEntity {
         belt = network.getOrCreateBelt(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Belt(LENGTH_TICKS, MIN_GAP));
 
         relink(network);
+        reconcileOwnOrientation(serverLevel);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
+        notifyConnectedNeighborsToReshape(serverLevel);
     }
 
     public void relink(FactoryNetwork network) {
@@ -63,14 +68,110 @@ public class BeltBlockEntity extends BlockEntity {
     }
 
     public void onNeighborChanged() {
-        if (level instanceof ServerLevel serverLevel) {
-            relink(FactoryNetwork.get(serverLevel));
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        BlockState state = getBlockState();
+        BeltShape currentShape = state.getValue(BeltBlock.SHAPE);
+        boolean shapeChanged = false;
+
+        if (!currentShape.isCorner()) {
+            BeltShape recomputedShape = BeltShapeSolver.computeShapeForExisting(serverLevel, getBlockPos(), currentShape);
+            if (recomputedShape != currentShape) {
+                boolean currentReversed = state.getValue(BeltBlock.REVERSED);
+                boolean newReversed = BeltShapeSolver.preserveRoleAcrossReshape(currentShape, currentReversed, recomputedShape);
+                serverLevel.setBlock(getBlockPos(),
+                        state.setValue(BeltBlock.SHAPE, recomputedShape).setValue(BeltBlock.REVERSED, newReversed), Block.UPDATE_ALL);
+                reconcileDownstreamOrientation(serverLevel, recomputedShape, newReversed);
+                shapeChanged = true;
+            }
+        }
+
+        relink(FactoryNetwork.get(serverLevel));
+        reconcileOwnOrientation(serverLevel);
+
+        if (shapeChanged) {
+            notifyConnectedNeighborsToReshape(serverLevel);
         }
     }
 
-    private BlockPos resolveOutputPos() {
-        Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-        return getBlockPos().relative(facing);
+    private void notifyConnectedNeighborsToReshape(ServerLevel level) {
+        BeltShape shape = getBlockState().getValue(BeltBlock.SHAPE);
+
+        notifyNeighborBeltAt(level, BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), shape.endADirection(), shape.endAYOffset()));
+        notifyNeighborBeltAt(level, BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), shape.endBDirection(), shape.endBYOffset()));
+
+        if (shape.endAYOffset() == 0) notifyPotentialLowerAscent(level, shape.endADirection());
+        if (shape.endBYOffset() == 0) notifyPotentialLowerAscent(level, shape.endBDirection());
+    }
+
+    private void notifyPotentialLowerAscent(ServerLevel level, Direction flatEndDirection) {
+        notifyNeighborBeltAt(level, getBlockPos().relative(flatEndDirection).below());
+    }
+
+    private void notifyNeighborBeltAt(ServerLevel level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof BeltBlockEntity neighborBelt) {
+            neighborBelt.onNeighborChanged();
+        }
+    }
+
+    private void reconcileOwnOrientation(ServerLevel level) {
+        BlockState state = getBlockState();
+        BeltShape shape = state.getValue(BeltBlock.SHAPE);
+        boolean reversed = state.getValue(BeltBlock.REVERSED);
+
+        Boolean fromA = BeltShapeSolver.feedsRelationship(level, getBlockPos(), shape.endADirection(), shape.endAYOffset());
+        Boolean fromB = BeltShapeSolver.feedsRelationship(level, getBlockPos(), shape.endBDirection(), shape.endBYOffset());
+
+        Boolean desiredReversed = null;
+        if (Boolean.TRUE.equals(fromA)) desiredReversed = false;
+        else if (Boolean.FALSE.equals(fromA)) desiredReversed = true;
+        else if (Boolean.TRUE.equals(fromB)) desiredReversed = true;
+        else if (Boolean.FALSE.equals(fromB)) desiredReversed = false;
+
+        if (desiredReversed != null && desiredReversed != reversed) {
+            level.setBlock(getBlockPos(), state.setValue(BeltBlock.REVERSED, desiredReversed), Block.UPDATE_ALL);
+        }
+    }
+
+    /**
+     * Updates the downstream belt to prevent an accidental loop between two belts.
+     * If the neighbor was placed first and faces this belt,
+     * flip it forward to ensure the belt line continues
+     */
+    private void reconcileDownstreamOrientation(ServerLevel level, BeltShape newShape, boolean newReversed) {
+        Direction outputDir = newReversed ? newShape.defaultInputDirection() : newShape.defaultOutputDirection();
+        int outputYOffset = newReversed ? newShape.defaultInputYOffset() : newShape.defaultOutputYOffset();
+        BlockPos outputPos = getBlockPos().relative(outputDir).above(outputYOffset);
+
+        if (!(level.getBlockEntity(outputPos) instanceof BeltBlockEntity downstream)) return;
+        BlockState downstreamState = downstream.getBlockState();
+        if (downstreamState.getValue(BeltBlock.SHAPE).isCorner()) return;
+
+        if (getBlockPos().equals(downstream.resolveOutputPos())) {
+            boolean downstreamReversed = downstreamState.getValue(BeltBlock.REVERSED);
+            level.setBlock(outputPos, downstreamState.setValue(BeltBlock.REVERSED, !downstreamReversed), Block.UPDATE_ALL);
+            downstream.relink(FactoryNetwork.get(level));
+        }
+    }
+
+    public BlockPos resolveOutputPos() {
+        BeltShape shape = getBlockState().getValue(BeltBlock.SHAPE);
+        boolean reversed = getBlockState().getValue(BeltBlock.REVERSED);
+        Direction dir = reversed ? shape.defaultInputDirection() : shape.defaultOutputDirection();
+        int yOffset = reversed ? shape.defaultInputYOffset() : shape.defaultOutputYOffset();
+        return (level != null)
+                ? BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), dir, yOffset)
+                : getBlockPos().relative(dir).above(yOffset);
+    }
+
+    public BlockPos resolveInputPos() {
+        BeltShape shape = getBlockState().getValue(BeltBlock.SHAPE);
+        boolean reversed = getBlockState().getValue(BeltBlock.REVERSED);
+        Direction dir = reversed ? shape.defaultOutputDirection() : shape.defaultInputDirection();
+        int yOffset = reversed ? shape.defaultOutputYOffset() : shape.defaultInputYOffset();
+        return (level != null)
+                ? BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), dir, yOffset)
+                : getBlockPos().relative(dir).above(yOffset);
     }
 
     public Belt getBelt() {
@@ -116,7 +217,6 @@ public class BeltBlockEntity extends BlockEntity {
 
     private void parseRenderItems(ValueInput input) {
         List<Belt.ItemSnapshot> parsedItems = new ArrayList<>();
-
         for (ValueInput itemInput : input.childrenListOrEmpty("renderItems")) {
             double position = itemInput.getDoubleOr("position", 0);
             String typeId = itemInput.getStringOr("typeId", "");

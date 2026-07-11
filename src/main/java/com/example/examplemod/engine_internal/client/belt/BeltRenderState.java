@@ -1,15 +1,16 @@
-package com.example.examplemod.engine_internal.client;
+package com.example.examplemod.engine_internal.client.belt;
 
 import com.example.examplemod.engine_internal.Belt;
+import com.example.examplemod.engine_internal.block.belt.BeltShape;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.core.Direction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BeltRenderState extends BlockEntityRenderState {
-    Direction facing = Direction.NORTH;
+    BeltShape shape = BeltShape.NORTH_SOUTH;
+    boolean reversed = false;
     List<Belt.ItemSnapshot> syncedItems = List.of();
     long syncTick = 0;
 

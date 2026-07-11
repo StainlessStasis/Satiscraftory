@@ -2,6 +2,7 @@ package com.example.examplemod.engine_internal.factory;
 
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.engine_internal.*;
+import com.example.examplemod.engine_internal.Belt;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;

@@ -1,6 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.engine_internal.*;
+import com.example.examplemod.engine_internal.Belt;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

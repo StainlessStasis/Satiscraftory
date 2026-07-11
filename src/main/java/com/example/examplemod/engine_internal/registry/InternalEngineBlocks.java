@@ -1,7 +1,7 @@
 package com.example.examplemod.engine_internal.registry;
 
 import com.example.examplemod.ExampleMod;
-import com.example.examplemod.engine_internal.block.BeltBlock;
+import com.example.examplemod.engine_internal.block.belt.BeltBlock;
 import com.example.examplemod.engine_internal.block.ConsumerBlock;
 import com.example.examplemod.engine_internal.block.MachineBlock;
 import com.example.examplemod.engine_internal.block.ProducerBlock;

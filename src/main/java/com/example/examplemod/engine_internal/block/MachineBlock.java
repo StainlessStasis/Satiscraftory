@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class MachineBlock extends AbstractFactoryBlock {
+public class MachineBlock extends AbstractDirectionalFactoryBlock {
     private static final MapCodec<MachineBlock> CODEC = simpleCodec(MachineBlock::new);
 
     public MachineBlock(Properties properties) {

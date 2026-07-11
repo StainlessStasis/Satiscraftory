@@ -1,7 +1,8 @@
-package com.example.examplemod.engine_internal.client;
+package com.example.examplemod.engine_internal.client.belt;
 
 import com.example.examplemod.engine_internal.Belt;
 import com.example.examplemod.engine_internal.PayloadItems;
+import com.example.examplemod.engine_internal.block.belt.BeltBlock;
 import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -14,11 +15,10 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.util.Brightness;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -52,9 +52,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.blockState = blockEntity.getBlockState();
         renderState.blockEntityType = blockEntity.getType();
         BlockPos abovePos = blockEntity.getBlockPos().above();
-        renderState.lightCoords = blockEntity.getLevel() != null ? LevelRenderer.getLightCoords(blockEntity.getLevel(), abovePos) : 15728880;
+        renderState.lightCoords = blockEntity.getLevel() != null ? LevelRenderer.getLightCoords(blockEntity.getLevel(), abovePos) : Brightness.FULL_BRIGHT.block();
         renderState.breakProgress = crumblingOverlay;
-        renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        renderState.shape = blockEntity.getBlockState().getValue(BeltBlock.SHAPE);
+        renderState.reversed = blockEntity.getBlockState().getValue(BeltBlock.REVERSED);
 
         List<Belt.ItemSnapshot> syncedItems = blockEntity.getRenderItems();
         long syncTick = blockEntity.getLastSyncedTick();
@@ -66,18 +67,14 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.syncTick = syncTick;
 
         double elapsedTicks = elapsedTicksSince(blockEntity, syncTick, partialTick);
-
-        double[] predictedPositions = predictPlain(syncedItems, elapsedTicks);
+        double[] predictedPositions = predictPositions(syncedItems, elapsedTicks);
         for (int i = 0; i < renderState.items.size() && i < predictedPositions.length; i++) {
             renderState.items.get(i).position = predictedPositions[i];
         }
 
-        // Does the front item need to hand off to the next belt this frame?
-        Direction facing = renderState.facing;
-        BeltBlockEntity output = getNeighborBelt(blockEntity, facing);
+        BeltBlockEntity output = getNeighborBeltAt(blockEntity, blockEntity.resolveOutputPos());
         boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
         double rawFront = frontRawPosition(syncedItems, elapsedTicks);
-
         renderState.hideFrontItem = outputHasRoom && rawFront >= 1d - EPSILON;
 
         updateIncomingItem(blockEntity, renderState, partialTick);
@@ -97,7 +94,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         List<Belt.ItemSnapshot> synced = belt.getRenderItems();
         if (synced.isEmpty()) return true;
         double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
-        double[] positions = predictPlain(synced, elapsed);
+        double[] positions = predictPositions(synced, elapsed);
         return positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
@@ -109,22 +106,21 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void updateIncomingItem(BeltBlockEntity self, BeltRenderState renderState, float partialTick) {
         renderState.itemIncomingActive = false;
 
-        Direction facing = self.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-        BeltBlockEntity input = getNeighborBelt(self, facing.getOpposite());
+        BeltBlockEntity input = getNeighborBeltAt(self, self.resolveInputPos());
         if (input == null) return;
-        if (input.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING) != facing) return;
+        // only trust it as a feeder if its own output actually resolves back to this belt
+        if (!self.getBlockPos().equals(input.resolveOutputPos())) return;
 
         List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
         if (inputSynced.isEmpty()) return;
 
         double inputElapsed = elapsedTicksSince(input, input.getLastSyncedTick(), partialTick);
         double inputRawFront = frontRawPosition(inputSynced, inputElapsed);
+        if (inputRawFront < 1d - EPSILON) return;
 
-        boolean selfHasRoom = hasRoomAtBack(self, partialTick);
-        if (!selfHasRoom || inputRawFront < 1d - EPSILON) return;
+        if (!hasRoomAtBack(self, partialTick)) return;
 
         double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
-
         String typeId = inputSynced.getFirst().typeId();
         renderState.itemIncomingActive = true;
         renderState.itemIncoming.position = overflow;
@@ -140,9 +136,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
     }
 
-    private @Nullable BeltBlockEntity getNeighborBelt(BeltBlockEntity self, Direction direction) {
+    private @Nullable BeltBlockEntity getNeighborBeltAt(BeltBlockEntity self, BlockPos pos) {
         if (self.getLevel() == null) return null;
-        BlockEntity neighbor = self.getLevel().getBlockEntity(self.getBlockPos().relative(direction));
+        BlockEntity neighbor = self.getLevel().getBlockEntity(pos);
         return neighbor instanceof BeltBlockEntity neighborBelt ? neighborBelt : null;
     }
 
@@ -181,7 +177,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return itemRenderData;
     }
 
-    private double[] predictPlain(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
+    private double[] predictPositions(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
         double[] positions = new double[syncedItems.size()];
         for (int i = 0; i < syncedItems.size(); i++) positions[i] = syncedItems.get(i).position();
 
@@ -208,27 +204,26 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     public void submit(
             BeltRenderState renderState, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector, @NonNull CameraRenderState cameraRenderState
     ) {
-        float yRot = renderState.facing.toYRot();
-
         for (int i = 0; i < renderState.items.size(); i++) {
             if (i == 0 && renderState.hideFrontItem) continue; // already handed off - the next belt now owns drawing it
-            submitItem(renderState, renderState.items.get(i), poseStack, collector, yRot);
+            submitItem(renderState, renderState.items.get(i), poseStack, collector);
         }
-
         if (renderState.itemIncomingActive) {
-            submitItem(renderState, renderState.itemIncoming, poseStack, collector, yRot);
+            submitItem(renderState, renderState.itemIncoming, poseStack, collector);
         }
     }
 
     private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
-                            PoseStack poseStack, SubmitNodeCollector collector, float yRot) {
-        double travelOffset = itemRenderData.position - 0.5;
-        double offsetX = renderState.facing.getStepX() * travelOffset;
-        double offsetZ = renderState.facing.getStepZ() * travelOffset;
+                            PoseStack poseStack, SubmitNodeCollector collector) {
+        Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.position);
+        float tilt = BeltGeometry.tiltDegrees(renderState.shape, renderState.reversed);
 
         poseStack.pushPose();
-        poseStack.translate(0.5 + offsetX, 1.015, 0.5 + offsetZ);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-yRot));
+        poseStack.translate(0.5 + offset.x, 1.015 + offset.y, 0.5 + offset.z);
+        if (tilt != 0f) {
+            if (BeltGeometry.ascendsAlongZ(renderState.shape)) poseStack.mulPose(Axis.XP.rotationDegrees(tilt));
+            else poseStack.mulPose(Axis.ZP.rotationDegrees(-tilt));
+        }
         poseStack.mulPose(Axis.XP.rotationDegrees(90f));
         poseStack.scale(BeltBlockEntity.SCALE, BeltBlockEntity.SCALE, BeltBlockEntity.SCALE);
 

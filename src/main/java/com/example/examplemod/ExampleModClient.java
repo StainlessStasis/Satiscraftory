@@ -1,6 +1,6 @@
 package com.example.examplemod;
 
-import com.example.examplemod.engine_internal.client.BeltRenderer;
+import com.example.examplemod.engine_internal.client.belt.BeltRenderer;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

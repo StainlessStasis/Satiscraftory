@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class ProducerBlock extends AbstractFactoryBlock {
+public class ProducerBlock extends AbstractDirectionalFactoryBlock {
     private static final MapCodec<ProducerBlock> CODEC = simpleCodec(ProducerBlock::new);
 
     public ProducerBlock(Properties properties) {
@@ -31,8 +31,8 @@ public class ProducerBlock extends AbstractFactoryBlock {
     }
 
     @Override
-    protected void notifyNeighborChanged(BlockEntity be, ServerLevel level) {
-        if (be instanceof ProducerBlockEntity producerBE) producerBE.onNeighborChanged();
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
+        if (blockEntity instanceof ProducerBlockEntity producerBE) producerBE.onNeighborChanged();
     }
 
     @Override

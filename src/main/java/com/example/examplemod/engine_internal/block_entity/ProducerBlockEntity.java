@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class ProducerBlockEntity extends BlockEntity {
     private static final String ITEM_TYPE = PayloadItems.typeIdOf(Items.RAW_IRON);
-    private static final long INTERVAL_TICKS = 10;
+    private static final long INTERVAL_TICKS = 1;
 
     private Producer producer;
 
