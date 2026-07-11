@@ -40,25 +40,39 @@ public class InternalEngineModelProvider extends ModelProvider {
 
     private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
         Identifier straightModelId = ExampleMod.id("block/belt_straight");
-        Variant straight = new Variant(straightModelId);
-        Variant straightRotated = straight.withYRot(Quadrant.R90);
+        Variant forward = new Variant(straightModelId);
+        Variant forwardRotated = forward.withYRot(Quadrant.R90);
+        Variant backward = forward.withYRot(Quadrant.R180);
+        Variant backwardRotated = forward.withYRot(Quadrant.R270);
 
-        MultiVariant straightMulti = new MultiVariant(WeightedList.of(straight));
-        MultiVariant straightRotatedMulti = new MultiVariant(WeightedList.of(straightRotated));
+        MultiVariant forwardMulti = new MultiVariant(WeightedList.of(forward));
+        MultiVariant forwardRotatedMulti = new MultiVariant(WeightedList.of(forwardRotated));
+        MultiVariant backwardMulti = new MultiVariant(WeightedList.of(backward));
+        MultiVariant backwardRotatedMulti = new MultiVariant(WeightedList.of(backwardRotated));
 
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(belt)
-                        .with(PropertyDispatch.initial(BeltBlock.SHAPE)
-                                .select(BeltShape.NORTH_SOUTH, straightMulti)
-                                .select(BeltShape.EAST_WEST, straightRotatedMulti)
-                                .select(BeltShape.ASCENDING_NORTH, straightMulti)        // TODO: slope model
-                                .select(BeltShape.ASCENDING_SOUTH, straightMulti)        // TODO: slope model
-                                .select(BeltShape.ASCENDING_EAST, straightRotatedMulti)  // TODO: slope model
-                                .select(BeltShape.ASCENDING_WEST, straightRotatedMulti)  // TODO: slope model
-                                .select(BeltShape.NORTH_EAST, straightMulti)             // TODO: corner model
-                                .select(BeltShape.NORTH_WEST, straightMulti)             // TODO: corner model
-                                .select(BeltShape.SOUTH_EAST, straightMulti)             // TODO: corner model
-                                .select(BeltShape.SOUTH_WEST, straightMulti)             // TODO: corner model
+                        .with(PropertyDispatch.initial(BeltBlock.SHAPE, BeltBlock.REVERSED)
+                                .select(BeltShape.NORTH_SOUTH, false, backwardMulti)
+                                .select(BeltShape.NORTH_SOUTH, true, forwardMulti)
+                                .select(BeltShape.EAST_WEST, false, backwardRotatedMulti)
+                                .select(BeltShape.EAST_WEST, true, forwardRotatedMulti)
+                                .select(BeltShape.ASCENDING_NORTH, false, backwardMulti)        // TODO: slope model
+                                .select(BeltShape.ASCENDING_NORTH, true, forwardMulti)          // TODO: slope model
+                                .select(BeltShape.ASCENDING_SOUTH, false, backwardMulti)        // TODO: slope model
+                                .select(BeltShape.ASCENDING_SOUTH, true, forwardMulti)          // TODO: slope model
+                                .select(BeltShape.ASCENDING_EAST, false, backwardRotatedMulti)  // TODO: slope model
+                                .select(BeltShape.ASCENDING_EAST, true, forwardRotatedMulti)    // TODO: slope model
+                                .select(BeltShape.ASCENDING_WEST, false, backwardRotatedMulti)  // TODO: slope model
+                                .select(BeltShape.ASCENDING_WEST, true, forwardRotatedMulti)    // TODO: slope model
+                                .select(BeltShape.NORTH_EAST, false, backwardMulti)             // TODO: corner model
+                                .select(BeltShape.NORTH_EAST, true, forwardMulti)               // TODO: corner model
+                                .select(BeltShape.NORTH_WEST, false, backwardMulti)             // TODO: corner model
+                                .select(BeltShape.NORTH_WEST, true, forwardMulti)               // TODO: corner model
+                                .select(BeltShape.SOUTH_EAST, false, backwardMulti)             // TODO: corner model
+                                .select(BeltShape.SOUTH_EAST, true, forwardMulti)               // TODO: corner model
+                                .select(BeltShape.SOUTH_WEST, false, backwardMulti)             // TODO: corner model
+                                .select(BeltShape.SOUTH_WEST, true, forwardMulti)               // TODO: corner model
                         )
         );
     }
