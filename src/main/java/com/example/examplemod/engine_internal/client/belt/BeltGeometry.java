@@ -49,6 +49,6 @@ public final class BeltGeometry {
     }
 
     private static double wrapRadians(double angle) {
-        return Math.IEEEremainder(angle, 2*Math.PI);
+        return Math.IEEEremainder(angle, Mth.TWO_PI);
     }
 }

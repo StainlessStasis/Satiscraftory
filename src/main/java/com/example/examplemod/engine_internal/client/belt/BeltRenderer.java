@@ -31,6 +31,7 @@ import static com.mojang.math.Constants.EPSILON;
 public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRenderState> {
     private static final double BELT_SPEED = 1d / BeltBlockEntity.LENGTH_TICKS;
     private static final int MAX_PREDICTED_TICKS = BeltBlockEntity.LENGTH_TICKS * 2;
+    private static final float Z_FIGHTING_ADJUSTMENT = 0.001f;
 
     private final ItemModelResolver itemModelResolver;
 
@@ -219,7 +220,11 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         float tilt = BeltGeometry.tiltDegrees(renderState.shape, renderState.reversed);
 
         poseStack.pushPose();
-        poseStack.translate(0.5 + offset.x, 1.015 + offset.y, 0.5 + offset.z);
+        poseStack.translate(
+                0.5 + offset.x,
+                1.015 + offset.y + antiZFightingOffset(itemRenderData.position),
+                0.5 + offset.z
+        );
         if (tilt != 0f) {
             if (BeltGeometry.ascendsAlongZ(renderState.shape)) poseStack.mulPose(Axis.XP.rotationDegrees(tilt));
             else poseStack.mulPose(Axis.ZP.rotationDegrees(-tilt));
@@ -229,5 +234,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
         itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
+    }
+
+    private static float antiZFightingOffset(double position) {
+        return (float) (position * Z_FIGHTING_ADJUSTMENT);
     }
 }
