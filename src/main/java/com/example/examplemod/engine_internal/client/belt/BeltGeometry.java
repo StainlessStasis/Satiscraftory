@@ -29,7 +29,7 @@ public final class BeltGeometry {
 
         double startAngle = Math.atan2(az - centerZ, ax - centerX);
         double endAngle = Math.atan2(bz - centerZ, bx - centerX);
-        double delta = Mth.wrapDegrees(endAngle - startAngle);
+        double delta = wrapRadians(endAngle - startAngle);
         double angle = startAngle + delta * u;
 
         double x = centerX + 0.5 * Math.cos(angle);
@@ -46,5 +46,9 @@ public final class BeltGeometry {
      */
     public static boolean ascendsAlongZ(BeltShape shape) {
         return shape.endADirection().getAxis() == Direction.Axis.Z;
+    }
+
+    private static double wrapRadians(double angle) {
+        return Math.IEEEremainder(angle, 2*Math.PI);
     }
 }
