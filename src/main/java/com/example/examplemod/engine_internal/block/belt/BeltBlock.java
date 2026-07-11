@@ -50,7 +50,7 @@ public class BeltBlock extends AbstractFactoryBlock {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BeltShape shape = BeltShapeSolver.computeShapeForPlacement(level, pos, context);
-        boolean reversed = BeltShapeSolver.computeReversed(level, pos, shape);
+        boolean reversed = BeltShapeSolver.computeReversedForPlacement(level, pos, shape, context);
         return defaultBlockState().setValue(SHAPE, shape).setValue(REVERSED, reversed);
     }
 

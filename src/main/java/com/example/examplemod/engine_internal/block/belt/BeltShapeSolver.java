@@ -31,6 +31,19 @@ public final class BeltShapeSolver {
         return Boolean.TRUE.equals(fromB);
     }
 
+    public static boolean computeReversedForPlacement(Level level, BlockPos pos, BeltShape shape, BlockPlaceContext context) {
+        Boolean fromA = feedsRelationship(level, pos, shape.endADirection(), shape.endAYOffset());
+        Boolean fromB = feedsRelationship(level, pos, shape.endBDirection(), shape.endBYOffset());
+
+        if (Boolean.TRUE.equals(fromA)) return false;
+        if (Boolean.FALSE.equals(fromA)) return true;
+        if (Boolean.TRUE.equals(fromB)) return true;
+        if (Boolean.FALSE.equals(fromB)) return false;
+
+        Direction playerFacing = context.getHorizontalDirection().getOpposite();
+        return shape.defaultOutputDirection() != playerFacing;
+    }
+
     /**
      *  When bending an existing straight/sloped belt into a corner,
      *  the corner shares exactly one end with the old shape.
