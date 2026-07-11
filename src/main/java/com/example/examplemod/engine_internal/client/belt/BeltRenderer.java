@@ -217,12 +217,13 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
                             PoseStack poseStack, SubmitNodeCollector collector) {
         Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.position);
+        offset.add(0, 0.015, 0);
         float tilt = BeltGeometry.tiltDegrees(renderState.shape, renderState.reversed);
 
         poseStack.pushPose();
         poseStack.translate(
                 0.5 + offset.x,
-                1.015 + offset.y + antiZFightingOffset(itemRenderData.position),
+                0.625 + offset.y + antiZFightingOffset(itemRenderData.position),
                 0.5 + offset.z
         );
         if (tilt != 0f) {
