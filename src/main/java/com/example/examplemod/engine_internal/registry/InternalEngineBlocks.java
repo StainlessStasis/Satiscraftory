@@ -20,7 +20,7 @@ public class InternalEngineBlocks {
 
     public static final DeferredBlock<BeltBlock> BELT = BLOCKS.registerBlock("belt",
             BeltBlock::new,
-            () -> BlockBehaviour.Properties.of().mapColor(MapColor.STONE).strength(2.0f));
+            () -> BlockBehaviour.Properties.of().noOcclusion().mapColor(MapColor.STONE).strength(2.0f));
 
     public static final DeferredBlock<ConsumerBlock> CONSUMER = BLOCKS.registerBlock("consumer",
             ConsumerBlock::new,
