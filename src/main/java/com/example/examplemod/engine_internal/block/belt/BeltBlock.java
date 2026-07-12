@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -21,10 +22,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 public class BeltBlock extends AbstractFactoryBlock {
+    private static final VoxelShape VOXEL_SHAPE = Shapes.box(0.0, 0.0, 0.0, 1.0, 0.625, 1.0);
     public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
@@ -84,5 +89,10 @@ public class BeltBlock extends AbstractFactoryBlock {
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         FactoryNetwork.get(level).removeBelt(GlobalPos.of(level.dimension(), pos));
+    }
+
+    @Override
+    protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
+        return VOXEL_SHAPE;
     }
 }
