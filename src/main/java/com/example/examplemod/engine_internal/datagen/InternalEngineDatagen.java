@@ -11,6 +11,5 @@ public class InternalEngineDatagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
         event.createProvider(InternalEngineModelProvider::new);
-        event.createProvider((PackOutput output) -> new AscendingBeltModelProvider(output, ExampleMod.MODID));
     }
 }

@@ -38,6 +38,7 @@ public final class BeltGeometry {
     }
 
     public static float tiltDegrees(BeltShape shape, boolean reversed) {
+        if (shape == BeltShape.ASCENDING_SOUTH) return -45f;
         return shape.isAscending() ? 45f : 0f;
     }
 
