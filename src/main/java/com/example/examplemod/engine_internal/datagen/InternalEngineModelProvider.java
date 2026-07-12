@@ -41,7 +41,7 @@ public class InternalEngineModelProvider extends ModelProvider {
     private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
         Identifier straightModelId = ExampleMod.id("block/belt_straight");
         Identifier curvedModelId = ExampleMod.id("block/belt_curved");
-        Identifier angledModelId = ExampleMod.id("block/belt_angled");
+        Identifier angledModelId = ExampleMod.id("block/belt_ascending");
 
         // straight
         Variant forward = new Variant(straightModelId);
