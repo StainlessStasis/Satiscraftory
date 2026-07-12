@@ -49,9 +49,15 @@ neoForge {
     runs {
         client {
             client()
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            programArguments.addAll("--username", "Witherhoard")
+            programArguments.addAll("--uuid", "ec0f932e-1d25-4b09-aa33-6e1381f34415")
+        }
+
+        client2 {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            programArguments.addAll("--username", "Dev")
         }
 
         server {

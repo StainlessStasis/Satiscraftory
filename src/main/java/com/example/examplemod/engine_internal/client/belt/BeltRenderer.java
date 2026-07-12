@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -49,12 +50,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             @NonNull BeltBlockEntity blockEntity, @NonNull BeltRenderState renderState, float partialTick,
             @NonNull Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay crumblingOverlay
     ) {
-        renderState.blockPos = blockEntity.getBlockPos();
-        renderState.blockState = blockEntity.getBlockState();
-        renderState.blockEntityType = blockEntity.getType();
-        BlockPos abovePos = blockEntity.getBlockPos().above();
-        renderState.lightCoords = blockEntity.getLevel() != null ? LevelRenderer.getLightCoords(blockEntity.getLevel(), abovePos) : Brightness.FULL_BRIGHT.block();
-        renderState.breakProgress = crumblingOverlay;
+        BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
         renderState.shape = blockEntity.getBlockState().getValue(BeltBlock.SHAPE);
         renderState.reversed = blockEntity.getBlockState().getValue(BeltBlock.REVERSED);
 

@@ -41,6 +41,7 @@ public class InternalEngineModelProvider extends ModelProvider {
     private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
         Identifier straightModelId = ExampleMod.id("block/belt_straight");
         Identifier curvedModelId = ExampleMod.id("block/belt_curved");
+        Identifier angledModelId = ExampleMod.id("block/belt_angled");
 
         // straight
         Variant forward = new Variant(straightModelId);
@@ -62,6 +63,16 @@ public class InternalEngineModelProvider extends ModelProvider {
         MultiVariant curveM180 = new MultiVariant(WeightedList.of(curve180));
         MultiVariant curveM270 = new MultiVariant(WeightedList.of(curve270));
 
+        // angled
+        Variant angle0 = new Variant(angledModelId);
+        Variant angle90 = angle0.withYRot(Quadrant.R90);
+        Variant angle180 = angle0.withYRot(Quadrant.R180);
+        Variant angle270 = angle0.withYRot(Quadrant.R270);
+        MultiVariant angleM0 = new MultiVariant(WeightedList.of(angle0));
+        MultiVariant angleM90 = new MultiVariant(WeightedList.of(angle90));
+        MultiVariant angleM180 = new MultiVariant(WeightedList.of(angle180));
+        MultiVariant angleM270 = new MultiVariant(WeightedList.of(angle270));
+
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(belt)
                         .with(PropertyDispatch.initial(BeltBlock.SHAPE, BeltBlock.REVERSED)
@@ -70,15 +81,6 @@ public class InternalEngineModelProvider extends ModelProvider {
                                 .select(BeltShape.NORTH_SOUTH, true, forwardMulti)
                                 .select(BeltShape.EAST_WEST, false, backwardRotatedMulti)
                                 .select(BeltShape.EAST_WEST, true, forwardRotatedMulti)
-
-                                .select(BeltShape.ASCENDING_NORTH, false, backwardMulti)        // TODO: slope model
-                                .select(BeltShape.ASCENDING_NORTH, true, forwardMulti)          // TODO: slope model
-                                .select(BeltShape.ASCENDING_SOUTH, false, backwardMulti)        // TODO: slope model
-                                .select(BeltShape.ASCENDING_SOUTH, true, forwardMulti)          // TODO: slope model
-                                .select(BeltShape.ASCENDING_EAST, false, backwardRotatedMulti)  // TODO: slope model
-                                .select(BeltShape.ASCENDING_EAST, true, forwardRotatedMulti)    // TODO: slope model
-                                .select(BeltShape.ASCENDING_WEST, false, backwardRotatedMulti)  // TODO: slope model
-                                .select(BeltShape.ASCENDING_WEST, true, forwardRotatedMulti)    // TODO: slope model
 
                                 // curved
                                 .select(BeltShape.NORTH_EAST, false, curveM0)
@@ -89,6 +91,16 @@ public class InternalEngineModelProvider extends ModelProvider {
                                 .select(BeltShape.SOUTH_EAST, true, curveM90)
                                 .select(BeltShape.SOUTH_WEST, false, curveM180)
                                 .select(BeltShape.SOUTH_WEST, true, curveM180)
+
+                                // angled
+                                .select(BeltShape.ASCENDING_NORTH, false, angleM180)
+                                .select(BeltShape.ASCENDING_NORTH, true, angleM180)
+                                .select(BeltShape.ASCENDING_SOUTH, false, angleM0)
+                                .select(BeltShape.ASCENDING_SOUTH, true, angleM0)
+                                .select(BeltShape.ASCENDING_EAST, false, angleM270)
+                                .select(BeltShape.ASCENDING_EAST, true, angleM270)
+                                .select(BeltShape.ASCENDING_WEST, false, angleM90)
+                                .select(BeltShape.ASCENDING_WEST, true, angleM90)
                         )
         );
     }
