@@ -21,23 +21,22 @@
       "y": 270
     },
     "reversed=false,shape=north_east": {
-      "model": "examplemod:block/belt_straight",
-      "y": 180
+      "model": "examplemod:block/belt_curved"
     },
     "reversed=false,shape=north_south": {
       "model": "examplemod:block/belt_straight",
       "y": 180
     },
     "reversed=false,shape=north_west": {
-      "model": "examplemod:block/belt_straight",
-      "y": 180
+      "model": "examplemod:block/belt_curved",
+      "y": 270
     },
     "reversed=false,shape=south_east": {
-      "model": "examplemod:block/belt_straight",
-      "y": 180
+      "model": "examplemod:block/belt_curved",
+      "y": 90
     },
     "reversed=false,shape=south_west": {
-      "model": "examplemod:block/belt_straight",
+      "model": "examplemod:block/belt_curved",
       "y": 180
     },
     "reversed=true,shape=ascending_east": {
@@ -59,19 +58,22 @@
       "y": 90
     },
     "reversed=true,shape=north_east": {
-      "model": "examplemod:block/belt_straight"
+      "model": "examplemod:block/belt_curved"
     },
     "reversed=true,shape=north_south": {
       "model": "examplemod:block/belt_straight"
     },
     "reversed=true,shape=north_west": {
-      "model": "examplemod:block/belt_straight"
+      "model": "examplemod:block/belt_curved",
+      "y": 270
     },
     "reversed=true,shape=south_east": {
-      "model": "examplemod:block/belt_straight"
+      "model": "examplemod:block/belt_curved",
+      "y": 90
     },
     "reversed=true,shape=south_west": {
-      "model": "examplemod:block/belt_straight"
+      "model": "examplemod:block/belt_curved",
+      "y": 180
     }
   }
 }
