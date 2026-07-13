@@ -3,13 +3,14 @@ package com.example.examplemod.engine_internal.factory;
 import com.example.examplemod.ExampleMod;
 import com.example.examplemod.engine_internal.*;
 import com.example.examplemod.engine_internal.Belt;
-import net.minecraft.core.BlockPos;
+import com.example.examplemod.engine_internal.network.BeltSyncPacket;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -38,6 +39,7 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, GlobalPos> machineOutputPos = new HashMap<>();
 
     private List<GlobalPos> tickOrder = null; // cached; null means needs rebuild
+    private static final int MAX_ENTRIES_PER_PACKET = 500; // for belt syncing
 
     public FactoryNetwork() {}
 
@@ -167,17 +169,30 @@ public class FactoryNetwork extends SavedData {
             if (consumer != null) consumer.tick(currentTick);
         }
 
+        Map<ResourceKey<Level>, List<BeltSyncPacket.Entry>> changedByDimension = new HashMap<>();
+
         for (var entry : belts.entrySet()) {
             Belt belt = entry.getValue();
-            if (belt.hasUnsyncedChanges()) {
-                GlobalPos globalPos = entry.getKey();
-                ServerLevel beltLevel = level.getServer().getLevel(globalPos.dimension());
-                if (beltLevel != null) {
-                    BlockPos pos = globalPos.pos();
-                    BlockState state = beltLevel.getBlockState(pos);
-                    beltLevel.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+            if (!belt.hasUnsyncedChanges(currentTick)) continue;
+
+            GlobalPos globalPos = entry.getKey();
+            changedByDimension
+                    .computeIfAbsent(globalPos.dimension(), _ -> new ArrayList<>())
+                    .add(new BeltSyncPacket.Entry(globalPos.pos(), currentTick, belt.getItemSnapshots()));
+            belt.markSynced(currentTick);
+        }
+
+        for (var entry : changedByDimension.entrySet()) {
+            ServerLevel targetLevel = level.getServer().getLevel(entry.getKey());
+            if (targetLevel == null) continue;
+
+            List<BeltSyncPacket.Entry> allChanged = entry.getValue();
+            for (int start = 0; start < allChanged.size(); start += MAX_ENTRIES_PER_PACKET) {
+                int end = Math.min(start + MAX_ENTRIES_PER_PACKET, allChanged.size());
+                BeltSyncPacket payload = new BeltSyncPacket(allChanged.subList(start, end));
+                for (var player : targetLevel.players()) {
+                    PacketDistributor.sendToPlayer(player, payload);
                 }
-                belt.markSynced(currentTick);
             }
         }
     }

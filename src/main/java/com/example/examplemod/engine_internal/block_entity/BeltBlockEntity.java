@@ -10,22 +10,12 @@ import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntiti
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.ValueInput;
-import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
@@ -189,48 +179,8 @@ public class BeltBlockEntity extends BlockEntity {
         return lastSyncedTick;
     }
 
-    @Override
-    public @NonNull CompoundTag getUpdateTag(HolderLookup.@NonNull Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        if (belt == null) return tag;
-
-        ListTag itemsTag = new ListTag();
-        for (Belt.ItemSnapshot itemSnapshot : belt.getItemSnapshots()) {
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.putDouble("position", itemSnapshot.position());
-            itemTag.putString("typeId", itemSnapshot.typeId());
-            itemsTag.add(itemTag);
-        }
-        tag.put("renderItems", itemsTag);
-        tag.putLong("syncTick", belt.getLastSyncedTick());
-        return tag;
-    }
-
-    @Override
-    public void handleUpdateTag(@NonNull ValueInput input) {
-        super.handleUpdateTag(input);
-        parseRenderItems(input);
-    }
-
-    @Override
-    public void onDataPacket(@NonNull Connection connection, @NonNull ValueInput input) {
-        super.onDataPacket(connection, input);
-        parseRenderItems(input);
-    }
-
-    private void parseRenderItems(ValueInput input) {
-        List<Belt.ItemSnapshot> parsedItems = new ArrayList<>();
-        for (ValueInput itemInput : input.childrenListOrEmpty("renderItems")) {
-            double position = itemInput.getDoubleOr("position", 0);
-            String typeId = itemInput.getStringOr("typeId", "");
-            parsedItems.add(new Belt.ItemSnapshot(position, typeId));
-        }
-        renderItems = parsedItems;
-        lastSyncedTick = input.getLongOr("syncTick", lastSyncedTick);
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public void applySync(List<Belt.ItemSnapshot> items, long syncTick) {
+        this.renderItems = items;
+        this.lastSyncedTick = syncTick;
     }
 }

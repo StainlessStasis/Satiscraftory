@@ -3,7 +3,6 @@ package com.example.examplemod.engine_internal;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Belt implements Port {
     private static class BeltItem {
         final Payload payload;
@@ -25,6 +24,7 @@ public class Belt implements Port {
     private long lastSyncedAccepted = 0;
     private long lastSyncedDischarged = 0;
     private long lastSyncedTick = 0;
+    private static final long MIN_TICKS_BETWEEN_SYNCS = 3;
 
     private final List<BeltItem> items = new ArrayList<>();
 
@@ -95,14 +95,23 @@ public class Belt implements Port {
         }
     }
 
-    public boolean hasUnsyncedChanges() {
-        return totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
+    private long lastSyncedItemCount = 0;
+
+    public boolean hasUnsyncedChanges(long currentTick) {
+        boolean changed = totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
+        if (!changed) return false;
+
+        boolean countChanged = items.size() != lastSyncedItemCount;
+        if (countChanged) return true;
+
+        return currentTick - lastSyncedTick >= MIN_TICKS_BETWEEN_SYNCS;
     }
 
     public void markSynced(long tick) {
         lastSyncedAccepted = totalAccepted;
         lastSyncedDischarged = totalDischarged;
         lastSyncedTick = tick;
+        lastSyncedItemCount = items.size();
     }
 
     public long getLastSyncedTick() {

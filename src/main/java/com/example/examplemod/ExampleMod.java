@@ -1,5 +1,6 @@
 package com.example.examplemod;
 
+import com.example.examplemod.engine_internal.network.NetworkSetup;
 import com.example.examplemod.engine_internal.registry.InternalEngineRegistries;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class ExampleMod {
 
     public ExampleMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(NetworkSetup::register);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         InternalEngineRegistries.register(modEventBus);
     }
