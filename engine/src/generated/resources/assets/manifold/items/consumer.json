@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "examplemod:block/consumer"
+    "model": "manifold:block/consumer"
   }
 }

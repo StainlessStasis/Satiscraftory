@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "examplemod:block/producer"
+    "model": "manifold:block/producer"
   }
 }

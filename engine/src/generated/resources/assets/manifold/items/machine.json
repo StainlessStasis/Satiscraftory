@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "examplemod:block/belt_mk1"
+    "model": "manifold:block/machine"
   }
 }

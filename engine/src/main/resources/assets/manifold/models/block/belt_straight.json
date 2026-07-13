@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
 	"textures": {
-		"0": "examplemod:block/belt_straight",
-		"particle": "examplemod:block/belt_straight"
+		"0": "manifold:block/belt_straight",
+		"particle": "manifold:block/belt_straight"
 	},
 	"elements": [
 		{

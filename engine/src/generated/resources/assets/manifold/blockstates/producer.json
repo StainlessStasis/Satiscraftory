@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "examplemod:block/machine",
+      "model": "manifold:block/producer",
       "y": 90
     },
     "facing=north": {
-      "model": "examplemod:block/machine"
+      "model": "manifold:block/producer"
     },
     "facing=south": {
-      "model": "examplemod:block/machine",
+      "model": "manifold:block/producer",
       "y": 180
     },
     "facing=west": {
-      "model": "examplemod:block/machine",
+      "model": "manifold:block/producer",
       "y": 270
     }
   }
