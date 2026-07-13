@@ -6,7 +6,6 @@ import com.example.examplemod.engine_internal.block.belt.BeltBlock;
 import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -16,7 +15,6 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Brightness;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -69,7 +67,11 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             renderState.items.get(i).position = predictedPositions[i];
         }
 
+        BeltBlockEntity input = getNeighborBeltAt(blockEntity, blockEntity.resolveInputPos());
         BeltBlockEntity output = getNeighborBeltAt(blockEntity, blockEntity.resolveOutputPos());
+        renderState.neighborShapeAtStart = (input != null) ? input.getBlockState().getValue(BeltBlock.SHAPE) : null;
+        renderState.neighborShapeAtEnd = (output != null) ? output.getBlockState().getValue(BeltBlock.SHAPE) : null;
+
         boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
         double rawFront = frontRawPosition(syncedItems, elapsedTicks);
         renderState.hideFrontItem = outputHasRoom && rawFront >= 1d - EPSILON;
@@ -213,8 +215,11 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
                             PoseStack poseStack, SubmitNodeCollector collector) {
         Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.position);
-        offset.add(0, 0.015, 0);
-        float tilt = BeltGeometry.tiltDegrees(renderState.shape, renderState.reversed);
+        offset = offset.add(0, 0.05, 0);
+        float tilt = BeltGeometry.interpolatedTilt(
+                renderState.shape, renderState.reversed, itemRenderData.position,
+                renderState.neighborShapeAtStart, renderState.neighborShapeAtEnd
+        );
 
         poseStack.pushPose();
         poseStack.translate(

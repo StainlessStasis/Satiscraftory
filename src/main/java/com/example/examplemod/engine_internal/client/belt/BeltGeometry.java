@@ -4,6 +4,7 @@ import com.example.examplemod.engine_internal.block.belt.BeltShape;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public final class BeltGeometry {
     public static Vec3 localOffsetAt(BeltShape shape, boolean reversed, double t) {
@@ -38,8 +39,32 @@ public final class BeltGeometry {
     }
 
     public static float tiltDegrees(BeltShape shape, boolean reversed) {
-        if (shape == BeltShape.ASCENDING_SOUTH) return -45f;
+        if (shape == BeltShape.ASCENDING_SOUTH || shape == BeltShape.ASCENDING_EAST) return -45f;
         return shape.isAscending() ? 45f : 0f;
+    }
+
+    public static float interpolatedTilt(
+            BeltShape thisShape, boolean reversed, double position,
+            @Nullable BeltShape neighborShapeAtStart, @Nullable BeltShape neighborShapeAtEnd
+    ) {
+        float thisTilt = tiltDegrees(thisShape, reversed);
+        double blendWindow = 0.15;
+
+        if (neighborShapeAtStart != null && position < blendWindow) {
+            float neighborTilt = tiltDegrees(neighborShapeAtStart, reversed);
+            float midTilt = (thisTilt + neighborTilt) / 2f;
+            double blend = Mth.smoothstep(position / blendWindow);
+            return (float) Mth.lerp(blend, midTilt, thisTilt);
+        }
+
+        if (neighborShapeAtEnd != null && position > 1 - blendWindow) {
+            float neighborTilt = tiltDegrees(neighborShapeAtEnd, reversed);
+            float midTilt = (thisTilt + neighborTilt) / 2f;
+            double blend = Mth.smoothstep((1 - position) / blendWindow);
+            return (float) Mth.lerp(blend, midTilt, thisTilt);
+        }
+
+        return thisTilt;
     }
 
     /**

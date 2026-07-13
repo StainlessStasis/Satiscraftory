@@ -20,6 +20,8 @@ public class BeltRenderState extends BlockEntityRenderState {
     boolean itemIncomingActive = false;
     String itemIncomingTypeCached = null;
     final BeltItemRenderData itemIncoming = new BeltItemRenderData();
+    BeltShape neighborShapeAtStart = null;
+    BeltShape neighborShapeAtEnd = null;
 
     static final class BeltItemRenderData {
         double position;
