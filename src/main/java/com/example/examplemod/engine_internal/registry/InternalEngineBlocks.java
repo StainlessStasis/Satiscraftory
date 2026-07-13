@@ -18,8 +18,17 @@ public class InternalEngineBlocks {
             ProducerBlock::new,
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
 
-    public static final DeferredBlock<BeltBlock> BELT = BLOCKS.registerBlock("belt",
-            BeltBlock::new,
+    // TODO: move to ModBlocks and make a generic belt
+    public static final DeferredBlock<BeltBlock> BELT_MK1 = BLOCKS.registerBlock("belt_mk1",
+            properties -> new BeltBlock(properties, 1/20f),
+            () -> BlockBehaviour.Properties.of()
+                    .noOcclusion()
+                    .mapColor(MapColor.STONE)
+                    .strength(2.0f)
+    );
+
+    public static final DeferredBlock<BeltBlock> BELT_MK2 = BLOCKS.registerBlock("belt_mk2",
+            properties -> new BeltBlock(properties, 2/20f),
             () -> BlockBehaviour.Properties.of()
                     .noOcclusion()
                     .mapColor(MapColor.STONE)

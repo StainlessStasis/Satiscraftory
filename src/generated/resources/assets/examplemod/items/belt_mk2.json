@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "examplemod:block/belt"
+    "model": "examplemod:block/belt_mk2"
   }
 }

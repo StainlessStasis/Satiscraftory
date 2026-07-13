@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
-    public static final int LENGTH_TICKS = 20;
     public static final float SCALE = 0.5f;
     public static final double MIN_GAP = SCALE + 0.001;
 
@@ -51,7 +50,7 @@ public class BeltBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        belt = network.getOrCreateBelt(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Belt(LENGTH_TICKS, MIN_GAP));
+        belt = network.getOrCreateBelt(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Belt(getSpeed(), MIN_GAP));
 
         relink(network);
         reconcileOwnOrientation(serverLevel);
@@ -176,6 +175,10 @@ public class BeltBlockEntity extends BlockEntity {
 
     public Belt getBelt() {
         return belt;
+    }
+
+    public double getSpeed() {
+        return (getBlockState().getBlock() instanceof BeltBlock beltBlock) ? beltBlock.getSpeed() : 0.05;
     }
 
     public List<Belt.ItemSnapshot> getRenderItems() {

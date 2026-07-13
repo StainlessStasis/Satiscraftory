@@ -27,7 +27,8 @@ public class InternalEngineModelProvider extends ModelProvider {
     @Override
     protected void registerModels(BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         Block producer = InternalEngineBlocks.PRODUCER.get();
-        Block belt = InternalEngineBlocks.BELT.get();
+        Block belt_mk1 = InternalEngineBlocks.BELT_MK1.get();
+        Block belt_mk2 = InternalEngineBlocks.BELT_MK2.get();
         Block consumer = InternalEngineBlocks.CONSUMER.get();
         Block machine = InternalEngineBlocks.MACHINE.get();
 
@@ -35,13 +36,14 @@ public class InternalEngineModelProvider extends ModelProvider {
         blockModels.createHorizontallyRotatedBlock(machine, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createTrivialCube(consumer);
 
-        registerBeltModels(blockModels, belt);
+        registerBeltModels(blockModels, belt_mk1, "");
+        registerBeltModels(blockModels, belt_mk2, "_mk2");
     }
 
-    private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
-        Identifier straightModelId = ExampleMod.id("block/belt_straight");
-        Identifier curvedModelId = ExampleMod.id("block/belt_curved");
-        Identifier angledModelId = ExampleMod.id("block/belt_ascending");
+    private void registerBeltModels(BlockModelGenerators blockModels, Block belt, String appendToPath) {
+        Identifier straightModelId = ExampleMod.id("block/belt_straight"+appendToPath);
+        Identifier curvedModelId = ExampleMod.id("block/belt_curved"+appendToPath);
+        Identifier angledModelId = ExampleMod.id("block/belt_ascending"+appendToPath);
 
         // straight
         Variant forward = new Variant(straightModelId);

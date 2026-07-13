@@ -1,0 +1,79 @@
+{
+  "variants": {
+    "reversed=false,shape=ascending_east": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 270
+    },
+    "reversed=false,shape=ascending_north": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 180
+    },
+    "reversed=false,shape=ascending_south": {
+      "model": "examplemod:block/belt_ascending_mk2"
+    },
+    "reversed=false,shape=ascending_west": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 90
+    },
+    "reversed=false,shape=east_west": {
+      "model": "examplemod:block/belt_straight_mk2",
+      "y": 270
+    },
+    "reversed=false,shape=north_east": {
+      "model": "examplemod:block/belt_curved_mk2"
+    },
+    "reversed=false,shape=north_south": {
+      "model": "examplemod:block/belt_straight_mk2",
+      "y": 180
+    },
+    "reversed=false,shape=north_west": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 270
+    },
+    "reversed=false,shape=south_east": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 90
+    },
+    "reversed=false,shape=south_west": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 180
+    },
+    "reversed=true,shape=ascending_east": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 270
+    },
+    "reversed=true,shape=ascending_north": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 180
+    },
+    "reversed=true,shape=ascending_south": {
+      "model": "examplemod:block/belt_ascending_mk2"
+    },
+    "reversed=true,shape=ascending_west": {
+      "model": "examplemod:block/belt_ascending_mk2",
+      "y": 90
+    },
+    "reversed=true,shape=east_west": {
+      "model": "examplemod:block/belt_straight_mk2",
+      "y": 90
+    },
+    "reversed=true,shape=north_east": {
+      "model": "examplemod:block/belt_curved_mk2"
+    },
+    "reversed=true,shape=north_south": {
+      "model": "examplemod:block/belt_straight_mk2"
+    },
+    "reversed=true,shape=north_west": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 270
+    },
+    "reversed=true,shape=south_east": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 90
+    },
+    "reversed=true,shape=south_west": {
+      "model": "examplemod:block/belt_curved_mk2",
+      "y": 180
+    }
+  }
+}

@@ -5,7 +5,9 @@ import com.example.examplemod.engine_internal.block_entity.BeltBlockEntity;
 import com.example.examplemod.engine_internal.factory.FactoryLinking;
 import com.example.examplemod.engine_internal.factory.FactoryNetwork;
 import com.example.examplemod.engine_internal.registry.InternalEngineBlockEntities;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -33,10 +35,18 @@ public class BeltBlock extends AbstractFactoryBlock {
     public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
-    private static final MapCodec<BeltBlock> CODEC = simpleCodec(BeltBlock::new);
+    public static final MapCodec<BeltBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    Codec.DOUBLE.fieldOf("speed").forGetter(BeltBlock::getSpeed),
+                    propertiesCodec()
+            ).apply(instance, (speed, properties) -> new BeltBlock(properties, speed))
+    );
 
-    public BeltBlock(Properties properties) {
+    private final double speed;
+
+    public BeltBlock(Properties properties, double speed) {
         super(properties);
+        this.speed = speed;
         registerDefaultState(defaultBlockState().setValue(SHAPE, BeltShape.NORTH_SOUTH).setValue(REVERSED, false));
     }
 
@@ -94,5 +104,9 @@ public class BeltBlock extends AbstractFactoryBlock {
     @Override
     protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
         return VOXEL_SHAPE;
+    }
+
+    public double getSpeed() {
+        return speed;
     }
 }

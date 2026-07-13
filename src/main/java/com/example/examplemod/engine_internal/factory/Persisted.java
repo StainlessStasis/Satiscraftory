@@ -18,10 +18,10 @@ final class Persisted {
         ).apply(i, BeltItem::new));
     }
 
-    record Belt(GlobalPos pos, int lengthTicks, double minGap, Optional<GlobalPos> outputPos, List<BeltItem> items) {
+    record Belt(GlobalPos pos, double speed, double minGap, Optional<GlobalPos> outputPos, List<BeltItem> items) {
         static final Codec<Belt> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Belt::pos),
-                Codec.INT.fieldOf("lengthTicks").forGetter(Belt::lengthTicks),
+                Codec.DOUBLE.fieldOf("speed").forGetter(Belt::speed),
                 Codec.DOUBLE.fieldOf("minGap").forGetter(Belt::minGap),
                 GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Belt::outputPos),
                 BeltItem.CODEC.listOf().fieldOf("items").forGetter(Belt::items)

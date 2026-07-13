@@ -20,7 +20,11 @@ public class InternalEngineBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeltBlockEntity>> BELT =
             BLOCK_ENTITIES.register("belt", () -> new BlockEntityType<>(
-                    BeltBlockEntity::new, InternalEngineBlocks.BELT.get()));
+                    BeltBlockEntity::new,
+                    InternalEngineBlocks.BELT_MK1.get(),
+                    InternalEngineBlocks.BELT_MK2.get()
+                    )
+            );
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ConsumerBlockEntity>> CONSUMER =
             BLOCK_ENTITIES.register("consumer", () -> new BlockEntityType<>(

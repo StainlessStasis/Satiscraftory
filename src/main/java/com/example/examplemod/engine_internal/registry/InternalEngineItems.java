@@ -11,8 +11,10 @@ public class InternalEngineItems {
 
     public static final DeferredItem<BlockItem> PRODUCER =
             ITEMS.registerSimpleBlockItem("producer", InternalEngineBlocks.PRODUCER);
-    public static final DeferredItem<BlockItem> BELT =
-            ITEMS.registerSimpleBlockItem("belt", InternalEngineBlocks.BELT);
+    public static final DeferredItem<BlockItem> BELT_MK1 =
+            ITEMS.registerSimpleBlockItem("belt_mk1", InternalEngineBlocks.BELT_MK1);
+    public static final DeferredItem<BlockItem> BELT_MK2 =
+            ITEMS.registerSimpleBlockItem("belt_mk2", InternalEngineBlocks.BELT_MK2);
     public static final DeferredItem<BlockItem> CONSUMER =
             ITEMS.registerSimpleBlockItem("consumer", InternalEngineBlocks.CONSUMER);
     public static final DeferredItem<BlockItem> MACHINE =

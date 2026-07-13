@@ -17,7 +17,6 @@ public class Belt implements Port {
 
     public record ItemSnapshot(double position, String typeId) {}
 
-    private final int lengthTicks;
     private final double speed;
     private final double minGap;
     private Port output;
@@ -29,10 +28,9 @@ public class Belt implements Port {
 
     private final List<BeltItem> items = new ArrayList<>();
 
-    public Belt(int lengthInTicks, double minGap) {
-        if (lengthInTicks <= 0) throw new IllegalArgumentException("Length must be positive");
-        this.lengthTicks = lengthInTicks;
-        this.speed = 1d / lengthInTicks;
+    public Belt(double speed, double minGap) {
+        if (speed <= 0) throw new IllegalArgumentException("Speed must be positive");
+        this.speed = speed;
         this.minGap = minGap;
     }
 
@@ -127,10 +125,6 @@ public class Belt implements Port {
         List<Double> positions = new ArrayList<>();
         for (BeltItem beltItem : items) positions.add(beltItem.position);
         return positions;
-    }
-
-    public int getLengthTicks() {
-        return lengthTicks;
     }
 
     public double getSpeed() {

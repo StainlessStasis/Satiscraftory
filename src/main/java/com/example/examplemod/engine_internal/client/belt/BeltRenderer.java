@@ -28,8 +28,6 @@ import java.util.List;
 import static com.mojang.math.Constants.EPSILON;
 
 public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRenderState> {
-    private static final double BELT_SPEED = 1d / BeltBlockEntity.LENGTH_TICKS;
-    private static final int MAX_PREDICTED_TICKS = BeltBlockEntity.LENGTH_TICKS * 2;
     private static final float Z_FIGHTING_ADJUSTMENT = 0.001f;
 
     private final ItemModelResolver itemModelResolver;
@@ -52,6 +50,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.shape = blockEntity.getBlockState().getValue(BeltBlock.SHAPE);
         renderState.reversed = blockEntity.getBlockState().getValue(BeltBlock.REVERSED);
 
+        double speed = blockEntity.getSpeed();
         List<Belt.ItemSnapshot> syncedItems = blockEntity.getRenderItems();
         long syncTick = blockEntity.getLastSyncedTick();
 
@@ -62,7 +61,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.syncTick = syncTick;
 
         double elapsedTicks = elapsedTicksSince(blockEntity, syncTick, partialTick);
-        double[] predictedPositions = predictPositions(syncedItems, elapsedTicks);
+        double[] predictedPositions = predictPositions(syncedItems, elapsedTicks, speed);
         for (int i = 0; i < renderState.items.size() && i < predictedPositions.length; i++) {
             renderState.items.get(i).position = predictedPositions[i];
         }
@@ -73,15 +72,15 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.neighborShapeAtEnd = (output != null) ? output.getBlockState().getValue(BeltBlock.SHAPE) : null;
 
         boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
-        double rawFront = frontRawPosition(syncedItems, elapsedTicks);
+        double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
         renderState.hideFrontItem = outputHasRoom && rawFront >= 1d - EPSILON;
 
         updateIncomingItem(blockEntity, renderState, partialTick);
     }
 
-    private double frontRawPosition(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
+    private double frontRawPosition(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks, double speed) {
         if (syncedItems.isEmpty()) return Double.NEGATIVE_INFINITY;
-        return syncedItems.getFirst().position() + BELT_SPEED * Math.max(elapsedTicks, 0);
+        return syncedItems.getFirst().position() + speed * Math.max(elapsedTicks, 0);
     }
 
     private double elapsedTicksSince(BeltBlockEntity belt, long syncTick, float partialTick) {
@@ -93,7 +92,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         List<Belt.ItemSnapshot> synced = belt.getRenderItems();
         if (synced.isEmpty()) return true;
         double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
-        double[] positions = predictPositions(synced, elapsed);
+        double[] positions = predictPositions(synced, elapsed, belt.getSpeed());
         return positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
@@ -114,7 +113,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (inputSynced.isEmpty()) return;
 
         double inputElapsed = elapsedTicksSince(input, input.getLastSyncedTick(), partialTick);
-        double inputRawFront = frontRawPosition(inputSynced, inputElapsed);
+        double inputRawFront = frontRawPosition(inputSynced, inputElapsed, input.getSpeed());
         if (inputRawFront < 1d - EPSILON) return;
 
         if (!hasRoomAtBack(self, partialTick)) return;
@@ -176,25 +175,26 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return itemRenderData;
     }
 
-    private double[] predictPositions(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks) {
+    private double[] predictPositions(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks, double speed) {
         double[] positions = new double[syncedItems.size()];
         for (int i = 0; i < syncedItems.size(); i++) positions[i] = syncedItems.get(i).position();
 
         if (elapsedTicks <= 0 || positions.length == 0) return positions;
 
-        int fullTicks = (int) Math.min(Math.floor(elapsedTicks), MAX_PREDICTED_TICKS);
+        int maxPredictedTicks = (int) Math.ceil(2d / speed);
+        int fullTicks = (int) Math.min(Math.floor(elapsedTicks), maxPredictedTicks);
         double fraction = elapsedTicks - Math.floor(elapsedTicks);
-        if (elapsedTicks > MAX_PREDICTED_TICKS) fraction = 0;
+        if (elapsedTicks > maxPredictedTicks) fraction = 0;
 
-        for (int step = 0; step < fullTicks; step++) advanceOnce(positions, 1.0);
-        if (fraction > 0) advanceOnce(positions, fraction);
+        for (int step = 0; step < fullTicks; step++) advanceOnce(positions, 1.0, speed);
+        if (fraction > 0) advanceOnce(positions, fraction, speed);
         return positions;
     }
 
-    private void advanceOnce(double[] positions, double stepScale) {
+    private void advanceOnce(double[] positions, double stepScale, double speed) {
         for (int i = 0; i < positions.length; i++) {
             double cap = (i == 0) ? 1d : Math.max(positions[i - 1] - BeltBlockEntity.MIN_GAP, 0);
-            double proposed = positions[i] + BELT_SPEED * stepScale;
+            double proposed = positions[i] + speed * stepScale;
             positions[i] = Math.clamp(proposed, 0, cap);
         }
     }
