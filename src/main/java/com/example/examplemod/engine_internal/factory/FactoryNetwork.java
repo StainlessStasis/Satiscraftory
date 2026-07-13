@@ -103,11 +103,14 @@ public class FactoryNetwork extends SavedData {
     public void linkBeltOutput(GlobalPos beltPos, GlobalPos outputPos) {
         Belt belt = belts.get(beltPos);
         Port port = getPortAt(outputPos);
-        if (belt != null && port != null) {
-            belt.setOutput(port);
-            beltOutputPos.put(beltPos, outputPos);
-            setDirty();
-        }
+        if (belt == null || port == null) return;
+
+        GlobalPos previousOutput = beltOutputPos.get(beltPos);
+        if (port == belt.getOutput() && outputPos.equals(previousOutput)) return;
+
+        belt.setOutput(port);
+        beltOutputPos.put(beltPos, outputPos);
+        setDirty();
     }
 
     public void linkMachineOutput(GlobalPos machinePos, GlobalPos outputPos) {

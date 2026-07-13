@@ -118,6 +118,10 @@ public class Belt implements Port {
         return lastSyncedTick;
     }
 
+    public Port getOutput() {
+        return output;
+    }
+
     /**
      * True whenever the front item is sitting at the exit
      * (jammed waiting on the output, or about to discharge this same tick)
