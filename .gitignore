@@ -33,8 +33,9 @@ bin/
 .DS_Store
 
 ### Minecraft Modding ###
-run/
+Satiscraftory/run/
 !**/src/**/run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+**/run/
