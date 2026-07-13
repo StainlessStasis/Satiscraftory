@@ -358,4 +358,9 @@ public class FactoryNetwork extends SavedData {
 
         return network;
     }
+
+    public int getBeltCount() { return belts.size(); }
+    public int getProducerCount() { return producers.size(); }
+    public int getConsumerCount() { return consumers.size(); }
+    public int getMachineCount() { return machines.size(); }
 }
