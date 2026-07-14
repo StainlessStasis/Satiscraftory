@@ -145,6 +145,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void removeBelt(GlobalPos pos) {
+        clearReferencesTo(pos);
         if (belts.remove(pos) != null) {
             beltOutputPos.remove(pos);
             setDirty();
@@ -152,15 +153,46 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void removeConsumer(GlobalPos pos) {
+        clearReferencesTo(pos);
         if (consumers.remove(pos) != null) {
             setDirty();
         }
     }
 
     public void removeMachine(GlobalPos pos) {
+        clearReferencesTo(pos);
         if (machines.remove(pos) != null) {
             machineOutputPos.remove(pos);
             setDirty();
+        }
+    }
+
+    private void clearReferencesTo(GlobalPos removedPos) {
+        for (var entry : beltOutputPos.entrySet()) {
+            if (removedPos.equals(entry.getValue())) {
+                Belt belt = belts.get(entry.getKey());
+                if (belt != null) belt.setOutput(NO_OP_PORT);
+            }
+        }
+        beltOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+
+        for (var entry : producerOutputPos.entrySet()) {
+            if (removedPos.equals(entry.getValue())) {
+                Producer producer = producers.get(entry.getKey());
+                if (producer != null) producer.setOutput(NO_OP_PORT);
+            }
+        }
+        producerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+
+        for (var entry : machineOutputPos.entrySet()) {
+            List<GlobalPos> slots = entry.getValue();
+            for (int i = 0; i < slots.size(); i++) {
+                if (removedPos.equals(slots.get(i))) {
+                    Machine machine = machines.get(entry.getKey());
+                    if (machine != null) machine.setOutputPort(i, NO_OP_PORT);
+                    slots.set(i, null);
+                }
+            }
         }
     }
 

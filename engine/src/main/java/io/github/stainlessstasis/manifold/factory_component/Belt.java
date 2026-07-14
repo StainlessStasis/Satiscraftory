@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import com.mojang.math.Constants;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class Belt implements Port {
         }
 
         BeltItem front = items.getFirst();
-        if (front.position >= 1 - 1.0e-6 && output != null && output.canAccept(front.payload)) {
+        if (front.position >= 1 - Constants.EPSILON && output != null && output.canAccept(front.payload)) {
             double frontOvershoot = Math.max(proposed[0] - 1, 0);
             output.acceptWithOverflow(front.payload, frontOvershoot);
             items.removeFirst();

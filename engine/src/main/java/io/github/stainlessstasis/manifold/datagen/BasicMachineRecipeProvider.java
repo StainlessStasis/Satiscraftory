@@ -20,7 +20,7 @@ public class BasicMachineRecipeProvider extends ManifoldRecipeProvider {
                 Manifold.id("basic_machine"),
                 List.of(new RecipeIngredient(Identifier.parse(Items.RAW_IRON.toString()), 1)),
                 List.of(new RecipeIngredient(Identifier.parse(Items.IRON_INGOT.toString()), 1)),
-                60L
+                20L
         ));
     }
 }
