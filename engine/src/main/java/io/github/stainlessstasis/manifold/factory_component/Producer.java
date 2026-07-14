@@ -2,11 +2,12 @@ package io.github.stainlessstasis.manifold.factory_component;
 
 
 import io.github.stainlessstasis.manifold.Scheduler;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class Producer {
-    private final String itemType;
+    private final Identifier itemId;
     private final long interval;
     private Port output;
     private final Scheduler scheduler;
@@ -15,9 +16,9 @@ public class Producer {
     private boolean active = true;
     private long nextProductionTick;
 
-    private Producer(String itemType, long interval, Port output, Scheduler scheduler, boolean active, @Nullable Payload pending) {
+    private Producer(Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, @Nullable Payload pending) {
         if (output == null) throw new IllegalArgumentException("Producer needs an output Port");
-        this.itemType = itemType;
+        this.itemId = itemId;
         this.interval = interval;
         this.output = output;
         this.scheduler = scheduler;
@@ -25,14 +26,14 @@ public class Producer {
         this.pending = pending;
     }
 
-    public Producer(String itemType, long interval, Port output, Scheduler scheduler) {
-        this(itemType, interval, output, scheduler, true, null);
+    public Producer(Identifier itemId, long interval, Port output, Scheduler scheduler) {
+        this(itemId, interval, output, scheduler, true, null);
         scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
     public static Producer restore(
-            String itemType, long interval, Port output, Scheduler scheduler, boolean active, Payload pending, long nextProductionTick) {
-        Producer producer = new Producer(itemType, interval, output, scheduler, active, pending);
+            Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, Payload pending, long nextProductionTick) {
+        Producer producer = new Producer(itemId, interval, output, scheduler, active, pending);
         if (pending == null) {
             producer.scheduleNextProduction(nextProductionTick);
         }
@@ -52,7 +53,7 @@ public class Producer {
         if (!active) return;
         if (pending != null) return;
 
-        Payload payload = new Payload(itemType);
+        Payload payload = new Payload(itemId);
         if (output.canAccept(payload)) {
             output.accept(payload);
             scheduleNextProduction(scheduler.getCurrentTick() + interval);
@@ -88,8 +89,8 @@ public class Producer {
         return pending != null;
     }
 
-    public String getItemType() {
-        return itemType;
+    public Identifier getItemId() {
+        return itemId;
     }
 
     public long getInterval() {

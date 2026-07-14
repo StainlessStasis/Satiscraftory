@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.datagen;
 
+import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -9,5 +10,6 @@ public class ManifoldDatagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
         event.createProvider(ManifoldModelProvider::new);
+        event.createProvider(BasicMachineRecipeProvider::new);
     }
 }

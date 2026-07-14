@@ -10,25 +10,24 @@ import org.jetbrains.annotations.Nullable;
 public final class PayloadItems {
     private PayloadItems() {}
 
-    public static String typeIdOf(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item).toString();
+    public static Identifier idOf(Item item) {
+        return BuiltInRegistries.ITEM.getKey(item);
     }
 
-    public static @Nullable ItemStack toItemStack(String typeId, int count) {
-        Identifier identifier = Identifier.parse(typeId);
-        var optional = BuiltInRegistries.ITEM.getOptional(identifier);
+    public static @Nullable ItemStack toItemStack(Identifier itemId, int count) {
+        var optional = BuiltInRegistries.ITEM.getOptional(itemId);
         if (optional.isEmpty()) {
-            Manifold.LOGGER.error("Could not convert Payload with ID: {} to an ItemStack; null.", typeId);
+            Manifold.LOGGER.error("Could not convert Payload with ID: {} to an ItemStack; null.", itemId);
             return null;
         }
         return new ItemStack(optional.get(), count);
     }
 
     public static ItemStack toItemStack(Payload payload) {
-        return toItemStack(payload.typeId(), payload.count());
+        return toItemStack(payload.itemId(), payload.count());
     }
 
     public static Payload fromItemStack(ItemStack itemStack) {
-        return new Payload(typeIdOf(itemStack.getItem()), itemStack.getCount());
+        return new Payload(idOf(itemStack.getItem()), itemStack.getCount());
     }
 }

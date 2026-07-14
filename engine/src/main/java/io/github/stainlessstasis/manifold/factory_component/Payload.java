@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
@@ -7,16 +8,14 @@ import java.util.Map;
 
 /**
  * Representation of "a thing moving through the factory."
- *
- * @param typeId Identifier of the real Item (e.g. "minecraft:stone").
  */
-public record Payload(String typeId, int count, @Nullable Map<String, Object> extraData) {
-    public Payload(String typeId) {
-        this(typeId, 1, null);
+public record Payload(Identifier itemId, int count, @Nullable Map<String, Object> extraData) {
+    public Payload(Identifier itemId) {
+        this(itemId, 1, null);
     }
 
-    public Payload(String typeId, int count) {
-        this(typeId, count, null);
+    public Payload(Identifier itemId, int count) {
+        this(itemId, count, null);
     }
 
     public boolean hasExtraData() {
@@ -24,12 +23,12 @@ public record Payload(String typeId, int count, @Nullable Map<String, Object> ex
     }
 
     public Payload withCount(int newCount) {
-        return new Payload(typeId, newCount, extraData);
+        return new Payload(itemId, newCount, extraData);
     }
 
     @Override
     public @NonNull String toString() {
-        return "Payload(" + typeId + (count != 1 ? " x" + count : "") + ")";
+        return "Payload(" + itemId + (count != 1 ? " x" + count : "") + ")";
     }
 }
 

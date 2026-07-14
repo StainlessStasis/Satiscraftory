@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
@@ -64,15 +65,15 @@ public class Consumer implements Port {
         return processTime;
     }
 
-    public List<String> getBufferedTypeIds() {
-        List<String> ids = new ArrayList<>();
-        for (Payload payload : buffer) ids.add(payload.typeId());
+    public List<Identifier> getBufferedItemIds() {
+        List<Identifier> ids = new ArrayList<>();
+        for (Payload payload : buffer) ids.add(payload.itemId());
         return ids;
     }
 
-    /** Type id of the item currently mid-process, or null if nothing is processing. */
-    public @Nullable String getProcessingTypeId() {
-        return processing != null ? processing.typeId() : null;
+    /** Identifier of the item currently mid-process, or null if nothing is processing. */
+    public @Nullable Identifier getProcessingItemId() {
+        return processing != null ? processing.itemId() : null;
     }
 
     public long getProcessStartTick() {
@@ -80,12 +81,12 @@ public class Consumer implements Port {
     }
 
     public static Consumer restore(
-            int capacity, int processTime, List<String> bufferedTypeIds, String processingTypeId, long processStartTick, int consumedCount)
+            int capacity, int processTime, List<Identifier> bufferedItemIds, Identifier processingItemId, long processStartTick, int consumedCount)
     {
         Consumer consumer = new Consumer(capacity, processTime);
-        for (String typeId : bufferedTypeIds) consumer.buffer.add(new Payload(typeId));
-        if (processingTypeId != null) {
-            consumer.processing = new Payload(processingTypeId);
+        for (Identifier itemId : bufferedItemIds) consumer.buffer.add(new Payload(itemId));
+        if (processingItemId != null) {
+            consumer.processing = new Payload(processingItemId);
             consumer.processStartTick = processStartTick;
         }
         consumer.consumedCount = consumedCount;

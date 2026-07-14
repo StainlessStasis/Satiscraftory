@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -119,14 +120,14 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (!hasRoomAtBack(self, partialTick)) return;
 
         double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
-        String typeId = inputSynced.getFirst().typeId();
+        Identifier itemId = inputSynced.getFirst().itemId();
         renderState.itemIncomingActive = true;
         renderState.itemIncoming.position = overflow;
-        renderState.itemIncoming.typeId = typeId;
+        renderState.itemIncoming.itemId = itemId;
 
-        if (!typeId.equals(renderState.itemIncomingTypeCached)) {
-            renderState.itemIncomingTypeCached = typeId;
-            ItemStack stack = PayloadItems.toItemStack(typeId, 1);
+        if (!itemId.equals(renderState.itemIncomingTypeCached)) {
+            renderState.itemIncomingTypeCached = itemId;
+            ItemStack stack = PayloadItems.toItemStack(itemId, 1);
             if (stack != null) {
                 itemModelResolver.updateForTopItem(
                         renderState.itemIncoming.itemStackRenderState, stack, ItemDisplayContext.FIXED, self.getLevel(), null, 0);
@@ -151,7 +152,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             Belt.ItemSnapshot snapshot = syncedItems.get(i);
             int reuseIndex = oldStart + i;
             BeltRenderState.BeltItemRenderData reused =
-                    (reuseIndex < oldSize && oldItems.get(reuseIndex).typeId.equals(snapshot.typeId()))
+                    (reuseIndex < oldSize && oldItems.get(reuseIndex).itemId.equals(snapshot.itemId()))
                             ? oldItems.get(reuseIndex) : null;
 
             if (reused != null) {
@@ -166,9 +167,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private BeltRenderState.BeltItemRenderData buildItemRenderData(BeltBlockEntity blockEntity, Belt.ItemSnapshot snapshot) {
         BeltRenderState.BeltItemRenderData itemRenderData = new BeltRenderState.BeltItemRenderData();
         itemRenderData.position = snapshot.position();
-        itemRenderData.typeId = snapshot.typeId();
+        itemRenderData.itemId = snapshot.itemId();
 
-        ItemStack itemStack = PayloadItems.toItemStack(snapshot.typeId(), 1);
+        ItemStack itemStack = PayloadItems.toItemStack(snapshot.itemId(), 1);
         if (itemStack != null) {
             itemModelResolver.updateForTopItem(itemRenderData.itemStackRenderState, itemStack, ItemDisplayContext.FIXED, blockEntity.getLevel(), null, 0);
         }

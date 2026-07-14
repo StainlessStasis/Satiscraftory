@@ -1,5 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import net.minecraft.resources.Identifier;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class Belt implements Port {
         }
     }
 
-    public record ItemSnapshot(double position, String typeId) {}
+    public record ItemSnapshot(double position, Identifier itemId) {}
 
     private final double speed;
     private final double minGap;
@@ -158,11 +160,11 @@ public class Belt implements Port {
 
     public List<ItemSnapshot> getItemSnapshots() {
         List<ItemSnapshot> snapshots = new ArrayList<>();
-        for (BeltItem beltItem : items) snapshots.add(new ItemSnapshot(beltItem.position, beltItem.payload.typeId()));
+        for (BeltItem beltItem : items) snapshots.add(new ItemSnapshot(beltItem.position, beltItem.payload.itemId()));
         return snapshots;
     }
 
-    public void restoreItem(String typeId, double position) {
-        items.add(new BeltItem(new Payload(typeId), position));
+    public void restoreItem(Identifier itemId, double position) {
+        items.add(new BeltItem(new Payload(itemId), position));
     }
 }

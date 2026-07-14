@@ -1,0 +1,16 @@
+{
+  "durationTicks": 60,
+  "inputs": [
+    {
+      "amount": 1,
+      "itemId": "minecraft:raw_iron"
+    }
+  ],
+  "machineType": "manifold:basic_machine",
+  "outputs": [
+    {
+      "amount": 1,
+      "itemId": "minecraft:iron_ingot"
+    }
+  ]
+}

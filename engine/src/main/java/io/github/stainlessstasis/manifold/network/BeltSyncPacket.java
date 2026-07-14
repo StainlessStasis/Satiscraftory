@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public record BeltSyncPacket(List<Entry> entries) implements CustomPacketPayload
 
     private static final StreamCodec<ByteBuf, Belt.ItemSnapshot> ITEM_SNAPSHOT_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.FLOAT, snapshot -> (float) snapshot.position(),
-            ByteBufCodecs.STRING_UTF8, Belt.ItemSnapshot::typeId,
+            Identifier.STREAM_CODEC, Belt.ItemSnapshot::itemId,
             (position, typeId) -> new Belt.ItemSnapshot(position, typeId)
     );
 

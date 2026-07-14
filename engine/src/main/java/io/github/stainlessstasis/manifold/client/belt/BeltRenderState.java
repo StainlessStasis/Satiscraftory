@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.factory_component.Belt;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +19,14 @@ public class BeltRenderState extends BlockEntityRenderState {
 
     boolean hideFrontItem = false;
     boolean itemIncomingActive = false;
-    String itemIncomingTypeCached = null;
+    Identifier itemIncomingTypeCached = null;
     final BeltItemRenderData itemIncoming = new BeltItemRenderData();
     BeltShape neighborShapeAtStart = null;
     BeltShape neighborShapeAtEnd = null;
 
     static final class BeltItemRenderData {
         double position;
-        String typeId;
+        Identifier itemId;
         final ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
     }
 }

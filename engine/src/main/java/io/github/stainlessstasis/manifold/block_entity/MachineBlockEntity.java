@@ -1,24 +1,26 @@
 package io.github.stainlessstasis.manifold.block_entity;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Machine;
-import io.github.stainlessstasis.manifold.factory_component.Recipe;
+import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
+import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
+import java.util.List;
+
 public class MachineBlockEntity extends BlockEntity {
-    private static final Recipe RECIPE = new Recipe(
-            Items.RAW_IRON.toString(), Items.IRON_INGOT.toString(), 60L
-    );
+    private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
 
     private Machine machine;
 
@@ -36,8 +38,15 @@ public class MachineBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        machine = network.getOrCreateMachine(GlobalPos.of(serverLevel.dimension(), getBlockPos()),
-                () -> new Machine(RECIPE, network.getScheduler(), FactoryNetwork.NO_OP_PORT));
+        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
+
+        machine = network.getOrCreateMachine(globalPos, () -> {
+            MachineRecipe recipe = ManifoldRecipes.get(DEFAULT_RECIPE_ID);
+            if (recipe == null) {
+                throw new IllegalStateException("Missing built-in recipe " + DEFAULT_RECIPE_ID + " - check Manifold's own datapack resources");
+            }
+            return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
+        });
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
@@ -45,10 +54,8 @@ public class MachineBlockEntity extends BlockEntity {
 
     public void relink(FactoryNetwork network) {
         if (!(level instanceof ServerLevel serverLevel)) return;
-        network.linkMachineOutput(
-                GlobalPos.of(serverLevel.dimension(), getBlockPos()),
-                GlobalPos.of(serverLevel.dimension(), resolveOutputPos())
-        );
+        GlobalPos selfPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
+        network.linkMachineOutput(selfPos, 0, GlobalPos.of(serverLevel.dimension(), resolveOutputPos()));
     }
 
     public void onNeighborChanged() {

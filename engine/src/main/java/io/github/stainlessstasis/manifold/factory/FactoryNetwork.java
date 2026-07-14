@@ -3,6 +3,8 @@ package io.github.stainlessstasis.manifold.factory;
 import io.github.stainlessstasis.manifold.*;
 import io.github.stainlessstasis.manifold.factory_component.*;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
+import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
+import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
@@ -39,7 +41,7 @@ public class FactoryNetwork extends SavedData {
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> beltOutputPos = new HashMap<>();
-    private final Map<GlobalPos, GlobalPos> machineOutputPos = new HashMap<>();
+    private final Map<GlobalPos, List<GlobalPos>> machineOutputPos = new HashMap<>();
 
     private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
     private interface TickTarget {
@@ -92,7 +94,11 @@ public class FactoryNetwork extends SavedData {
     public Port getPortAt(GlobalPos pos) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
-        return consumers.get(pos);
+        Consumer consumer = consumers.get(pos);
+        if (consumer != null) return consumer;
+        Machine machine = machines.get(pos);
+        if (machine != null && machine.inputSlotCount() > 0) return machine.inputPort(0);
+        return null;
     }
 
     public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos) {
@@ -118,14 +124,17 @@ public class FactoryNetwork extends SavedData {
         setDirty();
     }
 
-    public void linkMachineOutput(GlobalPos machinePos, GlobalPos outputPos) {
+    public void linkMachineOutput(GlobalPos machinePos, int slotIndex, GlobalPos outputPos) {
         Machine machine = machines.get(machinePos);
         Port port = getPortAt(outputPos);
-        if (machine != null && port != null) {
-            machine.setOutput(port);
-            machineOutputPos.put(machinePos, outputPos);
-            setDirty();
-        }
+        if (machine == null || port == null) return;
+
+        machine.setOutputPort(slotIndex, port);
+        machineOutputPos.computeIfAbsent(machinePos, _ -> new ArrayList<>(machine.outputSlotCount()));
+        List<GlobalPos> slots = machineOutputPos.get(machinePos);
+        while (slots.size() <= slotIndex) slots.add(null);
+        slots.set(slotIndex, outputPos);
+        setDirty();
     }
 
     public void removeProducer(GlobalPos pos) {
@@ -237,11 +246,20 @@ public class FactoryNetwork extends SavedData {
         return !chunkCache.chunkMap.getPlayers(chunkPos, false).isEmpty();
     }
 
-    private GlobalPos outputOf(GlobalPos pos) {
-        if (belts.containsKey(pos)) return beltOutputPos.get(pos);
-        if (producers.containsKey(pos)) return producerOutputPos.get(pos);
-        if (machines.containsKey(pos)) return machineOutputPos.get(pos);
-        return null; // consumers have no output
+    private List<GlobalPos> outputsOf(GlobalPos pos) {
+        if (belts.containsKey(pos)) {
+            GlobalPos out = beltOutputPos.get(pos);
+            return out != null ? List.of(out) : List.of();
+        }
+        if (producers.containsKey(pos)) {
+            GlobalPos out = producerOutputPos.get(pos);
+            return out != null ? List.of(out) : List.of();
+        }
+        if (machines.containsKey(pos)) {
+            List<GlobalPos> outs = machineOutputPos.get(pos);
+            return outs != null ? outs : List.of();
+        }
+        return List.of();
     }
 
     private boolean isTrackedNode(GlobalPos pos) {
@@ -251,21 +269,32 @@ public class FactoryNetwork extends SavedData {
 
     private void visitIterative(GlobalPos start, List<GlobalPos> order, Set<GlobalPos> visited) {
         Deque<GlobalPos> stack = new ArrayDeque<>();
+        Deque<Iterator<GlobalPos>> pendingOutputs = new ArrayDeque<>();
         Set<GlobalPos> onStack = new HashSet<>();
+
         stack.push(start);
         onStack.add(start);
+        pendingOutputs.push(outputsOf(start).iterator());
 
         while (!stack.isEmpty()) {
             GlobalPos pos = stack.peek();
-            if (visited.contains(pos)) { stack.pop(); onStack.remove(pos); continue; }
+            Iterator<GlobalPos> outIter = pendingOutputs.peek();
 
-            GlobalPos next = outputOf(pos);
-            if (isTrackedNode(next) && !visited.contains(next) && !onStack.contains(next)) {
-                stack.push(next);
-                onStack.add(next);
-                continue;
+            boolean pushedChild = false;
+            while (outIter != null && outIter.hasNext()) {
+                GlobalPos next = outIter.next();
+                if (isTrackedNode(next) && !visited.contains(next) && !onStack.contains(next)) {
+                    stack.push(next);
+                    onStack.add(next);
+                    pendingOutputs.push(outputsOf(next).iterator());
+                    pushedChild = true;
+                    break;
+                }
             }
+            if (pushedChild) continue;
+
             stack.pop();
+            pendingOutputs.pop();
             onStack.remove(pos);
             visited.add(pos);
             order.add(pos);
@@ -279,10 +308,10 @@ public class FactoryNetwork extends SavedData {
             Producer producer = entry.getValue();
             Payload pending = producer.getPending();
             persistedProducers.add(new Persisted.Producer(
-                    pos, producer.getItemType(), producer.getInterval(),
+                    pos, producer.getItemId(), producer.getInterval(),
                     Optional.ofNullable(producerOutputPos.get(pos)),
                     producer.isActive(),
-                    Optional.ofNullable(pending == null ? null : pending.typeId()),
+                    Optional.ofNullable(pending == null ? null : pending.itemId()),
                     producer.getNextProductionTick()
             ));
         }
@@ -293,7 +322,7 @@ public class FactoryNetwork extends SavedData {
             Belt belt = entry.getValue();
             List<Persisted.BeltItem> items = new ArrayList<>();
             for (Belt.ItemSnapshot snapshot : belt.getItemSnapshots()) {
-                items.add(new Persisted.BeltItem(snapshot.position(), snapshot.typeId()));
+                items.add(new Persisted.BeltItem(snapshot.position(), snapshot.itemId()));
             }
             persistedBelts.add(new Persisted.Belt(pos, belt.getSpeed(), belt.getMinGap(),
                     Optional.ofNullable(beltOutputPos.get(pos)), items));
@@ -304,22 +333,18 @@ public class FactoryNetwork extends SavedData {
             GlobalPos pos = entry.getKey();
             Consumer consumer = entry.getValue();
             persistedConsumers.add(new Persisted.Consumer(
-                    pos, consumer.getCapacity(), consumer.getProcessTime(), consumer.getBufferedTypeIds(),
-                    Optional.ofNullable(consumer.getProcessingTypeId()), consumer.getProcessStartTick(), consumer.getConsumedCount())
+                    pos, consumer.getCapacity(), consumer.getProcessTime(), consumer.getBufferedItemIds(),
+                    Optional.ofNullable(consumer.getProcessingItemId()), consumer.getProcessStartTick(), consumer.getConsumedCount())
             );
         }
 
         List<Persisted.Machine> persistedMachines = new ArrayList<>();
         for (Map.Entry<GlobalPos, Machine> entry : machines.entrySet()) {
-            GlobalPos pos = entry.getKey();
             Machine machine = entry.getValue();
-            Recipe recipe = machine.getRecipe();
             persistedMachines.add(new Persisted.Machine(
-                    pos, recipe.inputTypeId(), recipe.outputTypeId(), recipe.durationTicks(),
-                    Optional.ofNullable(machineOutputPos.get(pos)),
-                    machine.isCrafting(),
-                    Optional.ofNullable(machine.getPendingOutputTypeId()),
-                    machine.getCraftCompletionTick()
+                    entry.getKey(), machine.getRecipe().id(), machine.getBufferMultiplier(),
+                    machine.isCrafting(), machine.getCraftCompletionTick(),
+                    machine.getBufferedCounts(), machine.getPendingOutputItemIds()
             ));
         }
         return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines);
@@ -330,21 +355,21 @@ public class FactoryNetwork extends SavedData {
 
         for (Persisted.Belt beltData : snapshot.belts()) {
             Belt belt = new Belt(beltData.speed(), beltData.minGap());
-            for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.typeId(), item.position());
+            for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.itemId(), item.position());
             network.belts.put(beltData.pos(), belt);
             beltData.outputPos().ifPresent(outPos -> network.beltOutputPos.put(beltData.pos(), outPos));
         }
 
         for (Persisted.Consumer consumerData : snapshot.consumers()) {
             Consumer consumer = Consumer.restore(
-                    consumerData.capacity(), consumerData.processTime(), consumerData.bufferedTypeIds(),
-                    consumerData.processingTypeId().orElse(null), consumerData.processStartTick(), consumerData.consumedCount()
+                    consumerData.capacity(), consumerData.processTime(), consumerData.bufferedItemIds(),
+                    consumerData.processingItemId().orElse(null), consumerData.processStartTick(), consumerData.consumedCount()
             );
             network.consumers.put(consumerData.pos(), consumer);
         }
 
         for (Persisted.Producer producerData : snapshot.producers()) {
-            Payload pending = producerData.pendingTypeId().map(Payload::new).orElse(null);
+            Payload pending = producerData.pendingItemId().map(Payload::new).orElse(null);
             Producer producer = Producer.restore(
                     producerData.itemType(), producerData.interval(), NO_OP_PORT, network.scheduler,
                     producerData.active(), pending, producerData.nextProductionTick()
@@ -354,14 +379,16 @@ public class FactoryNetwork extends SavedData {
         }
 
         for (Persisted.Machine machineData : snapshot.machines()) {
-            Payload pendingOutput = machineData.pendingOutputTypeId().map(Payload::new).orElse(null);
-            Recipe recipe = new Recipe(machineData.inputTypeId(), machineData.outputTypeId(), machineData.durationTicks());
-            Machine machine = Machine.restore(
-                    recipe, network.scheduler, NO_OP_PORT,
-                    machineData.crafting(), pendingOutput, machineData.craftCompletionTick()
-            );
+            MachineRecipe recipe = ManifoldRecipes.get(machineData.recipeId());
+            if (recipe == null) continue;
+
+            List<Port> outputPorts = new ArrayList<>();
+            for (int i = 0; i < recipe.outputCount(); i++) outputPorts.add(NO_OP_PORT);
+
+            Machine machine = Machine.restore(recipe, network.scheduler, outputPorts, machineData.bufferMultiplier(),
+                    machineData.crafting(), machineData.craftCompletionTick(),
+                    machineData.bufferedCounts(), machineData.pendingOutputItemIds());
             network.machines.put(machineData.pos(), machine);
-            machineData.outputPos().ifPresent(outPos -> network.machineOutputPos.put(machineData.pos(), outPos));
         }
 
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
@@ -371,10 +398,6 @@ public class FactoryNetwork extends SavedData {
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue());
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
-        }
-        for (Map.Entry<GlobalPos, GlobalPos> entry : network.machineOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue());
-            if (port != null) network.machines.get(entry.getKey()).setOutput(port);
         }
 
         return network;

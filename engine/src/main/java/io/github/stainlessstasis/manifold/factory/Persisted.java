@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.factory;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Optional;
@@ -10,10 +11,10 @@ import java.util.Optional;
 final class Persisted {
     private Persisted() {}
 
-    record BeltItem(double position, String typeId) {
+    record BeltItem(double position, Identifier itemId) {
         static final Codec<BeltItem> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("position").forGetter(BeltItem::position),
-                Codec.STRING.fieldOf("typeId").forGetter(BeltItem::typeId)
+                Identifier.CODEC.fieldOf("itemId").forGetter(BeltItem::itemId)
         ).apply(i, BeltItem::new));
     }
 
@@ -27,44 +28,45 @@ final class Persisted {
         ).apply(i, Belt::new));
     }
 
-    record Producer(GlobalPos pos, String itemType, long interval, Optional<GlobalPos> outputPos,
-                    boolean active, Optional<String> pendingTypeId, long nextProductionTick) {
+    record Producer(GlobalPos pos, Identifier itemType, long interval, Optional<GlobalPos> outputPos,
+                    boolean active, Optional<Identifier> pendingItemId, long nextProductionTick) {
         static final Codec<Producer> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
-                Codec.STRING.fieldOf("itemType").forGetter(Producer::itemType),
+                Identifier.CODEC.fieldOf("itemType").forGetter(Producer::itemType),
                 Codec.LONG.fieldOf("interval").forGetter(Producer::interval),
                 GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
                 Codec.BOOL.fieldOf("active").forGetter(Producer::active),
-                Codec.STRING.optionalFieldOf("pendingTypeId").forGetter(Producer::pendingTypeId),
+                Identifier.CODEC.optionalFieldOf("pendingItemId").forGetter(Producer::pendingItemId),
                 Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick)
         ).apply(i, Producer::new));
     }
 
-    record Consumer(GlobalPos pos, int capacity, int processTime, List<String> bufferedTypeIds,
-                    Optional<String> processingTypeId, long processStartTick, int consumedCount) {
+    record Consumer(GlobalPos pos, int capacity, int processTime, List<Identifier> bufferedItemIds,
+                    Optional<Identifier> processingItemId, long processStartTick, int consumedCount) {
         static final Codec<Consumer> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Consumer::pos),
                 Codec.INT.fieldOf("capacity").forGetter(Consumer::capacity),
                 Codec.INT.fieldOf("processTime").forGetter(Consumer::processTime),
-                Codec.STRING.listOf().fieldOf("bufferedTypeIds").forGetter(Consumer::bufferedTypeIds),
-                Codec.STRING.optionalFieldOf("processingTypeId").forGetter(Consumer::processingTypeId),
+                Identifier.CODEC.listOf().fieldOf("bufferedItemIds").forGetter(Consumer::bufferedItemIds),
+                Identifier.CODEC.optionalFieldOf("processingItemId").forGetter(Consumer::processingItemId),
                 Codec.LONG.fieldOf("processStartTick").forGetter(Consumer::processStartTick),
                 Codec.INT.fieldOf("consumedCount").forGetter(Consumer::consumedCount)
         ).apply(i, Consumer::new));
     }
 
-    record Machine(GlobalPos pos, String inputTypeId, String outputTypeId, long durationTicks,
-                   Optional<GlobalPos> outputPos, boolean crafting,
-                   Optional<String> pendingOutputTypeId, long craftCompletionTick) {
+    record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, long craftCompletionTick,
+                   int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
-                Codec.STRING.fieldOf("inputTypeId").forGetter(Machine::inputTypeId),
-                Codec.STRING.fieldOf("outputTypeId").forGetter(Machine::outputTypeId),
-                Codec.LONG.fieldOf("durationTicks").forGetter(Machine::durationTicks),
-                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Machine::outputPos),
+                Identifier.CODEC.fieldOf("recipeId").forGetter(Machine::recipeId),
+                Codec.INT.fieldOf("bufferMultiplier").forGetter(Machine::bufferMultiplier),
                 Codec.BOOL.fieldOf("crafting").forGetter(Machine::crafting),
-                Codec.STRING.optionalFieldOf("pendingOutputTypeId").forGetter(Machine::pendingOutputTypeId),
-                Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick)
+                Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick),
+                Codec.INT.listOf().xmap(
+                        list -> list.stream().mapToInt(Integer::intValue).toArray(),
+                        arr -> java.util.Arrays.stream(arr).boxed().toList()
+                ).fieldOf("bufferedCounts").forGetter(Machine::bufferedCounts),
+                Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds)
         ).apply(i, Machine::new));
     }
 
