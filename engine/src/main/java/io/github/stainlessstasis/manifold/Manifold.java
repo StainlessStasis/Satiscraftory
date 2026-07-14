@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold;
 
 import io.github.stainlessstasis.manifold.network.NetworkSetup;
-import io.github.stainlessstasis.manifold.registry.InternalEngineRegistries;
+import io.github.stainlessstasis.manifold.registry.ManifoldRegistries;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
@@ -22,7 +22,7 @@ public class Manifold {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(NetworkSetup::register);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-        InternalEngineRegistries.register(modEventBus);
+        ManifoldRegistries.register(modEventBus);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {}

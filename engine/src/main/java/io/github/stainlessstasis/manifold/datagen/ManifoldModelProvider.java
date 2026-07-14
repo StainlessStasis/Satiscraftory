@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold.datagen;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlocks;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import com.mojang.math.Quadrant;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -19,18 +19,18 @@ import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
-public class InternalEngineModelProvider extends ModelProvider {
-    public InternalEngineModelProvider(PackOutput output) {
+public class ManifoldModelProvider extends ModelProvider {
+    public ManifoldModelProvider(PackOutput output) {
         super(output, Manifold.MODID);
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
-        Block producer = InternalEngineBlocks.PRODUCER.get();
-        Block belt_mk1 = InternalEngineBlocks.BELT_MK1.get();
-        Block belt_mk2 = InternalEngineBlocks.BELT_MK2.get();
-        Block consumer = InternalEngineBlocks.CONSUMER.get();
-        Block machine = InternalEngineBlocks.MACHINE.get();
+        Block producer = ManifoldBlocks.PRODUCER.get();
+        Block belt_mk1 = ManifoldBlocks.BELT_MK1.get();
+        Block belt_mk2 = ManifoldBlocks.BELT_MK2.get();
+        Block consumer = ManifoldBlocks.CONSUMER.get();
+        Block machine = ManifoldBlocks.MACHINE.get();
 
         blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createHorizontallyRotatedBlock(machine, TexturedModel.ORIENTABLE_ONLY_TOP);

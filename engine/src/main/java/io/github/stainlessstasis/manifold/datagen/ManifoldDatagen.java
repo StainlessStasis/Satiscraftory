@@ -5,9 +5,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @EventBusSubscriber
-public class InternalEngineDatagen {
+public class ManifoldDatagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
-        event.createProvider(InternalEngineModelProvider::new);
+        event.createProvider(ManifoldModelProvider::new);
     }
 }

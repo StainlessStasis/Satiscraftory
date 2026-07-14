@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold.block;
 
 import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -27,7 +27,7 @@ public class ProducerBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new ProducerBlockEntity(InternalEngineBlockEntities.PRODUCER.get(), pos, state);
+        return new ProducerBlockEntity(ManifoldBlockEntities.PRODUCER.get(), pos, state);
     }
 
     @Override

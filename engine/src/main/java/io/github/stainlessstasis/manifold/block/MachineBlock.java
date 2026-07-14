@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold.block;
 
 import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -27,7 +27,7 @@ public class MachineBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new MachineBlockEntity(InternalEngineBlockEntities.MACHINE.get(), pos, state);
+        return new MachineBlockEntity(ManifoldBlockEntities.MACHINE.get(), pos, state);
     }
 
     @Override

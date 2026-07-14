@@ -4,7 +4,7 @@ import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Machine;
 import io.github.stainlessstasis.manifold.factory_component.Recipe;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -23,7 +23,7 @@ public class MachineBlockEntity extends BlockEntity {
     private Machine machine;
 
     public MachineBlockEntity(BlockPos pos, BlockState state) {
-        super(InternalEngineBlockEntities.MACHINE.get(), pos, state);
+        super(ManifoldBlockEntities.MACHINE.get(), pos, state);
     }
 
     public MachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

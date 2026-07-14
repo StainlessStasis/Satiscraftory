@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.satiscraftory;
 
-import io.github.stainlessstasis.manifold.registry.InternalEngineRegistries;
 import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 

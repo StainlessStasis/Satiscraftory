@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold.block_entity;
 import io.github.stainlessstasis.manifold.factory_component.Consumer;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +18,7 @@ public class ConsumerBlockEntity extends BlockEntity {
     private Consumer consumer;
 
     public ConsumerBlockEntity(BlockPos pos, BlockState state) {
-        super(InternalEngineBlockEntities.CONSUMER.get(), pos, state);
+        super(ManifoldBlockEntities.CONSUMER.get(), pos, state);
     }
 
     public ConsumerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

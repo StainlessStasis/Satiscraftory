@@ -4,7 +4,7 @@ import io.github.stainlessstasis.manifold.block.AbstractFactoryBlock;
 import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -71,7 +71,7 @@ public class BeltBlock extends AbstractFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new BeltBlockEntity(InternalEngineBlockEntities.BELT.get(), pos, state);
+        return new BeltBlockEntity(ManifoldBlockEntities.BELT.get(), pos, state);
     }
 
     /**

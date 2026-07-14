@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold.block_entity;
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -21,7 +21,7 @@ public class ProducerBlockEntity extends BlockEntity {
     private Producer producer;
 
     public ProducerBlockEntity(BlockPos pos, BlockState state) {
-        super(InternalEngineBlockEntities.PRODUCER.get(), pos, state);
+        super(ManifoldBlockEntities.PRODUCER.get(), pos, state);
     }
 
     public ProducerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold;
 
 import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -24,6 +24,6 @@ public class ManifoldClient {
 
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(InternalEngineBlockEntities.BELT.get(), BeltRenderer::new);
+        event.registerBlockEntityRenderer(ManifoldBlockEntities.BELT.get(), BeltRenderer::new);
     }
 }

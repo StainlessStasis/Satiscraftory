@@ -6,7 +6,7 @@ import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.block.belt.BeltShapeSolver;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.registry.InternalEngineBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -27,7 +27,7 @@ public class BeltBlockEntity extends BlockEntity {
     private long lastSyncedTick = 0;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
-        super(InternalEngineBlockEntities.BELT.get(), pos, state);
+        super(ManifoldBlockEntities.BELT.get(), pos, state);
     }
 
     public BeltBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
