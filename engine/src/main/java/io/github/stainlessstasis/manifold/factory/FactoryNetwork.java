@@ -3,9 +3,12 @@ package io.github.stainlessstasis.manifold.factory;
 import io.github.stainlessstasis.manifold.*;
 import io.github.stainlessstasis.manifold.factory_component.*;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -15,6 +18,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class FactoryNetwork extends SavedData {
+    private static final int MAX_ENTRIES_PER_PACKET = 500; // for belt syncing
 
     public static final SavedDataType<FactoryNetwork> TYPE = new SavedDataType<>(
             Manifold.id("factory_network"),
@@ -37,8 +41,10 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, GlobalPos> beltOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> machineOutputPos = new HashMap<>();
 
-    private List<GlobalPos> tickOrder = null; // cached; null means needs rebuild
-    private static final int MAX_ENTRIES_PER_PACKET = 500; // for belt syncing
+    private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
+    private interface TickTarget {
+        void tick(long currentTick);
+    }
 
     public FactoryNetwork() {}
 
@@ -159,28 +165,26 @@ public class FactoryNetwork extends SavedData {
         scheduler.tick(currentTick);
 
         if (tickOrder == null) tickOrder = computeTickOrder();
-
-        for (GlobalPos pos : tickOrder) {
-            Producer producer = producers.get(pos);
-            if (producer != null) { producer.tick(currentTick); continue; }
-            Belt belt = belts.get(pos);
-            if (belt != null) { belt.tick(currentTick); continue; }
-            Machine machine = machines.get(pos);
-            if (machine != null) { machine.tick(currentTick); continue; }
-            Consumer consumer = consumers.get(pos);
-            if (consumer != null) consumer.tick(currentTick);
-        }
+        for (TickTarget target : tickOrder) target.tick(currentTick);
 
         Map<ResourceKey<Level>, List<BeltSyncPacket.Entry>> changedByDimension = new HashMap<>();
-
         for (var entry : belts.entrySet()) {
             Belt belt = entry.getValue();
             if (!belt.hasUnsyncedChanges(currentTick)) continue;
 
             GlobalPos globalPos = entry.getKey();
+            ServerLevel beltLevel = level.getServer().getLevel(globalPos.dimension());
+            if (beltLevel == null) { belt.markSynced(currentTick); continue; }
+
+            BlockPos pos = globalPos.pos();
+            if (!hasTrackingPlayers(beltLevel, ChunkPos.containing(pos))) {
+                belt.markSynced(currentTick);
+                continue;
+            }
+
             changedByDimension
                     .computeIfAbsent(globalPos.dimension(), _ -> new ArrayList<>())
-                    .add(new BeltSyncPacket.Entry(globalPos.pos(), currentTick, belt.getItemSnapshots()));
+                    .add(new BeltSyncPacket.Entry(pos, currentTick, belt.getItemSnapshots()));
             belt.markSynced(currentTick);
         }
 
@@ -199,7 +203,7 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    private List<GlobalPos> computeTickOrder() {
+    private List<TickTarget> computeTickOrder() {
         List<GlobalPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
         Set<GlobalPos> visited = new HashSet<>();
 
@@ -212,7 +216,25 @@ public class FactoryNetwork extends SavedData {
         for (GlobalPos start : allNodes) {
             if (!visited.contains(start)) visitIterative(start, order, visited);
         }
-        return order;
+
+        List<TickTarget> resolved = new ArrayList<>(order.size());
+        for (GlobalPos pos : order) {
+            Producer producer = producers.get(pos);
+            if (producer != null) { resolved.add(producer::tick); continue; }
+            Belt belt = belts.get(pos);
+            if (belt != null) { resolved.add(belt::tick); continue; }
+            Machine machine = machines.get(pos);
+            if (machine != null) { resolved.add(machine::tick); continue; }
+            Consumer consumer = consumers.get(pos);
+            if (consumer != null) resolved.add(consumer::tick);
+        }
+        return resolved;
+    }
+
+    private static boolean hasTrackingPlayers(ServerLevel level, ChunkPos chunkPos) {
+        ServerChunkCache chunkCache = level.getChunkSource();
+        if (!chunkCache.hasChunk(chunkPos.x(), chunkPos.z())) return false;
+        return !chunkCache.chunkMap.getPlayers(chunkPos, false).isEmpty();
     }
 
     private GlobalPos outputOf(GlobalPos pos) {
