@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -46,11 +47,10 @@ public class ProducerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockPos pos = getBlockPos();
         BlockPos outputPos = resolveOutputPos();
-        Direction outputDirection = Direction.getApproximateNearest(Vec3.atCenterOf(outputPos.subtract(pos)));
         network.linkProducerOutput(
                 GlobalPos.of(serverLevel.dimension(), pos),
                 GlobalPos.of(serverLevel.dimension(), outputPos),
-                outputDirection
+                FactoryUtils.getOutputDirection(pos, outputPos)
         );
     }
 

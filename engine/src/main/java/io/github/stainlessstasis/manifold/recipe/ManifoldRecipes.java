@@ -43,6 +43,7 @@ public class ManifoldRecipes extends SimplePreparableReloadListener<Map<Identifi
     @Override
     protected void apply(@NonNull Map<Identifier, MachineRecipe> loaded, @NonNull ResourceManager resourceManager, @NonNull ProfilerFiller profiler) {
         RECIPES = Map.copyOf(loaded);
+        Manifold.LOGGER.info("ManifoldRecipes loaded {} recipes", RECIPES.size());
     }
 
     private static Identifier trimToRecipeId(Identifier fileLocation) {

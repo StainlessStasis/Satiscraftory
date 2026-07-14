@@ -7,6 +7,7 @@ import io.github.stainlessstasis.manifold.block.belt.BeltShapeSolver;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -54,11 +55,10 @@ public class BeltBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockPos pos = getBlockPos();
         BlockPos outputPos = resolveOutputPos();
-        Direction outputDirection = Direction.getApproximateNearest(Vec3.atCenterOf(outputPos.subtract(pos)));
         network.linkBeltOutput(
                 GlobalPos.of(serverLevel.dimension(), pos),
                 GlobalPos.of(serverLevel.dimension(), outputPos),
-                outputDirection
+                FactoryUtils.getOutputDirection(pos, outputPos)
         );
     }
 
