@@ -48,6 +48,10 @@ public class MachineBlockEntity extends BlockEntity {
             return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
         });
 
+        Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        machine.assignOutputFace(facing, 0);
+        machine.assignInputFace(facing.getOpposite(), 0);
+
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
@@ -55,7 +59,9 @@ public class MachineBlockEntity extends BlockEntity {
     public void relink(FactoryNetwork network) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         GlobalPos selfPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        network.linkMachineOutput(selfPos, 0, GlobalPos.of(serverLevel.dimension(), resolveOutputPos()));
+        Direction outputDirection = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        BlockPos outputPos = getBlockPos().relative(outputDirection);
+        network.linkMachineOutput(selfPos, 0, GlobalPos.of(serverLevel.dimension(), outputPos), outputDirection);
     }
 
     public void onNeighborChanged() {

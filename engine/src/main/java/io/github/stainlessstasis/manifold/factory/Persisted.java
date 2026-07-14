@@ -2,10 +2,12 @@ package io.github.stainlessstasis.manifold.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 final class Persisted {
@@ -55,7 +57,8 @@ final class Persisted {
     }
 
     record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, long craftCompletionTick,
-                   int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds) {
+                   int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds,
+                   Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
                 Identifier.CODEC.fieldOf("recipeId").forGetter(Machine::recipeId),
@@ -66,7 +69,9 @@ final class Persisted {
                         list -> list.stream().mapToInt(Integer::intValue).toArray(),
                         arr -> java.util.Arrays.stream(arr).boxed().toList()
                 ).fieldOf("bufferedCounts").forGetter(Machine::bufferedCounts),
-                Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds)
+                Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds),
+                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Machine::inputFaces),
+                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Machine::outputFaces)
         ).apply(i, Machine::new));
     }
 

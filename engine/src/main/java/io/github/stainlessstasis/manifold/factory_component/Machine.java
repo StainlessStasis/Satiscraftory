@@ -3,12 +3,11 @@ package io.github.stainlessstasis.manifold.factory_component;
 import io.github.stainlessstasis.manifold.Scheduler;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 public class Machine {
     private MachineRecipe recipe;
@@ -16,7 +15,9 @@ public class Machine {
     private final int bufferMultiplier; // how many recipe batches worth of input each slot can hold at once
     private int[] bufferedCounts; // per input slot, how many items are currently buffered
     private final List<Deque<Payload>> pendingOutputs = new ArrayList<>(); // per output slot, items waiting to leave
-    private final List<Port> outputPorts = new ArrayList<>(); // per output slot, where it pushes to
+    private final List<Port> outputPorts = new ArrayList<>();
+    private final Map<Direction, Integer> inputFaces = new EnumMap<>(Direction.class);
+    private final Map<Direction, Integer> outputFaces = new EnumMap<>(Direction.class);
     private boolean crafting = false;
     private long craftCompletionTick = -1;
 
@@ -39,12 +40,20 @@ public class Machine {
     public static Machine restore(
             MachineRecipe recipe, Scheduler scheduler, List<Port> outputPorts,
             int bufferMultiplier, boolean crafting, long craftCompletionTick,
-            int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds
+            int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds,
+            Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces
     ) {
         Machine machine = new Machine(recipe, scheduler, outputPorts, bufferMultiplier);
         machine.crafting = crafting;
         machine.craftCompletionTick = craftCompletionTick;
         machine.bufferedCounts = bufferedCounts;
+
+        for (var entry : inputFaces.entrySet()) {
+            machine.assignInputFace(entry.getKey(), entry.getValue());
+        }
+        for (var entry : outputFaces.entrySet()) {
+            machine.assignOutputFace(entry.getKey(), entry.getValue());
+        }
 
         machine.pendingOutputs.clear();
         for (List<Identifier> itemIds : pendingOutputItemIds) {
@@ -57,10 +66,36 @@ public class Machine {
         return machine;
     }
 
+    public void assignInputFace(Direction face, int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= recipe.inputCount()) throw new IllegalArgumentException("Invalid input slot " + slotIndex);
+        inputFaces.put(face, slotIndex);
+    }
+
+    public void assignOutputFace(Direction face, int slotIndex) {
+        if (slotIndex < 0 || slotIndex >= recipe.outputCount()) throw new IllegalArgumentException("Invalid output slot " + slotIndex);
+        outputFaces.put(face, slotIndex);
+    }
+
+    public void clearFaceAssignment(Direction face) {
+        inputFaces.remove(face);
+        outputFaces.remove(face);
+    }
+
+    public @Nullable Port inputPortForFace(Direction face) {
+        Integer slot = inputFaces.get(face);
+        return slot != null ? inputPort(slot) : null;
+    }
+
+    public Integer outputSlotForFace(Direction face) {
+        return outputFaces.get(face);
+    }
+
+    public Map<Direction, Integer> getInputFaceAssignments() { return Map.copyOf(inputFaces); }
+    public Map<Direction, Integer> getOutputFaceAssignments() { return Map.copyOf(outputFaces); }
+
     public Port inputPort(int index) {
         return new InputSlotPort(index);
     }
-
     public void setOutputPort(int index, Port port) {
         outputPorts.set(index, port);
     }

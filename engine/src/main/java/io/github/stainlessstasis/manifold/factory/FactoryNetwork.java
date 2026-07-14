@@ -6,6 +6,7 @@ import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -91,19 +93,19 @@ public class FactoryNetwork extends SavedData {
         });
     }
 
-    public Port getPortAt(GlobalPos pos) {
+    public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
         Consumer consumer = consumers.get(pos);
         if (consumer != null) return consumer;
         Machine machine = machines.get(pos);
-        if (machine != null && machine.inputSlotCount() > 0) return machine.inputPort(0);
+        if (machine != null && fromDirection != null) return machine.inputPortForFace(fromDirection.getOpposite());
         return null;
     }
 
-    public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos) {
+    public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos, Direction outputDirection) {
         Producer producer = producers.get(producerPos);
-        Port port = getPortAt(outputPos);
+        Port port = getPortAt(outputPos, outputDirection);
         if (producer != null && port != null) {
             producer.setOutput(port);
             producerOutputPos.put(producerPos, outputPos);
@@ -111,9 +113,9 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    public void linkBeltOutput(GlobalPos beltPos, GlobalPos outputPos) {
+    public void linkBeltOutput(GlobalPos beltPos, GlobalPos outputPos, Direction outputDirection) {
         Belt belt = belts.get(beltPos);
-        Port port = getPortAt(outputPos);
+        Port port = getPortAt(outputPos, outputDirection);
         if (belt == null || port == null) return;
 
         GlobalPos previousOutput = beltOutputPos.get(beltPos);
@@ -124,9 +126,9 @@ public class FactoryNetwork extends SavedData {
         setDirty();
     }
 
-    public void linkMachineOutput(GlobalPos machinePos, int slotIndex, GlobalPos outputPos) {
+    public void linkMachineOutput(GlobalPos machinePos, int slotIndex, GlobalPos outputPos, Direction outputDirection) {
         Machine machine = machines.get(machinePos);
-        Port port = getPortAt(outputPos);
+        Port port = getPortAt(outputPos, outputDirection);
         if (machine == null || port == null) return;
 
         machine.setOutputPort(slotIndex, port);
@@ -376,7 +378,8 @@ public class FactoryNetwork extends SavedData {
             persistedMachines.add(new Persisted.Machine(
                     entry.getKey(), machine.getRecipe().id(), machine.getBufferMultiplier(),
                     machine.isCrafting(), machine.getCraftCompletionTick(),
-                    machine.getBufferedCounts(), machine.getPendingOutputItemIds()
+                    machine.getBufferedCounts(), machine.getPendingOutputItemIds(),
+                    machine.getInputFaceAssignments(), machine.getOutputFaceAssignments()
             ));
         }
         return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines);
@@ -419,16 +422,17 @@ public class FactoryNetwork extends SavedData {
 
             Machine machine = Machine.restore(recipe, network.scheduler, outputPorts, machineData.bufferMultiplier(),
                     machineData.crafting(), machineData.craftCompletionTick(),
-                    machineData.bufferedCounts(), machineData.pendingOutputItemIds());
+                    machineData.bufferedCounts(), machineData.pendingOutputItemIds(),
+                    machineData.inputFaces(), machineData.outputFaces());
             network.machines.put(machineData.pos(), machine);
         }
 
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue());
+            Port port = network.getPortAt(entry.getValue(), null);
             if (port != null) network.belts.get(entry.getKey()).setOutput(port);
         }
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue());
+            Port port = network.getPortAt(entry.getValue(), null);
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
         }
 

@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory;
 
 import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,12 +16,7 @@ public final class FactoryLinking {
 
     private static void relinkSelf(ServerLevel level, BlockPos pos) {
         FactoryNetwork network = FactoryNetwork.get(level);
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof ProducerBlockEntity producerBE) {
-            producerBE.relink(network);
-        } else if (blockEntity instanceof BeltBlockEntity beltBE) {
-            beltBE.relink(network);
-        }
+        relinkIfFactoryComponent(level.getBlockEntity(pos), network);
     }
 
     public static void relinkNeighbors(ServerLevel level, BlockPos pos) {
@@ -28,13 +24,18 @@ public final class FactoryLinking {
         for (Direction dir : Direction.Plane.HORIZONTAL) {
             for (int yOffset = -1; yOffset <= 1; yOffset++) {
                 BlockPos neighborPos = pos.relative(dir).above(yOffset);
-                BlockEntity blockEntity = level.getBlockEntity(neighborPos);
-                if (blockEntity instanceof ProducerBlockEntity producerBE) {
-                    producerBE.relink(network);
-                } else if (blockEntity instanceof BeltBlockEntity beltBE) {
-                    beltBE.relink(network);
-                }
+                relinkIfFactoryComponent(level.getBlockEntity(neighborPos), network);
             }
+        }
+    }
+
+    private static void relinkIfFactoryComponent(BlockEntity blockEntity, FactoryNetwork network) {
+        if (blockEntity instanceof ProducerBlockEntity producerBE) {
+            producerBE.relink(network);
+        } else if (blockEntity instanceof BeltBlockEntity beltBE) {
+            beltBE.relink(network);
+        } else if (blockEntity instanceof MachineBlockEntity machineBE) {
+            machineBE.relink(network);
         }
     }
 }

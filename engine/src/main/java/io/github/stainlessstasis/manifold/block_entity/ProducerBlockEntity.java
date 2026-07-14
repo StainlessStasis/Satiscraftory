@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 
 public class ProducerBlockEntity extends BlockEntity {
     private static final Identifier ITEM_TYPE = PayloadItems.idOf(Items.RAW_IRON);
@@ -43,9 +44,13 @@ public class ProducerBlockEntity extends BlockEntity {
 
     public void relink(FactoryNetwork network) {
         if (!(level instanceof ServerLevel serverLevel)) return;
+        BlockPos pos = getBlockPos();
+        BlockPos outputPos = resolveOutputPos();
+        Direction outputDirection = Direction.getApproximateNearest(Vec3.atCenterOf(outputPos.subtract(pos)));
         network.linkProducerOutput(
-                GlobalPos.of(serverLevel.dimension(), getBlockPos()),
-                GlobalPos.of(serverLevel.dimension(), resolveOutputPos())
+                GlobalPos.of(serverLevel.dimension(), pos),
+                GlobalPos.of(serverLevel.dimension(), outputPos),
+                outputDirection
         );
     }
 
