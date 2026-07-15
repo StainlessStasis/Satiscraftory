@@ -31,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 public class BeltBlock extends AbstractFactoryBlock {
-    private static final VoxelShape VOXEL_SHAPE = Shapes.box(0.0, 0.0, 0.0, 1.0, 0.625, 1.0);
     public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
@@ -103,7 +102,7 @@ public class BeltBlock extends AbstractFactoryBlock {
 
     @Override
     protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
-        return VOXEL_SHAPE;
+        return BeltShapes.get(state.getValue(SHAPE));
     }
 
     public double getSpeed() {
