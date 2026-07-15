@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "front": "manifold:block/machine_front",
-    "side": "manifold:block/machine_side",
-    "top": "manifold:block/machine_top"
-  }
-}

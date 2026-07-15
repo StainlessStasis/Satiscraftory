@@ -13,10 +13,12 @@ import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.Variant;
+import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.NonNull;
 
 public class ManifoldModelProvider extends ModelProvider {
@@ -33,11 +35,30 @@ public class ManifoldModelProvider extends ModelProvider {
         Block machine = ManifoldBlocks.MACHINE.get();
 
         blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
-        blockModels.createHorizontallyRotatedBlock(machine, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createTrivialCube(consumer);
 
+        registerMachineStates(blockModels, ManifoldBlocks.MACHINE.get());
         registerBeltModels(blockModels, belt_mk1, "");
         registerBeltModels(blockModels, belt_mk2, "_mk2");
+    }
+
+    private void registerMachineStates(BlockModelGenerators blockModels, Block machine) {
+        Identifier machineModelId = Manifold.id("block/machine");
+
+        Variant north = new Variant(machineModelId);
+        Variant east  = north.withYRot(Quadrant.R90);
+        Variant south = north.withYRot(Quadrant.R180);
+        Variant west  = north.withYRot(Quadrant.R270);
+
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(machine)
+                        .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
+                                .select(Direction.NORTH, new MultiVariant(WeightedList.of(north)))
+                                .select(Direction.EAST, new MultiVariant(WeightedList.of(east)))
+                                .select(Direction.SOUTH, new MultiVariant(WeightedList.of(south)))
+                                .select(Direction.WEST, new MultiVariant(WeightedList.of(west)))
+                        )
+        );
     }
 
     private void registerBeltModels(BlockModelGenerators blockModels, Block belt, String appendToPath) {

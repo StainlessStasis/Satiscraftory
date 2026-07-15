@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class ConsumerBlockEntity extends BlockEntity {
     private static final int CAPACITY = 8;
-    private static final int PROCESS_TIME_TICKS = 1;
+    private static final int PROCESS_TIME_TICKS = 0;
 
     private Consumer consumer;
 
