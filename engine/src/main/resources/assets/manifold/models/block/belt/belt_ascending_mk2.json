@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
 	"textures": {
-		"0": "manifold:block/belt_ascending",
-		"particle": "manifold:block/belt_ascending"
+		"0": "manifold:block/belt/belt_ascending",
+		"particle": "manifold:block/belt/belt_ascending"
 	},
 	"elements": [
 		{

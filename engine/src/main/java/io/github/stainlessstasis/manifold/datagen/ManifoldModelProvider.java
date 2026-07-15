@@ -64,9 +64,9 @@ public class ManifoldModelProvider extends ModelProvider {
     }
 
     private void registerBeltModels(BlockModelGenerators blockModels, Block belt, String appendToPath) {
-        Identifier straightModelId = Manifold.id("block/belt_straight"+appendToPath);
-        Identifier curvedModelId = Manifold.id("block/belt_curved"+appendToPath);
-        Identifier angledModelId = Manifold.id("block/belt_ascending"+appendToPath);
+        Identifier straightModelId = Manifold.id("block/belt/belt_straight"+appendToPath);
+        Identifier curvedModelId = Manifold.id("block/belt/belt_curved"+appendToPath);
+        Identifier angledModelId = Manifold.id("block/belt/belt_ascending"+appendToPath);
 
         // straight
         Variant forward = new Variant(straightModelId);
