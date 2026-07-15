@@ -19,4 +19,6 @@ public class ManifoldItems {
             ITEMS.registerSimpleBlockItem("consumer", ManifoldBlocks.CONSUMER);
     public static final DeferredItem<BlockItem> MACHINE =
             ITEMS.registerSimpleBlockItem("machine", ManifoldBlocks.MACHINE);
+    public static final DeferredItem<BlockItem> CONTAINER =
+            ITEMS.registerSimpleBlockItem("container", ManifoldBlocks.CONTAINER);
 }

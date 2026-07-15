@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "manifold:block/container",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "manifold:block/container"
+    },
+    "facing=south": {
+      "model": "manifold:block/container",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "manifold:block/container",
+      "y": 270
+    }
+  }
+}

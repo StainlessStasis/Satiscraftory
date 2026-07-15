@@ -7,5 +7,6 @@ public class ManifoldRegistries {
         ManifoldBlocks.BLOCKS.register(bus);
         ManifoldBlockEntities.BLOCK_ENTITIES.register(bus);
         ManifoldItems.ITEMS.register(bus);
+        ManifoldMenus.MENUS.register(bus);
     }
 }

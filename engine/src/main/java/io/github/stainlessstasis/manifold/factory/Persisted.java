@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.stainlessstasis.manifold.factory_component.Container;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.Identifier;
@@ -75,14 +76,32 @@ final class Persisted {
         ).apply(i, Machine::new));
     }
 
+    record ContainerSlot(Optional<Identifier> itemId, int count) {
+        static final Codec<ContainerSlot> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Identifier.CODEC.optionalFieldOf("itemId").forGetter(ContainerSlot::itemId),
+                Codec.INT.fieldOf("count").forGetter(ContainerSlot::count)
+        ).apply(i, ContainerSlot::new));
+
+        static final ContainerSlot EMPTY = new ContainerSlot(Optional.empty(), 0);
+    }
+
+    record Container(GlobalPos pos, int slotCount, List<ContainerSlot> slots, Optional<GlobalPos> outputPos) {
+        static final Codec<Container> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Container::pos),
+                Codec.INT.fieldOf("slotCount").forGetter(Container::slotCount),
+                ContainerSlot.CODEC.listOf().fieldOf("slots").forGetter(Container::slots),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Container::outputPos)
+        ).apply(i, Container::new));
+    }
 
     /** The full snapshot of everything FactoryNetwork tracks*/
-    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers, List<Machine> machines) {
+    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers, List<Machine> machines, List<Container> containers) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 Belt.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
                 Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers),
-                Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines)
+                Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines),
+                Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers)
         ).apply(i, Snapshot::new));
     }
 }

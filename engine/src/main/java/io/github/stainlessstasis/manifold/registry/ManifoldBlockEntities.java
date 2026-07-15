@@ -1,10 +1,7 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.ConsumerBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -33,4 +30,8 @@ public class ManifoldBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MachineBlockEntity>> MACHINE =
             BLOCK_ENTITIES.register("machine", () -> new BlockEntityType<>(
                     MachineBlockEntity::new, ManifoldBlocks.MACHINE.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ContainerBlockEntity>> CONTAINER =
+            BLOCK_ENTITIES.register("container", () -> new BlockEntityType<>(
+                    ContainerBlockEntity::new, ManifoldBlocks.CONTAINER.get()));
 }

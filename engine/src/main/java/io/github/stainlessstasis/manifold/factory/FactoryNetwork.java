@@ -40,10 +40,12 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, Belt> belts = new HashMap<>();
     private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
     private final Map<GlobalPos, Machine> machines = new HashMap<>();
+    private final Map<GlobalPos, Container> containers = new HashMap<>();
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> beltOutputPos = new HashMap<>();
     private final Map<GlobalPos, List<GlobalPos>> machineOutputPos = new HashMap<>();
+    private final Map<GlobalPos, GlobalPos> containerOutputPos = new HashMap<>();
 
     private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
     private interface TickTarget {
@@ -93,11 +95,20 @@ public class FactoryNetwork extends SavedData {
         });
     }
 
+    public Container getOrCreateContainer(GlobalPos pos, Supplier<Container> factory) {
+        return containers.computeIfAbsent(pos, _ -> {
+            setDirty();
+            return factory.get();
+        });
+    }
+
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
         Consumer consumer = consumers.get(pos);
         if (consumer != null) return consumer;
+        Container container = containers.get(pos);
+        if (container != null) return container;
         Machine machine = machines.get(pos);
         if (machine != null && fromDirection != null) return machine.inputPortForFace(fromDirection.getOpposite());
         return null;
@@ -139,6 +150,16 @@ public class FactoryNetwork extends SavedData {
         setDirty();
     }
 
+    public void linkContainerOutput(GlobalPos containerPos, GlobalPos outputPos, Direction outputDirection) {
+        Container container = containers.get(containerPos);
+        Port port = getPortAt(outputPos, outputDirection);
+        if (container == null || port == null) return;
+
+        container.setOutput(port);
+        containerOutputPos.put(containerPos, outputPos);
+        setDirty();
+    }
+
     public void removeProducer(GlobalPos pos) {
         if (producers.remove(pos) != null) {
             producerOutputPos.remove(pos);
@@ -169,6 +190,14 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
+    public void removeContainer(GlobalPos pos) {
+        clearReferencesTo(pos);
+        if (containers.remove(pos) != null) {
+            containerOutputPos.remove(pos);
+            setDirty();
+        }
+    }
+
     private void clearReferencesTo(GlobalPos removedPos) {
         for (var entry : beltOutputPos.entrySet()) {
             if (removedPos.equals(entry.getValue())) {
@@ -185,6 +214,14 @@ public class FactoryNetwork extends SavedData {
             }
         }
         producerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+
+        for (var entry : containerOutputPos.entrySet()) {
+            if (removedPos.equals(entry.getValue())) {
+                Container container = containers.get(entry.getKey());
+                if (container != null) container.setOutput(NO_OP_PORT);
+            }
+        }
+        containerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
 
         for (var entry : machineOutputPos.entrySet()) {
             List<GlobalPos> slots = entry.getValue();
@@ -254,6 +291,7 @@ public class FactoryNetwork extends SavedData {
         allNodes.addAll(producers.keySet());
         allNodes.addAll(belts.keySet());
         allNodes.addAll(machines.keySet());
+        allNodes.addAll(containers.keySet());
         allNodes.addAll(consumers.keySet());
 
         for (GlobalPos start : allNodes) {
@@ -268,6 +306,8 @@ public class FactoryNetwork extends SavedData {
             if (belt != null) { resolved.add(belt::tick); continue; }
             Machine machine = machines.get(pos);
             if (machine != null) { resolved.add(machine::tick); continue; }
+            Container container = containers.get(pos);
+            if (container != null) { resolved.add(container::tick); continue; }
             Consumer consumer = consumers.get(pos);
             if (consumer != null) resolved.add(consumer::tick);
         }
@@ -293,12 +333,17 @@ public class FactoryNetwork extends SavedData {
             List<GlobalPos> outs = machineOutputPos.get(pos);
             return outs != null ? outs : List.of();
         }
+        if (containers.containsKey(pos)) {
+            GlobalPos out = containerOutputPos.get(pos);
+            return out != null ? List.of(out) : List.of();
+        }
         return List.of();
     }
 
     private boolean isTrackedNode(GlobalPos pos) {
         return pos != null && (belts.containsKey(pos) || producers.containsKey(pos)
-                || machines.containsKey(pos) || consumers.containsKey(pos));
+                || machines.containsKey(pos) || consumers.containsKey(pos))
+                || containers.containsKey(pos);
     }
 
     private void visitIterative(GlobalPos start, List<GlobalPos> order, Set<GlobalPos> visited) {
@@ -382,12 +427,28 @@ public class FactoryNetwork extends SavedData {
                     machine.getInputFaceAssignments(), machine.getOutputFaceAssignments()
             ));
         }
-        return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines);
+
+        List<Persisted.Container> persistedContainers = new ArrayList<>();
+        for (Map.Entry<GlobalPos, Container> entry : containers.entrySet()) {
+            GlobalPos pos = entry.getKey();
+            Container container = entry.getValue();
+            List<Persisted.ContainerSlot> slotData = new ArrayList<>();
+            for (Payload payload : container.snapshotSlots()) {
+                slotData.add(payload == null
+                        ? Persisted.ContainerSlot.EMPTY
+                        : new Persisted.ContainerSlot(Optional.of(payload.itemId()), payload.count()));
+            }
+            persistedContainers.add(new Persisted.Container(
+                    pos, container.getSlotCount(), slotData, Optional.ofNullable(containerOutputPos.get(pos))));
+        }
+
+        return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines, persistedContainers);
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
 
+        // restore factory components
         for (Persisted.Belt beltData : snapshot.belts()) {
             Belt belt = new Belt(beltData.speed(), beltData.minGap());
             for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.itemId(), item.position());
@@ -427,13 +488,32 @@ public class FactoryNetwork extends SavedData {
             network.machines.put(machineData.pos(), machine);
         }
 
+        for (Persisted.Container containerData : snapshot.containers()) {
+            List<Payload> slotPayloads = new ArrayList<>();
+            for (Persisted.ContainerSlot slot : containerData.slots()) {
+                slotPayloads.add(slot.itemId().isPresent() && slot.count() > 0
+                        ? new Payload(slot.itemId().get(), slot.count())
+                        : null);
+            }
+            Container container = Container.restore(containerData.slotCount(), slotPayloads);
+            network.containers.put(containerData.pos(), container);
+            containerData.outputPos().ifPresent(outPos -> network.containerOutputPos.put(containerData.pos(), outPos));
+        }
+
+        // relink outputs
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue(), null);
             if (port != null) network.belts.get(entry.getKey()).setOutput(port);
         }
+
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
             Port port = network.getPortAt(entry.getValue(), null);
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
+        }
+
+        for (Map.Entry<GlobalPos, GlobalPos> entry : network.containerOutputPos.entrySet()) {
+            Port port = network.getPortAt(entry.getValue(), null);
+            if (port != null) network.containers.get(entry.getKey()).setOutput(port);
         }
 
         return network;
@@ -443,4 +523,5 @@ public class FactoryNetwork extends SavedData {
     public int getProducerCount() { return producers.size(); }
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
+    public int getContainerCount() { return containers.size(); }
 }

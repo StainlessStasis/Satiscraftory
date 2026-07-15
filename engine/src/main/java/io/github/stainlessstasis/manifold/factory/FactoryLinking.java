@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory;
 
 import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.ContainerBlockEntity;
 import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -36,6 +37,8 @@ public final class FactoryLinking {
             beltBE.relink(network);
         } else if (blockEntity instanceof MachineBlockEntity machineBE) {
             machineBE.relink(network);
+        } else if (blockEntity instanceof ContainerBlockEntity containerBE) {
+            containerBE.relink(network);
         }
     }
 }

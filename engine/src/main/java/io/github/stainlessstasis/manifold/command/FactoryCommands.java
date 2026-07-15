@@ -22,6 +22,8 @@ public final class FactoryCommands {
                                 .executes(ctx -> reportCount(ctx, "Consumers", FactoryNetwork::getConsumerCount)))
                         .then(Commands.literal("machines")
                                 .executes(ctx -> reportCount(ctx, "Machines", FactoryNetwork::getMachineCount)))
+                        .then(Commands.literal("containers")
+                                .executes(ctx -> reportCount(ctx, "Containers", FactoryNetwork::getContainerCount)))
                         .executes(FactoryCommands::reportAll)
                 )
         );
@@ -42,15 +44,16 @@ public final class FactoryCommands {
         int producers = network.getProducerCount();
         int consumers = network.getConsumerCount();
         int machines = network.getMachineCount();
-        int total = belts + producers + consumers + machines;
+        int containers = network.getContainerCount();
+        int total = belts + producers + consumers + machines + containers;
 
         ctx.getSource().sendSuccess(() -> Component.literal(
                 ("""
                         
                         Factory components:
-                        Belts: %d, Producers: %d, Consumers: %d, Machines: %d
+                        Belts: %d, Producers: %d, Consumers: %d, Machines: %d, Containers: %d
                         Total: %d""")
-                        .formatted(belts, producers, consumers, machines, total)), false);
+                        .formatted(belts, producers, consumers, machines, containers, total)), false);
         return total;
     }
 }

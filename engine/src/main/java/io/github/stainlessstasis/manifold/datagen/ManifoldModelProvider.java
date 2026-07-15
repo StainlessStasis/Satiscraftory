@@ -33,11 +33,13 @@ public class ManifoldModelProvider extends ModelProvider {
         Block belt_mk2 = ManifoldBlocks.BELT_MK2.get();
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
+        Block container = ManifoldBlocks.CONTAINER.get();
 
         blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
+        blockModels.createHorizontallyRotatedBlock(container, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createTrivialCube(consumer);
 
-        registerMachineStates(blockModels, ManifoldBlocks.MACHINE.get());
+        registerMachineStates(blockModels, machine);
         registerBeltModels(blockModels, belt_mk1, "");
         registerBeltModels(blockModels, belt_mk2, "_mk2");
     }

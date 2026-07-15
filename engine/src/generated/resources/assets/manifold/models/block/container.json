@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "manifold:block/container_front",
+    "side": "manifold:block/container_side",
+    "top": "manifold:block/container_top"
+  }
+}
