@@ -33,8 +33,9 @@ public class BeltShapes {
             double sliceMin = (double) i / STEPS;
             double sliceMax = (double) (i + 1) / STEPS;
 
-            double t = (sliceMax - coordA) / (coordB - coordA);
-            double surface = heightA + (heightB - heightA) * t;
+            double surfaceAtMin = heightA + (heightB - heightA) * (sliceMin - coordA) / (coordB - coordA);
+            double surfaceAtMax = heightA + (heightB - heightA) * (sliceMax - coordA) / (coordB - coordA);
+            double surface = Math.max(surfaceAtMin, surfaceAtMax);
             double yMax = Math.min(top, surface);
 
             VoxelShape box = axis == Direction.Axis.Z
