@@ -40,8 +40,8 @@ public class ManifoldModelProvider extends ModelProvider {
         blockModels.createTrivialCube(consumer);
 
         registerMachineStates(blockModels, machine);
-        registerBeltModels(blockModels, belt_mk1, "");
-        registerBeltModels(blockModels, belt_mk2, "");
+        registerBeltModels(blockModels, belt_mk1);
+        registerBeltModels(blockModels, belt_mk2);
     }
 
     private void registerMachineStates(BlockModelGenerators blockModels, Block machine) {
@@ -63,10 +63,10 @@ public class ManifoldModelProvider extends ModelProvider {
         );
     }
 
-    private void registerBeltModels(BlockModelGenerators blockModels, Block belt, String appendToPath) {
-        Identifier straightModelId = Manifold.id("block/belt/belt_straight"+appendToPath);
-        Identifier curvedModelId = Manifold.id("block/belt/belt_curved"+appendToPath);
-        Identifier angledModelId = Manifold.id("block/belt/belt_ascending"+appendToPath);
+    private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
+        Identifier straightModelId = Manifold.id("block/belt/belt_straight");
+        Identifier curvedModelId = Manifold.id("block/belt/belt_curved");
+        Identifier angledModelId = Manifold.id("block/belt/belt_ascending");
 
         // straight
         Variant forward = new Variant(straightModelId);

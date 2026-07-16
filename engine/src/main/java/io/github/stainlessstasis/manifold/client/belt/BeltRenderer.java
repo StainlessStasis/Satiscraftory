@@ -267,30 +267,18 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void submitBeltStrip(BeltRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
         TextureAtlasSprite sprite = spriteFor(renderState.shape);
         RenderType renderType = RenderTypes.entityCutout(sprite.atlasLocation());
-
         List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape);
-        double basePhase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
+        double phase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
         int count = quads.size();
 
         collector.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
+            VertexConsumer wrapped = sprite.wrap(buffer);
             for (int i = 0; i < count; i++) {
-                double segmentPhase = wrap01(basePhase - (double) i / count);
-                emitScrollingQuad(pose, buffer, quads.get(i), sprite, segmentPhase, renderState.lightCoords);
+                float tStart = (float) i / count;
+                float tEnd = (float) (i + 1) / count;
+                emitArcSegment(pose, wrapped, quads.get(i), tStart, tEnd, phase, renderState.lightCoords);
             }
         });
-    }
-
-    private void emitScrollingQuad(PoseStack.Pose pose, VertexConsumer rawBuffer, BeltGeometry.BeltStripQuad quad,
-                                   TextureAtlasSprite sprite, double phase, int light) {
-        VertexConsumer buffer = sprite.wrap(rawBuffer);
-
-        float span = quad.v1() - quad.v0();
-        float p = (float) (((phase % 1) + 1) % 1); // normalize into 0 to 1
-        float vAtPhase = quad.v0() + (p * span);
-        float split = 1 - p;
-
-        emitQuadSegment(pose, buffer, quad, 0, split, vAtPhase, quad.v1(), light);
-        emitQuadSegment(pose, buffer, quad, split, 1, quad.v0(), vAtPhase, light);
     }
 
     private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
@@ -310,6 +298,22 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         buffer.addVertex(pose, p3.x, p3.y, p3.z)
                 .setColor(255, 255, 255, 255).setUv(quad.u0(), vEnd)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
+    }
+
+    private void emitArcSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
+                                float tStart, float tEnd, double phase, int light) {
+        float span = quad.v1() - quad.v0();
+        float vStart = (float)(quad.v0() + span * wrap01((float) (tStart + phase)));
+        float vEndRaw = vStart + span * (tEnd - tStart);
+
+        if (vEndRaw <= quad.v1() + 1e-5f) {
+            emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
+        } else {
+            float overflow = vEndRaw - quad.v1();
+            float splitT = 1f - overflow / (span * (tEnd - tStart));
+            emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v1(), light);
+            emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v0(), quad.v0() + overflow, light);
+        }
     }
 
     private static double wrap01(double v) {
