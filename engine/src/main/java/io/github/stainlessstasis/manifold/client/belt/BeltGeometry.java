@@ -13,10 +13,11 @@ import java.util.List;
 public final class BeltGeometry {
     public static final float HALF_WIDTH = 0.375f;
     public static final float SURFACE_HEIGHT = 0.625f;
-    // TODO: this is way too many segments but it looks like shit if its any lower
     public static final int CORNER_SEGMENTS = 32;
     public static final float CORNER_BULGE = 0.15f;
 
+    // these values are derived from the up values of the belt cube in the model json,
+    // but the belt cube is deleted from the json, since belts are rendered as quads with a scrolling texture
     private static final float STRAIGHT_U0 = 2f/16,  STRAIGHT_U1 = 3.5f/16;
     private static final float STRAIGHT_V0 = 2.375f/16, STRAIGHT_V1 = 4.375f/16;
     private static final float ASCENDING_U0 = 2.875f/16, ASCENDING_U1 = 4.25f/16;
