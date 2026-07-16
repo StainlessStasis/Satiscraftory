@@ -14,6 +14,7 @@ public class BeltRenderState extends BlockEntityRenderState {
     boolean reversed = false;
     List<Belt.ItemSnapshot> syncedItems = List.of();
     long syncTick = 0;
+    float scrollOffset = 0f;
 
     final List<BeltItemRenderData> items = new ArrayList<>();
 
