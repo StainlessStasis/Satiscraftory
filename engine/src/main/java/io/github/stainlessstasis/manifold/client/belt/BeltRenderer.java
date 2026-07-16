@@ -285,7 +285,11 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     }
 
     private boolean needsMirror(BeltShape shape, boolean reversed) {
-        return false;
+        if (reversed) {
+            return shape.isCorner();
+        } else {
+            return shape == BeltShape.EAST_WEST || shape == BeltShape.NORTH_SOUTH;
+        }
     }
 
     private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
@@ -310,31 +314,21 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void emitArcSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
                                 float tStart, float tEnd, double phase, int light, boolean flip) {
         float span = quad.v1() - quad.v0();
-        float segSpan = span * (tEnd - tStart);
+        float vStart = (float) (quad.v0() + span * wrap01(tStart + phase));
+        float vEndRaw = vStart + span * (tEnd - tStart);
 
-        if (!flip) {
-            float vStart = (float) (quad.v0() + span * wrap01(tStart + phase));
-            float vEndRaw = vStart + segSpan;
-            if (vEndRaw <= quad.v1() + EPSILON) {
-                emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
-            } else {
-                float overflow = vEndRaw - quad.v1();
-                float splitT = 1f - overflow / segSpan;
-                emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v1(), light);
-                emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v0(), quad.v0() + overflow, light);
-            }
+        if (vEndRaw <= quad.v1() + EPSILON) {
+            emitQuadSegment(pose, buffer, quad, 0f, 1f, reflect(vStart, quad, flip), reflect(vEndRaw, quad, flip), light);
         } else {
-            float vStart = (float) (quad.v0() + span * wrap01(phase - tStart));
-            float vEndRaw = vStart - segSpan;
-            if (vEndRaw >= quad.v0() - EPSILON) {
-                emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
-            } else {
-                float underflow = quad.v0() - vEndRaw;
-                float splitT = 1f - underflow / segSpan;
-                emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v0(), light);
-                emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v1(), quad.v1() - underflow, light);
-            }
+            float overflow = vEndRaw - quad.v1();
+            float splitT = 1f - overflow / (span * (tEnd - tStart));
+            emitQuadSegment(pose, buffer, quad, 0f, splitT, reflect(vStart, quad, flip), reflect(quad.v1(), quad, flip), light);
+            emitQuadSegment(pose, buffer, quad, splitT, 1f, reflect(quad.v0(), quad, flip), reflect(quad.v0() + overflow, quad, flip), light);
         }
+    }
+
+    private static float reflect(float v, BeltGeometry.BeltStripQuad quad, boolean flip) {
+        return flip ? (quad.v0() + quad.v1() - v) : v;
     }
 
     private static double wrap01(double v) {
