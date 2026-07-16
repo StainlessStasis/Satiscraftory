@@ -13,15 +13,16 @@ import java.util.List;
 public final class BeltGeometry {
     public static final float HALF_WIDTH = 0.375f;
     public static final float SURFACE_HEIGHT = 0.625f;
-    public static final int CORNER_SEGMENTS = 24;
+    // TODO: this is way too many segments but it looks like shit if its any lower
+    public static final int CORNER_SEGMENTS = 32;
     public static final float CORNER_BULGE = 0.15f;
 
     private static final float STRAIGHT_U0 = 2f/16,  STRAIGHT_U1 = 3.5f/16;
     private static final float STRAIGHT_V0 = 2.375f/16, STRAIGHT_V1 = 4.375f/16;
     private static final float ASCENDING_U0 = 2.875f/16, ASCENDING_U1 = 4.25f/16;
     private static final float ASCENDING_V0 = 3.25f/16, ASCENDING_V1 = 6.125f/16;
-    private static final float CORNER_U0 = 3.5f/16, CORNER_U1 = 7f/16;
-    private static final float CORNER_V0 = 4.25f/16, CORNER_V1 = 7.75f/16;
+    private static final float CORNER_U0 = 0f/16, CORNER_U1 = 3.5f/16;
+    private static final float CORNER_V0 = 0f/16, CORNER_V1 = 4f/16;
 
     public static Vec3 localOffsetAt(BeltShape shape, boolean reversed, double t) {
         double u = reversed ? (1d - t) : t; // u=0 at endA, u=1 at endB, regardless of reversed or not
@@ -104,10 +105,6 @@ public final class BeltGeometry {
                     (float) Mth.lerp(geomFraction, start.y, end.y),
                     (float) Mth.lerp(geomFraction, start.z, end.z)
             );
-        }
-
-        float geomFractionForV(float vLocal) {
-            return (vLocal - v0) / (v1 - v0);
         }
     }
 

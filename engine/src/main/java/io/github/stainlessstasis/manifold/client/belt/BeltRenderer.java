@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -268,6 +269,8 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         TextureAtlasSprite sprite = spriteFor(renderState.shape);
         RenderType renderType = RenderTypes.entityCutout(sprite.atlasLocation());
         List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape);
+
+        boolean flip = needsMirror(renderState.shape, renderState.reversed);
         double phase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
         int count = quads.size();
 
@@ -276,9 +279,13 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             for (int i = 0; i < count; i++) {
                 float tStart = (float) i / count;
                 float tEnd = (float) (i + 1) / count;
-                emitArcSegment(pose, wrapped, quads.get(i), tStart, tEnd, phase, renderState.lightCoords);
+                emitArcSegment(pose, wrapped, quads.get(i), tStart, tEnd, phase, renderState.lightCoords, flip);
             }
         });
+    }
+
+    private boolean needsMirror(BeltShape shape, boolean reversed) {
+        return false;
     }
 
     private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
@@ -301,18 +308,32 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     }
 
     private void emitArcSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
-                                float tStart, float tEnd, double phase, int light) {
+                                float tStart, float tEnd, double phase, int light, boolean flip) {
         float span = quad.v1() - quad.v0();
-        float vStart = (float)(quad.v0() + span * wrap01((float) (tStart + phase)));
-        float vEndRaw = vStart + span * (tEnd - tStart);
+        float segSpan = span * (tEnd - tStart);
 
-        if (vEndRaw <= quad.v1() + 1e-5f) {
-            emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
+        if (!flip) {
+            float vStart = (float) (quad.v0() + span * wrap01(tStart + phase));
+            float vEndRaw = vStart + segSpan;
+            if (vEndRaw <= quad.v1() + EPSILON) {
+                emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
+            } else {
+                float overflow = vEndRaw - quad.v1();
+                float splitT = 1f - overflow / segSpan;
+                emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v1(), light);
+                emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v0(), quad.v0() + overflow, light);
+            }
         } else {
-            float overflow = vEndRaw - quad.v1();
-            float splitT = 1f - overflow / (span * (tEnd - tStart));
-            emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v1(), light);
-            emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v0(), quad.v0() + overflow, light);
+            float vStart = (float) (quad.v0() + span * wrap01(phase - tStart));
+            float vEndRaw = vStart - segSpan;
+            if (vEndRaw >= quad.v0() - EPSILON) {
+                emitQuadSegment(pose, buffer, quad, 0f, 1f, vStart, vEndRaw, light);
+            } else {
+                float underflow = quad.v0() - vEndRaw;
+                float splitT = 1f - underflow / segSpan;
+                emitQuadSegment(pose, buffer, quad, 0f, splitT, vStart, quad.v0(), light);
+                emitQuadSegment(pose, buffer, quad, splitT, 1f, quad.v1(), quad.v1() - underflow, light);
+            }
         }
     }
 

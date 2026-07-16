@@ -10,6 +10,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -80,6 +81,7 @@ public class BeltBlock extends AbstractFactoryBlock {
     protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
         if (level instanceof ServerLevel serverLevel) {
             boolean reversed = state.getValue(REVERSED);
+            player.sendOverlayMessage(Component.literal(state.getValue(SHAPE) + " "+reversed));
             serverLevel.setBlock(pos, state.setValue(REVERSED, !reversed), Block.UPDATE_ALL);
             if (serverLevel.getBlockEntity(pos) instanceof BeltBlockEntity beltBE) {
                 beltBE.relink(FactoryNetwork.get(serverLevel));
