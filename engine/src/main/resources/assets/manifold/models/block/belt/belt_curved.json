@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "Desktop/belt_curved",
-		"particle": "Desktop/belt_curved"
+		"0": "manifold:block/belt/belt_curved",
+		"particle": "manifold:block/belt/belt_curved"
 	},
 	"elements": [
 		{

@@ -1,10 +1,6 @@
 package io.github.stainlessstasis.manifold.client.belt;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.AddressMode;
-import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_component.Belt;
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
@@ -12,32 +8,30 @@ import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.item.ItemModelResolver;
-import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.*;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import static com.mojang.math.Constants.EPSILON;
 
@@ -49,9 +43,11 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private static final Identifier ASCENDING_TEX = Identifier.fromNamespaceAndPath("manifold", "block/belt/belt_ascending");
 
     private final ItemModelResolver itemModelResolver;
+    private final SpriteGetter sprites;
 
     public BeltRenderer(BlockEntityRendererProvider.Context context) {
         this.itemModelResolver = context.itemModelResolver();
+        this.sprites = context.sprites();
     }
 
     @Override
@@ -263,57 +259,63 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         poseStack.popPose();
     }
 
+    private TextureAtlasSprite spriteFor(BeltShape shape) {
+        Identifier tex = shape.isCorner() ? CURVED_TEX : (shape.isAscending() ? ASCENDING_TEX : STRAIGHT_TEX);
+        return sprites.get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, tex));
+    }
+
     private void submitBeltStrip(BeltRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
-        Identifier texture = textureFor(renderState.shape);
-        RenderType renderType = BELT_STRIP_CUTOUT.apply(texture);
+        TextureAtlasSprite sprite = spriteFor(renderState.shape);
+        RenderType renderType = RenderTypes.entityCutout(sprite.atlasLocation());
 
-        BeltGeometry.BeltStripQuad quad = BeltGeometry.stripQuadFor(renderState.shape);
-        double phase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
+        List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape);
+        double basePhase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
+        int count = quads.size();
 
-        collector.submitCustomGeometry(poseStack, renderType, (pose, buffer) ->
-                emitScrollingQuad(pose, buffer, quad, phase, renderState.lightCoords));
+        collector.submitCustomGeometry(poseStack, renderType, (pose, buffer) -> {
+            for (int i = 0; i < count; i++) {
+                double segmentPhase = wrap01(basePhase - (double) i / count);
+                emitScrollingQuad(pose, buffer, quads.get(i), sprite, segmentPhase, renderState.lightCoords);
+            }
+        });
     }
 
-    private Identifier textureFor(BeltShape shape) {
-        return shape.isCorner() ? CURVED_TEX : (shape.isAscending() ? ASCENDING_TEX : STRAIGHT_TEX);
+    private void emitScrollingQuad(PoseStack.Pose pose, VertexConsumer rawBuffer, BeltGeometry.BeltStripQuad quad,
+                                   TextureAtlasSprite sprite, double phase, int light) {
+        VertexConsumer buffer = sprite.wrap(rawBuffer);
+
+        float span = quad.v1() - quad.v0();
+        float p = (float) (((phase % 1) + 1) % 1); // normalize into 0 to 1
+        float vAtPhase = quad.v0() + (p * span);
+        float split = 1 - p;
+
+        emitQuadSegment(pose, buffer, quad, 0, split, vAtPhase, quad.v1(), light);
+        emitQuadSegment(pose, buffer, quad, split, 1, quad.v0(), vAtPhase, light);
     }
 
-    private void emitScrollingQuad(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad, double scrollUnits, int light) {
-        float v0 = (float) (quad.v0() + scrollUnits);
-        float v1 = (float) (quad.v1() + scrollUnits);
-        float u0 = quad.u0();
-        float u1 = quad.u1();
+    private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
+                                 float geomStart, float geomEnd, float vStart, float vEnd, int light) {
+        Vector3f p0 = quad.pointAt(geomStart, 0), p1 = quad.pointAt(geomStart, 1);
+        Vector3f p2 = quad.pointAt(geomEnd, 1), p3 = quad.pointAt(geomEnd, 0);
 
-        Vec3 p0 = quad.pointAt(0, 0), p1 = quad.pointAt(0, 1);
-        Vec3 p2 = quad.pointAt(1, 1), p3 = quad.pointAt(1, 0);
-
-        buffer.addVertex(pose, (float) p0.x, (float) p0.y, (float) p0.z)
-                .setColor(255, 255, 255, 255).setUv(u0, v0)
+        buffer.addVertex(pose, p0.x, p0.y, p0.z)
+                .setColor(255, 255, 255, 255).setUv(quad.u0(), vStart)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, (float) p1.x, (float) p1.y, (float) p1.z)
-                .setColor(255, 255, 255, 255).setUv(u1, v0)
+        buffer.addVertex(pose, p1.x, p1.y, p1.z)
+                .setColor(255, 255, 255, 255).setUv(quad.u1(), vStart)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, (float) p2.x, (float) p2.y, (float) p2.z)
-                .setColor(255, 255, 255, 255).setUv(u1, v1)
+        buffer.addVertex(pose, p2.x, p2.y, p2.z)
+                .setColor(255, 255, 255, 255).setUv(quad.u1(), vEnd)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, (float) p3.x, (float) p3.y, (float) p3.z)
-                .setColor(255, 255, 255, 255).setUv(u0, v1)
+        buffer.addVertex(pose, p3.x, p3.y, p3.z)
+                .setColor(255, 255, 255, 255).setUv(quad.u0(), vEnd)
                 .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
     }
 
-    private static final Function<Identifier, RenderType> BELT_STRIP_CUTOUT = Util.memoize(
-            texture -> RenderType.create(
-                    Manifold.id("belt_strip_cutout_" + texture.getPath().replace('/', '_')).toString(),
-                    RenderSetup.builder(RenderPipelines.CUTOUT_BLOCK)
-                            .useLightmap()
-                            .withTexture("Sampler0", texture,
-                                    () -> RenderSystem.getSamplerCache()
-                                            .getSampler(AddressMode.REPEAT, AddressMode.REPEAT, FilterMode.NEAREST, FilterMode.NEAREST, false))
-                            .affectsCrumbling()
-                            .setOutline(RenderSetup.OutlineProperty.AFFECTS_OUTLINE)
-                            .createRenderSetup()
-            )
-    );
+    private static double wrap01(double v) {
+        double w = v % 1;
+        return w < 0 ? w + 1 : w;
+    }
 
     private static float antiZFightingOffset(double position) {
         return (float) (position * Z_FIGHTING_ADJUSTMENT);
