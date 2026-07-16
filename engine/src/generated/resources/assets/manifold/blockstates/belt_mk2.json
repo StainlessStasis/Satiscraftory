@@ -1,78 +1,78 @@
 {
   "variants": {
     "reversed=false,shape=ascending_east": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 270
     },
     "reversed=false,shape=ascending_north": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 180
     },
     "reversed=false,shape=ascending_south": {
-      "model": "manifold:block/belt/belt_ascending_mk2"
+      "model": "manifold:block/belt/belt_ascending"
     },
     "reversed=false,shape=ascending_west": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 90
     },
     "reversed=false,shape=east_west": {
-      "model": "manifold:block/belt/belt_straight_mk2",
+      "model": "manifold:block/belt/belt_straight",
       "y": 270
     },
     "reversed=false,shape=north_east": {
-      "model": "manifold:block/belt/belt_curved_mk2"
+      "model": "manifold:block/belt/belt_curved"
     },
     "reversed=false,shape=north_south": {
-      "model": "manifold:block/belt/belt_straight_mk2",
+      "model": "manifold:block/belt/belt_straight",
       "y": 180
     },
     "reversed=false,shape=north_west": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 270
     },
     "reversed=false,shape=south_east": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 90
     },
     "reversed=false,shape=south_west": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 180
     },
     "reversed=true,shape=ascending_east": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 270
     },
     "reversed=true,shape=ascending_north": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 180
     },
     "reversed=true,shape=ascending_south": {
-      "model": "manifold:block/belt/belt_ascending_mk2"
+      "model": "manifold:block/belt/belt_ascending"
     },
     "reversed=true,shape=ascending_west": {
-      "model": "manifold:block/belt/belt_ascending_mk2",
+      "model": "manifold:block/belt/belt_ascending",
       "y": 90
     },
     "reversed=true,shape=east_west": {
-      "model": "manifold:block/belt/belt_straight_mk2",
+      "model": "manifold:block/belt/belt_straight",
       "y": 90
     },
     "reversed=true,shape=north_east": {
-      "model": "manifold:block/belt/belt_curved_mk2"
+      "model": "manifold:block/belt/belt_curved"
     },
     "reversed=true,shape=north_south": {
-      "model": "manifold:block/belt/belt_straight_mk2"
+      "model": "manifold:block/belt/belt_straight"
     },
     "reversed=true,shape=north_west": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 270
     },
     "reversed=true,shape=south_east": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 90
     },
     "reversed=true,shape=south_west": {
-      "model": "manifold:block/belt/belt_curved_mk2",
+      "model": "manifold:block/belt/belt_curved",
       "y": 180
     }
   }

@@ -41,7 +41,7 @@ public class ManifoldModelProvider extends ModelProvider {
 
         registerMachineStates(blockModels, machine);
         registerBeltModels(blockModels, belt_mk1, "");
-        registerBeltModels(blockModels, belt_mk2, "_mk2");
+        registerBeltModels(blockModels, belt_mk2, "");
     }
 
     private void registerMachineStates(BlockModelGenerators blockModels, Block machine) {
