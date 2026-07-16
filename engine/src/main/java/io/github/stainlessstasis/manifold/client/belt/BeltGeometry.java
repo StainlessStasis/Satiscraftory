@@ -161,6 +161,7 @@ public final class BeltGeometry {
         double startAngle = Math.atan2(az - centerZ, ax - centerX);
         double endAngle = Math.atan2(bz - centerZ, bx - centerX);
         double delta = wrapRadians(endAngle - startAngle);
+        boolean reverseWinding = delta > 0; // NORTH_WEST / SOUTH_EAST
 
         double innerRadius = 0.5 - HALF_WIDTH;
 
@@ -173,7 +174,11 @@ public final class BeltGeometry {
             Vec3 right0 = arcPoint(centerX, centerZ, angle0, outerRadiusFor(t0));
             Vec3 left1 = arcPoint(centerX, centerZ, angle1, innerRadius);
             Vec3 right1 = arcPoint(centerX, centerZ, angle1, outerRadiusFor(t1));
-            quads.add(new BeltStripQuad(left0, right0, left1, right1, CORNER_U0, CORNER_U1, CORNER_V0, CORNER_V1));
+
+            BeltStripQuad quad = reverseWinding
+                    ? new BeltStripQuad(right0, left0, right1, left1, CORNER_U0, CORNER_U1, CORNER_V0, CORNER_V1)
+                    : new BeltStripQuad(left0, right0, left1, right1, CORNER_U0, CORNER_U1, CORNER_V0, CORNER_V1);
+            quads.add(quad);
         }
         return quads;
     }
