@@ -13,7 +13,8 @@ import java.util.List;
 public final class BeltGeometry {
     public static final float HALF_WIDTH = 0.375f;
     public static final float SURFACE_HEIGHT = 0.625f;
-    public static final int CORNER_SEGMENTS = 4;
+    public static final int CORNER_SEGMENTS = 24;
+    public static final float CORNER_BULGE = 0.15f;
 
     private static final float STRAIGHT_U0 = 2f/16,  STRAIGHT_U1 = 3.5f/16;
     private static final float STRAIGHT_V0 = 2.375f/16, STRAIGHT_V1 = 4.375f/16;
@@ -164,17 +165,25 @@ public final class BeltGeometry {
         double endAngle = Math.atan2(bz - centerZ, bx - centerX);
         double delta = wrapRadians(endAngle - startAngle);
 
+        double innerRadius = 0.5 - HALF_WIDTH;
+
         List<BeltStripQuad> quads = new ArrayList<>();
         for (int i = 0; i < segments; i++) {
-            double angle0 = startAngle + delta * i / segments;
-            double angle1 = startAngle + delta * (i + 1) / segments;
-            Vec3 left0 = arcPoint(centerX, centerZ, angle0, 0.5 - HALF_WIDTH);
-            Vec3 right0 = arcPoint(centerX, centerZ, angle0, 0.5 + HALF_WIDTH);
-            Vec3 left1 = arcPoint(centerX, centerZ, angle1, 0.5 - HALF_WIDTH);
-            Vec3 right1 = arcPoint(centerX, centerZ, angle1, 0.5 + HALF_WIDTH);
+            double t0 = (double) i / segments, t1 = (double) (i + 1) / segments;
+            double angle0 = startAngle + delta * t0, angle1 = startAngle + delta * t1;
+
+            Vec3 left0 = arcPoint(centerX, centerZ, angle0, innerRadius);
+            Vec3 right0 = arcPoint(centerX, centerZ, angle0, outerRadiusFor(t0));
+            Vec3 left1 = arcPoint(centerX, centerZ, angle1, innerRadius);
+            Vec3 right1 = arcPoint(centerX, centerZ, angle1, outerRadiusFor(t1));
             quads.add(new BeltStripQuad(left0, right0, left1, right1, CORNER_U0, CORNER_U1, CORNER_V0, CORNER_V1));
         }
         return quads;
+    }
+
+    private static double outerRadiusFor(double t) {
+        double bulge = Math.sin(t * Math.PI);
+        return (0.5 + HALF_WIDTH) + bulge * CORNER_BULGE;
     }
 
     private static Vec3 arcPoint(double centerX, double centerZ, double angle, double radius) {
