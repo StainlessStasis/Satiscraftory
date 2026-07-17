@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class Consumer implements Port {
     private final int capacity;
     private final int processTime;
-
+    private Direction inputDirection;
     private final Deque<Payload> buffer = new ArrayDeque<>();
     private @Nullable Payload processing = null;
     private long processStartTick = -1;
@@ -63,6 +64,14 @@ public class Consumer implements Port {
 
     public int getProcessTime() {
         return processTime;
+    }
+
+    public void setInputDirection(Direction direction) {
+        this.inputDirection = direction;
+    }
+
+    public boolean acceptsFrom(Direction direction) {
+        return inputDirection == null || direction == inputDirection;
     }
 
     public List<Identifier> getBufferedItemIds() {

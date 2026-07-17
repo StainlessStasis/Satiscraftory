@@ -105,12 +105,18 @@ public class FactoryNetwork extends SavedData {
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
         Belt belt = belts.get(pos);
         if (belt != null) return belt;
+
         Consumer consumer = consumers.get(pos);
-        if (consumer != null) return consumer;
+        if (consumer != null) {
+            return (fromDirection == null || consumer.acceptsFrom(fromDirection)) ? consumer : null;
+        }
+
         Container container = containers.get(pos);
         if (container != null) return container;
+
         Machine machine = machines.get(pos);
         if (machine != null && fromDirection != null) return machine.inputPortForFace(fromDirection.getOpposite());
+
         return null;
     }
 

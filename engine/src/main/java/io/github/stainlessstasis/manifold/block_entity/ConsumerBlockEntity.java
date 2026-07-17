@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class ConsumerBlockEntity extends BlockEntity {
     private static final int CAPACITY = 8;
@@ -32,6 +33,7 @@ public class ConsumerBlockEntity extends BlockEntity {
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         consumer = network.getOrCreateConsumer(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Consumer(CAPACITY, PROCESS_TIME_TICKS));
+        consumer.setInputDirection(getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
 
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }

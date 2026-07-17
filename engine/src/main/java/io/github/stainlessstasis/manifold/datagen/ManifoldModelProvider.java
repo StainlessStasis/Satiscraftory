@@ -42,23 +42,24 @@ public class ManifoldModelProvider extends ModelProvider {
 
         blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createHorizontallyRotatedBlock(container, TexturedModel.ORIENTABLE_ONLY_TOP);
-        blockModels.createTrivialCube(consumer);
 
-        registerMachineStates(blockModels, machine);
+        registerHorizontallyRotable(blockModels, machine, "block/machine");
+        registerHorizontallyRotable(blockModels, consumer, "block/consumer");
+
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item);
     }
 
-    private void registerMachineStates(BlockModelGenerators blockModels, Block machine) {
-        Identifier machineModelId = Manifold.id("block/machine");
+    private void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path) {
+        Identifier id = Manifold.id(path);
 
-        Variant north = new Variant(machineModelId);
+        Variant north = new Variant(id);
         Variant east  = north.withYRot(Quadrant.R90);
         Variant south = north.withYRot(Quadrant.R180);
         Variant west  = north.withYRot(Quadrant.R270);
 
         blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(machine)
+                MultiVariantGenerator.dispatch(block)
                         .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
                                 .select(Direction.NORTH, new MultiVariant(WeightedList.of(north)))
                                 .select(Direction.EAST, new MultiVariant(WeightedList.of(east)))
