@@ -89,7 +89,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
         boolean frontAtEnd = rawFront >= 1d - EPSILON;
 
-        boolean clientJammed = output != null && !hasRoomAtBack(output, partialTick);
+        boolean clientJammed = frontAtEnd && output != null && !hasRoomAtBack(output, partialTick);
         boolean serverJammed = blockEntity.isFrontJammed();
 
         boolean frontJammed = serverJammed || clientJammed;
