@@ -8,9 +8,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public final class BeltGeometry {
+    private static final Map<BeltShape, List<BeltStripQuad>> QUAD_CACHE = new EnumMap<>(BeltShape.class);
+
     public static final float HALF_WIDTH = 0.375f;
     public static final float SURFACE_HEIGHT = 0.625f;
     public static final int CORNER_SEGMENTS = 32;
@@ -110,8 +114,8 @@ public final class BeltGeometry {
     }
 
     public static List<BeltStripQuad> stripQuadsFor(BeltShape shape) {
-        if (!shape.isCorner()) return List.of(stripQuadFor(shape));
-        return stripQuadsForCorner(shape, CORNER_SEGMENTS);
+        return QUAD_CACHE.computeIfAbsent(shape, s ->
+                s.isCorner() ? stripQuadsForCorner(s, CORNER_SEGMENTS) : List.of(stripQuadFor(s)));
     }
 
     public static BeltStripQuad stripQuadFor(BeltShape shape) {
