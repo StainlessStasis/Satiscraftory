@@ -79,6 +79,10 @@ public class BeltBlock extends AbstractFactoryBlock {
      */
     @Override
     protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+        if (player.gameMode().isSurvival()) {
+            return InteractionResult.PASS;
+        }
+
         if (level instanceof ServerLevel serverLevel) {
             boolean reversed = state.getValue(REVERSED);
             serverLevel.setBlock(pos, state.setValue(REVERSED, !reversed), Block.UPDATE_ALL);

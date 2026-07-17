@@ -28,6 +28,10 @@ public class BeltBlockEntity extends BlockEntity {
     private Belt belt;
     private List<Belt.ItemSnapshot> renderItems = List.of();
     private long lastSyncedTick = 0;
+    // rendering stuff
+    private float scrollOffset;
+    private double lastScrollGameTime;
+    private boolean scrollInitialized;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(ManifoldBlockEntities.BELT.get(), pos, state);
@@ -184,6 +188,13 @@ public class BeltBlockEntity extends BlockEntity {
     public long getLastSyncedTick() {
         return lastSyncedTick;
     }
+
+    public float getScrollOffset() { return scrollOffset; }
+    public void setScrollOffset(float v) { scrollOffset = v; }
+    public double getLastScrollGameTime() { return lastScrollGameTime; }
+    public void setLastScrollGameTime(double v) { lastScrollGameTime = v; }
+    public boolean isScrollInitialized() { return scrollInitialized; }
+    public void setScrollInitialized(boolean v) { scrollInitialized = v; }
 
     public void applySync(List<Belt.ItemSnapshot> items, long syncTick) {
         this.renderItems = items;

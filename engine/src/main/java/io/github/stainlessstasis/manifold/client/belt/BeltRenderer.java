@@ -88,13 +88,27 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
         boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
         double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
-        renderState.hideFrontItem = outputHasRoom && rawFront >= 1d - EPSILON;
+        boolean frontAtEnd = rawFront >= 1d - EPSILON;
+        renderState.hideFrontItem = outputHasRoom && frontAtEnd;
 
         updateIncomingItem(blockEntity, renderState, partialTick);
 
+        boolean jammed = !syncedItems.isEmpty() && !outputHasRoom && frontAtEnd;
         if (blockEntity.getLevel() != null) {
             double worldElapsed = blockEntity.getLevel().getGameTime() + partialTick;
-            renderState.scrollOffset = (float) ((worldElapsed * speed) % 1);
+
+            if (!blockEntity.isScrollInitialized()) {
+                blockEntity.setLastScrollGameTime(worldElapsed);
+                blockEntity.setScrollInitialized(true);
+            }
+
+            if (!jammed) {
+                double delta = worldElapsed - blockEntity.getLastScrollGameTime();
+                blockEntity.setScrollOffset((float) wrap01(blockEntity.getScrollOffset() + delta * speed));
+            }
+            blockEntity.setLastScrollGameTime(worldElapsed);
+
+            renderState.scrollOffset = blockEntity.getScrollOffset();
         }
     }
 
