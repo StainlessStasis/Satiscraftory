@@ -43,14 +43,14 @@ public class ManifoldModelProvider extends ModelProvider {
         blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
         blockModels.createHorizontallyRotatedBlock(container, TexturedModel.ORIENTABLE_ONLY_TOP);
 
-        registerHorizontallyRotable(blockModels, machine, "block/machine");
-        registerHorizontallyRotable(blockModels, consumer, "block/consumer");
+        registerHorizontallyRotable(blockModels, machine, "block/machine", false);
+        registerHorizontallyRotable(blockModels, consumer, "block/consumer", false);
 
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item);
     }
 
-    private void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path) {
+    private void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path, boolean reversed) {
         Identifier id = Manifold.id(path);
 
         Variant north = new Variant(id);
@@ -61,10 +61,10 @@ public class ManifoldModelProvider extends ModelProvider {
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(block)
                         .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_FACING)
-                                .select(Direction.NORTH, new MultiVariant(WeightedList.of(north)))
-                                .select(Direction.EAST, new MultiVariant(WeightedList.of(east)))
-                                .select(Direction.SOUTH, new MultiVariant(WeightedList.of(south)))
-                                .select(Direction.WEST, new MultiVariant(WeightedList.of(west)))
+                                .select(Direction.NORTH, new MultiVariant(WeightedList.of( !reversed ? north : south)))
+                                .select(Direction.EAST, new MultiVariant(WeightedList.of(  !reversed ? east : west)))
+                                .select(Direction.SOUTH, new MultiVariant(WeightedList.of( !reversed ? south : north)))
+                                .select(Direction.WEST, new MultiVariant(WeightedList.of(  !reversed ? west : east)))
                         )
         );
     }
