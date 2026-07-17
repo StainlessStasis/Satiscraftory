@@ -22,7 +22,7 @@ public class Machine {
     private long craftCompletionTick = -1;
 
     public Machine(MachineRecipe recipe, Scheduler scheduler, List<Port> initialOutputPorts) {
-        this(recipe, scheduler, initialOutputPorts, 1);
+        this(recipe, scheduler, initialOutputPorts, 8);
     }
 
     public Machine(MachineRecipe recipe, Scheduler scheduler, List<Port> initialOutputPorts, int bufferMultiplier) {
@@ -130,6 +130,7 @@ public class Machine {
             for (int n = 0; n < outIngredient.amount(); n++) queue.addLast(new Payload(outIngredient.itemId()));
         }
         tryFlushOutputs();
+        tryStartCrafting();
     }
 
     private void tryFlushOutputs() {
@@ -181,7 +182,6 @@ public class Machine {
 
         @Override
         public boolean canAccept(Payload payload) {
-            if (crafting) return false;
             RecipeIngredient ingredient = recipe.inputs().get(index);
             return payload.itemId().equals(ingredient.itemId()) && bufferedCounts[index] < ingredient.amount() * bufferMultiplier;
         }
