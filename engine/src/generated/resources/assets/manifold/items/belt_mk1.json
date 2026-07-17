@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "manifold:block/belt_mk1"
+    "model": "manifold:block/belt/belt_straight_item"
   }
 }

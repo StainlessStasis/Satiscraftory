@@ -5,18 +5,21 @@ import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import com.mojang.math.Quadrant;
+import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.NonNull;
@@ -31,6 +34,8 @@ public class ManifoldModelProvider extends ModelProvider {
         Block producer = ManifoldBlocks.PRODUCER.get();
         Block belt_mk1 = ManifoldBlocks.BELT_MK1.get();
         Block belt_mk2 = ManifoldBlocks.BELT_MK2.get();
+        Item belt_mk1_item = ManifoldItems.BELT_MK1.get();
+        Item belt_mk2_item = ManifoldItems.BELT_MK2.get();
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
@@ -40,8 +45,8 @@ public class ManifoldModelProvider extends ModelProvider {
         blockModels.createTrivialCube(consumer);
 
         registerMachineStates(blockModels, machine);
-        registerBeltModels(blockModels, belt_mk1);
-        registerBeltModels(blockModels, belt_mk2);
+        registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item);
+        registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item);
     }
 
     private void registerMachineStates(BlockModelGenerators blockModels, Block machine) {
@@ -63,11 +68,15 @@ public class ManifoldModelProvider extends ModelProvider {
         );
     }
 
-    private void registerBeltModels(BlockModelGenerators blockModels, Block belt) {
+    private void registerBeltModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels, Block belt, Item beltItem) {
         Identifier straightModelId = Manifold.id("block/belt/belt_straight");
         Identifier curvedModelId = Manifold.id("block/belt/belt_curved");
         Identifier angledModelId = Manifold.id("block/belt/belt_ascending");
 
+        // items
+        itemModels.itemModelOutput.accept(beltItem, ItemModelUtils.plainModel(straightModelId.withSuffix("_item")));
+
+        // blocks
         // straight
         Variant forward = new Variant(straightModelId);
         Variant forwardRotated = forward.withYRot(Quadrant.R90);

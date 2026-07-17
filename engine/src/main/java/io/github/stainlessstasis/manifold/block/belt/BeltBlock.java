@@ -81,8 +81,8 @@ public class BeltBlock extends AbstractFactoryBlock {
     protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
         if (level instanceof ServerLevel serverLevel) {
             boolean reversed = state.getValue(REVERSED);
-            player.sendOverlayMessage(Component.literal(state.getValue(SHAPE) + " "+reversed));
             serverLevel.setBlock(pos, state.setValue(REVERSED, !reversed), Block.UPDATE_ALL);
+            player.sendOverlayMessage(Component.literal(state.getValue(SHAPE) + " "+!reversed));
             if (serverLevel.getBlockEntity(pos) instanceof BeltBlockEntity beltBE) {
                 beltBE.relink(FactoryNetwork.get(serverLevel));
             }
