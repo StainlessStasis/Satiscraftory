@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.factory_component.*;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -434,12 +435,24 @@ public class FactoryNetwork extends SavedData {
 
         List<Persisted.Machine> persistedMachines = new ArrayList<>();
         for (Map.Entry<GlobalPos, Machine> entry : machines.entrySet()) {
+            GlobalPos pos = entry.getKey();
             Machine machine = entry.getValue();
+
+            Map<Integer, GlobalPos> outputPositions = new HashMap<>();
+            List<GlobalPos> slots = machineOutputPos.get(pos);
+            if (slots != null) {
+                for (int i = 0; i < slots.size(); i++) {
+                    GlobalPos outPos = slots.get(i);
+                    if (outPos != null) outputPositions.put(i, outPos);
+                }
+            }
+
             persistedMachines.add(new Persisted.Machine(
-                    entry.getKey(), machine.getRecipe().id(), machine.getBufferMultiplier(),
+                    pos, machine.getRecipe().id(), machine.getBufferMultiplier(),
                     machine.isCrafting(), machine.getCraftCompletionTick(),
                     machine.getBufferedCounts(), machine.getPendingOutputItemIds(),
-                    machine.getInputFaceAssignments(), machine.getOutputFaceAssignments()
+                    machine.getInputFaceAssignments(), machine.getOutputFaceAssignments(),
+                    outputPositions
             ));
         }
 
@@ -501,6 +514,16 @@ public class FactoryNetwork extends SavedData {
                     machineData.bufferedCounts(), machineData.pendingOutputItemIds(),
                     machineData.inputFaces(), machineData.outputFaces());
             network.machines.put(machineData.pos(), machine);
+
+            if (!machineData.outputPos().isEmpty()) {
+                List<GlobalPos> slots = new ArrayList<>();
+                while (slots.size() < recipe.outputCount()) slots.add(null);
+                for (Map.Entry<Integer, GlobalPos> outEntry : machineData.outputPos().entrySet()) {
+                    int slotIndex = outEntry.getKey();
+                    if (slotIndex >= 0 && slotIndex < slots.size()) slots.set(slotIndex, outEntry.getValue());
+                }
+                network.machineOutputPos.put(machineData.pos(), slots);
+            }
         }
 
         for (Persisted.Container containerData : snapshot.containers()) {
@@ -517,18 +540,38 @@ public class FactoryNetwork extends SavedData {
 
         // relink outputs
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue(), null);
+            GlobalPos outPos = entry.getValue();
+            Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+            Port port = network.getPortAt(outPos, dir);
             if (port != null) network.belts.get(entry.getKey()).setOutput(port);
         }
 
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue(), null);
+            GlobalPos outPos = entry.getValue();
+            Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+            Port port = network.getPortAt(outPos, dir);
             if (port != null) network.producers.get(entry.getKey()).setOutput(port);
         }
 
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.containerOutputPos.entrySet()) {
-            Port port = network.getPortAt(entry.getValue(), null);
+            GlobalPos outPos = entry.getValue();
+            Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+            Port port = network.getPortAt(outPos, dir);
             if (port != null) network.containers.get(entry.getKey()).setOutput(port);
+        }
+
+        for (Map.Entry<GlobalPos, List<GlobalPos>> entry : network.machineOutputPos.entrySet()) {
+            Machine machine = network.machines.get(entry.getKey());
+            if (machine == null) continue;
+
+            List<GlobalPos> slotOutputs = entry.getValue();
+            for (int slotIndex = 0; slotIndex < slotOutputs.size(); slotIndex++) {
+                GlobalPos outPos = slotOutputs.get(slotIndex);
+                if (outPos == null) continue;
+                Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+                Port port = network.getPortAt(outPos, dir);
+                if (port != null) machine.setOutputPort(slotIndex, port);
+            }
         }
 
         return network;

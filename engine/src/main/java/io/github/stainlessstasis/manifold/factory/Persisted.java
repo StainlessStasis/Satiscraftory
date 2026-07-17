@@ -59,7 +59,8 @@ final class Persisted {
 
     record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, long craftCompletionTick,
                    int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds,
-                   Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces) {
+                   Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces,
+                   Map<Integer, GlobalPos> outputPos) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
                 Identifier.CODEC.fieldOf("recipeId").forGetter(Machine::recipeId),
@@ -72,7 +73,9 @@ final class Persisted {
                 ).fieldOf("bufferedCounts").forGetter(Machine::bufferedCounts),
                 Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds),
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Machine::inputFaces),
-                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Machine::outputFaces)
+                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Machine::outputFaces),
+                Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, String::valueOf), GlobalPos.CODEC)
+                        .optionalFieldOf("outputPos", Map.of()).forGetter(Machine::outputPos)
         ).apply(i, Machine::new));
     }
 
@@ -105,4 +108,3 @@ final class Persisted {
         ).apply(i, Snapshot::new));
     }
 }
-
