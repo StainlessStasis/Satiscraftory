@@ -86,14 +86,14 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.neighborShapeAtStart = (input != null) ? input.getBlockState().getValue(BeltBlock.SHAPE) : null;
         renderState.neighborShapeAtEnd = (output != null) ? output.getBlockState().getValue(BeltBlock.SHAPE) : null;
 
-        boolean outputHasRoom = output == null || hasRoomAtBack(output, partialTick);
         double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
+        boolean frontJammed = blockEntity.isFrontJammed();
         boolean frontAtEnd = rawFront >= 1d - EPSILON;
-        renderState.hideFrontItem = outputHasRoom && frontAtEnd;
+        renderState.hideFrontItem = frontAtEnd && !frontJammed;
 
         updateIncomingItem(blockEntity, renderState, partialTick);
 
-        boolean jammed = !syncedItems.isEmpty() && !outputHasRoom && frontAtEnd;
+        boolean jammed = !syncedItems.isEmpty() && frontJammed;
         if (blockEntity.getLevel() != null) {
             double worldElapsed = blockEntity.getLevel().getGameTime() + partialTick;
 

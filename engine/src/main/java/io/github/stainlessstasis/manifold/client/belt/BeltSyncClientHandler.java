@@ -14,7 +14,7 @@ public final class BeltSyncClientHandler {
 
             for (BeltSyncPacket.Entry entry : payload.entries()) {
                 if (level.getBlockEntity(entry.pos()) instanceof BeltBlockEntity beltBlockEntity) {
-                    beltBlockEntity.applySync(entry.items(), entry.syncTick());
+                    beltBlockEntity.applySync(entry.items(), entry.syncTick(), entry.frontJammed());
                 }
             }
         });

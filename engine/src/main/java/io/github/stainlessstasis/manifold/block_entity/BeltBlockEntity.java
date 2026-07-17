@@ -26,9 +26,10 @@ public class BeltBlockEntity extends BlockEntity {
     public static final double MIN_GAP = SCALE + 0.001;
 
     private Belt belt;
+    // rendering stuff
     private List<Belt.ItemSnapshot> renderItems = List.of();
     private long lastSyncedTick = 0;
-    // rendering stuff
+    private boolean frontJammed;
     private float scrollOffset;
     private double lastScrollGameTime;
     private boolean scrollInitialized;
@@ -181,6 +182,10 @@ public class BeltBlockEntity extends BlockEntity {
         return (getBlockState().getBlock() instanceof BeltBlock beltBlock) ? beltBlock.getSpeed() : 0.05;
     }
 
+    public boolean isFrontJammed() {
+        return frontJammed;
+    }
+
     public List<Belt.ItemSnapshot> getRenderItems() {
         return renderItems;
     }
@@ -196,8 +201,9 @@ public class BeltBlockEntity extends BlockEntity {
     public boolean isScrollInitialized() { return scrollInitialized; }
     public void setScrollInitialized(boolean v) { scrollInitialized = v; }
 
-    public void applySync(List<Belt.ItemSnapshot> items, long syncTick) {
+    public void applySync(List<Belt.ItemSnapshot> items, long syncTick, boolean frontJammed) {
         this.renderItems = items;
         this.lastSyncedTick = syncTick;
+        this.frontJammed = frontJammed;
     }
 }

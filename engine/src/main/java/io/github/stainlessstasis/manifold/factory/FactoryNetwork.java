@@ -264,7 +264,7 @@ public class FactoryNetwork extends SavedData {
 
             changedByDimension
                     .computeIfAbsent(globalPos.dimension(), _ -> new ArrayList<>())
-                    .add(new BeltSyncPacket.Entry(pos, currentTick, belt.getItemSnapshots()));
+                    .add(new BeltSyncPacket.Entry(pos, currentTick, belt.getItemSnapshots(), belt.isFrontJammed()));
             belt.markSynced(currentTick);
         }
 

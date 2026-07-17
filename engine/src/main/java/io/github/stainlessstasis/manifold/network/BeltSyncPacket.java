@@ -25,11 +25,12 @@ public record BeltSyncPacket(List<Entry> entries) implements CustomPacketPayload
     private static final StreamCodec<ByteBuf, List<Belt.ItemSnapshot>> ITEM_SNAPSHOT_LIST_STREAM_CODEC =
             ByteBufCodecs.collection(ArrayList::new, ITEM_SNAPSHOT_STREAM_CODEC);
 
-    public record Entry(BlockPos pos, long syncTick, List<Belt.ItemSnapshot> items) {
+    public record Entry(BlockPos pos, long syncTick, List<Belt.ItemSnapshot> items, boolean frontJammed) {
         static final StreamCodec<ByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC, Entry::pos,
                 ByteBufCodecs.VAR_LONG, Entry::syncTick,
                 ITEM_SNAPSHOT_LIST_STREAM_CODEC, Entry::items,
+                ByteBufCodecs.BOOL, Entry::frontJammed,
                 Entry::new
         );
     }

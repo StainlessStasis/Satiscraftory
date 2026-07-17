@@ -26,6 +26,7 @@ public class Belt implements Port {
     private long totalDischarged = 0;
     private long lastSyncedAccepted = 0;
     private long lastSyncedDischarged = 0;
+    private boolean lastSyncedFrontJammed = false;
     private long lastSyncedTick = 0;
     private static final long MIN_TICKS_BETWEEN_SYNCS = 3;
 
@@ -98,14 +99,24 @@ public class Belt implements Port {
         }
     }
 
+    public boolean isFrontJammed() {
+        if (items.isEmpty()) return false;
+        BeltItem front = items.getFirst();
+        if (front.position < 1d - Constants.EPSILON) return false;
+        return output == null || !output.canAccept(front.payload);
+    }
+
     private long lastSyncedItemCount = 0;
 
     public boolean hasUnsyncedChanges(long currentTick) {
-        boolean changed = totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
-        if (!changed) return false;
+        boolean jamChanged = isFrontJammed() != lastSyncedFrontJammed;
+        if (jamChanged) return true;
 
-        boolean countChanged = items.size() != lastSyncedItemCount;
-        if (countChanged) return true;
+        boolean countsChanged = totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
+        if (!countsChanged) return false;
+
+        boolean itemCountChanged = items.size() != lastSyncedItemCount;
+        if (itemCountChanged) return true;
 
         return currentTick - lastSyncedTick >= MIN_TICKS_BETWEEN_SYNCS;
     }
@@ -115,6 +126,7 @@ public class Belt implements Port {
         lastSyncedDischarged = totalDischarged;
         lastSyncedTick = tick;
         lastSyncedItemCount = items.size();
+        lastSyncedFrontJammed = isFrontJammed();
     }
 
     public long getLastSyncedTick() {
@@ -123,14 +135,6 @@ public class Belt implements Port {
 
     public Port getOutput() {
         return output;
-    }
-
-    /**
-     * True whenever the front item is sitting at the exit
-     * (jammed waiting on the output, or about to discharge this same tick)
-     **/
-    public boolean isFrontAtExit() {
-        return !items.isEmpty() && items.getFirst().position >= 1d;
     }
 
     public int getItemCount() {
