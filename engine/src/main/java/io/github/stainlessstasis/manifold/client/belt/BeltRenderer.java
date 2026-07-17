@@ -87,8 +87,12 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.neighborShapeAtEnd = (output != null) ? output.getBlockState().getValue(BeltBlock.SHAPE) : null;
 
         double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
-        boolean frontJammed = blockEntity.isFrontJammed();
         boolean frontAtEnd = rawFront >= 1d - EPSILON;
+
+        boolean clientJammed = output != null && !hasRoomAtBack(output, partialTick);
+        boolean serverJammed = blockEntity.isFrontJammed();
+
+        boolean frontJammed = serverJammed || clientJammed;
         renderState.hideFrontItem = frontAtEnd && !frontJammed;
 
         updateIncomingItem(blockEntity, renderState, partialTick);
