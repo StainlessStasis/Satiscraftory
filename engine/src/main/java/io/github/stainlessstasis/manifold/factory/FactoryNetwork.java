@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -50,6 +51,14 @@ public class FactoryNetwork extends SavedData {
     private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
     private interface TickTarget {
         void tick(long currentTick);
+    }
+
+    private volatile boolean frozen = false;
+    public boolean isFrozen() {
+        return frozen;
+    }
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
     }
 
     public FactoryNetwork() {}
@@ -530,4 +539,27 @@ public class FactoryNetwork extends SavedData {
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
     public int getContainerCount() { return containers.size(); }
+
+    // Counts factory components whose chunk is currently loaded
+    // Intended for debug use only
+    public int getLoadedBeltCount(MinecraftServer server) { return countLoaded(server, belts.keySet()); }
+    public int getLoadedProducerCount(MinecraftServer server) { return countLoaded(server, producers.keySet()); }
+    public int getLoadedConsumerCount(MinecraftServer server) { return countLoaded(server, consumers.keySet()); }
+    public int getLoadedMachineCount(MinecraftServer server) { return countLoaded(server, machines.keySet()); }
+    public int getLoadedContainerCount(MinecraftServer server) { return countLoaded(server, containers.keySet()); }
+
+    private static int countLoaded(MinecraftServer server, Set<GlobalPos> positions) {
+        int count = 0;
+        for (GlobalPos pos : positions) {
+            if (isChunkLoaded(server, pos)) count++;
+        }
+        return count;
+    }
+
+    private static boolean isChunkLoaded(MinecraftServer server, GlobalPos pos) {
+        ServerLevel level = server.getLevel(pos.dimension());
+        if (level == null) return false;
+        ChunkPos chunkPos = ChunkPos.containing(pos.pos());
+        return level.getChunkSource().hasChunk(chunkPos.x(), chunkPos.z());
+    }
 }

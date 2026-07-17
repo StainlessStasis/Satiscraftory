@@ -17,12 +17,15 @@ public class ManifoldEventHandlers {
         var tickRateManger = overworld.tickRateManager();
         boolean isTicking = tickRateManger.runsNormally() || tickRateManger.isSteppingForward();
         if (isTicking) {
-            FactoryNetwork.get(overworld).tickAll(overworld, overworld.getGameTime());
+            FactoryNetwork network = FactoryNetwork.get(overworld);
+            if (!network.isFrozen()) {
+                network.tickAll(overworld, overworld.getGameTime());
+            }
         }
     }
 
     @SubscribeEvent
-     static void onRegisterCommands(RegisterCommandsEvent event) {
+    static void onRegisterCommands(RegisterCommandsEvent event) {
         FactoryCommands.register(event.getDispatcher());
     }
 

@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold;
 
 import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
+import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
 import io.github.stainlessstasis.manifold.menu.ContainerScreen;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
@@ -11,6 +12,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -33,5 +35,10 @@ public class ManifoldClient {
     @SubscribeEvent
     static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ManifoldMenus.CONTAINER.get(), ContainerScreen::new);
+    }
+
+    @SubscribeEvent
+    static void registerClientCommands(RegisterClientCommandsEvent event) {
+        FactoryClientCommands.register(event.getDispatcher());
     }
 }
