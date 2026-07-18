@@ -113,10 +113,8 @@ public class Belt implements Port {
         if (jamChanged) return true;
 
         boolean countsChanged = totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
-        if (!countsChanged) return false;
-
         boolean itemCountChanged = items.size() != lastSyncedItemCount;
-        if (itemCountChanged) return true;
+        if (countsChanged && itemCountChanged) return true;
 
         return currentTick - lastSyncedTick >= MIN_TICKS_BETWEEN_SYNCS;
     }
