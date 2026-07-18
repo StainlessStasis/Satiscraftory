@@ -1,25 +1,31 @@
+# IMPORTANT
+This mod is currently a very early alpha/technical demo. Do not expect a feature-complete or survival-friendly experience (currently accessible only in creative). Expect bugs, crashes, save instability between versions, and general lack of polish. Things **will** break.
 
-Installation information
-=======
+# What is Satiscraftory?
+Satiscraftory is a factory automation mod inspired by the game Satisfactory. It is built from the ground up to support massive, world-spanning factories, allowing you to harvest and process infinite resources by solving logistical challenges. 
+## Chunk-independent Simulation
+Every factory component always ticks globally and continues to produce resources, even if the chunks they are in are completely unloaded - and this includes other dimensions.
+## Tradeoffs
+Factories cannot interact with vanilla automation mechanics, including any form of redstone, item entities, mobs like copper golems, etc. This will also make the mod impossible to be integrated with other tech mods' mechanics, as they all rely on block entities for ticking (to my knowledge).
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+# Getting Started
+Find the creative tab, and grab one of each item (choose whichever belt you want, and Consumers are optional)
+## Factory Components
+**Producer:** Infinitely generates a single item type (currently only raw iron). Has a single output
+**Belt:** Transports items between every other factory component. Has 3 shapes: straight, corner, and slope. Can also have its direction reversed by right clicking. Has only one output, but can take an input from any direction, effectively allowing for mergers
+**Machine:** Converts item(s) into other item(s) determined by the machine's recipe (currently only raw iron -> iron ingot). Has one input and one output
+**Container:** Effectively functions as a chest, storing 27 slots of any items. Has one input and one output
+**Consumer:** Destroys any item. Has one input
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+# Feedback
+Having other people stress test their system, report bugs and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. 
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+When reporting LOGISTICAL performance issues, include:
+- Exactly how many total factory components exist, and how many are in loaded chunks. Use the `/factory count` and `/factory loaded` commands
+- Link to results of a Spark profiler, run for at least 30+ seconds. If Spark is unavailable in your case, provide an average TPS and players on server as a bare minimum
+- CPU specs (RAM shouldn't be as much of an issue)
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
-
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+When reporting RENDERING performance issues, include:
+- Approximately how many factory components are actively being rendered, and how many are in client chunks. Use the `/factory rendered` command
+- Average FPS when the factory components are on screen, and average FPS you would have if you were normally going about your world with no factories on screen
+- Any other notable rendering mods installed, such as Iris. If using shaders, name the shader pack
