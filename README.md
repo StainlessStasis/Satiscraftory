@@ -7,7 +7,7 @@ Satiscraftory is a factory automation mod inspired by the game Satisfactory. It 
 Every factory component always ticks globally and continues to produce resources, even if the chunks they are in are completely unloaded - and this includes other dimensions.
 ## ​⚠️ Technical Tradeoffs
 ​To achieve chunk-independent simulation, this mod operates entirely on its own closed backend. What this means is:
-- ​No vanilla interoperability: Factory components cannot interact with redstone, vanilla item entities, hoppers, mobs, etc.
+- ​No vanilla interoperability: Factory components cannot interact with redstone, item entities, hoppers, mobs, etc.
 - ​No tech mod compatibility: Because this mod completely bypasses standard block entity ticking for factory simulation, it cannot connect to pipes, cables, or machines from any other tech mods.
 
 ​Think of it as a standalone factory game running inside Minecraft.
