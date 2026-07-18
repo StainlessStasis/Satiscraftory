@@ -17,9 +17,10 @@ public record BeltSyncPacket(List<Entry> entries) implements CustomPacketPayload
     public static final Type<BeltSyncPacket> TYPE = new Type<>(Manifold.id("belt_sync"));
 
     private static final StreamCodec<ByteBuf, Belt.ItemSnapshot> ITEM_SNAPSHOT_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_LONG, Belt.ItemSnapshot::id,
             ByteBufCodecs.FLOAT, snapshot -> (float) snapshot.position(),
             Identifier.STREAM_CODEC, Belt.ItemSnapshot::itemId,
-            (position, typeId) -> new Belt.ItemSnapshot(position, typeId)
+            (id, position, itemId) -> new Belt.ItemSnapshot(id, position, itemId)
     );
 
     private static final StreamCodec<ByteBuf, List<Belt.ItemSnapshot>> ITEM_SNAPSHOT_LIST_STREAM_CODEC =

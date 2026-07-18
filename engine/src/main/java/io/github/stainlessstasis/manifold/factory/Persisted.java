@@ -14,8 +14,9 @@ import java.util.Optional;
 final class Persisted {
     private Persisted() {}
 
-    record BeltItem(double position, Identifier itemId) {
+    record BeltItem(long id, double position, Identifier itemId) {
         static final Codec<BeltItem> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.LONG.optionalFieldOf("id", -1L).forGetter(BeltItem::id),
                 Codec.DOUBLE.fieldOf("position").forGetter(BeltItem::position),
                 Identifier.CODEC.fieldOf("itemId").forGetter(BeltItem::itemId)
         ).apply(i, BeltItem::new));

@@ -421,7 +421,7 @@ public class FactoryNetwork extends SavedData {
             Belt belt = entry.getValue();
             List<Persisted.BeltItem> items = new ArrayList<>();
             for (Belt.ItemSnapshot snapshot : belt.getItemSnapshots()) {
-                items.add(new Persisted.BeltItem(snapshot.position(), snapshot.itemId()));
+                items.add(new Persisted.BeltItem(snapshot.id(), snapshot.position(), snapshot.itemId()));
             }
             persistedBelts.add(new Persisted.Belt(pos, belt.getSpeed(), belt.getMinGap(),
                     Optional.ofNullable(beltOutputPos.get(pos)), items));
@@ -483,7 +483,7 @@ public class FactoryNetwork extends SavedData {
         // restore factory components
         for (Persisted.Belt beltData : snapshot.belts()) {
             Belt belt = new Belt(beltData.speed(), beltData.minGap());
-            for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.itemId(), item.position());
+            for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.itemId(), item.position(), item.id());
             network.belts.put(beltData.pos(), belt);
             beltData.outputPos().ifPresent(outPos -> network.beltOutputPos.put(beltData.pos(), outPos));
         }

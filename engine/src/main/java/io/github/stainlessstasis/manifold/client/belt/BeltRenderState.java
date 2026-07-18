@@ -13,12 +13,9 @@ public class BeltRenderState extends BlockEntityRenderState {
     BeltShape shape = BeltShape.NORTH_SOUTH;
     int cornerSegments = BeltGeometry.CORNER_SEGMENTS_NEAR;
     boolean reversed = false;
-    List<Belt.ItemSnapshot> syncedItems = List.of();
-    long syncTick = 0;
     float scrollOffset = 0f;
-
     final List<BeltItemRenderData> items = new ArrayList<>();
-
+    List<Belt.ItemSnapshot> cachedSyncedItems = List.of();
     boolean hideFrontItem = false;
     boolean itemIncomingActive = false;
     Identifier itemIncomingTypeCached = null;
@@ -27,6 +24,7 @@ public class BeltRenderState extends BlockEntityRenderState {
     BeltShape neighborShapeAtEnd = null;
 
     static final class BeltItemRenderData {
+        long id;
         double position;
         Identifier itemId;
         final ItemStackRenderState itemStackRenderState = new ItemStackRenderState();

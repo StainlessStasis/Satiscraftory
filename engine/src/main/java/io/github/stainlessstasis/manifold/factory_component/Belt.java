@@ -8,16 +8,18 @@ import java.util.List;
 
 public class Belt implements Port {
     private static class BeltItem {
+        final long id;
         final Payload payload;
         double position; // 0 (just entered) to 1 (at exit)
 
-        BeltItem(Payload payload, double position) {
+        BeltItem(long id, Payload payload, double position) {
+            this.id = id;
             this.payload = payload;
             this.position = position;
         }
     }
 
-    public record ItemSnapshot(double position, Identifier itemId) {}
+    public record ItemSnapshot(long id, double position, Identifier itemId) {}
 
     private final double speed;
     private final double minGap;
@@ -29,6 +31,7 @@ public class Belt implements Port {
     private boolean lastSyncedFrontJammed = false;
     private long lastSyncedTick = 0;
     private static final long MIN_TICKS_BETWEEN_SYNCS = 3;
+    private long nextItemId = 0;
 
     private final List<BeltItem> items = new ArrayList<>();
 
@@ -63,7 +66,7 @@ public class Belt implements Port {
             double maxAllowed = items.getLast().position - minGap;
             insertPosition = Math.clamp(maxAllowed, 0, insertPosition);
         }
-        items.add(new BeltItem(payload, insertPosition));
+        items.add(new BeltItem(nextItemId++, payload, insertPosition));
         totalAccepted++;
     }
 
@@ -114,7 +117,7 @@ public class Belt implements Port {
 
         boolean countsChanged = totalAccepted != lastSyncedAccepted || totalDischarged != lastSyncedDischarged;
         boolean itemCountChanged = items.size() != lastSyncedItemCount;
-        if (countsChanged && itemCountChanged) return true;
+        if (countsChanged || itemCountChanged) return true;
 
         return currentTick - lastSyncedTick >= MIN_TICKS_BETWEEN_SYNCS;
     }
@@ -163,11 +166,13 @@ public class Belt implements Port {
 
     public List<ItemSnapshot> getItemSnapshots() {
         List<ItemSnapshot> snapshots = new ArrayList<>();
-        for (BeltItem beltItem : items) snapshots.add(new ItemSnapshot(beltItem.position, beltItem.payload.itemId()));
+        for (BeltItem beltItem : items) snapshots.add(new ItemSnapshot(beltItem.id, beltItem.position, beltItem.payload.itemId()));
         return snapshots;
     }
 
-    public void restoreItem(Identifier itemId, double position) {
-        items.add(new BeltItem(new Payload(itemId), position));
+    public void restoreItem(Identifier itemId, double position, long id) {
+        long resolvedId = (id >= 0) ? id : nextItemId;
+        items.add(new BeltItem(resolvedId, new Payload(itemId), position));
+        if (resolvedId >= nextItemId) nextItemId = resolvedId + 1;
     }
 }

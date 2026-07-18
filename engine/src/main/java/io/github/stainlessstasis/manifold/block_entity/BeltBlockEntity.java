@@ -25,8 +25,10 @@ public class BeltBlockEntity extends BlockEntity {
 
     private Belt belt;
     // rendering stuff
-    private List<Belt.ItemSnapshot> renderItems = List.of();
-    private long lastSyncedTick = 0;
+    private List<Belt.ItemSnapshot> previousSyncedItems = List.of();
+    private long previousSyncTick = 0;
+    private List<Belt.ItemSnapshot> currentSyncedItems = List.of();
+    private long currentSyncTick = 0;
     private boolean frontJammed;
     private float baseScrollOffset;
 
@@ -190,17 +192,25 @@ public class BeltBlockEntity extends BlockEntity {
         }
     }
 
-    public List<Belt.ItemSnapshot> getRenderItems() {
-        return renderItems;
+    public List<Belt.ItemSnapshot> getCurrentSyncedItems() {
+        return currentSyncedItems;
     }
-    public long getLastSyncedTick() {
-        return lastSyncedTick;
+    public long getCurrentSyncTick() {
+        return currentSyncTick;
+    }
+    public List<Belt.ItemSnapshot> getPreviousSyncedItems() {
+        return previousSyncedItems;
+    }
+    public long getPreviousSyncTick() {
+        return previousSyncTick;
     }
     public float getBaseScrollOffset() { return baseScrollOffset; }
 
     public void applySync(List<Belt.ItemSnapshot> items, long syncTick, boolean frontJammed) {
-        this.renderItems = items;
-        this.lastSyncedTick = syncTick;
+        this.previousSyncedItems = this.currentSyncedItems;
+        this.previousSyncTick = this.currentSyncTick;
+        this.currentSyncedItems = items;
+        this.currentSyncTick = syncTick;
         this.frontJammed = frontJammed;
     }
 }

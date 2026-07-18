@@ -31,7 +31,9 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mojang.math.Constants.EPSILON;
 
@@ -71,21 +73,15 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
                 cameraPosition.distanceToSqr(Vec3.atCenterOf(blockEntity.getBlockPos()))
         );
 
-        double speed = blockEntity.getSpeed();
-        List<Belt.ItemSnapshot> syncedItems = blockEntity.getRenderItems();
-        long syncTick = blockEntity.getLastSyncedTick();
+        List<Belt.ItemSnapshot> currentItems = blockEntity.getCurrentSyncedItems();
+        double[] rawPositions = extrapolatedRawPositions(blockEntity, partialTick);
+        double[] clampedPositions = clampPositions(rawPositions);
 
-        if (syncedItems != renderState.syncedItems) {
-            renderState.syncedItems = syncedItems;
-            updateItemCache(blockEntity, renderState, syncedItems);
+        if (currentItems != renderState.cachedSyncedItems) {
+            rebuildItemCache(blockEntity, renderState, currentItems);
+            renderState.cachedSyncedItems = currentItems;
         }
-        renderState.syncTick = syncTick;
-
-        double elapsedTicks = elapsedTicksSince(blockEntity, syncTick, partialTick);
-        double[] predictedPositions = predictPositions(syncedItems, elapsedTicks, speed);
-        for (int i = 0; i < renderState.items.size() && i < predictedPositions.length; i++) {
-            renderState.items.get(i).position = predictedPositions[i];
-        }
+        applyPositions(renderState, clampedPositions);
 
         BeltBlockEntity input = getNeighborBeltAt(blockEntity, blockEntity.resolveInputPos());
         BeltBlockEntity output = getNeighborBeltAt(blockEntity, blockEntity.resolveOutputPos());
@@ -98,13 +94,60 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
         renderState.scrollOffset = (float) wrap01(baseOffset);
 
-        renderState.hideFrontItem = isHideFrontItem(blockEntity, partialTick);
-        updateIncomingItem(blockEntity, renderState, partialTick, predictedPositions);
+        renderState.hideFrontItem = isHideFrontItem(blockEntity, partialTick, rawPositions);
+        updateIncomingItem(blockEntity, renderState, partialTick, clampedPositions);
     }
 
-    private double frontRawPosition(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks, double speed) {
-        if (syncedItems.isEmpty()) return Double.NEGATIVE_INFINITY;
-        return syncedItems.getFirst().position() + speed * Math.max(elapsedTicks, 0);
+    /**
+     * Per-item velocity measured from the last two syncs
+     */
+    private double[] velocitiesFor(BeltBlockEntity belt) {
+        List<Belt.ItemSnapshot> curr = belt.getCurrentSyncedItems();
+        List<Belt.ItemSnapshot> prev = belt.getPreviousSyncedItems();
+        long dt = belt.getCurrentSyncTick() - belt.getPreviousSyncTick();
+
+        double[] velocities = new double[curr.size()];
+        for (int i = 0; i < curr.size(); i++) {
+            Belt.ItemSnapshot snapshot = curr.get(i);
+            Belt.ItemSnapshot matched = findById(prev, snapshot.id());
+            velocities[i] = (matched != null && dt > 0)
+                    ? (snapshot.position() - matched.position()) / dt
+                    : belt.getSpeed();
+        }
+        return velocities;
+    }
+
+    private Belt.@Nullable ItemSnapshot findById(List<Belt.ItemSnapshot> items, long id) {
+        for (Belt.ItemSnapshot snapshot : items) {
+            if (snapshot.id() == id) return snapshot;
+        }
+        return null;
+    }
+
+    /**
+     * Extrapolated positions for each item based on their velocities
+     */
+    private double[] extrapolatedRawPositions(BeltBlockEntity belt, float partialTick) {
+        List<Belt.ItemSnapshot> current = belt.getCurrentSyncedItems();
+        double elapsed = Math.max(elapsedTicksSince(belt, belt.getCurrentSyncTick(), partialTick), 0);
+        double[] velocities = velocitiesFor(belt);
+
+        double[] raw = new double[current.size()];
+        for (int i = 0; i < current.size(); i++) {
+            raw[i] = current.get(i).position() + velocities[i] * elapsed;
+        }
+        return raw;
+    }
+
+    private double[] clampPositions(double[] raw) {
+        double[] clamped = new double[raw.length];
+        double previousClamped = 1;
+        for (int i = 0; i < raw.length; i++) {
+            double cap = (i == 0) ? 1 : Math.max(previousClamped - BeltBlockEntity.MIN_GAP, 0);
+            previousClamped = Math.clamp(raw[i], 0, cap);
+            clamped[i] = previousClamped;
+        }
+        return clamped;
     }
 
     private double elapsedTicksSince(BeltBlockEntity belt, long syncTick, float partialTick) {
@@ -112,23 +155,21 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return (belt.getLevel().getGameTime() - syncTick) + partialTick;
     }
 
-    private boolean hasRoomAtBack(BeltBlockEntity belt, float partialTick) {
-        List<Belt.ItemSnapshot> synced = belt.getRenderItems();
-        if (synced.isEmpty()) return true;
-        double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
-        double[] positions = predictPositions(synced, elapsed, belt.getSpeed());
-        return hasRoom(positions);
-    }
-
     private boolean hasRoom(double[] positions) {
         return positions.length == 0 || positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
+    private boolean hasRoomAtBack(BeltBlockEntity belt, float partialTick) {
+        return hasRoom(clampPositions(extrapolatedRawPositions(belt, partialTick)));
+    }
+
     private boolean isHideFrontItem(BeltBlockEntity belt, float partialTick) {
-        List<Belt.ItemSnapshot> synced = belt.getRenderItems();
-        double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
-        double rawFront = frontRawPosition(synced, elapsed, belt.getSpeed());
-        boolean frontAtEnd = rawFront >= 1d - EPSILON;
+        return isHideFrontItem(belt, partialTick, extrapolatedRawPositions(belt, partialTick));
+    }
+
+    private boolean isHideFrontItem(BeltBlockEntity belt, float partialTick, double[] rawPositions) {
+        if (rawPositions.length == 0) return false;
+        boolean frontAtEnd = rawPositions[0] >= 1d - EPSILON;
         if (!frontAtEnd) return false;
 
         BeltBlockEntity output = getNeighborBeltAt(belt, belt.resolveOutputPos());
@@ -147,19 +188,17 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
         BeltBlockEntity input = getNeighborBeltAt(self, self.resolveInputPos());
         if (input == null) return;
-        // only trust it as a feeder if its own output actually resolves back to this belt
         if (!self.getBlockPos().equals(input.resolveOutputPos())) return;
 
-        List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
-        if (inputSynced.isEmpty()) return;
-        if (!isHideFrontItem(input, partialTick)) return;
+        List<Belt.ItemSnapshot> inputCurrentItems = input.getCurrentSyncedItems();
+        if (inputCurrentItems.isEmpty()) return;
 
-        double inputElapsed = elapsedTicksSince(input, input.getLastSyncedTick(), partialTick);
+        double[] inputRaw = extrapolatedRawPositions(input, partialTick);
+        if (!isHideFrontItem(input, partialTick, inputRaw)) return;
         if (!hasRoom(positions)) return;
 
-        double inputRawFront = frontRawPosition(inputSynced, inputElapsed, input.getSpeed());
-        double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
-        Identifier itemId = inputSynced.getFirst().itemId();
+        double overflow = Math.clamp(inputRaw[0] - 1d, 0d, 1d);
+        Identifier itemId = inputCurrentItems.getFirst().itemId();
         renderState.itemIncomingActive = true;
         renderState.itemIncoming.position = overflow;
         renderState.itemIncoming.itemId = itemId;
@@ -180,31 +219,32 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return neighbor instanceof BeltBlockEntity neighborBelt ? neighborBelt : null;
     }
 
-    private void updateItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> syncedItems) {
-        List<BeltRenderState.BeltItemRenderData> oldItems = new ArrayList<>(renderState.items);
-        int oldSize = oldItems.size();
-        int newSize = syncedItems.size();
-        int oldStart = (oldSize > newSize) ? oldSize - newSize : 0;
+    private void rebuildItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<Belt.ItemSnapshot> currentItems) {
+        Map<Long, BeltRenderState.BeltItemRenderData> reusable = new HashMap<>();
+        for (BeltRenderState.BeltItemRenderData data : renderState.items) reusable.put(data.id, data);
+
+        List<BeltRenderState.BeltItemRenderData> newItems = new ArrayList<>(currentItems.size());
+        for (Belt.ItemSnapshot snapshot : currentItems) {
+            BeltRenderState.BeltItemRenderData data = reusable.get(snapshot.id());
+            if (data == null) {
+                data = buildItemRenderData(blockEntity, snapshot);
+            }
+            newItems.add(data);
+        }
 
         renderState.items.clear();
-        for (int i = 0; i < newSize; i++) {
-            Belt.ItemSnapshot snapshot = syncedItems.get(i);
-            int reuseIndex = oldStart + i;
-            BeltRenderState.BeltItemRenderData reused =
-                    (reuseIndex < oldSize && oldItems.get(reuseIndex).itemId.equals(snapshot.itemId()))
-                            ? oldItems.get(reuseIndex) : null;
+        renderState.items.addAll(newItems);
+    }
 
-            if (reused != null) {
-                reused.position = snapshot.position();
-                renderState.items.add(reused);
-            } else {
-                renderState.items.add(buildItemRenderData(blockEntity, snapshot));
-            }
+    private void applyPositions(BeltRenderState renderState, double[] clampedPositions) {
+        for (int i = 0; i < renderState.items.size() && i < clampedPositions.length; i++) {
+            renderState.items.get(i).position = clampedPositions[i];
         }
     }
 
     private BeltRenderState.BeltItemRenderData buildItemRenderData(BeltBlockEntity blockEntity, Belt.ItemSnapshot snapshot) {
         BeltRenderState.BeltItemRenderData itemRenderData = new BeltRenderState.BeltItemRenderData();
+        itemRenderData.id = snapshot.id();
         itemRenderData.position = snapshot.position();
         itemRenderData.itemId = snapshot.itemId();
 
@@ -213,30 +253,6 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             itemModelResolver.updateForTopItem(itemRenderData.itemStackRenderState, itemStack, ItemDisplayContext.FIXED, blockEntity.getLevel(), null, 0);
         }
         return itemRenderData;
-    }
-
-    private double[] predictPositions(List<Belt.ItemSnapshot> syncedItems, double elapsedTicks, double speed) {
-        double[] positions = new double[syncedItems.size()];
-        for (int i = 0; i < syncedItems.size(); i++) positions[i] = syncedItems.get(i).position();
-
-        if (elapsedTicks <= 0 || positions.length == 0) return positions;
-
-        int maxPredictedTicks = (int) Math.ceil(2d / speed);
-        int fullTicks = (int) Math.min(Math.floor(elapsedTicks), maxPredictedTicks);
-        double fraction = elapsedTicks - Math.floor(elapsedTicks);
-        if (elapsedTicks > maxPredictedTicks) fraction = 0;
-
-        for (int step = 0; step < fullTicks; step++) advanceOnce(positions, 1.0, speed);
-        if (fraction > 0) advanceOnce(positions, fraction, speed);
-        return positions;
-    }
-
-    private void advanceOnce(double[] positions, double stepScale, double speed) {
-        for (int i = 0; i < positions.length; i++) {
-            double cap = (i == 0) ? 1d : Math.max(positions[i - 1] - BeltBlockEntity.MIN_GAP, 0);
-            double proposed = positions[i] + speed * stepScale;
-            positions[i] = Math.clamp(proposed, 0, cap);
-        }
     }
 
     @Override
