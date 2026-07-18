@@ -129,7 +129,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
      */
     private double[] extrapolatedRawPositions(BeltBlockEntity belt, float partialTick) {
         List<Belt.ItemSnapshot> current = belt.getCurrentSyncedItems();
-        double elapsed = Math.max(elapsedTicksSince(belt, belt.getCurrentSyncTick(), partialTick), 0);
+        double elapsed = Math.max(elapsedTicksSince(belt, partialTick), 0);
         double[] velocities = velocitiesFor(belt);
 
         double[] raw = new double[current.size()];
@@ -150,9 +150,8 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return clamped;
     }
 
-    private double elapsedTicksSince(BeltBlockEntity belt, long syncTick, float partialTick) {
-        if (belt.getLevel() == null) return 0;
-        return (belt.getLevel().getGameTime() - syncTick) + partialTick;
+    private double elapsedTicksSince(BeltBlockEntity belt, float partialTick) {
+        return belt.getTicksSinceSync() + partialTick;
     }
 
     private boolean hasRoom(double[] positions) {

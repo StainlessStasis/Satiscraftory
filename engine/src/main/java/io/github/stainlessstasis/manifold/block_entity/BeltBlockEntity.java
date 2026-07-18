@@ -29,6 +29,7 @@ public class BeltBlockEntity extends BlockEntity {
     private long previousSyncTick = 0;
     private List<Belt.ItemSnapshot> currentSyncedItems = List.of();
     private long currentSyncTick = 0;
+    private int ticksSinceSync = 0;
     private boolean frontJammed;
     private float baseScrollOffset;
 
@@ -186,6 +187,7 @@ public class BeltBlockEntity extends BlockEntity {
 
     // RENDERING/CLIENT
     public void clientTick(double speed) {
+        ticksSinceSync++;
         if (!this.isFrontJammed() && this.level != null) {
             double worldElapsed = this.level.getGameTime();
             this.baseScrollOffset = (float) ((worldElapsed * speed) % 1.0);
@@ -204,6 +206,10 @@ public class BeltBlockEntity extends BlockEntity {
     public long getPreviousSyncTick() {
         return previousSyncTick;
     }
+    public int getTicksSinceSync() {
+        return ticksSinceSync;
+    }
+
     public float getBaseScrollOffset() { return baseScrollOffset; }
 
     public void applySync(List<Belt.ItemSnapshot> items, long syncTick, boolean frontJammed) {
@@ -212,5 +218,6 @@ public class BeltBlockEntity extends BlockEntity {
         this.currentSyncedItems = items;
         this.currentSyncTick = syncTick;
         this.frontJammed = frontJammed;
+        this.ticksSinceSync = 0;
     }
 }
