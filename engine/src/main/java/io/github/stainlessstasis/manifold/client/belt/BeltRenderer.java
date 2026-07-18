@@ -106,18 +106,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         boolean jammed = !syncedItems.isEmpty() && frontJammed;
         if (blockEntity.getLevel() != null) {
             double worldElapsed = blockEntity.getLevel().getGameTime() + partialTick;
-
-            if (!blockEntity.isScrollInitialized()) {
-                blockEntity.setLastScrollGameTime(worldElapsed);
-                blockEntity.setScrollInitialized(true);
-            }
-
             if (!jammed) {
-                double delta = worldElapsed - blockEntity.getLastScrollGameTime();
-                blockEntity.setScrollOffset((float) wrap01(blockEntity.getScrollOffset() + delta * speed));
+                blockEntity.setScrollOffset((float) wrap01(worldElapsed * speed));
             }
-            blockEntity.setLastScrollGameTime(worldElapsed);
-
             renderState.scrollOffset = blockEntity.getScrollOffset();
         }
     }
