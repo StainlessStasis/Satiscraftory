@@ -84,6 +84,10 @@ public class FactoryNetwork extends SavedData {
         });
     }
 
+    public @Nullable Producer getProducer(GlobalPos pos) {
+        return producers.getOrDefault(pos, null);
+    }
+
     public Belt getOrCreateBelt(GlobalPos pos, Supplier<Belt> factory) {
         return belts.computeIfAbsent(pos, _ -> {
             setDirty();

@@ -3,12 +3,17 @@ package io.github.stainlessstasis.manifold.factory_component;
 
 import io.github.stainlessstasis.manifold.Scheduler;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class Producer {
-    private final Identifier itemId;
-    private final long interval;
+    public static final Identifier DEFAULT_ITEM_TYPE = PayloadItems.idOf(Items.RAW_IRON);
+    public static final long DEFAULT_INTERVAL_TICKS = 1;
+
+    private Identifier itemId;
+    private long interval;
     private Port output;
     private final Scheduler scheduler;
 
@@ -89,10 +94,16 @@ public class Producer {
         return pending != null;
     }
 
+    public void setItemId(Item item) {
+        this.itemId = PayloadItems.idOf(item);
+    }
     public Identifier getItemId() {
         return itemId;
     }
 
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
     public long getInterval() {
         return interval;
     }

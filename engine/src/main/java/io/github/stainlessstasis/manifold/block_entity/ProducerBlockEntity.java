@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.manifold.block_entity;
 
-import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
@@ -8,19 +7,13 @@ import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.Vec3;
 
 public class ProducerBlockEntity extends BlockEntity {
-    private static final Identifier ITEM_TYPE = PayloadItems.idOf(Items.RAW_IRON);
-    private static final long INTERVAL_TICKS = 1;
-
     private Producer producer;
 
     public ProducerBlockEntity(BlockPos pos, BlockState state) {
@@ -38,7 +31,7 @@ public class ProducerBlockEntity extends BlockEntity {
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         producer = network.getOrCreateProducer(GlobalPos.of(serverLevel.dimension(), getBlockPos()),
-                () -> new Producer(ITEM_TYPE, INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
+                () -> new Producer(Producer.DEFAULT_ITEM_TYPE, Producer.DEFAULT_INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
 
         relink(network);
     }
