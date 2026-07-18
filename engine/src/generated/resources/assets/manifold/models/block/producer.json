@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": {
-    "front": "manifold:block/producer_front",
-    "side": "manifold:block/producer_side",
-    "top": "manifold:block/producer_top"
-  }
-}

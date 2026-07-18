@@ -40,10 +40,9 @@ public class ManifoldModelProvider extends ModelProvider {
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
 
-        blockModels.createHorizontallyRotatedBlock(producer, TexturedModel.ORIENTABLE_ONLY_TOP);
-        blockModels.createHorizontallyRotatedBlock(container, TexturedModel.ORIENTABLE_ONLY_TOP);
-
+        registerHorizontallyRotable(blockModels, producer, "block/producer", false);
         registerHorizontallyRotable(blockModels, machine, "block/machine", false);
+        registerHorizontallyRotable(blockModels, container, "block/container", false);
         registerHorizontallyRotable(blockModels, consumer, "block/consumer", false);
 
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item);
