@@ -28,7 +28,7 @@ public class BeltBlockEntity extends BlockEntity {
     private List<Belt.ItemSnapshot> renderItems = List.of();
     private long lastSyncedTick = 0;
     private boolean frontJammed;
-    private float scrollOffset;
+    private float baseScrollOffset;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(ManifoldBlockEntities.BELT.get(), pos, state);
@@ -182,14 +182,21 @@ public class BeltBlockEntity extends BlockEntity {
         return frontJammed;
     }
 
+    // RENDERING/CLIENT
+    public void clientTick(double speed) {
+        if (!this.isFrontJammed() && this.level != null) {
+            double worldElapsed = this.level.getGameTime();
+            this.baseScrollOffset = (float) ((worldElapsed * speed) % 1.0);
+        }
+    }
+
     public List<Belt.ItemSnapshot> getRenderItems() {
         return renderItems;
     }
     public long getLastSyncedTick() {
         return lastSyncedTick;
     }
-    public float getScrollOffset() { return scrollOffset; }
-    public void setScrollOffset(float v) { scrollOffset = v; }
+    public float getBaseScrollOffset() { return baseScrollOffset; }
 
     public void applySync(List<Belt.ItemSnapshot> items, long syncTick, boolean frontJammed) {
         this.renderItems = items;
