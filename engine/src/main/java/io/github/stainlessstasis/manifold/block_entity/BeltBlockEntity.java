@@ -16,8 +16,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -187,11 +185,9 @@ public class BeltBlockEntity extends BlockEntity {
     public List<Belt.ItemSnapshot> getRenderItems() {
         return renderItems;
     }
-
     public long getLastSyncedTick() {
         return lastSyncedTick;
     }
-
     public float getScrollOffset() { return scrollOffset; }
     public void setScrollOffset(float v) { scrollOffset = v; }
 

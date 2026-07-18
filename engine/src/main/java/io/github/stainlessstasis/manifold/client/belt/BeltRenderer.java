@@ -95,11 +95,8 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         double rawFront = frontRawPosition(syncedItems, elapsedTicks, speed);
         boolean frontAtEnd = rawFront >= 1d - EPSILON;
 
-        boolean clientJammed = frontAtEnd && output != null && !hasRoomAtBack(output, partialTick);
-        boolean serverJammed = blockEntity.isFrontJammed();
-
-        boolean frontJammed = serverJammed || clientJammed;
-        renderState.hideFrontItem = frontAtEnd && !frontJammed;
+        renderState.hideFrontItem = isHideFrontItem(blockEntity, partialTick);
+        boolean frontJammed = frontAtEnd ? !renderState.hideFrontItem : blockEntity.isFrontJammed();
 
         updateIncomingItem(blockEntity, renderState, partialTick, predictedPositions);
 
@@ -135,6 +132,19 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return positions.length == 0 || positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
+    private boolean isHideFrontItem(BeltBlockEntity belt, float partialTick) {
+        List<Belt.ItemSnapshot> synced = belt.getRenderItems();
+        double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
+        double rawFront = frontRawPosition(synced, elapsed, belt.getSpeed());
+        boolean frontAtEnd = rawFront >= 1d - EPSILON;
+        if (!frontAtEnd) return false;
+
+        BeltBlockEntity output = getNeighborBeltAt(belt, belt.resolveOutputPos());
+        boolean clientJammed = output != null && !hasRoomAtBack(output, partialTick);
+        boolean serverJammed = belt.isFrontJammed();
+        return !(serverJammed || clientJammed);
+    }
+
     /**
      * If the upstream neighbor's front item has crossed the boundary into this belt,
      * draw it here and continue from exactly where the upstream belt says it is,
@@ -150,13 +160,12 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
         List<Belt.ItemSnapshot> inputSynced = input.getRenderItems();
         if (inputSynced.isEmpty()) return;
+        if (!isHideFrontItem(input, partialTick)) return;
 
         double inputElapsed = elapsedTicksSince(input, input.getLastSyncedTick(), partialTick);
-        double inputRawFront = frontRawPosition(inputSynced, inputElapsed, input.getSpeed());
-        if (inputRawFront < 1d - EPSILON) return;
-
         if (!hasRoom(positions)) return;
 
+        double inputRawFront = frontRawPosition(inputSynced, inputElapsed, input.getSpeed());
         double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
         Identifier itemId = inputSynced.getFirst().itemId();
         renderState.itemIncomingActive = true;
