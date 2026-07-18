@@ -21,7 +21,6 @@ import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +44,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
     private final ItemModelResolver itemModelResolver;
     private final SpriteGetter sprites;
+    private final Vector3f scratchP0 = new Vector3f();
+    private final Vector3f scratchP1 = new Vector3f();
+    private final Vector3f scratchP2 = new Vector3f();
+    private final Vector3f scratchP3 = new Vector3f();
 
     public BeltRenderer(BlockEntityRendererProvider.Context context) {
         this.itemModelResolver = context.itemModelResolver();
@@ -64,6 +67,9 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
         renderState.shape = blockEntity.getBlockState().getValue(BeltBlock.SHAPE);
         renderState.reversed = blockEntity.getBlockState().getValue(BeltBlock.REVERSED);
+        renderState.cornerSegments = BeltGeometry.segmentsForDistance(
+                cameraPosition.distanceToSqr(Vec3.atCenterOf(blockEntity.getBlockPos()))
+        );
 
         double speed = blockEntity.getSpeed();
         List<Belt.ItemSnapshot> syncedItems = blockEntity.getRenderItems();
@@ -95,7 +101,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         boolean frontJammed = serverJammed || clientJammed;
         renderState.hideFrontItem = frontAtEnd && !frontJammed;
 
-        updateIncomingItem(blockEntity, renderState, partialTick);
+        updateIncomingItem(blockEntity, renderState, partialTick, predictedPositions);
 
         boolean jammed = !syncedItems.isEmpty() && frontJammed;
         if (blockEntity.getLevel() != null) {
@@ -131,6 +137,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (synced.isEmpty()) return true;
         double elapsed = elapsedTicksSince(belt, belt.getLastSyncedTick(), partialTick);
         double[] positions = predictPositions(synced, elapsed, belt.getSpeed());
+        return hasRoom(positions);
+    }
+
+    private boolean hasRoom(double[] positions) {
         return positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
@@ -139,7 +149,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
      * draw it here and continue from exactly where the upstream belt says it is,
      * so it hands off smoothly
      */
-    private void updateIncomingItem(BeltBlockEntity self, BeltRenderState renderState, float partialTick) {
+    private void updateIncomingItem(BeltBlockEntity self, BeltRenderState renderState, float partialTick, double[] positions) {
         renderState.itemIncomingActive = false;
 
         BeltBlockEntity input = getNeighborBeltAt(self, self.resolveInputPos());
@@ -154,7 +164,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         double inputRawFront = frontRawPosition(inputSynced, inputElapsed, input.getSpeed());
         if (inputRawFront < 1d - EPSILON) return;
 
-        if (!hasRoomAtBack(self, partialTick)) return;
+        if (!hasRoom(positions)) return;
 
         double overflow = Math.clamp(inputRawFront - 1d, 0d, 1d);
         Identifier itemId = inputSynced.getFirst().itemId();
@@ -286,7 +296,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     private void submitBeltStrip(BeltRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
         TextureAtlasSprite sprite = spriteFor(renderState.shape);
         RenderType renderType = RenderTypes.entityCutout(sprite.atlasLocation());
-        List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape);
+        List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape, renderState.cornerSegments);
 
         boolean flip = needsMirror(renderState.shape, renderState.reversed);
         double phase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
@@ -312,8 +322,8 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
 
     private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
                                  float geomStart, float geomEnd, float vStart, float vEnd, int light) {
-        Vector3f p0 = quad.pointAt(geomStart, 0), p1 = quad.pointAt(geomStart, 1);
-        Vector3f p2 = quad.pointAt(geomEnd, 1), p3 = quad.pointAt(geomEnd, 0);
+        Vector3f p0 = quad.pointAt(geomStart, 0, scratchP0), p1 = quad.pointAt(geomStart, 1, scratchP1);
+        Vector3f p2 = quad.pointAt(geomEnd, 1, scratchP2), p3 = quad.pointAt(geomEnd, 0, scratchP3);
 
         buffer.addVertex(pose, p0.x, p0.y, p0.z)
                 .setColor(255, 255, 255, 255).setUv(quad.u0(), vStart)

@@ -11,6 +11,7 @@ import java.util.List;
 
 public class BeltRenderState extends BlockEntityRenderState {
     BeltShape shape = BeltShape.NORTH_SOUTH;
+    int cornerSegments = BeltGeometry.CORNER_SEGMENTS_NEAR;
     boolean reversed = false;
     List<Belt.ItemSnapshot> syncedItems = List.of();
     long syncTick = 0;

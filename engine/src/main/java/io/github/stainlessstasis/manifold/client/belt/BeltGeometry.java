@@ -14,11 +14,22 @@ import java.util.Map;
 
 public final class BeltGeometry {
     private static final Map<BeltShape, List<BeltStripQuad>> QUAD_CACHE = new EnumMap<>(BeltShape.class);
+    private static final Map<BeltShape, Map<Integer, List<BeltStripQuad>>> CORNER_QUAD_CACHE_BY_LOD = new EnumMap<>(BeltShape.class);
 
     public static final float HALF_WIDTH = 0.375f;
     public static final float SURFACE_HEIGHT = 0.625f;
-    public static final int CORNER_SEGMENTS = 32;
     public static final float CORNER_BULGE = 0.15f;
+    public static final int CORNER_SEGMENTS_NEAR = 32;
+    public static final int CORNER_SEGMENTS_MID = 12;
+    public static final int CORNER_SEGMENTS_FAR = 4;
+    private static final double LOD_MID_DISTANCE_SQR = 24 * 24;
+    private static final double LOD_FAR_DISTANCE_SQR = 48 * 48;
+
+    public static int segmentsForDistance(double distanceSqrToCamera) {
+        if (distanceSqrToCamera > LOD_FAR_DISTANCE_SQR) return CORNER_SEGMENTS_FAR;
+        if (distanceSqrToCamera > LOD_MID_DISTANCE_SQR) return CORNER_SEGMENTS_MID;
+        return CORNER_SEGMENTS_NEAR;
+    }
 
     // these values are derived from the up values of the belt cube in the model json,
     // but the belt cube is deleted from the json, since belts are rendered as quads with a scrolling texture
@@ -102,10 +113,10 @@ public final class BeltGeometry {
 
     public record BeltStripQuad(Vec3 startLeft, Vec3 startRight, Vec3 endLeft, Vec3 endRight,
                                 float u0, float u1, float v0, float v1) {
-        Vector3f pointAt(float geomFraction, int side) {
+        Vector3f pointAt(float geomFraction, int side, Vector3f dest) {
             Vec3 start = (side == 0) ? startLeft : startRight;
             Vec3 end = (side == 0) ? endLeft : endRight;
-            return new Vector3f(
+            return dest.set(
                     (float) Mth.lerp(geomFraction, start.x, end.x),
                     (float) Mth.lerp(geomFraction, start.y, end.y),
                     (float) Mth.lerp(geomFraction, start.z, end.z)
@@ -115,7 +126,14 @@ public final class BeltGeometry {
 
     public static List<BeltStripQuad> stripQuadsFor(BeltShape shape) {
         return QUAD_CACHE.computeIfAbsent(shape, s ->
-                s.isCorner() ? stripQuadsForCorner(s, CORNER_SEGMENTS) : List.of(stripQuadFor(s)));
+                s.isCorner() ? stripQuadsForCorner(s, CORNER_SEGMENTS_NEAR) : List.of(stripQuadFor(s)));
+    }
+
+    public static List<BeltStripQuad> stripQuadsFor(BeltShape shape, int segments) {
+        if (!shape.isCorner()) return stripQuadsFor(shape);
+        return CORNER_QUAD_CACHE_BY_LOD
+                .computeIfAbsent(shape, s -> new java.util.HashMap<>())
+                .computeIfAbsent(segments, seg -> stripQuadsForCorner(shape, seg));
     }
 
     public static BeltStripQuad stripQuadFor(BeltShape shape) {
