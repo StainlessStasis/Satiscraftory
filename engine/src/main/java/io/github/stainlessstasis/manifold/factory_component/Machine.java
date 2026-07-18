@@ -20,6 +20,7 @@ public class Machine {
     private final Map<Direction, Integer> outputFaces = new EnumMap<>(Direction.class);
     private boolean crafting = false;
     private long craftCompletionTick = -1;
+    private Scheduler.@Nullable ScheduledTask craftTask;
 
     public Machine(MachineRecipe recipe, Scheduler scheduler, List<Port> initialOutputPorts) {
         this(recipe, scheduler, initialOutputPorts, 8);
@@ -62,7 +63,9 @@ public class Machine {
             machine.pendingOutputs.add(queue);
         }
 
-        if (crafting) scheduler.schedule(craftCompletionTick, machine::finishCrafting);
+        if (crafting) {
+            machine.craftTask = scheduler.schedule(craftCompletionTick, machine::finishCrafting);
+        }
         return machine;
     }
 
@@ -112,17 +115,17 @@ public class Machine {
         for (int i = 0; i < recipe.inputCount(); i++) {
             if (bufferedCounts[i] < recipe.inputs().get(i).amount()) return;
         }
-
         for (int i = 0; i < recipe.inputCount(); i++) {
             bufferedCounts[i] -= recipe.inputs().get(i).amount();
         }
 
         crafting = true;
         craftCompletionTick = scheduler.getCurrentTick() + recipe.durationTicks();
-        scheduler.schedule(craftCompletionTick, this::finishCrafting);
+        craftTask = scheduler.schedule(craftCompletionTick, this::finishCrafting);
     }
 
     private void finishCrafting() {
+        craftTask = null;
         crafting = false;
         for (int i = 0; i < recipe.outputCount(); i++) {
             RecipeIngredient outIngredient = recipe.outputs().get(i);
@@ -131,6 +134,20 @@ public class Machine {
         }
         tryFlushOutputs();
         tryStartCrafting();
+    }
+
+    /**
+     * Debug-only: abandon any in-progress craft and drain all buffers so setRecipe() can work
+     * */
+    public void forceClear() {
+        if (craftTask != null) {
+            craftTask.cancel();
+            craftTask = null;
+        }
+        crafting = false;
+        craftCompletionTick = -1;
+        Arrays.fill(bufferedCounts, 0);
+        for (Deque<Payload> queue : pendingOutputs) queue.clear();
     }
 
     private void tryFlushOutputs() {
@@ -148,6 +165,7 @@ public class Machine {
     public long getCraftCompletionTick() { return craftCompletionTick; }
     public int[] getBufferedCounts() { return bufferedCounts.clone(); }
     public int getBufferMultiplier() { return bufferMultiplier; }
+    public List<Port> getOutputPorts() { return List.copyOf(outputPorts); }
 
     public List<List<Identifier>> getPendingOutputItemIds() {
         List<List<Identifier>> result = new ArrayList<>();

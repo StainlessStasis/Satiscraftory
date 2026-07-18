@@ -1,0 +1,16 @@
+{
+  "durationTicks": 40,
+  "inputs": [
+    {
+      "amount": 4,
+      "itemId": "minecraft:iron_ingot"
+    }
+  ],
+  "machineType": "manifold:basic_machine",
+  "outputs": [
+    {
+      "amount": 3,
+      "itemId": "minecraft:iron_chain"
+    }
+  ]
+}

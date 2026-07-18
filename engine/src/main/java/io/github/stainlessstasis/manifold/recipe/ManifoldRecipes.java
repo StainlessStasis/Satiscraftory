@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ManifoldRecipes extends SimplePreparableReloadListener<Map<Identifier, MachineRecipe>> {
-    public static final String PATH = "manifold/machine_recipes";
+    public static final String PATH = "machine_recipes";
     private static Map<Identifier, MachineRecipe> RECIPES = Map.of();
 
     @Override

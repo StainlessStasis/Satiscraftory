@@ -1,20 +1,40 @@
 package io.github.stainlessstasis.manifold.command;
 
+import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.Machine;
+import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
+import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.IdentifierArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
+import java.util.function.Predicate;
 import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 
 public final class FactoryCommands {
+    private static final Predicate<CommandSourceStack> GAMEMASTER =
+            source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+    private static final double DEBUG_REACH = 5.0;
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("factory")
                 .then(Commands.literal("count")
@@ -30,8 +50,9 @@ public final class FactoryCommands {
                                 .executes(ctx -> reportCount(ctx, "Containers", FactoryNetwork::getContainerCount)))
                         .executes(FactoryCommands::reportAll)
                 )
+
                 .then(Commands.literal("loaded")
-                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        .requires(GAMEMASTER)
                         .then(Commands.literal("belts")
                                 .executes(ctx -> reportLoadedCount(ctx, "Belts", FactoryNetwork::getLoadedBeltCount)))
                         .then(Commands.literal("producers")
@@ -44,13 +65,86 @@ public final class FactoryCommands {
                                 .executes(ctx -> reportLoadedCount(ctx, "Containers", FactoryNetwork::getLoadedContainerCount)))
                         .executes(FactoryCommands::reportAllLoaded)
                 )
+
                 .then(Commands.literal("freeze")
-                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        .requires(GAMEMASTER)
                         .executes(ctx -> setFrozen(ctx, true)))
                 .then(Commands.literal("unfreeze")
-                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        .requires(GAMEMASTER)
                         .executes(ctx -> setFrozen(ctx, false)))
+
+                .then(Commands.literal("setrecipe")
+                        .requires(GAMEMASTER)
+                        .then(Commands.argument("recipe", IdentifierArgument.id())
+                                .suggests((_, builder) -> SharedSuggestionProvider.suggestResource(
+                                        ManifoldRecipes.allRecipes().keySet(), builder))
+                                .executes(ctx -> setRecipe(ctx, null, false))
+                                .then(Commands.literal("force")
+                                        .executes(ctx -> setRecipe(ctx, null, true)))
+                                .then(Commands.literal("at")
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> setRecipe(ctx, BlockPosArgument.getBlockPos(ctx, "pos"), false))
+                                                .then(Commands.literal("force")
+                                                        .executes(ctx -> setRecipe(ctx, BlockPosArgument.getBlockPos(ctx, "pos"), true)))))
+                        )
+                )
         );
+    }
+
+    private static int setRecipe(CommandContext<CommandSourceStack> ctx, BlockPos explicitPos, boolean force) throws CommandSyntaxException {
+        CommandSourceStack source = ctx.getSource();
+        ServerLevel level = source.getLevel();
+        Identifier recipeId = IdentifierArgument.getId(ctx, "recipe");
+
+        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        if (recipe == null) {
+            source.sendFailure(Component.literal("No such recipe: " + recipeId));
+            return 0;
+        }
+
+        BlockPos pos = explicitPos != null ? explicitPos : lookingAtBlock(source);
+        if (pos == null) {
+            source.sendFailure(Component.literal("No target block - stand and look at a machine, or use 'at <pos>'"));
+            return 0;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof MachineBlockEntity machineBE)) {
+            source.sendFailure(Component.literal("Block at " + pos.toShortString() + " is not a machine"));
+            return 0;
+        }
+
+        Machine machine = machineBE.getMachine();
+        if (recipe.inputCount() != 1 || recipe.outputCount() != 1) {
+            source.sendFailure(Component.literal(
+                    "setrecipe currently only supports 1-input/1-output recipes " +
+                            "(got " + recipe.inputCount() + " in / " + recipe.outputCount() + " out)"))
+            ;
+            return 0;
+        }
+
+        if (force) machine.forceClear();
+
+        boolean ok = machine.setRecipe(recipe, machine.getOutputPorts());
+        if (!ok) {
+            source.sendFailure(Component.literal(
+                    "Machine at " + pos.toShortString() + " is busy. Retry with 'force'"));
+            return 0;
+        }
+
+        source.sendSuccess(() -> Component.literal("Set recipe at " + pos.toShortString() + " to " + recipeId), true);
+        return 1;
+    }
+
+    private static BlockPos lookingAtBlock(CommandSourceStack source) {
+        if (!(source.getEntity() instanceof ServerPlayer player)) return null;
+        Vec3 eye = player.getEyePosition();
+        Vec3 look = player.getViewVector(1f);
+        Vec3 target = eye.add(look.scale(DEBUG_REACH));
+        BlockHitResult hit = player.level().clip(
+                new ClipContext(eye, target, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player)
+        );
+        return hit.getType() == HitResult.Type.BLOCK ? hit.getBlockPos() : null;
     }
 
     private static int reportCount(CommandContext<CommandSourceStack> ctx, String label, ToIntFunction<FactoryNetwork> counter) {
