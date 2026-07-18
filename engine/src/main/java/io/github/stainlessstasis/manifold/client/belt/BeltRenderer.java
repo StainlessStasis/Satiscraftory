@@ -141,7 +141,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     }
 
     private boolean hasRoom(double[] positions) {
-        return positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
+        return positions.length == 0 || positions[positions.length - 1] >= BeltBlockEntity.MIN_GAP;
     }
 
     /**
