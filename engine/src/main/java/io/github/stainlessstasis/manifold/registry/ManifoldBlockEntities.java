@@ -1,6 +1,11 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.block.ConsumerBlock;
+import io.github.stainlessstasis.manifold.block.ContainerBlock;
+import io.github.stainlessstasis.manifold.block.MachineBlock;
+import io.github.stainlessstasis.manifold.block.ProducerBlock;
+import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block_entity.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -12,27 +17,27 @@ public class ManifoldBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, Manifold.MODID);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ProducerBlockEntity>> PRODUCER =
-            BLOCK_ENTITIES.register("producer", () -> new BlockEntityType<>(
-                    ProducerBlockEntity::new, ManifoldBlocks.PRODUCER.get()));
+            BLOCK_ENTITIES.register("producer", () -> new ManifoldBlockEntityType<>(
+                    ProducerBlockEntity::new,
+                    block -> block instanceof ProducerBlock));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BeltBlockEntity>> BELT =
-            BLOCK_ENTITIES.register("belt", () -> new BlockEntityType<>(
+            BLOCK_ENTITIES.register("belt", () -> new ManifoldBlockEntityType<>(
                     BeltBlockEntity::new,
-                    ManifoldBlocks.BELT_MK1.get(),
-                    ManifoldBlocks.BELT_MK2.get(),
-                    ManifoldBlocks.BELT_MK3.get()
-                    )
-            );
+                    block -> block instanceof BeltBlock));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ConsumerBlockEntity>> CONSUMER =
-            BLOCK_ENTITIES.register("consumer", () -> new BlockEntityType<>(
-                    ConsumerBlockEntity::new, ManifoldBlocks.CONSUMER.get()));
+            BLOCK_ENTITIES.register("consumer", () -> new ManifoldBlockEntityType<>(
+                    ConsumerBlockEntity::new,
+                    block -> block instanceof ConsumerBlock));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MachineBlockEntity>> MACHINE =
-            BLOCK_ENTITIES.register("machine", () -> new BlockEntityType<>(
-                    MachineBlockEntity::new, ManifoldBlocks.MACHINE.get()));
+            BLOCK_ENTITIES.register("machine", () -> new ManifoldBlockEntityType<>(
+                    MachineBlockEntity::new,
+                    block -> block instanceof MachineBlock));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ContainerBlockEntity>> CONTAINER =
-            BLOCK_ENTITIES.register("container", () -> new BlockEntityType<>(
-                    ContainerBlockEntity::new, ManifoldBlocks.CONTAINER.get()));
+            BLOCK_ENTITIES.register("container", () -> new ManifoldBlockEntityType<>(
+                    ContainerBlockEntity::new,
+                    block -> block instanceof ContainerBlock));
 }
