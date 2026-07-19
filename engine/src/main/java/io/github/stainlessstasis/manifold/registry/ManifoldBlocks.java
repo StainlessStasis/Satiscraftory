@@ -36,6 +36,14 @@ public class ManifoldBlocks {
                     .strength(2.0f)
     );
 
+    public static final DeferredBlock<BeltBlock> BELT_MK3 = BLOCKS.registerBlock("belt_mk3",
+            properties -> new BeltBlock(properties, 4.5/20f),
+            () -> BlockBehaviour.Properties.of()
+                    .noOcclusion()
+                    .mapColor(MapColor.STONE)
+                    .strength(2.0f)
+    );
+
     public static final DeferredBlock<ConsumerBlock> CONSUMER = BLOCKS.registerBlock("consumer",
             ConsumerBlock::new,
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());

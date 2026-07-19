@@ -19,7 +19,8 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("belt", () -> new BlockEntityType<>(
                     BeltBlockEntity::new,
                     ManifoldBlocks.BELT_MK1.get(),
-                    ManifoldBlocks.BELT_MK2.get()
+                    ManifoldBlocks.BELT_MK2.get(),
+                    ManifoldBlocks.BELT_MK3.get()
                     )
             );
 

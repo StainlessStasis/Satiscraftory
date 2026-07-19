@@ -34,8 +34,10 @@ public class ManifoldModelProvider extends ModelProvider {
         Block producer = ManifoldBlocks.PRODUCER.get();
         Block belt_mk1 = ManifoldBlocks.BELT_MK1.get();
         Block belt_mk2 = ManifoldBlocks.BELT_MK2.get();
+        Block belt_mk3 = ManifoldBlocks.BELT_MK3.get();
         Item belt_mk1_item = ManifoldItems.BELT_MK1.get();
         Item belt_mk2_item = ManifoldItems.BELT_MK2.get();
+        Item belt_mk3_item = ManifoldItems.BELT_MK3.get();
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
@@ -47,6 +49,7 @@ public class ManifoldModelProvider extends ModelProvider {
 
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item);
+        registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item);
     }
 
     private void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path, boolean reversed) {

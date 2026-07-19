@@ -46,6 +46,7 @@ public class Satiscraftory {
                 output.accept(ManifoldItems.PRODUCER.get());
                 output.accept(ManifoldItems.BELT_MK1.get());
                 output.accept(ManifoldItems.BELT_MK2.get());
+                output.accept(ManifoldItems.BELT_MK3.get());
                 output.accept(ManifoldItems.MACHINE.get());
                 output.accept(ManifoldItems.CONTAINER.get());
                 output.accept(ManifoldItems.CONSUMER.get());
