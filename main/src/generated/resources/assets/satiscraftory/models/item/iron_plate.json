@@ -1,5 +1,5 @@
 {
-  "parent": "satiscraftory:item/flat_item_2x",
+  "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "satiscraftory:item/iron_plate"
   }
