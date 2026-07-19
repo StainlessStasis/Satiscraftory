@@ -7,9 +7,7 @@ import io.github.stainlessstasis.satiscraftory.registry.SFBlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SFItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.model.ModelTemplate;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -45,6 +43,7 @@ public class SFModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
 
-        itemModels.generateFlatItem(SFItems.IRON_PLATE.get(), ModelTemplates.FLAT_ITEM);
+//        itemModels.generateFlatItem(SFItems.IRON_PLATE.get(), ModelTemplates.FLAT_ITEM);
+        itemModels.itemModelOutput.accept(SFItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
     }
 }
