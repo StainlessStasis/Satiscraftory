@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.block_entity;
 
-import io.github.stainlessstasis.manifold.factory_component.Belt;
+import io.github.stainlessstasis.manifold.factory_component.BeltLane;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.block.belt.BeltShapeSolver;
@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,15 +24,16 @@ public class BeltBlockEntity extends BlockEntity {
     public static final float SCALE = 0.5f;
     public static final double MIN_GAP = SCALE + 0.001;
 
-    private Belt belt;
     // rendering stuff
-    private List<Belt.ItemSnapshot> previousSyncedItems = List.of();
+    private List<BeltLane.ItemSnapshot> previousSyncedItems = List.of();
     private long previousSyncTick = 0;
-    private List<Belt.ItemSnapshot> currentSyncedItems = List.of();
+    private List<BeltLane.ItemSnapshot> currentSyncedItems = List.of();
     private long currentSyncTick = 0;
     private int ticksSinceSync = 0;
     private boolean frontJammed;
     private float baseScrollOffset;
+    // only populated on the lane's anchor block; see BeltRenderer
+    private List<BlockPos> syncedLaneBlocks = List.of();
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(ManifoldBlockEntities.BELT.get(), pos, state);
@@ -46,10 +48,7 @@ public class BeltBlockEntity extends BlockEntity {
         super.onLoad();
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        FactoryNetwork network = FactoryNetwork.get(serverLevel);
-        belt = network.getOrCreateBelt(GlobalPos.of(serverLevel.dimension(), getBlockPos()), () -> new Belt(getSpeed(), MIN_GAP));
-
-        relink(network);
+        relink(FactoryNetwork.get(serverLevel));
         reconcileOwnOrientation(serverLevel);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
         notifyConnectedNeighborsToReshape(serverLevel);
@@ -58,12 +57,15 @@ public class BeltBlockEntity extends BlockEntity {
     public void relink(FactoryNetwork network) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockPos pos = getBlockPos();
+        BlockPos inputPos = resolveInputPos();
         BlockPos outputPos = resolveOutputPos();
-        network.linkBeltOutput(
-                GlobalPos.of(serverLevel.dimension(), pos),
-                GlobalPos.of(serverLevel.dimension(), outputPos),
-                FactoryUtils.getOutputDirection(pos, outputPos)
-        );
+
+        GlobalPos gPos = GlobalPos.of(serverLevel.dimension(), pos);
+        GlobalPos gIn = GlobalPos.of(serverLevel.dimension(), inputPos);
+        GlobalPos gOut = GlobalPos.of(serverLevel.dimension(), outputPos);
+
+        network.attachBeltBlock(gPos, getSpeed(), MIN_GAP, gIn, gOut);
+        network.linkLaneOutput(gPos, gOut, FactoryUtils.getOutputDirection(pos, outputPos));
     }
 
     public void onNeighborChanged() {
@@ -129,13 +131,13 @@ public class BeltBlockEntity extends BlockEntity {
 
         if (desiredReversed != null && desiredReversed != reversed) {
             level.setBlock(getBlockPos(), state.setValue(BeltBlock.REVERSED, desiredReversed), Block.UPDATE_ALL);
+            relink(FactoryNetwork.get(level));
         }
     }
 
     /**
      * Updates the downstream belt to prevent an accidental loop between two belts.
-     * If the neighbor was placed first and faces this belt,
-     * flip it forward to ensure the belt line continues
+     * If the neighbor was placed first and faces this belt, flip it forward to ensure the belt line continues
      */
     private void reconcileDownstreamOrientation(ServerLevel level, BeltShape newShape, boolean newReversed) {
         Direction outputDir = newReversed ? newShape.defaultInputDirection() : newShape.defaultOutputDirection();
@@ -154,33 +156,41 @@ public class BeltBlockEntity extends BlockEntity {
     }
 
     public BlockPos resolveOutputPos() {
-        BeltShape shape = getBlockState().getValue(BeltBlock.SHAPE);
-        boolean reversed = getBlockState().getValue(BeltBlock.REVERSED);
-        Direction dir = reversed ? shape.defaultInputDirection() : shape.defaultOutputDirection();
-        int yOffset = reversed ? shape.defaultInputYOffset() : shape.defaultOutputYOffset();
-        return (level != null)
-                ? BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), dir, yOffset)
-                : getBlockPos().relative(dir).above(yOffset);
+        return resolvePosForIO(false);
     }
 
     public BlockPos resolveInputPos() {
+        return resolvePosForIO(true);
+    }
+
+    protected BlockPos resolvePosForIO(boolean input) {
         BeltShape shape = getBlockState().getValue(BeltBlock.SHAPE);
         boolean reversed = getBlockState().getValue(BeltBlock.REVERSED);
-        Direction dir = reversed ? shape.defaultOutputDirection() : shape.defaultInputDirection();
-        int yOffset = reversed ? shape.defaultOutputYOffset() : shape.defaultInputYOffset();
+
+        Direction dir;
+        if (input) dir = reversed ? shape.defaultOutputDirection() : shape.defaultInputDirection();
+        else dir = reversed ? shape.defaultInputDirection() : shape.defaultOutputDirection();
+
+        int yOffset;
+        if (input) yOffset = reversed ? shape.defaultOutputYOffset() : shape.defaultInputYOffset();
+        else yOffset = reversed ? shape.defaultInputYOffset() : shape.defaultOutputYOffset();
+
         return (level != null)
                 ? BeltShapeSolver.resolveConnectionPoint(level, getBlockPos(), dir, yOffset)
                 : getBlockPos().relative(dir).above(yOffset);
     }
 
-    public Belt getBelt() {
-        return belt;
+    public @Nullable BeltLane getLane(FactoryNetwork network) {
+        if (level == null) return null;
+        return network.getLaneManager().laneAt(GlobalPos.of(level.dimension(), getBlockPos()));
     }
 
     public double getSpeed() {
         return (getBlockState().getBlock() instanceof BeltBlock beltBlock) ? beltBlock.getSpeed() : 0.05;
+        // 0.05 = 1/20 (same as mk 1 speed in Satiscraftory)
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isFrontJammed() {
         return frontJammed;
     }
@@ -194,13 +204,13 @@ public class BeltBlockEntity extends BlockEntity {
         }
     }
 
-    public List<Belt.ItemSnapshot> getCurrentSyncedItems() {
+    public List<BeltLane.ItemSnapshot> getCurrentSyncedItems() {
         return currentSyncedItems;
     }
     public long getCurrentSyncTick() {
         return currentSyncTick;
     }
-    public List<Belt.ItemSnapshot> getPreviousSyncedItems() {
+    public List<BeltLane.ItemSnapshot> getPreviousSyncedItems() {
         return previousSyncedItems;
     }
     public long getPreviousSyncTick() {
@@ -212,12 +222,20 @@ public class BeltBlockEntity extends BlockEntity {
 
     public float getBaseScrollOffset() { return baseScrollOffset; }
 
-    public void applySync(List<Belt.ItemSnapshot> items, long syncTick, boolean frontJammed) {
+    /**
+     * Ordered chain of blocks in this belt's lane, as of the last sync. Only populated on the anchor block
+     */
+    public List<BlockPos> getSyncedLaneBlocks() {
+        return syncedLaneBlocks;
+    }
+
+    public void applySync(List<BlockPos> laneBlocks, List<BeltLane.ItemSnapshot> items, long syncTick, boolean frontJammed) {
         this.previousSyncedItems = this.currentSyncedItems;
         this.previousSyncTick = this.currentSyncTick;
         this.currentSyncedItems = items;
         this.currentSyncTick = syncTick;
         this.frontJammed = frontJammed;
         this.ticksSinceSync = 0;
+        this.syncedLaneBlocks = laneBlocks;
     }
 }

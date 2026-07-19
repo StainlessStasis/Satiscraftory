@@ -13,6 +13,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -24,6 +26,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class FactoryNetwork extends SavedData {
+    // TODO: should this be adjusted now that belts are batched in lanes?
     private static final int MAX_ENTRIES_PER_PACKET = 500; // for belt syncing
 
     public static final SavedDataType<FactoryNetwork> TYPE = new SavedDataType<>(
@@ -39,13 +42,14 @@ public class FactoryNetwork extends SavedData {
 
     private final Scheduler scheduler = new Scheduler();
     private final Map<GlobalPos, Producer> producers = new HashMap<>();
-    private final Map<GlobalPos, Belt> belts = new HashMap<>();
+    private final LaneManager laneManager = new LaneManager();
     private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
     private final Map<GlobalPos, Machine> machines = new HashMap<>();
     private final Map<GlobalPos, Container> containers = new HashMap<>();
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
-    private final Map<GlobalPos, GlobalPos> beltOutputPos = new HashMap<>();
+    // keyed by lane UUID rather than GlobalPos since a lane isn't a single position
+    private final Map<UUID, GlobalPos> laneOutputPos = new HashMap<>();
     private final Map<GlobalPos, List<GlobalPos>> machineOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> containerOutputPos = new HashMap<>();
 
@@ -77,6 +81,10 @@ public class FactoryNetwork extends SavedData {
         return scheduler;
     }
 
+    public LaneManager getLaneManager() {
+        return laneManager;
+    }
+
     public Producer getOrCreateProducer(GlobalPos pos, Supplier<Producer> factory) {
         return producers.computeIfAbsent(pos, _ -> {
             setDirty();
@@ -86,13 +94,6 @@ public class FactoryNetwork extends SavedData {
 
     public @Nullable Producer getProducer(GlobalPos pos) {
         return producers.getOrDefault(pos, null);
-    }
-
-    public Belt getOrCreateBelt(GlobalPos pos, Supplier<Belt> factory) {
-        return belts.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
     }
 
     public Consumer getOrCreateConsumer(GlobalPos pos, Supplier<Consumer> factory) {
@@ -117,8 +118,8 @@ public class FactoryNetwork extends SavedData {
     }
 
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
-        Belt belt = belts.get(pos);
-        if (belt != null) return belt;
+        BeltLane lane = laneManager.laneAt(pos);
+        if (lane != null) return lane;
 
         Consumer consumer = consumers.get(pos);
         if (consumer != null) {
@@ -144,18 +145,58 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    public void linkBeltOutput(GlobalPos beltPos, GlobalPos outputPos, Direction outputDirection) {
-        Belt belt = belts.get(beltPos);
+    // --- belt lanes ---
+
+    public BeltLane attachBeltBlock(
+            GlobalPos pos, double speed, double minGap, @Nullable GlobalPos inputNeighbor, @Nullable GlobalPos outputNeighbor
+    ) {
+        BeltLane lane = laneManager.attachBlock(pos, speed, minGap, inputNeighbor, outputNeighbor);
+        setDirty();
+        return lane;
+    }
+
+    public void linkLaneOutput(GlobalPos beltPos, GlobalPos outputPos, Direction outputDirection) {
+        BeltLane lane = laneManager.laneAt(beltPos);
+        if (lane == null || !beltPos.equals(lane.tailBlock())) return;
+
         Port port = getPortAt(outputPos, outputDirection);
-        if (belt == null || port == null) return;
+        Port resolved = (port != null) ? port : NO_OP_PORT;
+        boolean unchanged = resolved == lane.getOutput() && outputPos.equals(laneOutputPos.get(lane.getId()));
+        if (unchanged) return;
 
-        GlobalPos previousOutput = beltOutputPos.get(beltPos);
-        if (port == belt.getOutput() && outputPos.equals(previousOutput)) return;
-
-        belt.setOutput(port);
-        beltOutputPos.put(beltPos, outputPos);
+        lane.setOutput(resolved);
+        laneOutputPos.put(lane.getId(), outputPos);
         setDirty();
     }
+
+    /**
+     * @param gapFillerPort The Port which fills the gap left by the belt.
+     *                      Will eventually be used for splitter and merger inlining (like in Satisfactory)
+     */
+    public void detachBeltBlock(ServerLevel level, GlobalPos pos, Port gapFillerPort) {
+        LaneManager.LaneReference ref = laneManager.getReference(pos);
+        UUID originalLaneId = (ref != null) ? ref.laneId() : null;
+
+        laneManager.detachBlock(pos, gapFillerPort, (removedPos, ejected) -> dropEjectedItems(level, removedPos, ejected));
+
+        if (originalLaneId != null) {
+            laneOutputPos.remove(originalLaneId);
+        }
+        setDirty();
+    }
+
+    private void dropEjectedItems(ServerLevel level, GlobalPos removedPos, List<BeltLane.BeltItem> items) {
+        BlockPos blockPos = removedPos.pos();
+        for (BeltLane.BeltItem item : items) {
+            Payload payload = item.getPayload();
+            ItemStack stack = PayloadItems.toItemStack(payload.itemId(), payload.count());
+            if (stack == null) continue;
+            ItemEntity entity = new ItemEntity(
+                    level, blockPos.getX() + 0.5, blockPos.getY() + 0.67, blockPos.getZ() + 0.5, stack);
+            level.addFreshEntity(entity);
+        }
+    }
+
 
     public void linkMachineOutput(GlobalPos machinePos, int slotIndex, GlobalPos outputPos, Direction outputDirection) {
         Machine machine = machines.get(machinePos);
@@ -187,14 +228,6 @@ public class FactoryNetwork extends SavedData {
         }
     }
 
-    public void removeBelt(GlobalPos pos) {
-        clearReferencesTo(pos);
-        if (belts.remove(pos) != null) {
-            beltOutputPos.remove(pos);
-            setDirty();
-        }
-    }
-
     public void removeConsumer(GlobalPos pos) {
         clearReferencesTo(pos);
         if (consumers.remove(pos) != null) {
@@ -219,13 +252,12 @@ public class FactoryNetwork extends SavedData {
     }
 
     private void clearReferencesTo(GlobalPos removedPos) {
-        for (var entry : beltOutputPos.entrySet()) {
-            if (removedPos.equals(entry.getValue())) {
-                Belt belt = belts.get(entry.getKey());
-                if (belt != null) belt.setOutput(NO_OP_PORT);
-            }
-        }
-        beltOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+        laneOutputPos.entrySet().removeIf(entry -> {
+            if (!removedPos.equals(entry.getValue())) return false;
+            BeltLane lane = laneManager.getLane(entry.getKey());
+            if (lane != null) lane.setOutput(NO_OP_PORT);
+            return true;
+        });
 
         for (var entry : producerOutputPos.entrySet()) {
             if (removedPos.equals(entry.getValue())) {
@@ -268,24 +300,24 @@ public class FactoryNetwork extends SavedData {
         for (TickTarget target : tickOrder) target.tick(currentTick);
 
         Map<ResourceKey<Level>, List<BeltSyncPacket.Entry>> changedByDimension = new HashMap<>();
-        for (var entry : belts.entrySet()) {
-            Belt belt = entry.getValue();
-            if (!belt.hasUnsyncedChanges(currentTick)) continue;
+        for (BeltLane lane : new ArrayList<>(laneManager.getAllLanes().values())) {
+            if (!lane.hasUnsyncedChanges(currentTick)) continue;
 
-            GlobalPos globalPos = entry.getKey();
-            ServerLevel beltLevel = level.getServer().getLevel(globalPos.dimension());
-            if (beltLevel == null) { belt.markSynced(currentTick); continue; }
+            GlobalPos headPos = lane.headBlock();
+            ServerLevel laneLevel = level.getServer().getLevel(headPos.dimension());
+            if (laneLevel == null) { lane.markSynced(currentTick); continue; }
 
-            BlockPos pos = globalPos.pos();
-            if (!hasTrackingPlayers(beltLevel, ChunkPos.containing(pos))) {
-                belt.markSynced(currentTick);
+            BlockPos pos = headPos.pos();
+            if (!hasTrackingPlayers(laneLevel, ChunkPos.containing(pos))) {
+                lane.markSynced(currentTick);
                 continue;
             }
 
+            List<BlockPos> blockPositions = lane.getBlocks().stream().map(GlobalPos::pos).toList();
             changedByDimension
-                    .computeIfAbsent(globalPos.dimension(), _ -> new ArrayList<>())
-                    .add(new BeltSyncPacket.Entry(pos, currentTick, belt.getItemSnapshots(), belt.isFrontJammed()));
-            belt.markSynced(currentTick);
+                    .computeIfAbsent(headPos.dimension(), _ -> new ArrayList<>())
+                    .add(new BeltSyncPacket.Entry(pos, blockPositions, currentTick, lane.getItemSnapshots(), lane.isFrontJammed()));
+            lane.markSynced(currentTick);
         }
 
         for (var entry : changedByDimension.entrySet()) {
@@ -304,26 +336,30 @@ public class FactoryNetwork extends SavedData {
     }
 
     private List<TickTarget> computeTickOrder() {
-        List<GlobalPos> order = new ArrayList<>(producers.size() + belts.size() + consumers.size() + machines.size());
-        Set<GlobalPos> visited = new HashSet<>();
+        Set<Object> visited = new HashSet<>();
+        List<Object> order = new ArrayList<>();
 
-        Set<GlobalPos> allNodes = new LinkedHashSet<>();
+        Set<Object> allNodes = new LinkedHashSet<>();
         allNodes.addAll(producers.keySet());
-        allNodes.addAll(belts.keySet());
+        allNodes.addAll(laneManager.getAllLanes().keySet());
         allNodes.addAll(machines.keySet());
         allNodes.addAll(containers.keySet());
         allNodes.addAll(consumers.keySet());
 
-        for (GlobalPos start : allNodes) {
+        for (Object start : allNodes) {
             if (!visited.contains(start)) visitIterative(start, order, visited);
         }
 
         List<TickTarget> resolved = new ArrayList<>(order.size());
-        for (GlobalPos pos : order) {
+        for (Object node : order) {
+            if (node instanceof UUID laneId) {
+                BeltLane lane = laneManager.getLane(laneId);
+                if (lane != null) resolved.add(lane::tick);
+                continue;
+            }
+            GlobalPos pos = (GlobalPos) node;
             Producer producer = producers.get(pos);
             if (producer != null) { resolved.add(producer::tick); continue; }
-            Belt belt = belts.get(pos);
-            if (belt != null) { resolved.add(belt::tick); continue; }
             Machine machine = machines.get(pos);
             if (machine != null) { resolved.add(machine::tick); continue; }
             Container container = containers.get(pos);
@@ -340,18 +376,32 @@ public class FactoryNetwork extends SavedData {
         return !chunkCache.chunkMap.getPlayers(chunkPos, false).isEmpty();
     }
 
-    private List<GlobalPos> outputsOf(GlobalPos pos) {
-        if (belts.containsKey(pos)) {
-            GlobalPos out = beltOutputPos.get(pos);
-            return out != null ? List.of(out) : List.of();
+    private @Nullable Object resolveNode(GlobalPos pos) {
+        LaneManager.LaneReference ref = laneManager.getReference(pos);
+        if (ref != null) return ref.laneId();
+        if (producers.containsKey(pos) || machines.containsKey(pos)
+                || containers.containsKey(pos) || consumers.containsKey(pos)) {
+            return pos;
         }
+        return null;
+    }
+
+    private List<Object> outputsOf(Object node) {
+        if (node instanceof UUID laneId) {
+            GlobalPos out = laneOutputPos.get(laneId);
+            if (out == null) return List.of();
+            Object resolved = resolveNode(out);
+            return resolved != null ? List.of(resolved) : List.of();
+        }
+
+        GlobalPos pos = (GlobalPos) node;
         if (producers.containsKey(pos)) {
             GlobalPos out = producerOutputPos.get(pos);
             return out != null ? List.of(out) : List.of();
         }
         if (machines.containsKey(pos)) {
             List<GlobalPos> outs = machineOutputPos.get(pos);
-            return outs != null ? outs : List.of();
+            return outs != null ? Collections.singletonList(outs) : List.of();
         }
         if (containers.containsKey(pos)) {
             GlobalPos out = containerOutputPos.get(pos);
@@ -360,29 +410,23 @@ public class FactoryNetwork extends SavedData {
         return List.of();
     }
 
-    private boolean isTrackedNode(GlobalPos pos) {
-        return pos != null && (belts.containsKey(pos) || producers.containsKey(pos)
-                || machines.containsKey(pos) || consumers.containsKey(pos))
-                || containers.containsKey(pos);
-    }
-
-    private void visitIterative(GlobalPos start, List<GlobalPos> order, Set<GlobalPos> visited) {
-        Deque<GlobalPos> stack = new ArrayDeque<>();
-        Deque<Iterator<GlobalPos>> pendingOutputs = new ArrayDeque<>();
-        Set<GlobalPos> onStack = new HashSet<>();
+    private void visitIterative(Object start, List<Object> order, Set<Object> visited) {
+        Deque<Object> stack = new ArrayDeque<>();
+        Deque<Iterator<Object>> pendingOutputs = new ArrayDeque<>();
+        Set<Object> onStack = new HashSet<>();
 
         stack.push(start);
         onStack.add(start);
         pendingOutputs.push(outputsOf(start).iterator());
 
         while (!stack.isEmpty()) {
-            GlobalPos pos = stack.peek();
-            Iterator<GlobalPos> outIter = pendingOutputs.peek();
+            Object node = stack.peek();
+            Iterator<Object> outIter = pendingOutputs.peek();
 
             boolean pushedChild = false;
             while (outIter != null && outIter.hasNext()) {
-                GlobalPos next = outIter.next();
-                if (isTrackedNode(next) && !visited.contains(next) && !onStack.contains(next)) {
+                Object next = outIter.next();
+                if (!visited.contains(next) && !onStack.contains(next)) {
                     stack.push(next);
                     onStack.add(next);
                     pendingOutputs.push(outputsOf(next).iterator());
@@ -394,11 +438,12 @@ public class FactoryNetwork extends SavedData {
 
             stack.pop();
             pendingOutputs.pop();
-            onStack.remove(pos);
-            visited.add(pos);
-            order.add(pos);
+            onStack.remove(node);
+            visited.add(node);
+            order.add(node);
         }
     }
+
 
     private Persisted.Snapshot toSnapshot() {
         List<Persisted.Producer> persistedProducers = new ArrayList<>();
@@ -415,16 +460,15 @@ public class FactoryNetwork extends SavedData {
             ));
         }
 
-        List<Persisted.Belt> persistedBelts = new ArrayList<>();
-        for (Map.Entry<GlobalPos, Belt> entry : belts.entrySet()) {
-            GlobalPos pos = entry.getKey();
-            Belt belt = entry.getValue();
+        List<Persisted.BeltLane> persistedLanes = new ArrayList<>();
+        for (BeltLane lane : laneManager.getAllLanes().values()) {
+            List<GlobalPos> blocks = lane.getBlocks();
             List<Persisted.BeltItem> items = new ArrayList<>();
-            for (Belt.ItemSnapshot snapshot : belt.getItemSnapshots()) {
+            for (BeltLane.ItemSnapshot snapshot : lane.getItemSnapshots()) {
                 items.add(new Persisted.BeltItem(snapshot.id(), snapshot.position(), snapshot.itemId()));
             }
-            persistedBelts.add(new Persisted.Belt(pos, belt.getSpeed(), belt.getMinGap(),
-                    Optional.ofNullable(beltOutputPos.get(pos)), items));
+            persistedLanes.add(new Persisted.BeltLane(lane.getId(), blocks, lane.getSpeed(), lane.getMinGap(),
+                    Optional.ofNullable(laneOutputPos.get(lane.getId())), items));
         }
 
         List<Persisted.Consumer> persistedConsumers = new ArrayList<>();
@@ -474,18 +518,18 @@ public class FactoryNetwork extends SavedData {
                     pos, container.getSlotCount(), slotData, Optional.ofNullable(containerOutputPos.get(pos))));
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedBelts, persistedConsumers, persistedMachines, persistedContainers);
+        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers);
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
 
         // restore factory components
-        for (Persisted.Belt beltData : snapshot.belts()) {
-            Belt belt = new Belt(beltData.speed(), beltData.minGap());
-            for (Persisted.BeltItem item : beltData.items()) belt.restoreItem(item.itemId(), item.position(), item.id());
-            network.belts.put(beltData.pos(), belt);
-            beltData.outputPos().ifPresent(outPos -> network.beltOutputPos.put(beltData.pos(), outPos));
+        for (Persisted.BeltLane laneData : snapshot.belts()) {
+            BeltLane lane = new BeltLane(laneData.id(), laneData.blocks(), laneData.speed(), laneData.minGap());
+            for (Persisted.BeltItem item : laneData.items()) lane.restoreItem(item.itemId(), item.position(), item.id());
+            network.laneManager.restoreLane(lane);
+            laneData.outputPos().ifPresent(outPos -> network.laneOutputPos.put(laneData.id(), outPos));
         }
 
         for (Persisted.Consumer consumerData : snapshot.consumers()) {
@@ -543,11 +587,13 @@ public class FactoryNetwork extends SavedData {
         }
 
         // relink outputs
-        for (Map.Entry<GlobalPos, GlobalPos> entry : network.beltOutputPos.entrySet()) {
+        for (Map.Entry<UUID, GlobalPos> entry : network.laneOutputPos.entrySet()) {
+            BeltLane lane = network.laneManager.getLane(entry.getKey());
+            if (lane == null) continue;
             GlobalPos outPos = entry.getValue();
-            Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+            Direction dir = FactoryUtils.getOutputDirection(lane.tailBlock().pos(), outPos.pos());
             Port port = network.getPortAt(outPos, dir);
-            if (port != null) network.belts.get(entry.getKey()).setOutput(port);
+            lane.setOutput(port != null ? port : NO_OP_PORT);
         }
 
         for (Map.Entry<GlobalPos, GlobalPos> entry : network.producerOutputPos.entrySet()) {
@@ -581,7 +627,12 @@ public class FactoryNetwork extends SavedData {
         return network;
     }
 
-    public int getBeltCount() { return belts.size(); }
+    public int getBeltCount() {
+        int count = 0;
+        for (BeltLane lane : laneManager.getAllLanes().values()) count += lane.size();
+        return count;
+    }
+    public int getLaneCount() { return laneManager.getLaneCount(); }
     public int getProducerCount() { return producers.size(); }
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
@@ -589,7 +640,14 @@ public class FactoryNetwork extends SavedData {
 
     // Counts factory components whose chunk is currently loaded
     // Intended for debug use only
-    public int getLoadedBeltCount(MinecraftServer server) { return countLoaded(server, belts.keySet()); }
+
+    public int getLoadedBeltCount(MinecraftServer server) {
+        int count = 0;
+        for (BeltLane lane : laneManager.getAllLanes().values()) {
+            if (isChunkLoaded(server, lane.headBlock())) count += lane.size();
+        }
+        return count;
+    }
     public int getLoadedProducerCount(MinecraftServer server) { return countLoaded(server, producers.keySet()); }
     public int getLoadedConsumerCount(MinecraftServer server) { return countLoaded(server, consumers.keySet()); }
     public int getLoadedMachineCount(MinecraftServer server) { return countLoaded(server, machines.keySet()); }

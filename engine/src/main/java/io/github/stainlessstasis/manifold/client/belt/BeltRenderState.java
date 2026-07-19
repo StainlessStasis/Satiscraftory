@@ -1,32 +1,37 @@
 package io.github.stainlessstasis.manifold.client.belt;
 
-import io.github.stainlessstasis.manifold.factory_component.Belt;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
+import io.github.stainlessstasis.manifold.factory_component.BeltLane;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BeltRenderState extends BlockEntityRenderState {
-    BeltShape shape = BeltShape.NORTH_SOUTH;
-    int cornerSegments = BeltGeometry.CORNER_SEGMENTS_NEAR;
-    boolean reversed = false;
-    float scrollOffset = 0f;
-    final List<BeltItemRenderData> items = new ArrayList<>();
-    List<Belt.ItemSnapshot> cachedSyncedItems = List.of();
-    boolean hideFrontItem = false;
-    boolean itemIncomingActive = false;
-    Identifier itemIncomingTypeCached = null;
-    final BeltItemRenderData itemIncoming = new BeltItemRenderData();
-    BeltShape neighborShapeAtStart = null;
-    BeltShape neighborShapeAtEnd = null;
+    // this block's own belt strip
+    public BeltShape shape;
+    public boolean reversed;
+    public int cornerSegments;
+    public float scrollOffset;
+    public BlockPos anchorPos;
 
-    static final class BeltItemRenderData {
-        long id;
-        double position;
-        Identifier itemId;
-        final ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
+    // item rendering for the entire belt lane
+    public boolean isAnchor;
+    public List<BlockPos> laneBlocks = List.of();
+    public BeltShape[] blockShapes = new BeltShape[0];
+    public boolean[] laneReversed = new boolean[0];
+    public double totalLength = 0;
+
+    public List<BeltLane.ItemSnapshot> cachedSyncedItems = null;
+    public final List<BeltItemRenderData> items = new ArrayList<>();
+
+    public static class BeltItemRenderData {
+        public long id;
+        public double position;
+        public Identifier itemId;
+        public final ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
     }
 }

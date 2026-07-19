@@ -5,11 +5,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.factory_component.Container;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.Identifier;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 final class Persisted {
     private Persisted() {}
@@ -22,14 +21,16 @@ final class Persisted {
         ).apply(i, BeltItem::new));
     }
 
-    record Belt(GlobalPos pos, double speed, double minGap, Optional<GlobalPos> outputPos, List<BeltItem> items) {
-        static final Codec<Belt> CODEC = RecordCodecBuilder.create(i -> i.group(
-                GlobalPos.CODEC.fieldOf("pos").forGetter(Belt::pos),
-                Codec.DOUBLE.fieldOf("speed").forGetter(Belt::speed),
-                Codec.DOUBLE.fieldOf("minGap").forGetter(Belt::minGap),
-                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Belt::outputPos),
-                BeltItem.CODEC.listOf().fieldOf("items").forGetter(Belt::items)
-        ).apply(i, Belt::new));
+    record BeltLane(UUID id, List<GlobalPos> blocks, double speed, double minGap,
+                    Optional<GlobalPos> outputPos, List<BeltItem> items) {
+        static final Codec<BeltLane> CODEC = RecordCodecBuilder.create(i -> i.group(
+                UUIDUtil.CODEC.fieldOf("id").forGetter(BeltLane::id),
+                GlobalPos.CODEC.listOf().fieldOf("blocks").forGetter(BeltLane::blocks),
+                Codec.DOUBLE.fieldOf("speed").forGetter(BeltLane::speed),
+                Codec.DOUBLE.fieldOf("minGap").forGetter(BeltLane::minGap),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(BeltLane::outputPos),
+                BeltItem.CODEC.listOf().fieldOf("items").forGetter(BeltLane::items)
+        ).apply(i, BeltLane::new));
     }
 
     record Producer(GlobalPos pos, Identifier itemType, long interval, Optional<GlobalPos> outputPos,
@@ -70,7 +71,7 @@ final class Persisted {
                 Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick),
                 Codec.INT.listOf().xmap(
                         list -> list.stream().mapToInt(Integer::intValue).toArray(),
-                        arr -> java.util.Arrays.stream(arr).boxed().toList()
+                        arr -> Arrays.stream(arr).boxed().toList()
                 ).fieldOf("bufferedCounts").forGetter(Machine::bufferedCounts),
                 Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds),
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Machine::inputFaces),
@@ -98,11 +99,13 @@ final class Persisted {
         ).apply(i, Container::new));
     }
 
-    /** The full snapshot of everything FactoryNetwork tracks*/
-    record Snapshot(List<Producer> producers, List<Belt> belts, List<Consumer> consumers, List<Machine> machines, List<Container> containers) {
+    /**
+     * The full snapshot of everything FactoryNetwork tracks (producers, belts, machines, consumers, containers)
+     */
+    record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines, List<Container> containers) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
-                Belt.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
+                BeltLane.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
                 Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers),
                 Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines),
                 Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers)

@@ -80,6 +80,7 @@ public class BeltBlock extends AbstractFactoryBlock {
      */
     @Override
     protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+        //noinspection DataFlowIssue - gamemode is nullable but should not be null here
         if (player.gameMode().isSurvival()) {
             return InteractionResult.PASS;
         }
@@ -104,7 +105,8 @@ public class BeltBlock extends AbstractFactoryBlock {
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeBelt(GlobalPos.of(level.dimension(), pos));
+        FactoryNetwork network = FactoryNetwork.get(level);
+        network.detachBeltBlock(level, GlobalPos.of(level.dimension(), pos), FactoryNetwork.NO_OP_PORT);
     }
 
     @Override
