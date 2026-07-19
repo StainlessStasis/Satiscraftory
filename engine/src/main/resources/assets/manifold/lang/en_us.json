@@ -1,8 +1,5 @@
 {
   "block.manifold.producer": "Producer",
-  "block.manifold.belt_mk1": "Belt Mk. 1",
-  "block.manifold.belt_mk2": "Belt Mk. 2",
-  "block.manifold.belt_mk3": "Belt Mk. 3",
   "block.manifold.machine": "Machine",
   "block.manifold.container": "Container",
   "block.manifold.consumer": "Consumer"

@@ -11,12 +11,6 @@ public class ManifoldItems {
 
     public static final DeferredItem<BlockItem> PRODUCER =
             ITEMS.registerSimpleBlockItem("producer", ManifoldBlocks.PRODUCER);
-    public static final DeferredItem<BlockItem> BELT_MK1 =
-            ITEMS.registerSimpleBlockItem("belt_mk1", ManifoldBlocks.BELT_MK1);
-    public static final DeferredItem<BlockItem> BELT_MK2 =
-            ITEMS.registerSimpleBlockItem("belt_mk2", ManifoldBlocks.BELT_MK2);
-    public static final DeferredItem<BlockItem> BELT_MK3 =
-            ITEMS.registerSimpleBlockItem("belt_mk3", ManifoldBlocks.BELT_MK3);
     public static final DeferredItem<BlockItem> CONSUMER =
             ITEMS.registerSimpleBlockItem("consumer", ManifoldBlocks.CONSUMER);
     public static final DeferredItem<BlockItem> MACHINE =
