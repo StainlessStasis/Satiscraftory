@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldMachineTypes;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.registry.SFItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Items;
 
@@ -17,11 +18,11 @@ public class MachineRecipesProvider extends ManifoldRecipeProvider {
 
     @Override
     protected void addRecipes(RecipeOutput output) {
-        output.accept(Satiscraftory.id("test"), new MachineRecipe.Data(
+        output.accept(Satiscraftory.id("iron_plate"), new MachineRecipe.Data(
                 ManifoldMachineTypes.BASIC_MACHINE,
-                List.of(RecipeIngredient.of(Items.IRON_INGOT, 4)),
-                List.of(RecipeIngredient.of(Items.IRON_CHAIN, 3)),
-                40L
+                List.of(RecipeIngredient.of(Items.IRON_INGOT, 3)),
+                List.of(RecipeIngredient.of(SFItems.IRON_PLATE, 2)),
+                120L
         ));
     }
 }

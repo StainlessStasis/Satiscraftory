@@ -1,31 +1,30 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
-import com.mojang.math.Quadrant;
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.datagen.FactoryModelProvider;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SFBlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SFItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
-import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.MultiVariant;
-import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.client.data.models.blockstates.PropertyDispatch;
-import net.minecraft.client.data.models.model.ItemModelUtils;
-import net.minecraft.client.renderer.block.dispatch.Variant;
-import net.minecraft.core.Direction;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Optional;
+
 public class SFModelProvider extends FactoryModelProvider {
+    public static final ModelTemplate FLAT_ITEM_2X = new ModelTemplate(
+            Optional.of(Satiscraftory.id("item/flat_item_2x")),
+            Optional.empty(),
+            TextureSlot.LAYER0
+    );
+
     public SFModelProvider(PackOutput output) {
         super(output, Satiscraftory.MODID);
     }
@@ -45,5 +44,7 @@ public class SFModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
+
+        itemModels.generateFlatItem(SFItems.IRON_PLATE.get(), ModelTemplates.FLAT_ITEM);
     }
 }

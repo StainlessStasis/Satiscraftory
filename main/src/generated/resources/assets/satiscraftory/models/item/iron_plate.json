@@ -1,0 +1,6 @@
+{
+  "parent": "satiscraftory:item/flat_item_2x",
+  "textures": {
+    "layer0": "satiscraftory:item/iron_plate"
+  }
+}

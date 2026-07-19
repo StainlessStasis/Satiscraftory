@@ -21,7 +21,7 @@ public class MachineRecipeProvider extends ManifoldRecipeProvider {
                 ManifoldMachineTypes.BASIC_MACHINE,
                 List.of(RecipeIngredient.of(Items.RAW_IRON, 1)),
                 List.of(RecipeIngredient.of(Items.IRON_INGOT, 1)),
-                20L
+                40L
         ));
     }
 }
