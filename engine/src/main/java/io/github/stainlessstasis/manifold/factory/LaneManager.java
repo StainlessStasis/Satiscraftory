@@ -1,8 +1,9 @@
 package io.github.stainlessstasis.manifold.factory;
 
 import com.mojang.math.Constants;
-import io.github.stainlessstasis.manifold.factory_component.BeltLane;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.Port;
+import io.github.stainlessstasis.manifold.factory_component.belt.LanePort;
 import net.minecraft.core.GlobalPos;
 import org.jspecify.annotations.Nullable;
 
@@ -106,10 +107,14 @@ public class LaneManager {
         registerLane(newLane);
 
         BeltLane upstreamLane = (upstreamNeighbor != null) ? laneAt(upstreamNeighbor) : null;
-        if (upstreamLane != null && upstreamNeighbor.equals(upstreamLane.tailBlock())) upstreamLane.setOutput(newLane);
+        if (upstreamLane != null && upstreamNeighbor.equals(upstreamLane.tailBlock())) {
+            upstreamLane.setOutput(new LanePort(this, pos));
+        }
 
         BeltLane downstreamLane = (downstreamNeighbor != null) ? laneAt(downstreamNeighbor) : null;
-        if (downstreamLane != null && downstreamNeighbor.equals(downstreamLane.headBlock())) newLane.setOutput(downstreamLane);
+        if (downstreamLane != null && downstreamNeighbor.equals(downstreamLane.headBlock())) {
+            newLane.setOutput(new LanePort(this, downstreamNeighbor));
+        }
 
         return newLane;
     }
@@ -128,7 +133,7 @@ public class LaneManager {
         // same speed, but over the length cap - extend whichever side has room and bridge the rest
         if (upLane.size() + 1 <= MAX_LANE_LENGTH) {
             BeltLane extended = upLane.withBlockInserted(upLane.size(), pos);
-            extended.setOutput(downLane);
+            extended.setOutput(new LanePort(this, downLane.headBlock()));
             unregisterLane(upLane.getId());
             registerLane(extended);
             return extended;
@@ -137,15 +142,15 @@ public class LaneManager {
             BeltLane extended = downLane.withBlockInserted(0, pos);
             unregisterLane(downLane.getId());
             registerLane(extended);
-            upLane.setOutput(extended);
+            upLane.setOutput(new LanePort(this, pos));
             return extended;
         }
 
         // both lanes reached max length - pos becomes its own lane
         BeltLane standalone = new BeltLane(UUID.randomUUID(), List.of(pos), blockSpeed, minGap);
-        standalone.setOutput(downLane);
+        standalone.setOutput(new LanePort(this, downLane.headBlock()));
         registerLane(standalone);
-        upLane.setOutput(standalone);
+        upLane.setOutput(new LanePort(this, pos));
         return standalone;
     }
 
@@ -158,7 +163,7 @@ public class LaneManager {
         }
         BeltLane standalone = new BeltLane(UUID.randomUUID(), List.of(pos), blockSpeed, minGap);
         registerLane(standalone);
-        upLane.setOutput(standalone);
+        upLane.setOutput(new LanePort(this, pos));
         return standalone;
     }
 
@@ -170,7 +175,7 @@ public class LaneManager {
             return extended;
         }
         BeltLane standalone = new BeltLane(UUID.randomUUID(), List.of(pos), blockSpeed, minGap);
-        standalone.setOutput(downLane);
+        standalone.setOutput(new LanePort(this, downLane.headBlock()));
         registerLane(standalone);
         return standalone;
     }

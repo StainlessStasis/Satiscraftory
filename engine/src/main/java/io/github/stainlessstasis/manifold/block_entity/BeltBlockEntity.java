@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.block_entity;
 
-import io.github.stainlessstasis.manifold.factory_component.BeltLane;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.block.belt.BeltShapeSolver;

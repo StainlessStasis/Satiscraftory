@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.client.belt;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import io.github.stainlessstasis.manifold.factory_component.BeltLane;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;

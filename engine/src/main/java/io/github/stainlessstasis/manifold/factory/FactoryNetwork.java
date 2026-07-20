@@ -2,6 +2,8 @@ package io.github.stainlessstasis.manifold.factory;
 
 import io.github.stainlessstasis.manifold.*;
 import io.github.stainlessstasis.manifold.factory_component.*;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
+import io.github.stainlessstasis.manifold.factory_component.belt.LanePort;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
@@ -119,7 +121,7 @@ public class FactoryNetwork extends SavedData {
 
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
         BeltLane lane = laneManager.laneAt(pos);
-        if (lane != null) return lane;
+        if (lane != null) return new LanePort(laneManager, pos);
 
         Consumer consumer = consumers.get(pos);
         if (consumer != null) {
@@ -161,7 +163,7 @@ public class FactoryNetwork extends SavedData {
 
         Port port = getPortAt(outputPos, outputDirection);
         Port resolved = (port != null) ? port : NO_OP_PORT;
-        boolean unchanged = resolved == lane.getOutput() && outputPos.equals(laneOutputPos.get(lane.getId()));
+        boolean unchanged = resolved.equals(lane.getOutput()) && outputPos.equals(laneOutputPos.get(lane.getId()));
         if (unchanged) return;
 
         lane.setOutput(resolved);

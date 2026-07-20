@@ -1,6 +1,8 @@
-package io.github.stainlessstasis.manifold.factory_component;
+package io.github.stainlessstasis.manifold.factory_component.belt;
 
 import com.mojang.math.Constants;
+import io.github.stainlessstasis.manifold.factory_component.Payload;
+import io.github.stainlessstasis.manifold.factory_component.Port;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.Identifier;
 
@@ -294,7 +296,7 @@ public class BeltLane implements Port {
     }
 
     public long getLastSyncedTick() { return lastSyncedTick; }
-    
+
     public int getItemCount() { return items.size(); }
     public double getSpeed() { return speed; }
     public double getMinGap() { return minGap; }
