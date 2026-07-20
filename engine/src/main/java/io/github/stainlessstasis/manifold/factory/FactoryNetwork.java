@@ -402,14 +402,28 @@ public class FactoryNetwork extends SavedData {
             GlobalPos out = producerOutputPos.get(pos);
             return out != null ? List.of(out) : List.of();
         }
-        if (machines.containsKey(pos)) {
-            List<GlobalPos> outs = machineOutputPos.get(pos);
-            return outs != null ? Collections.singletonList(outs) : List.of();
-        }
+
         if (containers.containsKey(pos)) {
             GlobalPos out = containerOutputPos.get(pos);
             return out != null ? List.of(out) : List.of();
         }
+
+        if (machines.containsKey(pos)) {
+            List<GlobalPos> outs = machineOutputPos.get(pos);
+            if (outs == null || outs.isEmpty()) return List.of();
+
+            List<Object> resolvedOutputs = new ArrayList<>();
+            for (GlobalPos outPos : outs) {
+                if (outPos != null) {
+                    Object resolved = resolveNode(outPos);
+                    if (resolved != null) {
+                        resolvedOutputs.add(resolved);
+                    }
+                }
+            }
+            return resolvedOutputs;
+        }
+
         return List.of();
     }
 
