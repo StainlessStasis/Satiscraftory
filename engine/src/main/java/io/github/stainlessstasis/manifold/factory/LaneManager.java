@@ -54,6 +54,9 @@ public class LaneManager {
         return Math.abs(a - b) <= Constants.EPSILON;
     }
 
+    public boolean isTracked(GlobalPos pos) {
+        return blockToLane.containsKey(pos);
+    }
 
     private void registerLane(BeltLane lane) {
         lanes.put(lane.getId(), lane);

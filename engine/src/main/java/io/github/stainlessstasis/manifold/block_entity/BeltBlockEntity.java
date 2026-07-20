@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.block_entity;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block.belt.BeltShape;
@@ -32,7 +33,6 @@ public class BeltBlockEntity extends BlockEntity {
     private int ticksSinceSync = 0;
     private boolean frontJammed;
     private float baseScrollOffset;
-    // only populated on the lane's anchor block; see BeltRenderer
     private List<BlockPos> syncedLaneBlocks = List.of();
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
@@ -222,9 +222,6 @@ public class BeltBlockEntity extends BlockEntity {
 
     public float getBaseScrollOffset() { return baseScrollOffset; }
 
-    /**
-     * Ordered chain of blocks in this belt's lane, as of the last sync. Only populated on the anchor block
-     */
     public List<BlockPos> getSyncedLaneBlocks() {
         return syncedLaneBlocks;
     }

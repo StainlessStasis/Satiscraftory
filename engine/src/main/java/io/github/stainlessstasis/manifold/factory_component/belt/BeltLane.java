@@ -177,6 +177,7 @@ public class BeltLane implements Port {
      * Blocks after the split become their own new lane, inheriting this lane's output Port.
      */
     public SplitResult splitAt(int blockIndex, UUID afterLaneId) {
+        System.out.println("SPLIT AT");
         if (blockIndex < 0 || blockIndex >= blocks.size()) {
             throw new IndexOutOfBoundsException(
                     "blockIndex " + blockIndex + " out of range for lane of size " + blocks.size()
@@ -208,6 +209,7 @@ public class BeltLane implements Port {
         if (!beforeBlocks.isEmpty()) {
             before = new BeltLane(this.id, beforeBlocks, speed, minGap);
             before.items.addAll(beforeItems);
+            System.out.println("BEFORE items: "+before.items.size());
             before.nextItemId = this.nextItemId;
             // this lane no longer has an output
         }
@@ -216,6 +218,7 @@ public class BeltLane implements Port {
         if (!afterBlocks.isEmpty()) {
             after = new BeltLane(afterLaneId, afterBlocks, speed, minGap);
             after.items.addAll(afterItems);
+            System.out.println("AFTER items: "+after.items.size());
             after.nextItemId = this.nextItemId;
             after.output = this.output;
         }
@@ -229,6 +232,7 @@ public class BeltLane implements Port {
      * Callers must also check the combined size against LaneManager.MAX_LANE_LENGTH before calling this.
      */
     public BeltLane mergeWith(BeltLane next) {
+        System.out.println("MERGE WITH");
         if (Math.abs(this.speed - next.speed) > Constants.EPSILON) {
             throw new IllegalArgumentException("Cannot merge lanes with different speeds (" + this.speed + " vs " + next.speed + ")");
         }
@@ -255,6 +259,7 @@ public class BeltLane implements Port {
     }
 
     public BeltLane withBlockInserted(int index, GlobalPos block) {
+        System.out.println("WITH BLOCK INSERTED");
         List<GlobalPos> newBlocks = new ArrayList<>(blocks.size() + 1);
         newBlocks.addAll(blocks.subList(0, index));
         newBlocks.add(block);
@@ -310,8 +315,11 @@ public class BeltLane implements Port {
     }
 
     public void restoreItem(Identifier itemId, double position, long id) {
+        System.out.println("RESTORING ITEM");
         long resolvedId = (id >= 0) ? id : nextItemId;
+        System.out.println("Item id: "+resolvedId);
         items.add(new BeltItem(resolvedId, new Payload(itemId), position));
+        System.out.println("Items: "+items.size());
         if (resolvedId >= nextItemId) nextItemId = resolvedId + 1;
     }
 }

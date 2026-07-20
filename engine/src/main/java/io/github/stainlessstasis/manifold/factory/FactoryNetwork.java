@@ -28,8 +28,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class FactoryNetwork extends SavedData {
-    // TODO: should this be adjusted now that belts are batched in lanes?
-    private static final int MAX_ENTRIES_PER_PACKET = 500; // for belt syncing
+    private static final int MAX_ENTRIES_PER_PACKET = 150; // for belt syncing
 
     public static final SavedDataType<FactoryNetwork> TYPE = new SavedDataType<>(
             Manifold.id("factory_network"),

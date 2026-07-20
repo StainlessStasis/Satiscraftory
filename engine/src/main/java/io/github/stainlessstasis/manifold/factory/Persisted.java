@@ -21,8 +21,7 @@ final class Persisted {
         ).apply(i, BeltItem::new));
     }
 
-    record BeltLane(UUID id, List<GlobalPos> blocks, double speed, double minGap,
-                    Optional<GlobalPos> outputPos, List<BeltItem> items) {
+    record BeltLane(UUID id, List<GlobalPos> blocks, double speed, double minGap, Optional<GlobalPos> outputPos, List<BeltItem> items) {
         static final Codec<BeltLane> CODEC = RecordCodecBuilder.create(i -> i.group(
                 UUIDUtil.CODEC.fieldOf("id").forGetter(BeltLane::id),
                 GlobalPos.CODEC.listOf().fieldOf("blocks").forGetter(BeltLane::blocks),
