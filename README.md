@@ -36,7 +36,7 @@ Find the creative tab on the second page labeled Factory Components, and grab on
 - [WorldEdit](https://modrinth.com/plugin/worldedit): Copy/Paste factories to create stress tests or make building repetitive factories faster. There will eventually (probably) be official features in Satiscraftory for these sorts of things later on
 
 # Additional Performance Notes
-## Tick lag (CPU)
+## Tick Lag (CPU & Networking)
 TPS slows to a crawl when a massive amount of belts are in loaded chunks near a player. This is not necessarily a critical issue, but something that should be kept in mind when stress testing. This is due to the network overhead of sending so many sync packets, and while the packets *are* batched in some capacity (150 belt lines, which is 2400 belts), having around 100K belts is still enough to break it. This shouldn't realistically be anywhere close to normal use case, but may still be further optimized eventually. 
 
 When factories are spread apart, as you would normally do in a regular playthrough, performance shouldn't be much of a concern. This is a test in a completely empty superflat world with no mob spawning or anything else: https://spark.lucko.me/IAj24rSlrH
@@ -44,6 +44,12 @@ When factories are spread apart, as you would normally do in a regular playthrou
 Rendering is easily the largest bottleneck of the mod right now. As mentioned above in the recommended mods section, 5000 moving items (2500 belts) on screen dropped to less than 50 FPS, even with Sodium.
 
 While 5000 on-screen items is still pushing the upper bounds of what's normally expected in a playthrough, there is still massive room for improvement, especially considering that this is *without* having a ton of animated machines on screen. This will be fixed in the near future once [Flywheel](https://github.com/Engine-Room/Flywheel)'s 26.1.2 port is finalized. Flywheel will allow Satiscraftory to take advantage of instanced rendering and hopefully push those FPS numbers up a decent bit.
+# Commands
+`/factory count [optional: belts/consumers/containers/machines/produces]` - Outputs the global amount of factory components. Includes unloaded chunks and other dimensions<br>
+`/factory loaded [optional: same as above]` - Outputs the amount of factory components in loaded chunks<br>
+`/factory rendered [optional: same as above]` - Outputs the amount of factory components in chunks loaded by your client<br>
+`/factory setrecipe <recipe> [at/force]` - Sets a machine's recipe, optionally at the specified block coordinate (in the same dimension). The `force` option will force the machine to clear its buffers and stop crafting so that it can set the new recipe immediately<br>
+`/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick
 # Known Issues
 - Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
 - Factory block models clip into each other and cause z-fighting. Size of the models is intended, but they are still placeholders. Will eventually disallow placing them too close to each other, and some will become multiblocks
