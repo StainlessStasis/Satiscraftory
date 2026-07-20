@@ -89,7 +89,9 @@ public class LaneManager {
         } else if (upstreamNeighbor != null) {
             BeltLane upLane = laneAt(upstreamNeighbor);
             if (upLane != null && upstreamNeighbor.equals(upLane.tailBlock()) && isSameSpeed(upLane.getSpeed(), blockSpeed)) {
-                return false;
+                boolean mergePossible = upLane.size() + lane.size() <= MAX_LANE_LENGTH;
+                boolean alreadyBridged = upLane.getOutput() instanceof LanePort port && port.getPos().equals(pos);
+                if (mergePossible && !alreadyBridged) return false;
             }
         }
 
@@ -97,7 +99,11 @@ public class LaneManager {
             return blocks.get(index + 1).equals(downstreamNeighbor);
         } else if (downstreamNeighbor != null) {
             BeltLane downLane = laneAt(downstreamNeighbor);
-            return downLane == null || !downstreamNeighbor.equals(downLane.headBlock()) || !isSameSpeed(downLane.getSpeed(), blockSpeed);
+            if (downLane != null && downstreamNeighbor.equals(downLane.headBlock()) && isSameSpeed(downLane.getSpeed(), blockSpeed)) {
+                boolean mergePossible = lane.size() + downLane.size() <= MAX_LANE_LENGTH;
+                boolean alreadyBridged = lane.getOutput() instanceof LanePort port && port.getPos().equals(downstreamNeighbor);
+                return !mergePossible || alreadyBridged;
+            }
         }
 
         return true;
