@@ -74,9 +74,41 @@ public class LaneManager {
         registerLane(lane);
     }
 
+    private boolean topologyUnchanged(GlobalPos pos, double blockSpeed, @Nullable GlobalPos upstreamNeighbor, @Nullable GlobalPos downstreamNeighbor) {
+        LaneReference ref = blockToLane.get(pos);
+        if (ref == null) return false;
+
+        BeltLane lane = lanes.get(ref.laneId());
+        if (lane == null || !isSameSpeed(lane.getSpeed(), blockSpeed)) return false;
+
+        int index = ref.index();
+        List<GlobalPos> blocks = lane.getBlocks();
+
+        if (index > 0) {
+            if (!blocks.get(index - 1).equals(upstreamNeighbor)) return false;
+        } else if (upstreamNeighbor != null) {
+            BeltLane upLane = laneAt(upstreamNeighbor);
+            if (upLane != null && upstreamNeighbor.equals(upLane.tailBlock()) && isSameSpeed(upLane.getSpeed(), blockSpeed)) {
+                return false;
+            }
+        }
+
+        if (index < blocks.size() - 1) {
+            return blocks.get(index + 1).equals(downstreamNeighbor);
+        } else if (downstreamNeighbor != null) {
+            BeltLane downLane = laneAt(downstreamNeighbor);
+            return downLane == null || !downstreamNeighbor.equals(downLane.headBlock()) || !isSameSpeed(downLane.getSpeed(), blockSpeed);
+        }
+
+        return true;
+    }
 
     public BeltLane attachBlock(GlobalPos pos, double blockSpeed, double minGap,
                                 @Nullable GlobalPos upstreamNeighbor, @Nullable GlobalPos downstreamNeighbor) {
+        if (topologyUnchanged(pos, blockSpeed, upstreamNeighbor, downstreamNeighbor)) {
+            return lanes.get(blockToLane.get(pos).laneId());
+        }
+
         if (blockToLane.containsKey(pos)) {
             detachBlock(pos, FactoryNetwork.NO_OP_PORT, null);
         }
