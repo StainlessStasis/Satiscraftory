@@ -19,6 +19,11 @@ Find the creative tab, and grab one of each item (choose whichever belt you want
 **Machine:** Converts item(s) into other item(s) determined by the machine's recipe (currently only raw iron -> iron ingot). Has one input and one output
 **Container:** Effectively functions as a chest, storing 27 slots of any items. Has one input and one output
 **Consumer:** Destroys any item. Has one input
+## Recommended Mods
+- [Sodium](https://modrinth.com/mod/sodium): Massively increases FPS with large amounts of factory components/belt items on screen. In some extreme cases, FPS can be more than doubled from my testing
+- [Spark](https://modrinth.com/mod/spark): Immensely useful for finding performance bottlenecks and viewing system resource usage. Also greatly benefits the process when you provide a Spark report for performance issues related to this mod's factory logistics
+- [Entity Culling](https://modrinth.com/mod/entityculling): Helps a bit with block entity culling
+- [FerriteCore](https://modrinth.com/mod/ferrite-core) & [ModernFix](https://modrinth.com/mod/modernfix): Memory optimizations, among other things
 
 # Feedback
 Having other people stress test their system, report bugs and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. 
