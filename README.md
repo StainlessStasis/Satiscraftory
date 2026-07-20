@@ -24,11 +24,18 @@ Find the creative tab, and grab one of each item (choose whichever belt you want
 
 **Consumer:** Destroys any item. Has one input
 ## Recommended Mods
-- [Sodium](https://modrinth.com/mod/sodium): Massively increases FPS with large amounts of factory components/belt items on screen. In some extreme cases, FPS can be more than doubled from my testing
-- [Spark](https://modrinth.com/mod/spark): Immensely useful for finding performance bottlenecks and viewing system resource usage. Also greatly benefits the process when you provide a Spark report for performance issues related to this mod's factory logistics
-- [Entity Culling](https://modrinth.com/mod/entityculling): Helps a bit with block entity culling
+- [Sodium](https://modrinth.com/mod/sodium): Massively increases FPS with large amounts of factory components/belt items on screen. In some extreme cases, FPS can be more than doubled (e.g. when 5,000 moving items are on screen)
+- [Spark](https://modrinth.com/mod/spark): Immensely useful for finding performance bottlenecks and viewing system resource usage. Also greatly helps in the process of reporting performance issues when you provide a Spark report
+- [Entity Culling](https://modrinth.com/mod/entityculling): Helps a bit with block entity culling (most notably for belts)
 - [FerriteCore](https://modrinth.com/mod/ferrite-core) & [ModernFix](https://modrinth.com/mod/modernfix): Memory optimizations, among other things
+- [WorldEdit](https://modrinth.com/plugin/worldedit): Copy/Paste factories to create stress tests or make building repetitive factories faster. There will eventually (probably) be official features in Satiscraftory for these sorts of things later on
 
+# Additional Performance Notes
+TPS slows to a crawl when a massive amount of belts are in loaded chunks near a player. This is not necessarily a critical issue, but something that should be kept in mind when stress testing. This is due to the network overhead of sending so many sync packets, and while the packets *are* batched in some capacity (150 belt lines, which is 2400 belts), having around 100K belts is still enough to break it. This shouldn't realistically be anywhere close to normal use case, but may still be further optimized eventually. 
+
+When factories are spread apart, as you would normally do in a regular playthrough, performance shouldn't be much of a concern. This is a test in a completely empty superflat world with no mob spawning or anything else: https://spark.lucko.me/IAj24rSlrH
+# Known Issues
+- Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
 # Feedback
 Having other people stress test their system, report bugs and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. 
 
