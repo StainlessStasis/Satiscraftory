@@ -51,6 +51,7 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 `/factory setrecipe <recipe> [at/force]` - Sets a machine's recipe, optionally at the specified block coordinate (in the same dimension). The `force` option will force the machine to clear its buffers and stop crafting so that it can set the new recipe immediately<br>
 `/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick
 # Known Issues
+- Merging/side-loading a belt puts the items onto the belt at the start of that belt lane, instead of the exact block 
 - Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
 - Factory block models clip into each other and cause z-fighting. Size of the models is intended, but they are still placeholders. Will eventually disallow placing them too close to each other, and some will become multiblocks
 # Feedback
