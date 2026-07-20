@@ -36,11 +36,12 @@ displayName="${mod_name}" #mandatory
 #credits="" #optional
 
 # The authors of the mod, displayed in the mod UI (optional)
-#authors=""
+authors="Stasis, the Shattered"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Example mod description.
+The engine that powers Satiscraftory's factory simulation backend.
+Manifold provides a barebones implementation of core features and serves as a library for building your own factory mods.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
