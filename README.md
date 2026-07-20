@@ -9,6 +9,7 @@ Every factory component always ticks globally and continues to produce resources
 ​To achieve chunk-independent simulation, this mod operates entirely on its own closed backend. What this means is:
 - **​Limited vanilla interoperability** - With the exception of containers, factory components cannot interact with redstone, item entities, hoppers, mobs, etc. Containers function like vanilla chests and can be used as a bridge between Satiscraftory and vanilla/other mods.
 - ​**No integration with other tech mods** - Because block entities are used solely for rendering, Satiscraftory cannot connect to pipes, cables, or machines from any other tech mods. Think of it as a standalone factory game. Also, as mentioned above, you *could* use containers as a bridge, but obviously this would be dependent on chunk loading. Using containers in this way somewhat defeats the whole intent of the mod, but do whatever you want.
+
 ​<img width="1919" height="1012" alt="image" src="https://github.com/user-attachments/assets/bd4fb7d9-81f4-4de7-82a0-b31f437e1b5f" />
 
 # Getting Started
