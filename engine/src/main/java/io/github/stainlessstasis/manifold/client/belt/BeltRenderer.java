@@ -70,7 +70,6 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
 
         BlockState ownState = blockEntity.getBlockState();
-        renderState.anchorPos = blockEntity.getBlockPos();
         renderState.shape = ownState.getValue(BeltBlock.SHAPE);
         renderState.reversed = ownState.getValue(BeltBlock.REVERSED);
         renderState.cornerSegments = BeltGeometry.segmentsForDistance(
@@ -84,43 +83,58 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         renderState.scrollOffset = (float) wrap01(baseOffset);
 
         List<BlockPos> laneBlocks = blockEntity.getSyncedLaneBlocks();
-        renderState.isAnchor = !laneBlocks.isEmpty() && laneBlocks.getFirst().equals(blockEntity.getBlockPos());
+        int laneSize = laneBlocks.size();
+        int index = laneBlocks.indexOf(blockEntity.getBlockPos());
 
-        if (!renderState.isAnchor) {
+        renderState.neighborBeforeShape = null;
+        renderState.neighborAfterShape = null;
+
+        if (index < 0) {
             renderState.items.clear();
-            renderState.cachedSyncedItems = null;
             return;
         }
 
-        int laneSize = laneBlocks.size();
-        BeltShape[] shapes = new BeltShape[laneSize];
-        boolean[] reversedFlags = new boolean[laneSize];
         Level level = blockEntity.getLevel();
-        for (int i = 0; i < laneSize; i++) {
-            BlockState state = (level != null) ? level.getBlockState(laneBlocks.get(i)) : ownState;
-            if (!state.hasProperty(BeltBlock.SHAPE)) {
-                renderState.items.clear();
-                renderState.cachedSyncedItems = null;
-                return;
+        if (level != null) {
+            if (index > 0) {
+                BlockState before = level.getBlockState(laneBlocks.get(index - 1));
+                if (before.hasProperty(BeltBlock.SHAPE)) renderState.neighborBeforeShape = before.getValue(BeltBlock.SHAPE);
             }
-            shapes[i] = state.getValue(BeltBlock.SHAPE);
-            reversedFlags[i] = state.getValue(BeltBlock.REVERSED);
+            if (index < laneSize - 1) {
+                BlockState after = level.getBlockState(laneBlocks.get(index + 1));
+                if (after.hasProperty(BeltBlock.SHAPE)) renderState.neighborAfterShape = after.getValue(BeltBlock.SHAPE);
+            }
         }
-
-        renderState.laneBlocks = laneBlocks;
-        renderState.blockShapes = shapes;
-        renderState.laneReversed = reversedFlags;
-        renderState.totalLength = laneSize;
 
         List<BeltLane.ItemSnapshot> currentItems = blockEntity.getCurrentSyncedItems();
-        double[] rawPositions = extrapolateItemsPositions(blockEntity, partialTick, laneSize);
+        double[] rawPositions = extrapolateItemPositions(blockEntity, partialTick, laneSize);
         double[] clampedPositions = clampPositions(rawPositions, laneSize);
 
-        if (currentItems != renderState.cachedSyncedItems) {
-            rebuildItemCache(blockEntity, renderState, currentItems);
-            renderState.cachedSyncedItems = currentItems;
+        rebuildAndFilterItems(blockEntity, renderState, currentItems, clampedPositions, index, laneSize);
+    }
+
+    private void rebuildAndFilterItems(
+            BeltBlockEntity blockEntity, BeltRenderState renderState, List<BeltLane.ItemSnapshot> currentItems,
+            double[] clampedPositions, int myIndex, int laneSize
+    ) {
+        Map<Long, BeltRenderState.BeltItemRenderData> reusable = new HashMap<>();
+        for (BeltRenderState.BeltItemRenderData data : renderState.items) reusable.put(data.id, data);
+
+        List<BeltRenderState.BeltItemRenderData> filtered = new ArrayList<>();
+        for (int i = 0; i < currentItems.size(); i++) {
+            double position = clampedPositions[i];
+            int blockIndex = (int) Math.min(Math.floor(position), laneSize - 1);
+            if (blockIndex != myIndex) continue;
+
+            BeltLane.ItemSnapshot snapshot = currentItems.get(i);
+            BeltRenderState.BeltItemRenderData data = reusable.get(snapshot.id());
+            if (data == null) data = buildItemRenderData(blockEntity, snapshot);
+            data.localT = Math.clamp(position - blockIndex, 0, 1);
+            filtered.add(data);
         }
-        applyPositions(renderState, clampedPositions);
+
+        renderState.items.clear();
+        renderState.items.addAll(filtered);
     }
 
     private double[] getItemVelocities(BeltBlockEntity belt, double totalLength) {
@@ -146,7 +160,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return null;
     }
 
-    private double[] extrapolateItemsPositions(BeltBlockEntity belt, float partialTick, double totalLength) {
+    private double[] extrapolateItemPositions(BeltBlockEntity belt, float partialTick, double totalLength) {
         List<BeltLane.ItemSnapshot> current = belt.getCurrentSyncedItems();
         double elapsed = Math.max(elapsedTicksSince(belt, partialTick), 0);
         double[] velocities = getItemVelocities(belt, totalLength);
@@ -173,33 +187,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         return belt.getTicksSinceSync() + partialTick;
     }
 
-    private void rebuildItemCache(BeltBlockEntity blockEntity, BeltRenderState renderState, List<BeltLane.ItemSnapshot> currentItems) {
-        Map<Long, BeltRenderState.BeltItemRenderData> reusable = new HashMap<>();
-        for (BeltRenderState.BeltItemRenderData data : renderState.items) reusable.put(data.id, data);
-
-        List<BeltRenderState.BeltItemRenderData> newItems = new ArrayList<>(currentItems.size());
-        for (BeltLane.ItemSnapshot snapshot : currentItems) {
-            BeltRenderState.BeltItemRenderData data = reusable.get(snapshot.id());
-            if (data == null) {
-                data = buildItemRenderData(blockEntity, snapshot);
-            }
-            newItems.add(data);
-        }
-
-        renderState.items.clear();
-        renderState.items.addAll(newItems);
-    }
-
-    private void applyPositions(BeltRenderState renderState, double[] positions) {
-        for (int i = 0; i < renderState.items.size() && i < positions.length; i++) {
-            renderState.items.get(i).position = positions[i];
-        }
-    }
-
     private BeltRenderState.BeltItemRenderData buildItemRenderData(BeltBlockEntity blockEntity, BeltLane.ItemSnapshot snapshot) {
         BeltRenderState.BeltItemRenderData itemRenderData = new BeltRenderState.BeltItemRenderData();
         itemRenderData.id = snapshot.id();
-        itemRenderData.position = snapshot.position();
+        itemRenderData.localT = snapshot.position();
         itemRenderData.itemId = snapshot.itemId();
 
         ItemStack itemStack = PayloadItems.toItemStack(snapshot.itemId(), 1);
@@ -215,41 +206,26 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
     ) {
         submitBeltStrip(renderState, poseStack, collector);
 
-        // only the lane's anchor block renders items for the entire lane
-        if (!renderState.isAnchor) return;
-        int laneSize = renderState.blockShapes.length;
-        if (laneSize == 0) return;
-
         for (BeltRenderState.BeltItemRenderData item : renderState.items) {
-            submitItemInLane(renderState, item, poseStack, collector);
+            submitItem(renderState, item, poseStack, collector);
         }
     }
 
-    private void submitItemInLane(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
-                                  PoseStack poseStack, SubmitNodeCollector collector) {
-        int laneSize = renderState.blockShapes.length;
-        int blockIndex = (int) Math.min(Math.floor(itemRenderData.position), laneSize - 1);
-        double localT = Math.clamp(itemRenderData.position - blockIndex, 0, 1);
-
-        BeltShape shape = renderState.blockShapes[blockIndex];
-        boolean reversed = renderState.laneReversed[blockIndex];
-        BeltShape neighborBefore = (blockIndex > 0) ? renderState.blockShapes[blockIndex - 1] : null;
-        BeltShape neighborAfter = (blockIndex < laneSize - 1) ? renderState.blockShapes[blockIndex + 1] : null;
-
-        Vec3 offset = BeltGeometry.localOffsetAt(shape, reversed, localT);
+    private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
+                            PoseStack poseStack, SubmitNodeCollector collector) {
+        Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.localT);
         offset = offset.add(0, 0.05, 0);
-        float tilt = BeltGeometry.interpolatedTilt(shape, reversed, localT, neighborBefore, neighborAfter);
-
-        BlockPos delta = renderState.laneBlocks.get(blockIndex).subtract(renderState.anchorPos);
+        float tilt = BeltGeometry.interpolatedTilt(renderState.shape, renderState.reversed, itemRenderData.localT,
+                renderState.neighborBeforeShape, renderState.neighborAfterShape);
 
         poseStack.pushPose();
         poseStack.translate(
-                delta.getX() + 0.5 + offset.x,
-                delta.getY() + BeltGeometry.SURFACE_HEIGHT + offset.y + antiZFightingOffset(localT),
-                delta.getZ() + 0.5 + offset.z
+                0.5 + offset.x,
+                BeltGeometry.SURFACE_HEIGHT + offset.y + antiZFightingOffset(itemRenderData.localT),
+                0.5 + offset.z
         );
         if (tilt != 0f) {
-            if (BeltGeometry.ascendsAlongZ(shape)) poseStack.mulPose(Axis.XP.rotationDegrees(tilt));
+            if (BeltGeometry.ascendsAlongZ(renderState.shape)) poseStack.mulPose(Axis.XP.rotationDegrees(tilt));
             else poseStack.mulPose(Axis.ZP.rotationDegrees(-tilt));
         }
         poseStack.mulPose(Axis.XP.rotationDegrees(90f));

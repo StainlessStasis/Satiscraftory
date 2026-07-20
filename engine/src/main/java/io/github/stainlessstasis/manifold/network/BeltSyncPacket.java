@@ -58,8 +58,10 @@ public record BeltSyncPacket(List<Entry> entries) implements CustomPacketPayload
         context.enqueueWork(() -> {
             Level level = context.player().level();
             for (Entry entry : packet.entries()) {
-                if (level.getBlockEntity(entry.headBlockPos()) instanceof BeltBlockEntity belt) {
-                    belt.applySync(entry.laneBlocks(), entry.items(), entry.syncTick(), entry.frontJammed());
+                for (BlockPos pos : entry.laneBlocks()) {
+                    if (level.getBlockEntity(pos) instanceof BeltBlockEntity beltBE) {
+                        beltBE.applySync(entry.laneBlocks(), entry.items(), entry.syncTick(), entry.frontJammed());
+                    }
                 }
             }
         });
