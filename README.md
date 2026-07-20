@@ -45,7 +45,7 @@ When factories are spread apart, as you would normally do in a regular playthrou
 ## FPS
 Rendering is easily the largest bottleneck of the mod right now. As mentioned above in the recommended mods section, 5000 moving items (2500 belts) on screen dropped to less than 50 FPS, even with Sodium.
 
-While 5000 on-screen items is still pushing the upper bounds of what's normally expected in a playthrough, there is still massive room for improvement, especially considering that this is *without* having a ton of animated machines on screen. This will be fixed in the near future once [Flywheel](https://github.com/Engine-Room/Flywheel)'s 26.1.2 port is finalized. Flywheel will allow Satiscraftory to take advantage of instanced rendering and hopefully push those FPS numbers up a decent bit.
+While 5000 on-screen items is still pushing the upper bounds of what's normally expected in a playthrough, there is still massive room for improvement - especially considering that this is *without* having a ton of animated machines on screen, which will only worsen the FPS problem when that time comes. This will be fixed in the near future once [Flywheel](https://github.com/Engine-Room/Flywheel)'s 26.1.2 port is finalized. Flywheel will allow Satiscraftory to take advantage of instanced rendering and hopefully push those FPS numbers up a decent bit.
 # Commands
 `/factory count [optional: belts/consumers/containers/machines/produces]` - Outputs the global amount of factory components. Includes unloaded chunks and other dimensions<br>
 `/factory loaded [optional: same as above]` - Outputs the amount of factory components in loaded chunks<br>
