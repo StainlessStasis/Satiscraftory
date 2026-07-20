@@ -1,3 +1,0 @@
-Satiscraftory is licensed as All Rights Reserved in the 'main' module.
-The internal engine (Manifold) is licensed as MIT in the 'engine' module.
-See their respective license files.
