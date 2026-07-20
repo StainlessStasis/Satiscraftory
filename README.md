@@ -41,7 +41,7 @@ Find the creative tab on the second page labeled Factory Components, and grab on
 ## Tick Lag (CPU & Networking)
 TPS slows to a crawl when a massive amount of belts are in loaded chunks near a player. This is not necessarily a critical issue, but something that should be kept in mind when stress testing. This is due to the network overhead of sending so many sync packets, and while the packets *are* batched in some capacity (150 belt lines, which is 2400 belts), having around 100K belts is still enough to break it. This shouldn't realistically be anywhere close to normal use case, but may still be further optimized eventually. 
 
-When factories are spread apart, as you would normally do in a regular playthrough, performance shouldn't be much of a concern. This is a test in a completely empty superflat world with no mob spawning or anything else: https://spark.lucko.me/IAj24rSlrH
+When factories are spread apart, as you would normally do in a regular playthrough, performance shouldn't be much of a concern. This is a test with 100K (unloaded) belts in a completely empty superflat world with no mob spawning or anything else: https://spark.lucko.me/IAj24rSlrH
 ## FPS
 Rendering is easily the largest bottleneck of the mod right now. As mentioned above in the recommended mods section, 5000 moving items (2500 belts) on screen dropped to less than 50 FPS, even with Sodium.
 
