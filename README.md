@@ -7,7 +7,7 @@ Satiscraftory is a factory automation mod inspired by the game Satisfactory. It 
 Every factory component always ticks globally and continues to produce resources, even if the chunks they are in are completely unloaded - and this includes other dimensions.
 ## ​⚠️ Technical Tradeoffs
 ​To achieve chunk-independent simulation, this mod operates entirely on its own closed backend. What this means is:
-- ​No vanilla interoperability: Factory components cannot interact with redstone, item entities, hoppers, mobs, etc.
+- ​Limited vanilla interoperability: With the exception of containers, factory components cannot interact with redstone, item entities, hoppers, mobs, etc. Containers function like vanilla chests and can be used as a bridge.
 - ​No tech mod compatibility: Because this mod completely bypasses standard block entity ticking for factory simulation, it cannot connect to pipes, cables, or machines from any other tech mods.
 
 ​Think of it as a standalone factory game running inside Minecraft.
@@ -15,9 +15,13 @@ Every factory component always ticks globally and continues to produce resources
 Find the creative tab, and grab one of each item (choose whichever belt you want, and Consumers are optional)
 ## Factory Components
 **Producer:** Infinitely generates a single item type (currently only raw iron). Has a single output
+
 **Belt:** Transports items between every other factory component. Has 3 shapes: straight, corner, and slope. Can also have its direction reversed by right clicking. Has only one output, but can take an input from any direction, effectively allowing for mergers
+
 **Machine:** Converts item(s) into other item(s) determined by the machine's recipe (currently only raw iron -> iron ingot). Has one input and one output
+
 **Container:** Effectively functions as a chest, storing 27 slots of any items. Has one input and one output
+
 **Consumer:** Destroys any item. Has one input
 ## Recommended Mods
 - [Sodium](https://modrinth.com/mod/sodium): Massively increases FPS with large amounts of factory components/belt items on screen. In some extreme cases, FPS can be more than doubled from my testing
