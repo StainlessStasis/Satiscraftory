@@ -29,6 +29,8 @@ public class SCModelProvider extends FactoryModelProvider {
 
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
+        blockModels.createTrivialCube(SCBlocks.RESOURCE_NODE.get());
+
         Block belt_mk1 = SCBlocks.BELT_MK1.get();
         Block belt_mk2 = SCBlocks.BELT_MK2.get();
         Block belt_mk3 = SCBlocks.BELT_MK3.get();
@@ -43,7 +45,6 @@ public class SCModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
 
-//        itemModels.generateFlatItem(SFItems.IRON_PLATE.get(), ModelTemplates.FLAT_ITEM);
         itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
     }
 }

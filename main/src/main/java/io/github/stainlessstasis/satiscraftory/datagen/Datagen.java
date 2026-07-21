@@ -9,6 +9,7 @@ public class Datagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
         event.createProvider(SCModelProvider::new);
-        event.createProvider(MachineRecipesProvider::new);
+        event.createProvider(SCMachineRecipesProvider::new);
+        event.createDatapackRegistryObjects(SCWorldgenBootstrap.BUILDER);
     }
 }

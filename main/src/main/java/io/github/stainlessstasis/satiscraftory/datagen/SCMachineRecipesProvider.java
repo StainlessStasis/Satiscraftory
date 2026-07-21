@@ -11,8 +11,8 @@ import net.minecraft.world.item.Items;
 
 import java.util.List;
 
-public class MachineRecipesProvider extends ManifoldRecipeProvider {
-    public MachineRecipesProvider(PackOutput output) {
+public class SCMachineRecipesProvider extends ManifoldRecipeProvider {
+    public SCMachineRecipesProvider(PackOutput output) {
         super(output);
     }
 

@@ -7,5 +7,6 @@ public class SCRegistries {
         SCBlocks.BLOCKS.register(bus);
         SCBlockEntities.BLOCK_ENTITIES.register(bus);
         SCItems.ITEMS.register(bus);
+        SCFeatures.FEATURES.register(bus);
     }
 }
