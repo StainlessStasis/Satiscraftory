@@ -11,6 +11,7 @@ import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
@@ -648,10 +649,43 @@ public class FactoryNetwork extends SavedData {
                         : new Persisted.ContainerSlot(Optional.of(payload.itemId()), payload.count()));
             }
             persistedContainers.add(new Persisted.Container(
-                    pos, container.getSlotCount(), slotData, Optional.ofNullable(containerOutputPos.get(pos))));
+                    pos, container.getSlotCount(), slotData, Optional.ofNullable(containerOutputPos.get(pos)))
+            );
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers);
+        List<Persisted.Splitter> persistedSplitters = new ArrayList<>();
+        for (Map.Entry<GlobalPos, Splitter> entry : splitters.entrySet()) {
+            GlobalPos pos = entry.getKey();
+            Splitter splitter = entry.getValue();
+            Map<Integer, GlobalPos> outputPositions = new HashMap<>();
+            List<GlobalPos> slots = splitterOutputPos.get(pos);
+            if (slots != null) {
+                for (int i = 0; i < slots.size(); i++) {
+                    GlobalPos outPos = slots.get(i);
+                    if (outPos != null) outputPositions.put(i, outPos);
+                }
+            }
+            persistedSplitters.add(new Persisted.Splitter(
+                    pos, splitter.getNextOutputIndex(), splitter.getOutputFaceAssignments(), outputPositions)
+            );
+        }
+
+        List<Persisted.Merger> persistedMergers = new ArrayList<>();
+        for (Map.Entry<GlobalPos, Merger> entry : mergers.entrySet()) {
+            GlobalPos pos = entry.getKey();
+            Merger merger = entry.getValue();
+            Identifier[] itemIds = merger.getBufferedItemIds();
+            Map<Integer, Identifier> bufferedItemIds = new HashMap<>();
+            for (int i = 0; i < itemIds.length; i++) {
+                if (itemIds[i] != null) bufferedItemIds.put(i, itemIds[i]);
+            }
+            persistedMergers.add(new Persisted.Merger(
+                    pos, merger.getNextInputIndex(), merger.getInputFaceAssignments(), bufferedItemIds,
+                    Optional.ofNullable(mergerOutputPos.get(pos)))
+            );
+        }
+
+        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers, persistedSplitters, persistedMergers);
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
@@ -719,6 +753,32 @@ public class FactoryNetwork extends SavedData {
             containerData.outputPos().ifPresent(outPos -> network.containerOutputPos.put(containerData.pos(), outPos));
         }
 
+        for (Persisted.Splitter splitterData : snapshot.splitters()) {
+            Splitter splitter = Splitter.restore(splitterData.nextOutputIndex(), splitterData.outputFaces());
+            network.splitters.put(splitterData.pos(), splitter);
+
+            if (!splitterData.outputPos().isEmpty()) {
+                List<GlobalPos> slots = new ArrayList<>();
+                while (slots.size() < Splitter.MAX_OUTPUTS) slots.add(null);
+                for (Map.Entry<Integer, GlobalPos> outEntry : splitterData.outputPos().entrySet()) {
+                    int slotIndex = outEntry.getKey();
+                    if (slotIndex >= 0 && slotIndex < slots.size()) slots.set(slotIndex, outEntry.getValue());
+                }
+                network.splitterOutputPos.put(splitterData.pos(), slots);
+            }
+        }
+
+        for (Persisted.Merger mergerData : snapshot.mergers()) {
+            Identifier[] itemIds = new Identifier[Merger.MAX_INPUTS];
+            for (Map.Entry<Integer, Identifier> entry : mergerData.bufferedItemIds().entrySet()) {
+                int index = entry.getKey();
+                if (index >= 0 && index < itemIds.length) itemIds[index] = entry.getValue();
+            }
+            Merger merger = Merger.restore(mergerData.nextInputIndex(), mergerData.inputFaces(), itemIds);
+            network.mergers.put(mergerData.pos(), merger);
+            mergerData.outputPos().ifPresent(outPos -> network.mergerOutputPos.put(mergerData.pos(), outPos));
+        }
+
         // relink outputs
         for (Map.Entry<UUID, GlobalPos> entry : network.laneOutputPos.entrySet()) {
             BeltLane lane = network.laneManager.getLane(entry.getKey());
@@ -754,6 +814,27 @@ public class FactoryNetwork extends SavedData {
                 Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
                 Port port = network.getPortAt(outPos, dir);
                 if (port != null) machine.setOutputPort(slotIndex, port);
+            }
+        }
+
+        for (Map.Entry<GlobalPos, GlobalPos> entry : network.mergerOutputPos.entrySet()) {
+            GlobalPos outPos = entry.getValue();
+            Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+            Port port = network.getPortAt(outPos, dir);
+            if (port != null) network.mergers.get(entry.getKey()).setOutput(port);
+        }
+
+        for (Map.Entry<GlobalPos, List<GlobalPos>> entry : network.splitterOutputPos.entrySet()) {
+            Splitter splitter = network.splitters.get(entry.getKey());
+            if (splitter == null) continue;
+
+            List<GlobalPos> slotOutputs = entry.getValue();
+            for (int slotIndex = 0; slotIndex < slotOutputs.size(); slotIndex++) {
+                GlobalPos outPos = slotOutputs.get(slotIndex);
+                if (outPos == null) continue;
+                Direction dir = FactoryUtils.getOutputDirection(entry.getKey().pos(), outPos.pos());
+                Port port = network.getPortAt(outPos, dir);
+                if (port != null) splitter.setOutput(slotIndex, port);
             }
         }
 
