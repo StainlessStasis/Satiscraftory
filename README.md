@@ -24,6 +24,8 @@ Find the creative tab on the second page labeled Factory Components, and grab on
 **Belt:** Transports items between every other factory component. Has 3 shapes: straight, corner, and slope. Belts only have one output, but can take an input from any direction, effectively allowing for mergers (will be officially added later).
 - Right click to reverse the belt's direction.
 
+**Splitter/Merger:** Splits one belt into up to 3 new belts, or merges up to 3 belts into one new belt. Uses a round-robin strategy to evenly distribute items. 
+
 **Machine:** Converts item(s) into other item(s) determined by the machine's recipe. Defaults to converting raw iron into iron ingots. Recipes can be added as datapacks under `data/<your_namespace>/machine_recipes`.
 - Use `/factory setrecipe <recipe_id>` while looking at a machine to change its recipe. There is another built in recipe to turn iron ingots into iron plates which you can use to test this.
 
