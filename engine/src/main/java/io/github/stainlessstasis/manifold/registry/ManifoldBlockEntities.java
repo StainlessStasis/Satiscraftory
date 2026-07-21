@@ -1,10 +1,7 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.ConsumerBlock;
-import io.github.stainlessstasis.manifold.block.ContainerBlock;
-import io.github.stainlessstasis.manifold.block.MachineBlock;
-import io.github.stainlessstasis.manifold.block.ProducerBlock;
+import io.github.stainlessstasis.manifold.block.*;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block_entity.*;
 import net.minecraft.core.registries.Registries;
@@ -40,4 +37,14 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("container", () -> new ManifoldBlockEntityType<>(
                     ContainerBlockEntity::new,
                     block -> block instanceof ContainerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SplitterBlockEntity>> SPLITTER =
+            BLOCK_ENTITIES.register("splitter", () -> new ManifoldBlockEntityType<>(
+                    SplitterBlockEntity::new,
+                    block -> block instanceof SplitterBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MergerBlockEntity>> MERGER =
+            BLOCK_ENTITIES.register("merger", () -> new ManifoldBlockEntityType<>(
+                    MergerBlockEntity::new,
+                    block -> block instanceof MergerBlock));
 }

@@ -17,4 +17,8 @@ public class ManifoldItems {
             ITEMS.registerSimpleBlockItem("machine", ManifoldBlocks.MACHINE);
     public static final DeferredItem<BlockItem> CONTAINER =
             ITEMS.registerSimpleBlockItem("container", ManifoldBlocks.CONTAINER);
+    public static final DeferredItem<BlockItem> SPLITTER =
+            ITEMS.registerSimpleBlockItem("splitter", ManifoldBlocks.SPLITTER);
+    public static final DeferredItem<BlockItem> MERGER =
+            ITEMS.registerSimpleBlockItem("merger", ManifoldBlocks.MERGER);
 }

@@ -1,11 +1,8 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.ContainerBlock;
+import io.github.stainlessstasis.manifold.block.*;
 import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block.ConsumerBlock;
-import io.github.stainlessstasis.manifold.block.MachineBlock;
-import io.github.stainlessstasis.manifold.block.ProducerBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -29,5 +26,13 @@ public class ManifoldBlocks {
 
     public static final DeferredBlock<ContainerBlock> CONTAINER = BLOCKS.registerBlock("container",
             ContainerBlock::new,
+            () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
+
+    public static final DeferredBlock<SplitterBlock> SPLITTER = BLOCKS.registerBlock("splitter",
+            SplitterBlock::new,
+            () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
+
+    public static final DeferredBlock<MergerBlock> MERGER = BLOCKS.registerBlock("merger",
+            MergerBlock::new,
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
 }
