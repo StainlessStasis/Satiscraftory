@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.command;
 
-import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Machine;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;

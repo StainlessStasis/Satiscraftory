@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.block_entity;
+package io.github.stainlessstasis.manifold.block_entity.factory_component;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;

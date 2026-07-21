@@ -1,7 +1,7 @@
-package io.github.stainlessstasis.manifold.block.belt;
+package io.github.stainlessstasis.manifold.block.factory_component.belt;
 
-import io.github.stainlessstasis.manifold.block.AbstractFactoryBlock;
-import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.block.factory_component.AbstractFactoryBlock;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.BeltBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;

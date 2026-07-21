@@ -1,9 +1,9 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.*;
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block_entity.*;
+import io.github.stainlessstasis.manifold.block.factory_component.*;
+import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;

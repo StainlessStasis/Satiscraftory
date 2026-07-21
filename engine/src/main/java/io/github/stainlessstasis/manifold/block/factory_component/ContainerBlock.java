@@ -1,6 +1,6 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
-import io.github.stainlessstasis.manifold.block_entity.ContainerBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.ContainerBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;

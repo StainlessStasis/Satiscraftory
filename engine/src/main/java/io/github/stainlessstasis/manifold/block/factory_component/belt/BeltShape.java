@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.block.belt;
+package io.github.stainlessstasis.manifold.block.factory_component.belt;
 
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;

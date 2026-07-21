@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;

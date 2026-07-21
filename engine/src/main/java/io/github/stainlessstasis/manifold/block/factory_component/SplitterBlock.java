@@ -1,6 +1,6 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
-import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.SplitterBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
@@ -17,12 +17,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class MachineBlock extends AbstractDirectionalFactoryBlock {
+public class SplitterBlock extends AbstractDirectionalFactoryBlock {
     private static final VoxelShape VISUAL_SHAPE = Shapes.box(-0.125, 0.0, -0.125, 1.125, 1.25, 1.125);
     private static final VoxelShape COLLISION_SHAPE = Shapes.block();
-    private static final MapCodec<MachineBlock> CODEC = simpleCodec(MachineBlock::new);
+    private static final MapCodec<SplitterBlock> CODEC = simpleCodec(SplitterBlock::new);
 
-    public MachineBlock(Properties properties) {
+    public SplitterBlock(Properties properties) {
         super(properties);
     }
 
@@ -33,18 +33,18 @@ public class MachineBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new MachineBlockEntity(ManifoldBlockEntities.MACHINE.get(), pos, state);
+        return new SplitterBlockEntity(ManifoldBlockEntities.SPLITTER.get(), pos, state);
     }
 
     @Override
     protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
-        if (blockEntity instanceof MachineBlockEntity machineBE) machineBE.onNeighborChanged();
+        if (blockEntity instanceof SplitterBlockEntity splitterBE) splitterBE.onNeighborChanged();
     }
 
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeMachine(GlobalPos.of(level.dimension(), pos));
+        FactoryNetwork.get(level).removeSplitter(GlobalPos.of(level.dimension(), pos));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import net.minecraft.core.BlockPos;

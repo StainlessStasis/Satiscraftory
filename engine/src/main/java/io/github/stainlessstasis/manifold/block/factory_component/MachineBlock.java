@@ -1,13 +1,12 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
-import io.github.stainlessstasis.manifold.block_entity.ConsumerBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,14 +17,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
-
-public class ConsumerBlock extends AbstractDirectionalFactoryBlock {
+public class MachineBlock extends AbstractDirectionalFactoryBlock {
     private static final VoxelShape VISUAL_SHAPE = Shapes.box(-0.125, 0.0, -0.125, 1.125, 1.25, 1.125);
     private static final VoxelShape COLLISION_SHAPE = Shapes.block();
-    private static final MapCodec<ConsumerBlock> CODEC = simpleCodec(ConsumerBlock::new);
+    private static final MapCodec<MachineBlock> CODEC = simpleCodec(MachineBlock::new);
 
-    public ConsumerBlock(Properties properties) {
+    public MachineBlock(Properties properties) {
         super(properties);
     }
 
@@ -36,21 +33,18 @@ public class ConsumerBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new ConsumerBlockEntity(ManifoldBlockEntities.CONSUMER.get(), pos, state);
+        return new MachineBlockEntity(ManifoldBlockEntities.MACHINE.get(), pos, state);
     }
 
     @Override
-    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {}
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
+        if (blockEntity instanceof MachineBlockEntity machineBE) machineBE.onNeighborChanged();
+    }
 
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeConsumer(GlobalPos.of(level.dimension(), pos));
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
+        FactoryNetwork.get(level).removeMachine(GlobalPos.of(level.dimension(), pos));
     }
 
     @Override

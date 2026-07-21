@@ -1,8 +1,8 @@
-package io.github.stainlessstasis.manifold.block_entity;
+package io.github.stainlessstasis.manifold.block_entity.factory_component;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_component.Splitter;
+import io.github.stainlessstasis.manifold.factory_component.Merger;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,14 +13,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class SplitterBlockEntity extends BlockEntity {
-    private Splitter splitter;
+public class MergerBlockEntity extends BlockEntity {
+    private Merger merger;
 
-    public SplitterBlockEntity(BlockPos pos, BlockState state) {
-        super(ManifoldBlockEntities.SPLITTER.get(), pos, state);
+    public MergerBlockEntity(BlockPos pos, BlockState state) {
+        super(ManifoldBlockEntities.MERGER.get(), pos, state);
     }
 
-    public SplitterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public MergerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
@@ -31,12 +31,12 @@ public class SplitterBlockEntity extends BlockEntity {
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
         GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        splitter = network.getOrCreateSplitter(globalPos, Splitter::new);
+        merger = network.getOrCreateMerger(globalPos, Merger::new);
 
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-        splitter.assignOutputFace(facing, 0);
-        splitter.assignOutputFace(facing.getClockWise(), 1);
-        splitter.assignOutputFace(facing.getCounterClockWise(), 2);
+        merger.assignInputFace(facing.getOpposite(), 0);
+        merger.assignInputFace(facing.getClockWise(), 1);
+        merger.assignInputFace(facing.getCounterClockWise(), 2);
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
@@ -45,14 +45,9 @@ public class SplitterBlockEntity extends BlockEntity {
     public void relink(FactoryNetwork network) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         GlobalPos selfPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-        Direction[] outputDirections = { facing, facing.getClockWise(), facing.getCounterClockWise() };
-
-        for (int slot = 0; slot < outputDirections.length; slot++) {
-            Direction dir = outputDirections[slot];
-            BlockPos outPos = getBlockPos().relative(dir);
-            network.linkSplitterOutput(selfPos, slot, GlobalPos.of(serverLevel.dimension(), outPos), dir);
-        }
+        Direction outputDirection = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        BlockPos outputPos = getBlockPos().relative(outputDirection);
+        network.linkMergerOutput(selfPos, GlobalPos.of(serverLevel.dimension(), outputPos), outputDirection);
     }
 
     public void onNeighborChanged() {
@@ -61,7 +56,7 @@ public class SplitterBlockEntity extends BlockEntity {
         }
     }
 
-    public Splitter getSplitter() {
-        return splitter;
+    public Merger getMerger() {
+        return merger;
     }
 }

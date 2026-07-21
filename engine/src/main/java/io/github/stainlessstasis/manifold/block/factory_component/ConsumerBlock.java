@@ -1,12 +1,13 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
-import io.github.stainlessstasis.manifold.block_entity.SplitterBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.ConsumerBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,12 +18,14 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class SplitterBlock extends AbstractDirectionalFactoryBlock {
+import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
+
+public class ConsumerBlock extends AbstractDirectionalFactoryBlock {
     private static final VoxelShape VISUAL_SHAPE = Shapes.box(-0.125, 0.0, -0.125, 1.125, 1.25, 1.125);
     private static final VoxelShape COLLISION_SHAPE = Shapes.block();
-    private static final MapCodec<SplitterBlock> CODEC = simpleCodec(SplitterBlock::new);
+    private static final MapCodec<ConsumerBlock> CODEC = simpleCodec(ConsumerBlock::new);
 
-    public SplitterBlock(Properties properties) {
+    public ConsumerBlock(Properties properties) {
         super(properties);
     }
 
@@ -33,18 +36,21 @@ public class SplitterBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new SplitterBlockEntity(ManifoldBlockEntities.SPLITTER.get(), pos, state);
+        return new ConsumerBlockEntity(ManifoldBlockEntities.CONSUMER.get(), pos, state);
     }
 
     @Override
-    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
-        if (blockEntity instanceof SplitterBlockEntity splitterBE) splitterBE.onNeighborChanged();
-    }
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {}
 
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeSplitter(GlobalPos.of(level.dimension(), pos));
+        FactoryNetwork.get(level).removeConsumer(GlobalPos.of(level.dimension(), pos));
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 
     @Override

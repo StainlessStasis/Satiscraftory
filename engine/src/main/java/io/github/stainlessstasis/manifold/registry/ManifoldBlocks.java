@@ -1,8 +1,7 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.*;
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.block.factory_component.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;

@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.minecraft.world.level.block.state.BlockBehaviour;

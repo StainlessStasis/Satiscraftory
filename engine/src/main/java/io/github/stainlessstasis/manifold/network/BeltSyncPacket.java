@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.network;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.BeltBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;

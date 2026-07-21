@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.block_entity;
+package io.github.stainlessstasis.manifold.block_entity.factory_component;
 
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;

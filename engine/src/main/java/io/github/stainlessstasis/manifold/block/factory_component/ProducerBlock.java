@@ -1,6 +1,6 @@
-package io.github.stainlessstasis.manifold.block;
+package io.github.stainlessstasis.manifold.block.factory_component;
 
-import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
+import io.github.stainlessstasis.manifold.block_entity.factory_component.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
