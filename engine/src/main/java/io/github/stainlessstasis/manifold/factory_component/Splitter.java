@@ -48,8 +48,8 @@ public class Splitter {
 
     private int nextConnectedFrom(int start) {
         for (int i = 0; i < MAX_OUTPUTS; i++) {
-            int idx = (start + i) % MAX_OUTPUTS;
-            if (outputs.get(idx) != null) return idx;
+            int index = (start + i) % MAX_OUTPUTS;
+            if (outputs.get(index) != null) return index;
         }
         return -1;
     }
@@ -57,8 +57,8 @@ public class Splitter {
     public final Port inputPort = new Port() {
         @Override
         public boolean canAccept(Payload payload) {
-            int idx = nextConnectedFrom(nextOutputIndex);
-            return idx >= 0 && outputs.get(idx).canAccept(payload);
+            int index = nextConnectedFrom(nextOutputIndex);
+            return index >= 0 && outputs.get(index).canAccept(payload);
         }
 
         @Override
