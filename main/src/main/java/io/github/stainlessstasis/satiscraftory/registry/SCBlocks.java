@@ -3,6 +3,8 @@ package io.github.stainlessstasis.satiscraftory.registry;
 import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -10,6 +12,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class SCBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Satiscraftory.MODID);
+
+    public static final DeferredBlock<ResourceNodeBlock> RESOURCE_NODE = BLOCKS.registerBlock("resource_node", ResourceNodeBlock::new);
 
     public static final DeferredBlock<BeltBlock> BELT_MK1 = registerBelt("belt_mk1", 1f/20);   // 60/min
     public static final DeferredBlock<BeltBlock> BELT_MK2 = registerBelt("belt_mk2", 2f/20);   // 120/min

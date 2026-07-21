@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 public final class PayloadItems {
     private PayloadItems() {}
 
+    // TODO: move this to its own util class
     public static Identifier idOf(Item item) {
         return BuiltInRegistries.ITEM.getKey(item);
     }
