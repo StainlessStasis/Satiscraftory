@@ -46,10 +46,11 @@ public class Splitter {
     public @Nullable Port getOutput(int index) { return outputs.get(index); }
     public int getNextOutputIndex() { return nextOutputIndex; }
 
-    private int nextConnectedFrom(int start) {
+    private int nextAvailableFrom(int start, Payload payload) {
         for (int i = 0; i < MAX_OUTPUTS; i++) {
             int index = (start + i) % MAX_OUTPUTS;
-            if (outputs.get(index) != null) return index;
+            Port port = outputs.get(index);
+            if (port != null && port.canAccept(payload)) return index;
         }
         return -1;
     }
@@ -57,8 +58,7 @@ public class Splitter {
     public final Port inputPort = new Port() {
         @Override
         public boolean canAccept(Payload payload) {
-            int index = nextConnectedFrom(nextOutputIndex);
-            return index >= 0 && outputs.get(index).canAccept(payload);
+            return nextAvailableFrom(nextOutputIndex, payload) >= 0;
         }
 
         @Override
@@ -66,8 +66,8 @@ public class Splitter {
 
         @Override
         public void acceptWithOverflow(Payload payload, double overflowAmount) {
-            int index = nextConnectedFrom(nextOutputIndex);
-            if (index < 0 || !outputs.get(index).canAccept(payload)) {
+            int index = nextAvailableFrom(nextOutputIndex, payload);
+            if (index < 0) {
                 throw new IllegalStateException("Splitter is jammed at entry");
             }
             outputs.get(index).acceptWithOverflow(payload, overflowAmount);
