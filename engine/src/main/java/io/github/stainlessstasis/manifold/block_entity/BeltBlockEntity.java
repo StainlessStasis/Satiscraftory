@@ -8,6 +8,7 @@ import io.github.stainlessstasis.manifold.block.belt.BeltShapeSolver;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,9 +23,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class BeltBlockEntity extends BlockEntity {
-    public static final float SCALE = 0.5f;
-    public static final double MIN_GAP = SCALE + 0.001;
-
     // rendering stuff
     private List<BeltLane.ItemSnapshot> previousSyncedItems = List.of();
     private long previousSyncTick = 0;
@@ -64,7 +62,7 @@ public class BeltBlockEntity extends BlockEntity {
         GlobalPos gIn = GlobalPos.of(serverLevel.dimension(), inputPos);
         GlobalPos gOut = GlobalPos.of(serverLevel.dimension(), outputPos);
 
-        network.attachBeltBlock(gPos, getSpeed(), MIN_GAP, gIn, gOut);
+        network.attachBeltBlock(gPos, getSpeed(), BeltConstants.MIN_GAP, gIn, gOut);
         network.linkLaneOutput(gPos, gOut, FactoryUtils.getOutputDirection(pos, outputPos));
     }
 

@@ -8,6 +8,7 @@ import io.github.stainlessstasis.manifold.block.belt.BeltShape;
 import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import io.github.stainlessstasis.manifold.util.BeltConstants;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -176,7 +177,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         double[] clamped = new double[raw.length];
         double previousClamped = totalLength;
         for (int i = 0; i < raw.length; i++) {
-            double cap = (i == 0) ? totalLength : Math.max(previousClamped - BeltBlockEntity.MIN_GAP, 0);
+            double cap = (i == 0) ? totalLength : Math.max(previousClamped - BeltConstants.MIN_GAP, 0);
             previousClamped = Math.clamp(raw[i], 0, cap);
             clamped[i] = previousClamped;
         }
@@ -229,7 +230,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
             else poseStack.mulPose(Axis.ZP.rotationDegrees(-tilt));
         }
         poseStack.mulPose(Axis.XP.rotationDegrees(90f));
-        poseStack.scale(BeltBlockEntity.SCALE, BeltBlockEntity.SCALE, BeltBlockEntity.SCALE);
+        poseStack.scale(BeltConstants.SCALE, BeltConstants.SCALE, BeltConstants.SCALE);
 
         itemRenderData.itemStackRenderState.submit(poseStack, collector, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         poseStack.popPose();
