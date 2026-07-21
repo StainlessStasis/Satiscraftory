@@ -1,0 +1,3 @@
+Satiscraftory is licensed as GPLv3 in the 'main' module.
+The internal engine (Manifold) is licensed as MIT in the 'engine' module.
+See their respective license files.
