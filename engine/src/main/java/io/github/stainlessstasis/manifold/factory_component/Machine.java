@@ -136,6 +136,13 @@ public class Machine {
         tryStartCrafting();
     }
 
+    public void cancelScheduledTask() {
+        if (craftTask != null) {
+            craftTask.cancel();
+            craftTask = null;
+        }
+    }
+
     /**
      * Debug-only: abandon any in-progress craft and drain all buffers so setRecipe() can work
      * */

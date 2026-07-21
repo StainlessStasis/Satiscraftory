@@ -8,7 +8,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class Datagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
-        event.createProvider(SFModelProvider::new);
+        event.createProvider(SCModelProvider::new);
         event.createProvider(MachineRecipesProvider::new);
     }
 }

@@ -98,16 +98,41 @@ final class Persisted {
         ).apply(i, Container::new));
     }
 
+    record Splitter(GlobalPos pos, int nextOutputIndex, Map<Direction, Integer> outputFaces, Map<Integer, GlobalPos> outputPos) {
+        static final Codec<Splitter> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Splitter::pos),
+                Codec.INT.fieldOf("nextOutputIndex").forGetter(Splitter::nextOutputIndex),
+                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Splitter::outputFaces),
+                Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, String::valueOf), GlobalPos.CODEC)
+                        .optionalFieldOf("outputPos", Map.of()).forGetter(Splitter::outputPos)
+        ).apply(i, Splitter::new));
+    }
+
+    record Merger(GlobalPos pos, int nextInputIndex, Map<Direction, Integer> inputFaces,
+                  Map<Integer, Identifier> bufferedItemIds, Optional<GlobalPos> outputPos) {
+        static final Codec<Merger> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Merger::pos),
+                Codec.INT.fieldOf("nextInputIndex").forGetter(Merger::nextInputIndex),
+                Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Merger::inputFaces),
+                Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, String::valueOf), Identifier.CODEC)
+                        .optionalFieldOf("bufferedItemIds", Map.of()).forGetter(Merger::bufferedItemIds),
+                GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Merger::outputPos)
+        ).apply(i, Merger::new));
+    }
+
     /**
-     * The full snapshot of everything FactoryNetwork tracks (producers, belts, machines, consumers, containers)
+     * The full snapshot of everything FactoryNetwork tracks (producers, belts, machines, ...you get it)
      */
-    record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines, List<Container> containers) {
+    record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines,
+                    List<Container> containers, List<Splitter> splitters, List<Merger> mergers) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 BeltLane.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
                 Consumer.CODEC.listOf().fieldOf("consumers").forGetter(Snapshot::consumers),
                 Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines),
-                Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers)
+                Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers),
+                Splitter.CODEC.listOf().optionalFieldOf("splitters", List.of()).forGetter(Snapshot::splitters),
+                Merger.CODEC.listOf().optionalFieldOf("mergers", List.of()).forGetter(Snapshot::mergers)
         ).apply(i, Snapshot::new));
     }
 }
