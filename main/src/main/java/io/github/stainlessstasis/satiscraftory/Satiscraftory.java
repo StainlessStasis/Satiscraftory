@@ -1,9 +1,8 @@
 package io.github.stainlessstasis.satiscraftory;
 
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
-import io.github.stainlessstasis.manifold.registry.ManifoldRegistries;
-import io.github.stainlessstasis.satiscraftory.registry.SFItems;
-import io.github.stainlessstasis.satiscraftory.registry.SFRegistries;
+import io.github.stainlessstasis.satiscraftory.registry.SCItems;
+import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -31,7 +30,7 @@ public class Satiscraftory {
 
     public Satiscraftory(IEventBus modEventBus, ModContainer modContainer) {
         CREATIVE_MODE_TABS.register(modEventBus);
-        SFRegistries.register(modEventBus);
+        SCRegistries.register(modEventBus);
 //        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -48,9 +47,9 @@ public class Satiscraftory {
             .icon(() -> ManifoldItems.MACHINE.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(ManifoldItems.PRODUCER.get());
-                output.accept(SFItems.BELT_MK1.get());
-                output.accept(SFItems.BELT_MK2.get());
-                output.accept(SFItems.BELT_MK3.get());
+                output.accept(SCItems.BELT_MK1.get());
+                output.accept(SCItems.BELT_MK2.get());
+                output.accept(SCItems.BELT_MK3.get());
                 output.accept(ManifoldItems.SPLITTER.get());
                 output.accept(ManifoldItems.MERGER.get());
                 output.accept(ManifoldItems.MACHINE.get());

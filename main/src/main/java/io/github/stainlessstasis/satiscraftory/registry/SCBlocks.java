@@ -8,7 +8,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public class SFBlocks {
+public class SCBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Satiscraftory.MODID);
 
     public static final DeferredBlock<BeltBlock> BELT_MK1 = registerBelt("belt_mk1", 1f/20);   // 60/min
