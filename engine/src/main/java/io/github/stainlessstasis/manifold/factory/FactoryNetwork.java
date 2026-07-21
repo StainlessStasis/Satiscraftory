@@ -275,7 +275,9 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void removeProducer(GlobalPos pos) {
-        if (producers.remove(pos) != null) {
+        Producer producer = producers.remove(pos);
+        if (producer != null) {
+            producer.cancelScheduledTask();
             producerOutputPos.remove(pos);
             setDirty();
         }
@@ -290,7 +292,9 @@ public class FactoryNetwork extends SavedData {
 
     public void removeMachine(GlobalPos pos) {
         clearReferencesTo(pos);
-        if (machines.remove(pos) != null) {
+        Machine machine = machines.remove(pos);
+        if (machine != null) {
+            machine.cancelScheduledTask();
             machineOutputPos.remove(pos);
             setDirty();
         }

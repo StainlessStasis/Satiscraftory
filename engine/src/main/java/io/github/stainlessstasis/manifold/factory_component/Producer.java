@@ -16,6 +16,7 @@ public class Producer {
     private long interval;
     private Port output;
     private final Scheduler scheduler;
+    private Scheduler.@Nullable ScheduledTask productionTask;
 
     private @Nullable Payload pending = null;
     private boolean active = true;
@@ -51,7 +52,15 @@ public class Producer {
 
     private void scheduleNextProduction(long nextProductionTick) {
         this.nextProductionTick = nextProductionTick;
-        scheduler.schedule(nextProductionTick, this::produce);
+        if (productionTask != null) productionTask.cancel();
+        productionTask = scheduler.schedule(nextProductionTick, this::produce);
+    }
+
+    public void cancelScheduledTask() {
+        if (productionTask != null) {
+            productionTask.cancel();
+            productionTask = null;
+        }
     }
 
     private void produce() {
