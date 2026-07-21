@@ -2,7 +2,6 @@ package io.github.stainlessstasis.satiscraftory.world.feature;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
@@ -12,6 +11,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 
 public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
+
     public ResourceNodeFeature(Codec<ResourceNodeConfig> codec) {
         super(codec);
     }
@@ -40,12 +40,16 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
                 BlockPos targetPos = columnTop.below();
 
                 BlockState blockState = level.getBlockState(targetPos);
-                if (!blockState.is(BlockTags.STONE_ORE_REPLACEABLES)) continue;
+                if (!isReplaceable(blockState)) continue;
 
                 level.setBlock(targetPos, config.oreState(), Block.UPDATE_ALL);
             }
         }
 
         return true;
+    }
+
+    private static boolean isReplaceable(BlockState state) {
+        return !state.isAir() && state.getFluidState().isEmpty();
     }
 }
