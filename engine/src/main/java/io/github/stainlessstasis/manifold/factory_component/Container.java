@@ -82,23 +82,18 @@ public class Container implements Port {
     public void tick(long currentTick) {
         if (output == null) return;
 
-        boolean progressed = true;
-        while (progressed) {
-            progressed = false;
-            for (int attempt = 0; attempt < slots.length; attempt++) {
-                int i = (nextExtractIndex + attempt) % slots.length;
-                Payload slot = slots[i];
-                if (slot == null) continue;
+        for (int attempt = 0; attempt < slots.length; attempt++) {
+            int i = (nextExtractIndex + attempt) % slots.length;
+            Payload slot = slots[i];
+            if (slot == null) continue;
 
-                Payload single = slot.withCount(1);
-                if (!output.canAccept(single)) continue;
+            Payload single = slot.withCount(1);
+            if (!output.canAccept(single)) continue;
 
-                output.accept(single);
-                slots[i] = slot.count() > 1 ? slot.withCount(slot.count() - 1) : null;
-                nextExtractIndex = (i + 1) % slots.length;
-                progressed = true;
-                break;
-            }
+            output.accept(single);
+            slots[i] = slot.count() > 1 ? slot.withCount(slot.count() - 1) : null;
+            nextExtractIndex = (i + 1) % slots.length;
+            break;
         }
     }
 
