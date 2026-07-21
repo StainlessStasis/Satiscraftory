@@ -30,6 +30,8 @@ public class BeltLane implements Port {
     public record ItemSnapshot(long id, double position, Identifier itemId) {}
 
     private final UUID id;
+    private boolean ticking = false;
+    private final List<BeltItem> pendingAppends = new ArrayList<>();
     private final double speed;
     private final double minGap;
 
@@ -126,7 +128,13 @@ public class BeltLane implements Port {
             double maxAllowed = items.getLast().position - minGap;
             insertPosition = Math.clamp(insertPosition, 0, Math.max(maxAllowed, 0));
         }
-        items.add(new BeltItem(nextItemId++, payload, insertPosition));
+
+        BeltItem newItem = new BeltItem(nextItemId++, payload, insertPosition);
+        if (ticking) {
+            pendingAppends.add(newItem);
+        } else {
+            items.add(newItem);
+        }
         totalAccepted++;
     }
 
@@ -134,30 +142,39 @@ public class BeltLane implements Port {
         int size = items.size();
         if (size == 0) return;
 
-        double[] proposed = new double[size];
-        for (int index = 0; index < size; index++) {
-            proposed[index] = items.get(index).position + speed;
-        }
+        ticking = true;
+        try {
+            double[] proposed = new double[size];
+            for (int index = 0; index < size; index++) {
+                proposed[index] = items.get(index).position + speed;
+            }
 
-        double previousClamped = totalLength;
-        for (int index = 0; index < size; index++) {
-            double cap = (index == 0) ? totalLength : Math.max(previousClamped - minGap, 0);
-            previousClamped = Math.clamp(proposed[index], 0, cap);
-            items.get(index).position = previousClamped;
-        }
+            double previousClamped = totalLength;
+            for (int index = 0; index < size; index++) {
+                double cap = (index == 0) ? totalLength : Math.max(previousClamped - minGap, 0);
+                previousClamped = Math.clamp(proposed[index], 0, cap);
+                items.get(index).position = previousClamped;
+            }
 
-        BeltItem front = items.getFirst();
-        if (front.position >= totalLength - Constants.EPSILON && output != null && output.canAccept(front.payload)) {
-            double frontOvershoot = Math.max(proposed[0] - totalLength, 0);
-            output.acceptWithOverflow(front.payload, frontOvershoot);
-            items.removeFirst();
-            totalDischarged++;
+            BeltItem front = items.getFirst();
+            if (front.position >= totalLength - Constants.EPSILON && output != null && output.canAccept(front.payload)) {
+                double frontOvershoot = Math.max(proposed[0] - totalLength, 0);
+                output.acceptWithOverflow(front.payload, frontOvershoot);
+                items.removeFirst();
+                totalDischarged++;
 
-            double recomputedPrevious = totalLength;
-            for (int index = 0; index < items.size(); index++) {
-                double cap = (index == 0) ? totalLength : Math.max(recomputedPrevious - minGap, 0);
-                recomputedPrevious = Math.clamp(proposed[index + 1], 0, cap);
-                items.get(index).position = recomputedPrevious;
+                double recomputedPrevious = totalLength;
+                for (int index = 0; index < items.size(); index++) {
+                    double cap = (index == 0) ? totalLength : Math.max(recomputedPrevious - minGap, 0);
+                    recomputedPrevious = Math.clamp(proposed[index + 1], 0, cap);
+                    items.get(index).position = recomputedPrevious;
+                }
+            }
+        } finally {
+            ticking = false;
+            if (!pendingAppends.isEmpty()) {
+                items.addAll(pendingAppends);
+                pendingAppends.clear();
             }
         }
     }
