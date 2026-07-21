@@ -34,10 +34,19 @@ public class ManifoldModelProvider extends FactoryModelProvider {
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
+        Block splitter = ManifoldBlocks.SPLITTER.get();
+        Block merger = ManifoldBlocks.MERGER.get();
 
         registerHorizontallyRotable(blockModels, producer, "block/producer", false);
         registerHorizontallyRotable(blockModels, machine, "block/machine", false);
         registerHorizontallyRotable(blockModels, container, "block/container", false);
         registerHorizontallyRotable(blockModels, consumer, "block/consumer", false);
+        registerHorizontallyRotable(blockModels, splitter, "block/splitter_merger", false);
+        registerHorizontallyRotable(blockModels, merger, "block/splitter_merger", false);
+
+        // need to manually override the item models, otherwise they default to "splitter" and "merger" which is wrong
+        Identifier splitter_mergerModel = Manifold.id("block/splitter_merger");
+        itemModels.itemModelOutput.accept(ManifoldItems.SPLITTER.get(), ItemModelUtils.plainModel(splitter_mergerModel));
+        itemModels.itemModelOutput.accept(ManifoldItems.MERGER.get(), ItemModelUtils.plainModel(splitter_mergerModel));
     }
 }
