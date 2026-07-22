@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.block_entity.factory_component;
 
+import io.github.stainlessstasis.manifold.block.factory_component.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
@@ -30,8 +31,12 @@ public class ProducerBlockEntity extends BlockEntity {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FactoryNetwork network = FactoryNetwork.get(serverLevel);
+        long intervalTicks = getBlockState().getBlock() instanceof ProducerBlock producerBlock
+                ? producerBlock.getIntervalTicks()
+                : Producer.DEFAULT_INTERVAL_TICKS;
+
         producer = network.getOrCreateProducer(GlobalPos.of(serverLevel.dimension(), getBlockPos()),
-                () -> new Producer(Producer.DEFAULT_ITEM_TYPE, Producer.DEFAULT_INTERVAL_TICKS, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
+                () -> new Producer(Producer.DEFAULT_ITEM_TYPE, intervalTicks, FactoryNetwork.NO_OP_PORT, network.getScheduler()));
 
         relink(network);
     }

@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.block_entity;
 
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.NonNull;
 
 public class ResourceNodeBlockEntity extends BlockEntity {
-    public static final Identifier DEFAULT_RESOURCE_TYPE = PayloadItems.idOf(Items.RAW_IRON);
+    public static final Identifier DEFAULT_RESOURCE_TYPE = ItemUtils.idOf(Items.RAW_IRON);
     public static final ResourceNodePurity DEFAULT_PURITY = ResourceNodePurity.NORMAL;
 
     private Identifier resourceType = DEFAULT_RESOURCE_TYPE;

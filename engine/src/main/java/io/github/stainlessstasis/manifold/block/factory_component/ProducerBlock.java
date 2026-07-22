@@ -2,10 +2,11 @@ package io.github.stainlessstasis.manifold.block.factory_component;
 
 import io.github.stainlessstasis.manifold.block_entity.factory_component.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -24,15 +25,27 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 public class ProducerBlock extends AbstractDirectionalFactoryBlock {
-    private static final MapCodec<ProducerBlock> CODEC = simpleCodec(ProducerBlock::new);
+    public static final MapCodec<ProducerBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    Codec.LONG.fieldOf("interval_ticks").forGetter(ProducerBlock::getIntervalTicks),
+                    propertiesCodec()
+            ).apply(instance, (intervalTicks, properties) -> new ProducerBlock(properties, intervalTicks))
+    );
 
-    public ProducerBlock(Properties properties) {
+    private final long intervalTicks;
+
+    public ProducerBlock(Properties properties, long intervalTicks) {
         super(properties);
+        this.intervalTicks = intervalTicks;
     }
 
     @Override
     protected @NonNull MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    public long getIntervalTicks() {
+        return intervalTicks;
     }
 
     @Override

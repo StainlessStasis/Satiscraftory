@@ -12,7 +12,7 @@ public class ManifoldBlocks {
             DeferredRegister.createBlocks(Manifold.MODID);
 
     public static final DeferredBlock<ProducerBlock> PRODUCER = BLOCKS.registerBlock("producer",
-            ProducerBlock::new,
+            properties -> new ProducerBlock(properties, 1L),
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
 
     public static final DeferredBlock<ConsumerBlock> CONSUMER = BLOCKS.registerBlock("consumer",

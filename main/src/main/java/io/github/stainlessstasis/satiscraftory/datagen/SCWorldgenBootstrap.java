@@ -10,7 +10,6 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -53,7 +52,7 @@ public class SCWorldgenBootstrap {
                 new ConfiguredFeature<>(
                         SCFeatures.RESOURCE_NODE.get(),
                         new ResourceNodeConfig(
-                                SCBlocks.RESOURCE_NODE.get().defaultBlockState(),
+                                SCBlocks.IRON_RESOURCE_NODE.get().defaultBlockState(),
                                 Blocks.IRON_ORE.defaultBlockState(),
                                 UniformInt.of(3, 5)
                         )

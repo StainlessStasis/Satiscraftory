@@ -13,13 +13,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.awt.*;
-
 public class MinerBlock extends ProducerBlock {
     public static final int NODE_SEARCH_RADIUS = 3;
 
-    public MinerBlock(Properties properties) {
-        super(properties);
+    public MinerBlock(Properties properties, long intervalTicks) {
+        super(properties, intervalTicks);
     }
 
     @Override
@@ -49,7 +47,7 @@ public class MinerBlock extends ProducerBlock {
         BlockPos max = pos.offset(NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS);
 
         for (BlockPos candidate : BlockPos.betweenClosed(min, max)) {
-            if (level.getBlockState(candidate).is(SCBlocks.RESOURCE_NODE.get())) {
+            if (level.getBlockState(candidate).is(SCBlocks.IRON_RESOURCE_NODE.get())) {
                 return candidate.immutable();
             }
         }

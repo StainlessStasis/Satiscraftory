@@ -2,7 +2,7 @@
   "type": "satiscraftory:resource_node",
   "config": {
     "marker_state": {
-      "Name": "satiscraftory:resource_node"
+      "Name": "satiscraftory:iron_resource_node"
     },
     "radius": {
       "type": "minecraft:uniform",
