@@ -2,5 +2,5 @@
   "type": "neoforge:add_features",
   "biomes": "#minecraft:is_overworld",
   "features": "satiscraftory:iron_node",
-  "step": "surface_structures"
+  "step": "top_layer_modification"
 }

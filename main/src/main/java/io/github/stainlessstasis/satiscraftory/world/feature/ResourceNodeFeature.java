@@ -37,11 +37,15 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
         ResourceNodeConfig config = context.config();
         BlockPos anchor = context.origin();
 
+        return placeCluster(level, random, config, anchor);
+    }
+
+    public static boolean placeCluster(WorldGenLevel level, RandomSource random, ResourceNodeConfig config, BlockPos anchor) {
         int clumpSize = config.clusterSize().sample(random);
         List<BlockPos> placed = new ArrayList<>(clumpSize);
 
         for (int i = 0; i < clumpSize; i++) {
-            BlockPos candidate = (i == 0) ? anchor : pickClumpOffset(anchor, random, placed, config);
+            BlockPos candidate = (i == 0) ? anchor : pickClusterOffset(anchor, random, placed, config);
             if (candidate == null) continue;
 
             if (placeSingleNode(level, random, config, candidate)) {
@@ -53,7 +57,7 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
     }
 
     public static boolean placeSingleNode(WorldGenLevel level, RandomSource random, ResourceNodeConfig config, BlockPos origin) {
-        BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR_WG, origin);
+        BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, origin);
         if (!level.getFluidState(surfacePos).isEmpty()) return false;
 
         BlockPos nodePos = surfacePos.below(2);
@@ -82,7 +86,7 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
     }
 
     @Nullable
-    private static BlockPos pickClumpOffset(BlockPos anchor, RandomSource random, List<BlockPos> existing, ResourceNodeConfig config) {
+    private static BlockPos pickClusterOffset(BlockPos anchor, RandomSource random, List<BlockPos> existing, ResourceNodeConfig config) {
         for (int attempt = 0; attempt < MAX_CLUSTER_PLACEMENT_ATTEMPTS; attempt++) {
             double angle = random.nextDouble() * Mth.TWO_PI;
             int dist = config.clusterSpread().sample(random);
@@ -106,7 +110,7 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
 
     @Nullable
     private static BlockPos findGroundPos(WorldGenLevel level, BlockPos columnPos, int referenceY) {
-        int topY = level.getHeightmapPos(Heightmap.Types.OCEAN_FLOOR_WG, columnPos).getY();
+        int topY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, columnPos).getY();
 
         for (int y = topY - 1; y >= topY - 1 - MAX_SCAN_DEPTH; y--) {
             BlockPos pos = new BlockPos(columnPos.getX(), y, columnPos.getZ());

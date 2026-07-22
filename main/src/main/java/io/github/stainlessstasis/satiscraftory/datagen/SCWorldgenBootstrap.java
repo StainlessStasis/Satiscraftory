@@ -85,7 +85,7 @@ public class SCWorldgenBootstrap {
                     new BiomeModifiers.AddFeaturesBiomeModifier(
                             biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                             HolderSet.direct(placedFeatures.getOrThrow(placedKey(type))),
-                            GenerationStep.Decoration.SURFACE_STRUCTURES
+                            GenerationStep.Decoration.TOP_LAYER_MODIFICATION
                     )
             );
         }

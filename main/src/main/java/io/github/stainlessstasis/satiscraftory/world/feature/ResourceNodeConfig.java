@@ -21,4 +21,24 @@ public record ResourceNodeConfig(
             IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_size").forGetter(ResourceNodeConfig::clusterSize),
             IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_spread").forGetter(ResourceNodeConfig::clusterSpread)
     ).apply(instance, ResourceNodeConfig::new));
+
+    public ResourceNodeConfig withNodeState(BlockState nodeState) {
+        return new ResourceNodeConfig(nodeState, resourceState, radius, clusterSize, clusterSpread);
+    }
+
+    public ResourceNodeConfig withResourceState(BlockState resourceState) {
+        return new ResourceNodeConfig(nodeState, resourceState, radius, clusterSize, clusterSpread);
+    }
+
+    public ResourceNodeConfig withRadius(IntProvider radius) {
+        return new ResourceNodeConfig(nodeState, resourceState, radius, clusterSize, clusterSpread);
+    }
+
+    public ResourceNodeConfig withClusterSize(IntProvider clusterSize) {
+        return new ResourceNodeConfig(nodeState, resourceState, radius, clusterSize, clusterSpread);
+    }
+
+    public ResourceNodeConfig withClusterSpread(IntProvider clusterSpread) {
+        return new ResourceNodeConfig(nodeState, resourceState, radius, clusterSize, clusterSpread);
+    }
 }
