@@ -2,9 +2,10 @@
   "type": "satiscraftory:resource_node",
   "config": {
     "clump_size": {
-      "type": "minecraft:uniform",
-      "max_inclusive": 3,
-      "min_inclusive": 1
+      "type": "minecraft:trapezoid",
+      "max": 4,
+      "min": 1,
+      "plateau": 2
     },
     "clump_spread": {
       "type": "minecraft:uniform",
