@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component;
 
 
 import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -9,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class Producer {
-    public static final Identifier DEFAULT_ITEM_TYPE = PayloadItems.idOf(Items.RAW_IRON);
+    public static final Identifier DEFAULT_ITEM_TYPE = ItemUtils.idOf(Items.RAW_IRON);
     public static final long DEFAULT_INTERVAL_TICKS = 1;
 
     private Identifier itemId;
@@ -104,7 +105,7 @@ public class Producer {
     }
 
     public void setItemId(Item item) {
-        this.itemId = PayloadItems.idOf(item);
+        this.itemId = ItemUtils.idOf(item);
     }
     public Identifier getItemId() {
         return itemId;

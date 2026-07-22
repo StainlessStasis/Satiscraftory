@@ -6,6 +6,7 @@ import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
@@ -71,7 +72,7 @@ public class ProducerBlock extends AbstractDirectionalFactoryBlock {
         } else {
             Item item = heldItem.getItem();
             producer.setItemId(item);
-            player.sendOverlayMessage(Component.literal("Set producer item to "+ PayloadItems.idOf(item)));
+            player.sendOverlayMessage(Component.literal("Set producer item to "+ ItemUtils.idOf(item)));
         }
 
         return InteractionResult.PASS;
