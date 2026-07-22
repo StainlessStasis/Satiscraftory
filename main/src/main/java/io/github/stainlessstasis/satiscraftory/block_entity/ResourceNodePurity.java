@@ -7,10 +7,11 @@ public enum ResourceNodePurity {
     NORMAL(50, 1f),
     PURE(25, 2f);
 
-    private static int totalWeight = 0;
+    private static final int TOTAL_WEIGHT = computeTotalWeight();
 
     private final int weight;
     private final float productionRateMultiplier;
+
     ResourceNodePurity(int weight, float productionRateMultiplier) {
         if (weight < 0) throw new IllegalStateException("Resource Node weight must be positive!");
         this.weight = weight;
@@ -20,29 +21,28 @@ public enum ResourceNodePurity {
     public int getWeight() {
         return weight;
     }
+
     public float getProductionRateMultiplier() {
         return productionRateMultiplier;
     }
 
     public static float getWeightedChance(ResourceNodePurity purity) {
-        return (float) purity.weight / getTotalWeight();
-    }
-
-    private static int getTotalWeight() {
-        if (totalWeight < 0) {
-            totalWeight = 0;
-            for (var purity : values()) totalWeight += purity.weight;
-        }
-        return totalWeight;
+        return (float) purity.weight / TOTAL_WEIGHT;
     }
 
     public static ResourceNodePurity pickRandom(RandomSource random) {
-        int roll = random.nextInt(getTotalWeight());
+        int roll = random.nextInt(TOTAL_WEIGHT);
         int cumulative = 0;
         for (var purity : values()) {
             cumulative += purity.weight;
             if (roll < cumulative) return purity;
         }
         return NORMAL; // fallback, should be unreachable
+    }
+
+    private static int computeTotalWeight() {
+        int total = 0;
+        for (var purity : values()) total += purity.weight;
+        return total;
     }
 }
