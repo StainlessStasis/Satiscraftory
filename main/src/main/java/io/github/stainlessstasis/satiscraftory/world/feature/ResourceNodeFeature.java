@@ -3,6 +3,7 @@ package io.github.stainlessstasis.satiscraftory.world.feature;
 import com.mojang.serialization.Codec;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
+import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
@@ -41,10 +42,10 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
     }
 
     public static boolean placeCluster(WorldGenLevel level, RandomSource random, ResourceNodeConfig config, BlockPos anchor) {
-        int clumpSize = config.clusterSize().sample(random);
-        List<BlockPos> placed = new ArrayList<>(clumpSize);
+        int clusterSize = config.clusterSize().sample(random);
+        List<BlockPos> placed = new ArrayList<>(clusterSize);
 
-        for (int i = 0; i < clumpSize; i++) {
+        for (int i = 0; i < clusterSize; i++) {
             BlockPos candidate = (i == 0) ? anchor : pickClusterOffset(anchor, random, placed, config);
             if (candidate == null) continue;
 
@@ -56,9 +57,32 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
         return !placed.isEmpty();
     }
 
+    @Nullable
+    private static BlockPos pickClusterOffset(BlockPos anchor, RandomSource random, List<BlockPos> existing, ResourceNodeConfig config) {
+        for (int attempt = 0; attempt < MAX_CLUSTER_PLACEMENT_ATTEMPTS; attempt++) {
+            double angle = random.nextDouble() * Mth.TWO_PI;
+            int dist = config.clusterSpread().sample(random);
+            BlockPos candidate = anchor.offset(
+                    (int) Math.round(Math.cos(angle) * dist),
+                    0,
+                    (int) Math.round(Math.sin(angle) * dist)
+            );
+
+            boolean tooClose = false;
+            for (BlockPos other : existing) {
+                if (other.distSqr(candidate) < MIN_NODE_SEPARATION_SQR) {
+                    tooClose = true;
+                    break;
+                }
+            }
+            if (!tooClose) return candidate;
+        }
+        return null;
+    }
+
     public static boolean placeSingleNode(WorldGenLevel level, RandomSource random, ResourceNodeConfig config, BlockPos origin) {
-        BlockPos surfacePos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, origin);
-        if (!level.getFluidState(surfacePos).isEmpty()) return false;
+        BlockPos surfacePos = findGroundPos(level, origin, null);
+        if (surfacePos == null) return false;
 
         BlockPos nodePos = surfacePos.below(2);
         level.setBlock(nodePos, config.nodeState(), Block.UPDATE_ALL);
@@ -86,48 +110,24 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
     }
 
     @Nullable
-    private static BlockPos pickClusterOffset(BlockPos anchor, RandomSource random, List<BlockPos> existing, ResourceNodeConfig config) {
-        for (int attempt = 0; attempt < MAX_CLUSTER_PLACEMENT_ATTEMPTS; attempt++) {
-            double angle = random.nextDouble() * Mth.TWO_PI;
-            int dist = config.clusterSpread().sample(random);
-            BlockPos candidate = anchor.offset(
-                    (int) Math.round(Math.cos(angle) * dist),
-                    0,
-                    (int) Math.round(Math.sin(angle) * dist)
-            );
+    private static BlockPos findGroundPos(WorldGenLevel level, BlockPos columnPos, @Nullable Integer referenceY) {
+        BlockPos topPos = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, columnPos);
+        BlockPos surfaceBlockPos = topPos.below();
+        if (!level.getFluidState(surfaceBlockPos).isEmpty()) return null; // ocean / river surface
 
-            boolean tooClose = false;
-            for (BlockPos other : existing) {
-                if (other.distSqr(candidate) < MIN_NODE_SEPARATION_SQR) {
-                    tooClose = true;
-                    break;
-                }
-            }
-            if (!tooClose) return candidate;
-        }
-        return null;
-    }
-
-    @Nullable
-    private static BlockPos findGroundPos(WorldGenLevel level, BlockPos columnPos, int referenceY) {
-        int topY = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, columnPos).getY();
-
-        for (int y = topY - 1; y >= topY - 1 - MAX_SCAN_DEPTH; y--) {
+        for (int y = surfaceBlockPos.getY(); y >= surfaceBlockPos.getY() - MAX_SCAN_DEPTH; y--) {
             BlockPos pos = new BlockPos(columnPos.getX(), y, columnPos.getZ());
             BlockState state = level.getBlockState(pos);
 
             if (!isReplaceable(state)) continue;
-            if (Math.abs(y - referenceY) > MAX_Y_DEVIATION) return null;
+            if (referenceY != null && Math.abs(y - referenceY) > MAX_Y_DEVIATION) return null;
             return pos;
         }
         return null;
     }
 
     private static boolean isReplaceable(BlockState state) {
-        return !state.isAir()
-                && state.getFluidState().isEmpty()
-                && !state.is(BlockTags.LEAVES)
-                && !state.is(BlockTags.LOGS);
+        return state.is(SCBlockTags.RESOURCE_NODE_REPLACEABLE);
     }
 
     private static void clearFoliageAbove(WorldGenLevel level, BlockPos groundPos) {
