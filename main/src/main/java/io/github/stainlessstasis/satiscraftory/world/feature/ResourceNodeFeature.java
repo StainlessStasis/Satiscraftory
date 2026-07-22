@@ -32,13 +32,11 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
             return false;
         }
 
-        level.setBlock(surfacePos, config.markerState(), Block.UPDATE_ALL);
+        level.setBlock(surfacePos.below(2), config.markerState(), Block.UPDATE_ALL);
 
         int radius = config.radius().sample(random);
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                if (dx == 0 && dz == 0) continue; // reserved for the marker
-
                 double jitter = 0.75 + random.nextDouble() * 0.5;
                 double distSq = dx * dx + dz * dz;
                 if (distSq > (radius * radius) * jitter) continue;

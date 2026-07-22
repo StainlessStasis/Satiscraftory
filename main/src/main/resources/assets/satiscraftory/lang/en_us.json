@@ -3,6 +3,9 @@
   "block.satiscraftory.belt_mk1": "Belt Mk. 1",
   "block.satiscraftory.belt_mk2": "Belt Mk. 2",
   "block.satiscraftory.belt_mk3": "Belt Mk. 3",
+  "block.satiscraftory.miner_mk1": "Miner Mk. 1",
 
-  "item.satiscraftory.iron_plate": "Iron Plate"
+  "item.satiscraftory.iron_plate": "Iron Plate",
+
+  "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node"
 }
