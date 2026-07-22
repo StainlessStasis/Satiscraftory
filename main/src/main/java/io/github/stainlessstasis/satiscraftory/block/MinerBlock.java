@@ -64,14 +64,6 @@ public class MinerBlock extends ProducerBlock {
         return new MinerBlockEntity(SCBlockEntities.MINER.get(), pos, state);
     }
 
-    @Override
-    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
-        if (level.getBlockEntity(pos) instanceof MinerBlockEntity minerBE) {
-            minerBE.unlinkFromResourceNode(level);
-        }
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-    }
-
     public static @Nullable BlockPos findNearbyResourceNode(LevelReader level, BlockPos pos) {
         BlockPos min = pos.offset(-NODE_SEARCH_RADIUS, -NODE_SEARCH_RADIUS, -NODE_SEARCH_RADIUS);
         BlockPos max = pos.offset(NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS);

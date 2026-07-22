@@ -30,6 +30,14 @@ public class MinerBlockEntity extends ProducerBlockEntity {
         }
     }
 
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level instanceof ServerLevel serverLevel) {
+            unlinkFromResourceNode(serverLevel);
+        }
+    }
+
     private void linkToResourceNode(ServerLevel level) {
         BlockPos nodePos = MinerBlock.findNearbyResourceNode(level, getBlockPos());
         if (nodePos == null) return;
