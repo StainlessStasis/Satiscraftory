@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeConfig;
+import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeConfig;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.Item;

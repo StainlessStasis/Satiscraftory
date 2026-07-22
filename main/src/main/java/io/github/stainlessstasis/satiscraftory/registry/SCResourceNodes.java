@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory.registry;
 
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
@@ -20,4 +21,12 @@ public class SCResourceNodes {
     );
 
     public static final List<ResourceNodeType> TYPES = List.of(IRON, COPPER);
+
+    public static ResourceNodeType byName(String name) {
+        return TYPES.stream().filter(t -> t.getName().equals(name)).findFirst().orElse(null);
+    }
+
+    public static ResourceNodeType byBlock(Block block) {
+        return TYPES.stream().filter(t -> t.getNodeBlock().get() == block).findFirst().orElse(null);
+    }
 }

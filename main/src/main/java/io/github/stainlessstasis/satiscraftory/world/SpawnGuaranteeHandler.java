@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.world;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeFeature;
+import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeFeature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -11,7 +11,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 @EventBusSubscriber
 public class SpawnGuaranteeHandler {
@@ -20,7 +19,7 @@ public class SpawnGuaranteeHandler {
     private static final int MAX_PLACEMENT_ATTEMPTS = 20;
 
     @SubscribeEvent
-    public static void onServerStarting(ServerStartedEvent event) {
+    public static void onServerStart(ServerStartedEvent event) {
         ServerLevel overworld = event.getServer().overworld();
         SpawnGuaranteeData data = SpawnGuaranteeData.get(overworld);
         if (data.isIronGuaranteed()) return;
@@ -45,7 +44,6 @@ public class SpawnGuaranteeHandler {
                     SCResourceNodes.IRON.toConfig().withClusterSize(UniformInt.of(3, 3)).withClusterSpread(UniformInt.of(15, 25)),
                     candidate
             );
-            if (placed) System.out.println("PLACED AT "+candidate);
         }
 
         if (!placed) {

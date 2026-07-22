@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeConfig;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeFeature;
+import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeConfig;
+import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeFeature;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.neoforged.neoforge.registries.DeferredHolder;

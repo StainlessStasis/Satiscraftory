@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.world.feature;
+package io.github.stainlessstasis.satiscraftory.world.resource_node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

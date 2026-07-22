@@ -4,7 +4,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCFeatures;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeConfig;
+import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeConfig;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;

@@ -1,10 +1,14 @@
-package io.github.stainlessstasis.satiscraftory.world.feature;
+package io.github.stainlessstasis.satiscraftory.world.resource_node;
 
 import com.mojang.serialization.Codec;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
+import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
+import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -87,8 +91,17 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
 
         BlockPos nodePos = surfacePos.below(2);
         level.setBlock(nodePos, config.nodeState(), Block.UPDATE_ALL);
+
+        ResourceNodePurity purity = ResourceNodePurity.pickRandom(random);
         if (level.getBlockEntity(nodePos) instanceof ResourceNodeBlockEntity nodeBE) {
-            nodeBE.setPurity(ResourceNodePurity.pickRandom(random));
+            nodeBE.setPurity(purity);
+        }
+
+        ResourceNodeType type = SCResourceNodes.byBlock(config.nodeState().getBlock());
+        if (type != null) {
+            ServerLevel serverLevel = level.getLevel();
+            GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), nodePos.immutable());
+            ResourceNodeData.get(serverLevel).addRecord(new SavedResourceNode(globalPos, type, purity));
         }
 
         int radius = config.radius().sample(random);
