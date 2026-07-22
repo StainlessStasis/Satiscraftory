@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory.datagen;
 
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.datagen.FactoryModelProvider;
+import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
@@ -30,6 +31,9 @@ public class SCModelProvider extends FactoryModelProvider {
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         blockModels.createTrivialCube(SCBlocks.RESOURCE_NODE.get());
+        registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), Manifold.id("block/producer"), false);
+        // TODO: make it so u dont have to override the item model by doing this bullshit and just add it to the other method
+        itemModels.itemModelOutput.accept(SCItems.MINER_MK1.get(), ItemModelUtils.plainModel(Manifold.id("block/producer")));
 
         Block belt_mk1 = SCBlocks.BELT_MK1.get();
         Block belt_mk2 = SCBlocks.BELT_MK2.get();

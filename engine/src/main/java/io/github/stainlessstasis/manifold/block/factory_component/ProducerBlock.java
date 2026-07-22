@@ -52,6 +52,7 @@ public class ProducerBlock extends AbstractDirectionalFactoryBlock {
 
     @Override
     protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+        //noinspection DataFlowIssue - gamemode is nullable but should not be null here
         if (!(level instanceof ServerLevel serverLevel) || !player.gameMode().isCreative()) return InteractionResult.PASS;
 
         GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);

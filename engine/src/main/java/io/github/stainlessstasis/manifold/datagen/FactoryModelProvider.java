@@ -25,8 +25,10 @@ public abstract class FactoryModelProvider extends ModelProvider {
     }
 
     public void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path, boolean reversed) {
-        Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+        registerHorizontallyRotable(blockModels, block, Identifier.fromNamespaceAndPath(modId, path), reversed);
+    }
 
+    public void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, Identifier id, boolean reversed) {
         Variant north = new Variant(id);
         Variant east  = north.withYRot(Quadrant.R90);
         Variant south = north.withYRot(Quadrant.R180);

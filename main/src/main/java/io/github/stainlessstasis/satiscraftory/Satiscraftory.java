@@ -47,6 +47,7 @@ public class Satiscraftory {
             .icon(() -> ManifoldItems.MACHINE.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(ManifoldItems.PRODUCER.get());
+                output.accept(SCItems.MINER_MK1.get());
                 output.accept(SCItems.BELT_MK1.get());
                 output.accept(SCItems.BELT_MK2.get());
                 output.accept(SCItems.BELT_MK3.get());
