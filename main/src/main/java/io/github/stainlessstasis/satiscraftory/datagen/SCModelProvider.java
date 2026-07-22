@@ -31,7 +31,7 @@ public class SCModelProvider extends FactoryModelProvider {
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         for (var type : SCResourceNodes.TYPES) {
-            blockModels.createTrivialCube(type.nodeBlock().get());
+            blockModels.createTrivialCube(type.getNodeBlock().get());
         }
         registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), Manifold.id("block/producer"), false);
         // TODO: make it so u dont have to override the item model by doing this bullshit and just add it to the other method

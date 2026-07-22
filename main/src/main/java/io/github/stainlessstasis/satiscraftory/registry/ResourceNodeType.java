@@ -8,28 +8,36 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-public final class ResourceNodeType {
+public class ResourceNodeType {
     private final String name;
     private final Block resourceBlock;
     private final IntProvider radius;
+    private final IntProvider clusterSize;
+    private final IntProvider clusterSpread;
     private final int rarity;
     private final DeferredBlock<ResourceNodeBlock> nodeBlock;
 
-    public ResourceNodeType(String name, Item resourceItem, Block resourceBlock, IntProvider radius, int rarity) {
+    public ResourceNodeType(
+            String name, Item resourceItem, Block resourceBlock,
+            IntProvider radius, IntProvider clusterSize, IntProvider clusterSpread, int rarity
+    ) {
         this.name = name;
         this.resourceBlock = resourceBlock;
         this.radius = radius;
+        this.clusterSize = clusterSize;
+        this.clusterSpread = clusterSpread;
         this.rarity = rarity;
         this.nodeBlock = SCBlocks.registerResourceNode(name, resourceItem);
     }
 
-    public String name() { return name; }
-    public Block resourceBlock() { return resourceBlock; }
-    public IntProvider radius() { return radius; }
-    public int rarity() { return rarity; }
-    public DeferredBlock<ResourceNodeBlock> nodeBlock() { return nodeBlock; }
-
-    public Identifier nodeId() {
+    public String getName() { return name; }
+    public Block getResourceBlock() { return resourceBlock; }
+    public IntProvider getRadius() { return radius; }
+    public IntProvider getClusterSize() { return clusterSize; }
+    public IntProvider getClusterSpread() { return clusterSpread; }
+    public int getRarity() { return rarity; }
+    public DeferredBlock<ResourceNodeBlock> getNodeBlock() { return nodeBlock; }
+    public Identifier getNodeId() {
         return Satiscraftory.id(name + "_node");
     }
 }

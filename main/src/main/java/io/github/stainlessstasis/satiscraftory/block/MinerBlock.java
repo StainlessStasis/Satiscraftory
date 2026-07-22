@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 public class MinerBlock extends ProducerBlock {
-    public static final int NODE_SEARCH_RADIUS = 3;
+    public static final int NODE_SEARCH_RADIUS = 5;
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);

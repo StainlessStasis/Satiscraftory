@@ -30,16 +30,16 @@ public class SCWorldgenBootstrap {
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, SCWorldgenBootstrap::bootstrapBiomeModifiers);
 
     private static ResourceKey<ConfiguredFeature<?, ?>> configuredKey(ResourceNodeType type) {
-        return ResourceKey.create(Registries.CONFIGURED_FEATURE, type.nodeId());
+        return ResourceKey.create(Registries.CONFIGURED_FEATURE, type.getNodeId());
     }
 
     private static ResourceKey<PlacedFeature> placedKey(ResourceNodeType type) {
-        return ResourceKey.create(Registries.PLACED_FEATURE, type.nodeId());
+        return ResourceKey.create(Registries.PLACED_FEATURE, type.getNodeId());
     }
 
     private static ResourceKey<BiomeModifier> modifierKey(ResourceNodeType type) {
         return ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS,
-                Satiscraftory.id("add_" + type.name() + "_node"));
+                Satiscraftory.id("add_" + type.getName() + "_node"));
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -49,9 +49,9 @@ public class SCWorldgenBootstrap {
                     new ConfiguredFeature<>(
                             SCFeatures.RESOURCE_NODE.get(),
                             new ResourceNodeConfig(
-                                    type.nodeBlock().get().defaultBlockState(),
-                                    type.resourceBlock().defaultBlockState(),
-                                    type.radius()
+                                    type.getNodeBlock().get().defaultBlockState(),
+                                    type.getResourceBlock().defaultBlockState(),
+                                    type.getRadius(), type.getClusterSize(), type.getClusterSpread()
                             )
                     )
             );
@@ -63,7 +63,7 @@ public class SCWorldgenBootstrap {
 
         for (ResourceNodeType type : SCResourceNodes.TYPES) {
             List<PlacementModifier> placement = List.of(
-                    RarityFilter.onAverageOnceEvery(type.rarity()),
+                    RarityFilter.onAverageOnceEvery(type.getRarity()),
                     InSquarePlacement.spread(),
                     PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
                     BiomeFilter.biome()

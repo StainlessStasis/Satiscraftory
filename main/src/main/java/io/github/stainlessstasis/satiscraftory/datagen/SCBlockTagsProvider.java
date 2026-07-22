@@ -18,7 +18,7 @@ public class SCBlockTagsProvider extends BlockTagsProvider {
     protected void addTags(HolderLookup.@NonNull Provider provider) {
         var builder = tag(SCBlockTags.RESOURCE_NODES);
         for (var type : SCResourceNodes.TYPES) {
-            builder.add(type.nodeBlock().get());
+            builder.add(type.getNodeBlock().get());
         }
     }
 }

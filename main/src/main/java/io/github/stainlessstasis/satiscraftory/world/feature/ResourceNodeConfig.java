@@ -7,10 +7,18 @@ import net.minecraft.util.valueproviders.IntProviders;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
-public record ResourceNodeConfig(BlockState markerState, BlockState resourceState, IntProvider radius) implements FeatureConfiguration {
+public record ResourceNodeConfig(
+        BlockState nodeState,
+        BlockState resourceState,
+        IntProvider radius,
+        IntProvider clusterSize,
+        IntProvider clusterSpread
+) implements FeatureConfiguration {
     public static final Codec<ResourceNodeConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockState.CODEC.fieldOf("marker_state").forGetter(ResourceNodeConfig::markerState),
+            BlockState.CODEC.fieldOf("node_state").forGetter(ResourceNodeConfig::nodeState),
             BlockState.CODEC.fieldOf("resource_state").forGetter(ResourceNodeConfig::resourceState),
-            IntProviders.NON_NEGATIVE_CODEC.fieldOf("radius").forGetter(ResourceNodeConfig::radius)
+            IntProviders.NON_NEGATIVE_CODEC.fieldOf("radius").forGetter(ResourceNodeConfig::radius),
+            IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_size").forGetter(ResourceNodeConfig::clusterSize),
+            IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_spread").forGetter(ResourceNodeConfig::clusterSpread)
     ).apply(instance, ResourceNodeConfig::new));
 }

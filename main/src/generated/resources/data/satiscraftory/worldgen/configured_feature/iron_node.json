@@ -1,7 +1,17 @@
 {
   "type": "satiscraftory:resource_node",
   "config": {
-    "marker_state": {
+    "clump_size": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 3,
+      "min_inclusive": 1
+    },
+    "clump_spread": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 30,
+      "min_inclusive": 20
+    },
+    "node_state": {
       "Name": "satiscraftory:iron_resource_node"
     },
     "radius": {
