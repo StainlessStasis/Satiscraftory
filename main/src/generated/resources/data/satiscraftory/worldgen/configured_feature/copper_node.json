@@ -1,0 +1,16 @@
+{
+  "type": "satiscraftory:resource_node",
+  "config": {
+    "marker_state": {
+      "Name": "satiscraftory:copper_resource_node"
+    },
+    "radius": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 5,
+      "min_inclusive": 3
+    },
+    "resource_state": {
+      "Name": "minecraft:copper_ore"
+    }
+  }
+}

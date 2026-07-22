@@ -5,6 +5,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block_entity.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlocks;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -76,7 +77,7 @@ public class MinerBlock extends ProducerBlock {
         BlockPos max = pos.offset(NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS, NODE_SEARCH_RADIUS);
 
         for (BlockPos candidate : BlockPos.betweenClosed(min, max)) {
-            if (level.getBlockState(candidate).is(SCBlocks.IRON_RESOURCE_NODE.get())) {
+            if (level.getBlockState(candidate).is(SCBlockTags.RESOURCE_NODES)) {
                 return candidate.immutable();
             }
         }

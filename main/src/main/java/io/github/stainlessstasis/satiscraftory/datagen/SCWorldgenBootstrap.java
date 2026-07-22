@@ -1,11 +1,10 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlocks;
+import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCFeatures;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeConfig;
-import io.github.stainlessstasis.satiscraftory.world.feature.ResourceNodeType;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
@@ -31,11 +30,11 @@ public class SCWorldgenBootstrap {
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, SCWorldgenBootstrap::bootstrapBiomeModifiers);
 
     private static ResourceKey<ConfiguredFeature<?, ?>> configuredKey(ResourceNodeType type) {
-        return ResourceKey.create(Registries.CONFIGURED_FEATURE, type.nodeId(Satiscraftory.MODID));
+        return ResourceKey.create(Registries.CONFIGURED_FEATURE, type.nodeId());
     }
 
     private static ResourceKey<PlacedFeature> placedKey(ResourceNodeType type) {
-        return ResourceKey.create(Registries.PLACED_FEATURE, type.nodeId(Satiscraftory.MODID));
+        return ResourceKey.create(Registries.PLACED_FEATURE, type.nodeId());
     }
 
     private static ResourceKey<BiomeModifier> modifierKey(ResourceNodeType type) {
@@ -50,8 +49,8 @@ public class SCWorldgenBootstrap {
                     new ConfiguredFeature<>(
                             SCFeatures.RESOURCE_NODE.get(),
                             new ResourceNodeConfig(
-                                    SCBlocks.resourceNode(type.name()).get().defaultBlockState(),
-                                    type.oreBlock().defaultBlockState(),
+                                    type.nodeBlock().get().defaultBlockState(),
+                                    type.resourceBlock().defaultBlockState(),
                                     type.radius()
                             )
                     )

@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.datagen.FactoryModelProvider;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
+import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.*;
@@ -29,7 +30,9 @@ public class SCModelProvider extends FactoryModelProvider {
 
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
-        blockModels.createTrivialCube(SCBlocks.IRON_RESOURCE_NODE.get());
+        for (var type : SCResourceNodes.TYPES) {
+            blockModels.createTrivialCube(type.nodeBlock().get());
+        }
         registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), Manifold.id("block/producer"), false);
         // TODO: make it so u dont have to override the item model by doing this bullshit and just add it to the other method
         itemModels.itemModelOutput.accept(SCItems.MINER_MK1.get(), ItemModelUtils.plainModel(Manifold.id("block/producer")));
