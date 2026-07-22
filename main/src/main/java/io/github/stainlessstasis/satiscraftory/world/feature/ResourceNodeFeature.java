@@ -1,6 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.world.feature;
 
 import com.mojang.serialization.Codec;
+import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
+import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -32,7 +34,11 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
             return false;
         }
 
-        level.setBlock(surfacePos.below(2), config.markerState(), Block.UPDATE_ALL);
+        BlockPos nodePos = surfacePos.below(2);
+        level.setBlock(nodePos, config.markerState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(nodePos) instanceof ResourceNodeBlockEntity nodeBE) {
+            nodeBE.setPurity(ResourceNodePurity.pickRandom(random));
+        }
 
         int radius = config.radius().sample(random);
         for (int dx = -radius; dx <= radius; dx++) {
@@ -45,7 +51,7 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
                 BlockPos groundPos = findGroundPos(level, columnPos, surfacePos.getY());
                 if (groundPos == null) continue;
 
-                level.setBlock(groundPos, config.oreState(), Block.UPDATE_ALL);
+                level.setBlock(groundPos, config.resourceState(), Block.UPDATE_ALL);
                 clearFoliageAbove(level, groundPos);
             }
         }

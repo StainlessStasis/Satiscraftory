@@ -2,7 +2,9 @@ package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.manifold.block_entity.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;
+import io.github.stainlessstasis.satiscraftory.block_entity.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -16,5 +18,12 @@ public class SCBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ResourceNodeBlockEntity>> RESOURCE_NODE_MARKER =
             BLOCK_ENTITIES.register("resource_node_marker", () -> new ManifoldBlockEntityType<>(
                     ResourceNodeBlockEntity::new,
-                    block -> block instanceof ResourceNodeBlock));
+                    block -> block instanceof ResourceNodeBlock)
+            );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MinerBlockEntity>> MINER =
+            BLOCK_ENTITIES.register("miner", () -> new ManifoldBlockEntityType<>(
+                    MinerBlockEntity::new,
+                    block -> block instanceof MinerBlock)
+            );
 }

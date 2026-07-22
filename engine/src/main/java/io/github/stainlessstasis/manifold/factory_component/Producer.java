@@ -104,6 +104,9 @@ public class Producer {
         return pending != null;
     }
 
+    public void setItemId(Identifier itemId) {
+        this.itemId = itemId;
+    }
     public void setItemId(Item item) {
         this.itemId = ItemUtils.idOf(item);
     }

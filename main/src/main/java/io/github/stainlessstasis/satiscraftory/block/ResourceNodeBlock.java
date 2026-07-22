@@ -26,6 +26,8 @@ public class ResourceNodeBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
-        return new ResourceNodeBlockEntity(SCBlockEntities.RESOURCE_NODE_MARKER.get(), pos, state);
+        ResourceNodeBlockEntity blockEntity = new ResourceNodeBlockEntity(SCBlockEntities.RESOURCE_NODE_MARKER.get(), pos, state);
+        blockEntity.setResourceType(resourceItemId);
+        return blockEntity;
     }
 }
