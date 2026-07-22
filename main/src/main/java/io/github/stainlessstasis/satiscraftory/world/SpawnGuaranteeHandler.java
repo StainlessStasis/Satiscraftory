@@ -42,7 +42,7 @@ public class SpawnGuaranteeHandler {
             overworld.getChunkAt(candidate);
             placed = ResourceNodeFeature.placeCluster(
                     overworld, random,
-                    SCResourceNodes.IRON.toConfig().withClusterSize(UniformInt.of(8, 10)),
+                    SCResourceNodes.IRON.toConfig().withClusterSize(UniformInt.of(3, 3)).withClusterSpread(UniformInt.of(15, 25)),
                     candidate
             );
             if (placed) System.out.println("PLACED AT "+candidate);

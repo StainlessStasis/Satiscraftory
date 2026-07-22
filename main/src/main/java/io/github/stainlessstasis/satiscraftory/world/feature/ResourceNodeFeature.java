@@ -46,38 +46,39 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
         List<BlockPos> placed = new ArrayList<>(clusterSize);
 
         for (int i = 0; i < clusterSize; i++) {
-            BlockPos candidate = (i == 0) ? anchor : pickClusterOffset(anchor, random, placed, config);
-            if (candidate == null) continue;
+            if (i == 0) {
+                if (placeSingleNode(level, random, config, anchor)) placed.add(anchor);
+                continue;
+            }
 
-            if (placeSingleNode(level, random, config, candidate)) {
-                placed.add(candidate);
+            for (int attempt = 0; attempt < MAX_CLUSTER_PLACEMENT_ATTEMPTS; attempt++) {
+                BlockPos candidate = rollClusterOffset(anchor, random, config);
+                if (isTooCloseToExisting(candidate, placed)) continue;
+                if (placeSingleNode(level, random, config, candidate)) {
+                    placed.add(candidate);
+                    break;
+                }
             }
         }
 
         return !placed.isEmpty();
     }
 
-    @Nullable
-    private static BlockPos pickClusterOffset(BlockPos anchor, RandomSource random, List<BlockPos> existing, ResourceNodeConfig config) {
-        for (int attempt = 0; attempt < MAX_CLUSTER_PLACEMENT_ATTEMPTS; attempt++) {
-            double angle = random.nextDouble() * Mth.TWO_PI;
-            int dist = config.clusterSpread().sample(random);
-            BlockPos candidate = anchor.offset(
-                    (int) Math.round(Math.cos(angle) * dist),
-                    0,
-                    (int) Math.round(Math.sin(angle) * dist)
-            );
+    private static BlockPos rollClusterOffset(BlockPos anchor, RandomSource random, ResourceNodeConfig config) {
+        double angle = random.nextDouble() * Mth.TWO_PI;
+        int dist = config.clusterSpread().sample(random);
+        return anchor.offset(
+                (int) Math.round(Math.cos(angle) * dist),
+                0,
+                (int) Math.round(Math.sin(angle) * dist)
+        );
+    }
 
-            boolean tooClose = false;
-            for (BlockPos other : existing) {
-                if (other.distSqr(candidate) < MIN_NODE_SEPARATION_SQR) {
-                    tooClose = true;
-                    break;
-                }
-            }
-            if (!tooClose) return candidate;
+    private static boolean isTooCloseToExisting(BlockPos candidate, List<BlockPos> existing) {
+        for (BlockPos other : existing) {
+            if (other.distSqr(candidate) < MIN_NODE_SEPARATION_SQR) return true;
         }
-        return null;
+        return false;
     }
 
     public static boolean placeSingleNode(WorldGenLevel level, RandomSource random, ResourceNodeConfig config, BlockPos origin) {
