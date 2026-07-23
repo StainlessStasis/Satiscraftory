@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeData;
@@ -23,7 +25,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import java.util.Comparator;
 import java.util.List;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public class ResourceNodeCommand {
 
     private static final SuggestionProvider<CommandSourceStack> TYPE_SUGGESTIONS = (ctx, builder) ->

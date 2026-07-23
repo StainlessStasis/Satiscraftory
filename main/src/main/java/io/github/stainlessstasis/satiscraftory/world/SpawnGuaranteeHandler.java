@@ -12,7 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public class SpawnGuaranteeHandler {
     private static final int MIN_DISTANCE = 100;
     private static final int MAX_DISTANCE = 300;

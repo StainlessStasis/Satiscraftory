@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.world.resource_node;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
@@ -12,7 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public class ResourceNodeFixer {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {

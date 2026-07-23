@@ -1,11 +1,12 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public class SCDatagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {

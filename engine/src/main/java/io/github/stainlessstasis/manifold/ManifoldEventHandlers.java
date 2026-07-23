@@ -9,7 +9,7 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Manifold.MODID)
 public class ManifoldEventHandlers {
     @SubscribeEvent
     static void onTick(ServerTickEvent.Post event) {
