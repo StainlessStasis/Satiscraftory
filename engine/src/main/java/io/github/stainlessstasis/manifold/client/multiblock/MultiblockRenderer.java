@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.client.multiblock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -37,9 +38,9 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     ) {
         poseStack.pushPose();
 
-        poseStack.translate(0.5, 0, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(renderState.facing.toYRot()));
-        poseStack.translate(-0.5, 0, -0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.facing.toYRot()));
+        poseStack.scale(1, -1, 1);
+        poseStack.translate(0.5, EntityModel.MODEL_Y_OFFSET, 0.375);
 
         submitModel(renderState, poseStack, collector);
 

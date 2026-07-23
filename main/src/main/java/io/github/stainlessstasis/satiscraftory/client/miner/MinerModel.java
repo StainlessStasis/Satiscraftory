@@ -47,12 +47,12 @@ public class MinerModel {
 
 		PartDefinition root = partdefinition.addOrReplaceChild("root", CubeListBuilder.create(), PartPose.offset(8.0F, 24.0F, -6.0F));
 
-		PartDefinition port_frame = root.addOrReplaceChild("port_frame", CubeListBuilder.create().texOffs(128, 144).addBox(-2.005F, -20.0F, -2.0F, 4.005F, 20.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(116, 144).addBox(-18.0F, -20.0F, -2.0F, 4.005F, 20.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(140, 144).addBox(-14.0F, -4.0F, -2.0F, 12.0F, 4.0F, 2.0F, new CubeDeformation(0.0F))
-				.texOffs(140, 150).addBox(-14.0F, -20.0F, -2.0F, 12.0F, 4.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition port_frame = root.addOrReplaceChild("port_frame", CubeListBuilder.create().texOffs(112, 144).addBox(-2.005F, -20.0F, -2.0F, 4.005F, 20.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(128, 144).addBox(-18.0F, -20.0F, -2.0F, 4.005F, 20.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(144, 144).addBox(-14.0F, -4.0F, -2.0F, 12.0F, 4.0F, 4.0F, new CubeDeformation(0.0F))
+				.texOffs(144, 152).addBox(-14.0F, -20.0F, -2.0F, 12.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition port = root.addOrReplaceChild("port", CubeListBuilder.create().texOffs(0, 144).addBox(-22.0F, -24.0F, 0.0F, 28.0F, 24.0F, 30.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition port = root.addOrReplaceChild("port", CubeListBuilder.create().texOffs(0, 144).addBox(-22.0F, -24.0F, 2.0F, 28.0F, 24.0F, 28.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition WIP = root.addOrReplaceChild("WIP", CubeListBuilder.create().texOffs(0, 0).addBox(-32.0F, -80.0F, 30.0F, 48.0F, 80.0F, 64.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
