@@ -403,7 +403,7 @@ public class FactoryNetwork extends SavedData {
 
                 for (int start = 0; start < entries.size(); start += MAX_ENTRIES_PER_PACKET) {
                     int end = Math.min(start + MAX_ENTRIES_PER_PACKET, entries.size());
-                    BeltSyncPacket payload = new BeltSyncPacket(entries.subList(start, end));
+                    BeltSyncPacket payload = new BeltSyncPacket(new ArrayList<>(entries.subList(start, end)));
                     PacketDistributor.sendToPlayersTrackingChunk(targetLevel, chunkEntry.getKey(), payload);
                 }
             }
