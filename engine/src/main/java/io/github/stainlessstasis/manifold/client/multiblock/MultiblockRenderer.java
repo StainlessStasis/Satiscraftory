@@ -7,14 +7,17 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +29,11 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     public abstract Identifier getTexture();
     public abstract Model<S> getModel();
 
+    protected MultiblockRenderer(BlockEntityType<T> blockEntityType) {
+        MultiblockPreviewRegistry.register(blockEntityType, this);
+    }
+
+
     @Override
     public void extractRenderState(
             @NonNull T blockEntity, @NonNull S renderState, float partialTick,
@@ -35,8 +43,11 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
 
-    protected void submitModel(@NonNull Model<S> model, @NonNull S renderState, @NonNull Identifier texture, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector) {
-        collector.submitModel(model, renderState, poseStack, texture, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0x00000000, null);
+    private void applyTransform(PoseStack poseStack, Direction facing) {
+        poseStack.translate(0.5, 0, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180 - facing.toYRot()));
+        poseStack.scale(1, -1, 1);
+        poseStack.translate(0, EntityModel.MODEL_Y_OFFSET, -0.125);
     }
 
     @Override
@@ -45,14 +56,24 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             @NonNull SubmitNodeCollector collector, @NonNull CameraRenderState cameraRenderState
     ) {
         poseStack.pushPose();
+        applyTransform(poseStack, renderState.facing);
+        collector.submitModel(getModel(), renderState, poseStack, getTexture(), renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0, null);
+        poseStack.popPose();
+    }
 
-        poseStack.translate(0.5, 0, 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.facing.toYRot()));
-        poseStack.scale(1, -1, 1);
-        poseStack.translate(0, EntityModel.MODEL_Y_OFFSET, -0.125);
+    public void submitPreview(PoseStack poseStack, SubmitNodeCollector collector, Direction facing, int lightCoords, int tintColor) {
+        S renderState = createRenderState();
+        renderState.facing = facing;
+        renderState.lightCoords = lightCoords;
 
-        submitModel(getModel(), renderState, getTexture(), poseStack, collector);
-
+        poseStack.pushPose();
+        applyTransform(poseStack, facing);
+        collector.submitModel(
+                getModel(), renderState, poseStack,
+                RenderTypes.entityTranslucent(getTexture()),
+                lightCoords, OverlayTexture.NO_OVERLAY,
+                tintColor, null, 0, null
+        );
         poseStack.popPose();
     }
 

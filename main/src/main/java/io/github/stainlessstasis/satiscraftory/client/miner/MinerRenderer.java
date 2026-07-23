@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.block_entity.MinerBlockEntity;
+import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.Identifier;
@@ -16,6 +17,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
     private final MinerModel model;
 
     public MinerRenderer(BlockEntityRendererProvider.Context context) {
+        super(SCBlockEntities.MINER.get());
         this.model = new MinerModel(context.bakeLayer(MinerModel.LAYER_LOCATION));
     }
 

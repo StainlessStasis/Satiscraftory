@@ -3,6 +3,7 @@ package io.github.stainlessstasis.satiscraftory.block;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -23,12 +24,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class MinerBlock extends ProducerBlock {
+public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
     public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 6, 5, new BlockPos(1, 0, 0));
 
@@ -59,7 +61,7 @@ public class MinerBlock extends ProducerBlock {
         }
 
         Direction facing = context.getHorizontalDirection().getOpposite();
-        if (!MultiblockPlacement.footprintIsClear(level, MULTIBLOCK_SHAPE, anchor, facing)) {
+        if (!MultiblockPlacement.canPlaceMultiblock(level, MULTIBLOCK_SHAPE, anchor, facing)) {
             warnPlayer(
                     context,
                     Satiscraftory.MODID + ".invalid_multiblock_placement",
@@ -68,6 +70,11 @@ public class MinerBlock extends ProducerBlock {
             return null;
         }
 
+        return super.getStateForPlacement(context);
+    }
+
+    @Override
+    public BlockState getPreviewPlacement(BlockPlaceContext context) {
         return super.getStateForPlacement(context);
     }
 
@@ -127,5 +134,10 @@ public class MinerBlock extends ProducerBlock {
     @Override
     protected boolean propagatesSkylightDown(@NonNull BlockState state) {
         return true;
+    }
+
+    @Override
+    public MultiblockShape getMultiblockShape() {
+        return MULTIBLOCK_SHAPE;
     }
 }
