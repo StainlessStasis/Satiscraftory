@@ -25,10 +25,23 @@ public class MultiblockFillerBlockEntity extends BlockEntity {
     public void setControllerPos(@Nullable BlockPos pos) {
         this.controllerPos = pos;
         setChanged();
+        register();
     }
 
     public @Nullable BlockPos getControllerPos() {
         return controllerPos;
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        register();
+    }
+
+    private void register() {
+        if (level != null && controllerPos != null) {
+            MultiblockFillerRegistry.register(level, getBlockPos(), controllerPos);
+        }
     }
 
     @Override

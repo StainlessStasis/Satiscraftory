@@ -57,7 +57,8 @@ public class MultiblockFillerBlock extends BaseEntityBlock {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
 
         if (MultiblockDemolition.isInProgress(level)) return;
-        BlockPos controllerPos = controllerPosAt(level, pos);
+        BlockPos controllerPos = MultiblockFillerRegistry.controllerPosAt(level, pos);
+        MultiblockFillerRegistry.unregister(level, pos);
         if (controllerPos != null) {
             MultiblockDemolition.demolishFromFiller(level, pos, controllerPos);
         }

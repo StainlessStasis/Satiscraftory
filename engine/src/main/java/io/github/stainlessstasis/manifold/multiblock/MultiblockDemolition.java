@@ -24,6 +24,7 @@ public final class MultiblockDemolition {
             for (BlockPos pos : fillerPositions) {
                 if (level.getBlockState(pos).getBlock() instanceof MultiblockFillerBlock) {
                     level.removeBlock(pos, false);
+                    MultiblockFillerRegistry.unregister(level, pos);
                 }
             }
         } finally {
@@ -40,6 +41,7 @@ public final class MultiblockDemolition {
                     if (siblingPos.equals(fillerPos)) continue;
                     if (level.getBlockState(siblingPos).getBlock() instanceof MultiblockFillerBlock) {
                         level.removeBlock(siblingPos, false);
+                        MultiblockFillerRegistry.unregister(level, siblingPos);
                     }
                 }
             }
