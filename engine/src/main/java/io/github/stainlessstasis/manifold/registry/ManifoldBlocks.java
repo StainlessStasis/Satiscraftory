@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.block.MultiblockFillerBlock;
 import io.github.stainlessstasis.manifold.block.factory_component.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -34,4 +35,10 @@ public class ManifoldBlocks {
     public static final DeferredBlock<MergerBlock> MERGER = BLOCKS.registerBlock("merger",
             MergerBlock::new,
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
+
+    public static final DeferredBlock<MultiblockFillerBlock> MULTIBLOCK_FILLER = BLOCKS.registerBlock(
+            "multiblock_filler",
+            MultiblockFillerBlock::new,
+            () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(2f).noOcclusion().noLootTable()
+    );
 }

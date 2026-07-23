@@ -4,6 +4,8 @@ import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.block.factory_component.*;
 import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.block_entity.factory_component.*;
+import io.github.stainlessstasis.manifold.block.MultiblockFillerBlock;
+import io.github.stainlessstasis.manifold.block_entity.MultiblockFillerBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -47,4 +49,9 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("merger", () -> new ManifoldBlockEntityType<>(
                     MergerBlockEntity::new,
                     block -> block instanceof MergerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MultiblockFillerBlockEntity>> MULTIBLOCK_FILLER =
+            BLOCK_ENTITIES.register("multiblock_filler", () -> new ManifoldBlockEntityType<>(
+                    MultiblockFillerBlockEntity::new,
+                    block -> block instanceof MultiblockFillerBlock));
 }

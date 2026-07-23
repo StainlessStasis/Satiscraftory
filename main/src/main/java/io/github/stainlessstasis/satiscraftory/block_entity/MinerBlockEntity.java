@@ -3,15 +3,20 @@ package io.github.stainlessstasis.satiscraftory.block_entity;
 import io.github.stainlessstasis.manifold.block.factory_component.ProducerBlock;
 import io.github.stainlessstasis.manifold.block_entity.factory_component.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.Producer;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jspecify.annotations.Nullable;
 
-public class MinerBlockEntity extends ProducerBlockEntity {
+import java.util.List;
+
+public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
     private @Nullable BlockPos linkedNodePos = null;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
@@ -38,6 +43,12 @@ public class MinerBlockEntity extends ProducerBlockEntity {
         }
     }
 
+    @Override
+    public List<BlockPos> getMultiblockFillerPositions() {
+        Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        return MinerBlock.MULTIBLOCK_SHAPE.absoluteFillerPositions(getBlockPos(), facing);
+    }
+
     private void linkToResourceNode(ServerLevel level) {
         BlockPos nodePos = MinerBlock.findNearbyResourceNode(level, getBlockPos());
         if (nodePos == null) return;
@@ -45,12 +56,10 @@ public class MinerBlockEntity extends ProducerBlockEntity {
         if (!nodeBE.tryAssignMiner(getBlockPos())) return;
 
         linkedNodePos = nodePos.immutable();
-
         Producer producer = getProducer();
         if (producer == null) return;
 
         producer.setItemId(nodeBE.getResourceType());
-
         long baseInterval = getBlockState().getBlock() instanceof ProducerBlock producerBlock
                 ? producerBlock.getIntervalTicks()
                 : Producer.DEFAULT_INTERVAL_TICKS;
