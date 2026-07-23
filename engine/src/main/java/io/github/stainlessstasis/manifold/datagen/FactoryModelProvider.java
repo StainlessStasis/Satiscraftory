@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.manifold.datagen;
 
 import com.mojang.math.Quadrant;
-import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltShape;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltShape;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;

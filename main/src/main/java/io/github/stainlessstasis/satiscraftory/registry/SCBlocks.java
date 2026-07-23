@@ -1,20 +1,16 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
-import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SCBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Satiscraftory.MODID);

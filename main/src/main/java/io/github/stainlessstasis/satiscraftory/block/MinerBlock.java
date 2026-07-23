@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.block;
 
-import io.github.stainlessstasis.manifold.block.factory_component.ProducerBlock;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;

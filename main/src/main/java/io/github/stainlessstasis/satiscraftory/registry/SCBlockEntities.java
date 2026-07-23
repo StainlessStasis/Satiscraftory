@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
-import io.github.stainlessstasis.manifold.block_entity.factory_component.ManifoldBlockEntityType;
+import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;

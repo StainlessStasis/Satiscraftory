@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.block_entity;
 
-import io.github.stainlessstasis.manifold.block.factory_component.ProducerBlock;
-import io.github.stainlessstasis.manifold.block_entity.factory_component.ProducerBlockEntity;
-import io.github.stainlessstasis.manifold.factory_component.Producer;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;

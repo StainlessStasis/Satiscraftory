@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold;
 
 import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
 import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
-import io.github.stainlessstasis.manifold.menu.ContainerScreen;
+import io.github.stainlessstasis.manifold.client.screen.ContainerScreen;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
 import net.neoforged.api.distmarker.Dist;

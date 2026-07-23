@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.manifold.multiblock;
 
-import io.github.stainlessstasis.manifold.block_entity.MultiblockFillerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelAccessor;

@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.client.belt;
 
-import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltShape;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltShape;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;

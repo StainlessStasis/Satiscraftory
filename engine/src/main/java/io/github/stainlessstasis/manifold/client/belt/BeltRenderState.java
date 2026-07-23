@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.client.belt;
 
-import io.github.stainlessstasis.manifold.block.factory_component.belt.BeltShape;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltShape;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.resources.Identifier;

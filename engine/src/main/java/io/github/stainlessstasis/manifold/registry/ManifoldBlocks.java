@@ -1,8 +1,13 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.MultiblockFillerBlock;
-import io.github.stainlessstasis.manifold.block.factory_component.*;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
+import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlock;
+import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlock;
+import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock;
+import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlock;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
+import io.github.stainlessstasis.manifold.factory_component.splitter.SplitterBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
