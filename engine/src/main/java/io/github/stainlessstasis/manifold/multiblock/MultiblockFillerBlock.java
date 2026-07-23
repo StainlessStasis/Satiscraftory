@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.multiblock;
 import com.mojang.serialization.MapCodec;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -49,6 +50,17 @@ public class MultiblockFillerBlock extends BaseEntityBlock {
                 hitResult.getLocation(), hitResult.getDirection(), controllerPos, hitResult.isInside()
         );
         return controllerState.useWithoutItem(level, player, redirected);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+
+        if (MultiblockDemolition.isInProgress(level)) return;
+        BlockPos controllerPos = controllerPosAt(level, pos);
+        if (controllerPos != null) {
+            MultiblockDemolition.demolishFromFiller(level, pos, controllerPos);
+        }
     }
 
     private @Nullable BlockPos controllerPosAt(Level level, BlockPos pos) {
