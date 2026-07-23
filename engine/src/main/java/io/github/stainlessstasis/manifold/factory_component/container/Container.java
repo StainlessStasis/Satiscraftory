@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component.container;
 
+import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Container implements Port {
+public class Container implements Port, FactoryComponent {
     private final Payload[] slots;
     private @Nullable Port output;
     private int nextExtractIndex = 0;
@@ -43,6 +44,16 @@ public class Container implements Port {
 
     public void setOutput(@Nullable Port output) {
         this.output = output;
+    }
+
+    @Override
+    public void setOutputPort(int slot, Port port) {
+        setOutput(port);
+    }
+
+    @Override
+    public int outputSlotCount() {
+        return 1;
     }
 
     @Override

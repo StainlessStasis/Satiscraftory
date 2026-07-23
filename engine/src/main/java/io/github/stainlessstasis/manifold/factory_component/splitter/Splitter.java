@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component.splitter;
 
+import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import net.minecraft.core.Direction;
@@ -10,7 +11,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class Splitter {
+public class Splitter implements FactoryComponent {
     public static final int MAX_OUTPUTS = 3;
 
     private final List<Port> outputs = new ArrayList<>(MAX_OUTPUTS);
@@ -47,6 +48,12 @@ public class Splitter {
     public void setOutput(int index, @Nullable Port port) { outputs.set(index, port); }
     public @Nullable Port getOutput(int index) { return outputs.get(index); }
     public int getNextOutputIndex() { return nextOutputIndex; }
+
+    @Override
+    public void setOutputPort(int slot, Port port) { setOutput(slot, port); }
+
+    @Override
+    public int outputSlotCount() { return MAX_OUTPUTS; }
 
     private int nextAvailableFrom(int start, Payload payload) {
         for (int i = 0; i < MAX_OUTPUTS; i++) {

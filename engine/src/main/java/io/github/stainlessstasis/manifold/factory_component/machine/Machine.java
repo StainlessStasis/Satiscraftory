@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.machine;
 
 import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -11,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public class Machine {
+public class Machine implements FactoryComponent {
     private MachineRecipe recipe;
     private final Scheduler scheduler;
     private final int bufferMultiplier; // how many recipe batches worth of input each slot can hold at once
@@ -101,11 +102,15 @@ public class Machine {
     public Port inputPort(int index) {
         return new InputSlotPort(index);
     }
+
+    @Override
     public void setOutputPort(int index, Port port) {
         outputPorts.set(index, port);
     }
 
     public int inputSlotCount() { return recipe.inputCount(); }
+
+    @Override
     public int outputSlotCount() { return recipe.outputCount(); }
 
     public void tick(long currentTick) {

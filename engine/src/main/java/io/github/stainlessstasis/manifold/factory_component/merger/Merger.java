@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_component.merger;
 
+import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import net.minecraft.core.Direction;
@@ -9,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class Merger {
+public class Merger implements FactoryComponent {
     public static final int MAX_INPUTS = 3;
 
     private final Payload[] buffer = new Payload[MAX_INPUTS];
@@ -47,6 +48,12 @@ public class Merger {
     public void setOutput(@Nullable Port output) { this.output = output; }
     public @Nullable Port getOutput() { return output; }
     public int getNextInputIndex() { return nextInputIndex; }
+
+    @Override
+    public void setOutputPort(int slot, Port port) { setOutput(port); }
+
+    @Override
+    public int outputSlotCount() { return 1; }
 
     public Identifier[] getBufferedItemIds() {
         Identifier[] result = new Identifier[MAX_INPUTS];
