@@ -4,13 +4,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -20,7 +23,8 @@ import org.jspecify.annotations.Nullable;
 
 public abstract class MultiblockRenderer<T extends BlockEntity, S extends MultiblockRenderState> implements BlockEntityRenderer<T, S> {
     protected abstract MultiblockShape shape();
-    protected abstract void submitModel(@NonNull S renderState, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector);
+    public abstract Identifier getTexture();
+    public abstract Model<S> getModel();
 
     @Override
     public void extractRenderState(
@@ -29,6 +33,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     ) {
         BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+    }
+
+    protected void submitModel(@NonNull Model<S> model, @NonNull S renderState, @NonNull Identifier texture, @NonNull PoseStack poseStack, @NonNull SubmitNodeCollector collector) {
+        collector.submitModel(model, renderState, poseStack, texture, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0x00000000, null);
     }
 
     @Override
@@ -43,7 +51,7 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.scale(1, -1, 1);
         poseStack.translate(0, EntityModel.MODEL_Y_OFFSET, -0.125);
 
-        submitModel(renderState, poseStack, collector);
+        submitModel(getModel(), renderState, getTexture(), poseStack, collector);
 
         poseStack.popPose();
     }

@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;
@@ -116,5 +117,15 @@ public class MinerBlock extends ProducerBlock {
     @Override
     public @NonNull RenderShape getRenderShape(@NonNull BlockState state) {
         return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    protected float getShadeBrightness(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos) {
+        return 1f;
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(@NonNull BlockState state) {
+        return true;
     }
 }

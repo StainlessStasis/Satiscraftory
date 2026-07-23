@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -9,36 +10,13 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class MinerModel {
+public class MinerModel extends Model<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
 
-	private final ModelPart root;
-	private final ModelPart portFrame;
-	private final ModelPart port;
-	private final ModelPart wip;
-
 	public MinerModel(ModelPart root) {
-		this.root = root.getChild("root");
-		this.portFrame = this.root.getChild("port_frame");
-		this.port = this.root.getChild("port");
-		this.wip = this.root.getChild("WIP");
-	}
-
-	public ModelPart root() {
-		return root;
-	}
-
-	public ModelPart portFrame() {
-		return portFrame;
-	}
-
-	public ModelPart port() {
-		return port;
-	}
-
-	public ModelPart wip() {
-		return wip;
+        super(root, RenderTypes::entityCutout);
 	}
 
 	public static LayerDefinition createBodyLayer() {
