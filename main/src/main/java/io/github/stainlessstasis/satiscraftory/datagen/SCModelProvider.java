@@ -34,7 +34,6 @@ public class SCModelProvider extends FactoryModelProvider {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
         registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), Manifold.id("block/producer"), false);
-        // TODO: make it so u dont have to override the item model by doing this bullshit and just add it to the other method
         itemModels.itemModelOutput.accept(SCItems.MINER_MK1.get(), ItemModelUtils.plainModel(Manifold.id("block/producer")));
 
         Block belt_mk1 = SCBlocks.BELT_MK1.get();

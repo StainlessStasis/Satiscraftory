@@ -38,9 +38,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     ) {
         poseStack.pushPose();
 
+        poseStack.translate(0.5, 0, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(180 - renderState.facing.toYRot()));
         poseStack.scale(1, -1, 1);
-        poseStack.translate(0.5, EntityModel.MODEL_Y_OFFSET, 0.375);
+        poseStack.translate(0, EntityModel.MODEL_Y_OFFSET, -0.125);
 
         submitModel(renderState, poseStack, collector);
 
@@ -58,5 +59,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             box = (box == null) ? cell : box.minmax(cell);
         }
         return box != null ? box : BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
+    }
+
+    @Override
+    public boolean shouldRenderOffScreen() {
+        return true;
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -68,5 +69,15 @@ public class MultiblockFillerBlock extends BaseEntityBlock {
         return level.getBlockEntity(pos) instanceof MultiblockFillerBlockEntity fillerBE
                 ? fillerBE.getControllerPos()
                 : null;
+    }
+
+    @Override
+    protected float getShadeBrightness(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos) {
+        return 1f;
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(@NonNull BlockState state) {
+        return true;
     }
 }
