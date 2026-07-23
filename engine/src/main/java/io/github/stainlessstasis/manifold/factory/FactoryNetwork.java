@@ -65,6 +65,7 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, List<GlobalPos>> splitterOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> mergerOutputPos = new HashMap<>();
 
+    private final Map<ResourceKey<Level>, Map<ChunkPos, List<BeltSyncPacket.Entry>>> pendingBeltSyncsByDimension = new HashMap<>();
     private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
     private interface TickTarget {
         void tick(long currentTick);
@@ -397,37 +398,56 @@ public class FactoryNetwork extends SavedData {
         if (tickOrder == null) tickOrder = computeTickOrder();
         for (TickTarget target : tickOrder) target.tick(currentTick);
 
-        Map<ResourceKey<Level>, List<BeltSyncPacket.Entry>> changedByDimension = new HashMap<>();
-        for (BeltLane lane : new ArrayList<>(laneManager.getAllLanes().values())) {
+        for (var chunkMap : pendingBeltSyncsByDimension.values())
+            for (var list : chunkMap.values()) list.clear();
+
+        for (BeltLane lane : laneManager.getAllLanes().values()) {
             if (!lane.hasUnsyncedChanges(currentTick)) continue;
 
             GlobalPos headPos = lane.headBlock();
-            ServerLevel laneLevel = level.getServer().getLevel(headPos.dimension());
-            if (laneLevel == null) { lane.markSynced(currentTick); continue; }
-
-            BlockPos pos = headPos.pos();
-            if (!hasTrackingPlayers(laneLevel, ChunkPos.containing(pos))) {
+            ResourceKey<Level> dim = headPos.dimension();
+            ServerLevel laneLevel = level.getServer().getLevel(dim);
+            if (laneLevel == null) {
                 lane.markSynced(currentTick);
                 continue;
             }
 
-            List<BlockPos> blockPositions = lane.getBlocks().stream().map(GlobalPos::pos).toList();
-            changedByDimension
-                    .computeIfAbsent(headPos.dimension(), _ -> new ArrayList<>())
-                    .add(new BeltSyncPacket.Entry(pos, blockPositions, currentTick, lane.getItemSnapshots(), lane.isFrontJammed()));
+            BlockPos pos = headPos.pos();
+            ChunkPos chunkPos = ChunkPos.containing(pos);
+
+            if (laneLevel.getChunkSource().chunkMap.getPlayers(chunkPos, false).isEmpty()) {
+                lane.markSynced(currentTick);
+                continue;
+            }
+
+            List<GlobalPos> blocks = lane.getBlocks();
+            List<BlockPos> blockPositions = new ArrayList<>(blocks.size());
+            for (GlobalPos globalPos : blocks) blockPositions.add(globalPos.pos());
+
+            BeltSyncPacket.Entry entry = new BeltSyncPacket.Entry(
+                    pos, blockPositions, currentTick, lane.getItemSnapshots(), lane.isFrontJammed()
+            );
+
+            pendingBeltSyncsByDimension
+                    .computeIfAbsent(dim, _ -> new HashMap<>())
+                    .computeIfAbsent(chunkPos, _ -> new ArrayList<>())
+                    .add(entry);
+
             lane.markSynced(currentTick);
         }
 
-        for (var entry : changedByDimension.entrySet()) {
-            ServerLevel targetLevel = level.getServer().getLevel(entry.getKey());
+        for (var dimEntry : pendingBeltSyncsByDimension.entrySet()) {
+            ServerLevel targetLevel = level.getServer().getLevel(dimEntry.getKey());
             if (targetLevel == null) continue;
 
-            List<BeltSyncPacket.Entry> allChanged = entry.getValue();
-            for (int start = 0; start < allChanged.size(); start += MAX_ENTRIES_PER_PACKET) {
-                int end = Math.min(start + MAX_ENTRIES_PER_PACKET, allChanged.size());
-                BeltSyncPacket payload = new BeltSyncPacket(allChanged.subList(start, end));
-                for (var player : targetLevel.players()) {
-                    PacketDistributor.sendToPlayer(player, payload);
+            for (var chunkEntry : dimEntry.getValue().entrySet()) {
+                List<BeltSyncPacket.Entry> entries = chunkEntry.getValue();
+                if (entries.isEmpty()) continue;
+
+                for (int start = 0; start < entries.size(); start += MAX_ENTRIES_PER_PACKET) {
+                    int end = Math.min(start + MAX_ENTRIES_PER_PACKET, entries.size());
+                    BeltSyncPacket payload = new BeltSyncPacket(entries.subList(start, end));
+                    PacketDistributor.sendToPlayersTrackingChunk(targetLevel, chunkEntry.getKey(), payload);
                 }
             }
         }

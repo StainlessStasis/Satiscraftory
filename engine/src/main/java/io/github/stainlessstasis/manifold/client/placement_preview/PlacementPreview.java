@@ -52,7 +52,6 @@ public class PlacementPreview {
         BaseEntityBlock block = multiblockPreviewer.getPreviewBlock();
         BlockState previewState = multiblockPreviewer.getPreviewPlacement(placeContext);
         if (previewState == null) return;
-        System.out.println("5");
 
         MultiblockShape shape = multiblockPreviewer.getMultiblockShape();
         BlockPos origin = placeContext.getClickedPos();
