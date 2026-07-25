@@ -216,7 +216,7 @@ public class MinerModel extends Model<MinerRenderState> {
 				.texOffs(230, 117).addBox(-15.0F, -125.0F, 84.0F, 19.0F, 6.0F, 21.0F, new CubeDeformation(0.0F))
 				.texOffs(350, 350).addBox(-3.0F, -113.0F, 94.0F, 8.0F, 8.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition power_indicator = root.addOrReplaceChild("power_indicator", CubeListBuilder.create().texOffs(110, 326).addBox(-10.0F, -46.0F, 4.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+		PartDefinition power_indicator = root.addOrReplaceChild("power_indicator", CubeListBuilder.create().texOffs(110, 326).addBox(-9.5F, -46.0F, 4.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition cable_connection_point = power_indicator.addOrReplaceChild("cable_connection_point", CubeListBuilder.create(), PartPose.offset(-8.5F, -39.0F, 5.5F));
 

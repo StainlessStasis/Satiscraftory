@@ -52,7 +52,7 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     private void applyTransform(PoseStack poseStack, Direction facing) {
         poseStack.translate(0.5, 0, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(180 - facing.toYRot()));
-        poseStack.scale(1, -1, 1);
+        poseStack.scale(-1, -1, 1);
         poseStack.translate(0, EntityModel.MODEL_Y_OFFSET, -0.125);
     }
 
