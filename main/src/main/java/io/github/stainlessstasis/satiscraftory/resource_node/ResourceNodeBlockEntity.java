@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.block_entity;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;

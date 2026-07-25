@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.world.resource_node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodePurity;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import net.minecraft.core.GlobalPos;

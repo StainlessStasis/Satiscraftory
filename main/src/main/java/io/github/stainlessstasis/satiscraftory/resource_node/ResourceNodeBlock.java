@@ -1,7 +1,5 @@
-package io.github.stainlessstasis.satiscraftory.block;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

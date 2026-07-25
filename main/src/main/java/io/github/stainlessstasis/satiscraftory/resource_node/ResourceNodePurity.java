@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.block_entity;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.RandomSource;

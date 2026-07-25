@@ -41,6 +41,12 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     ) {
         BlockEntityRenderState.extractBase(blockEntity, renderState, crumblingOverlay);
         renderState.facing = blockEntity.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
+        if (blockEntity.hasLevel()) {
+            @SuppressWarnings("DataFlowIssue") // null checked above
+            long gameTime = blockEntity.getLevel().getGameTime();
+            renderState.gameTime = gameTime;
+            renderState.ageInTicks = gameTime + partialTick;
+        }
     }
 
     private void applyTransform(PoseStack poseStack, Direction facing) {

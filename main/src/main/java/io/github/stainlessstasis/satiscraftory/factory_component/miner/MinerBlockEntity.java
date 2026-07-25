@@ -1,14 +1,15 @@
-package io.github.stainlessstasis.satiscraftory.block_entity;
+package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
-import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -18,9 +19,11 @@ import java.util.List;
 
 public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
     private @Nullable BlockPos linkedNodePos = null;
+    public final AnimationState startupAnimationState = new AnimationState();
+    public final AnimationState spinAnimationState = new AnimationState();
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
-        super(SCBlockEntities.MINER.get(), pos, state);
+        this(SCBlockEntities.MINER.get(), pos, state);
     }
 
     public MinerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.block;
+package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
@@ -7,8 +7,7 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.block_entity.MinerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import net.minecraft.ChatFormatting;
@@ -24,7 +23,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;

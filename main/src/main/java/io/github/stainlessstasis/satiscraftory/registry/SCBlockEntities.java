@@ -2,10 +2,10 @@ package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.block.MinerBlock;
-import io.github.stainlessstasis.satiscraftory.block.ResourceNodeBlock;
-import io.github.stainlessstasis.satiscraftory.block_entity.MinerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
+import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;

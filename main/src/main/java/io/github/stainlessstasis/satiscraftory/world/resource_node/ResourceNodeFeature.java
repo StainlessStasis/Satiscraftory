@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.world.resource_node;
 
 import com.mojang.serialization.Codec;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodeBlockEntity;
-import io.github.stainlessstasis.satiscraftory.block_entity.ResourceNodePurity;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodePurity;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
