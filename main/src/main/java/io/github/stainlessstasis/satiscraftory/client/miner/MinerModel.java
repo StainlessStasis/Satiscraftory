@@ -116,7 +116,7 @@ public class MinerModel extends Model<MinerRenderState> {
 
 		PartDefinition big_ass_thing_in_the_back = miner.addOrReplaceChild("big_ass_thing_in_the_back", CubeListBuilder.create().texOffs(158, 0).addBox(-26.0F, -18.25F, 100.35F, 35.0F, 21.0F, 9.0F, new CubeDeformation(0.0F))
 				.texOffs(140, 296).addBox(-26.0F, -32.25F, 100.35F, 21.0F, 14.0F, 9.0F, new CubeDeformation(0.0F))
-				.texOffs(320, 332).addBox(-5.0F, -28.25F, 102.35F, 10.0F, 10.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+				.texOffs(320, 332).addBox(-5.1F, -28.15F, 102.35F, 11.0F, 10.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition tower_feet = miner.addOrReplaceChild("tower_feet", CubeListBuilder.create(), PartPose.offset(0.0F, 0.0F, 0.0F));
 

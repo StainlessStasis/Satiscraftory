@@ -30,7 +30,7 @@ import org.jspecify.annotations.NonNull;
 
 public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 5, new BlockPos(1, 0, 0));
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0));
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);
