@@ -18,6 +18,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,6 +43,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public static final double PARTICLE_JITTER = 0.3d;
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
+
+    private boolean isBlocked = false;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -128,22 +131,42 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         return particleOffset;
     }
 
+    public boolean isBlocked() {
+        if (level instanceof ServerLevel) {
+            return getMiner().isBlocked();
+        } else {
+            return isBlocked;
+        }
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
+        Producer producer = miner.getProducer();
+        if (producer == null) return;
+
+        boolean blocked = producer.isBlocked();
+        if (blocked != miner.isBlocked) {
+            miner.isBlocked = blocked;
+            miner.syncToClients();
+        }
+    }
+
     @Override
     protected void saveAdditional(@NonNull ValueOutput output) {
         super.saveAdditional(output);
         if (resourceNodeId != null) {
             output.putString("ResourceNodeId", resourceNodeId.toString());
         }
+        output.putBoolean("IsBlocked", isBlocked);
     }
 
     @Override
     protected void loadAdditional(@NonNull ValueInput input) {
         super.loadAdditional(input);
         String resourceNodeString = input.getStringOr("ResourceNodeId", "");
-        System.out.println(resourceNodeString);
         if (!resourceNodeString.isEmpty()) {
             resourceNodeId = Identifier.parse(resourceNodeString);
         }
+        isBlocked = input.getBooleanOr("IsBlocked", false);
     }
 
     @Override
@@ -160,5 +183,9 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
+    }
+
+    public Producer getMiner() {
+        return getProducer();
     }
 }

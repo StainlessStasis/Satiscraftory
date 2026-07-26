@@ -24,12 +24,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-
-import java.util.Set;
 
 public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
@@ -37,6 +37,14 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
+        if (level.isClientSide()) return null;
+        return type == SCBlockEntities.MINER.get()
+                ? (lvl, pos, st, be) -> MinerBlockEntity.serverTick(lvl, pos, st, (MinerBlockEntity) be)
+                : null;
     }
 
     @Override
