@@ -42,7 +42,6 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public static final double PARTICLE_JITTER = 0.3d;
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
-    private long lastDrillLoopCycle = -1L;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -123,14 +122,6 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
 
     public long getLastParticleTime() {
         return lastParticleTime;
-    }
-
-    public long getLastDrillLoopCycle() {
-        return lastDrillLoopCycle;
-    }
-
-    public void setLastDrillLoopCycle(long lastDrillLoopCycle) {
-        this.lastDrillLoopCycle = lastDrillLoopCycle;
     }
 
     public Vec3 getParticleOffset() {

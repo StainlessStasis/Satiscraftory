@@ -9,9 +9,11 @@ import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBloc
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.Identifier;
@@ -23,11 +25,15 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import static io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity.PARTICLE_JITTER;
 
 public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRenderState> {
     public static final Identifier TEXTURE = Satiscraftory.id("textures/factory/miner.png");
-    public static final long DRILL_SOUND_LOOP_MS = 5000L;
+    private static final Map<MinerBlockEntity, WeakReference<MinerDrillSoundInstance>> ACTIVE_DRILL_SOUNDS = new WeakHashMap<>();
 
     private final MinerModel model;
 
@@ -61,26 +67,27 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                 ? blockEntity.getResourceNodeId()
                 : SCResourceNodes.IRON.getNodeId();
 
-        playDrillLoopSound(blockEntity, state.ageInTicks);
+        playDrillSound(blockEntity);
         spawnDrillParticles(blockEntity, state.ageInTicks, state.resourceNodeId);
     }
 
     private void playSound(MinerBlockEntity blockEntity, SoundEvent sound) {
         if (!(blockEntity.getLevel() instanceof Level level)) return;
         Vec3 pos = blockEntity.getBlockPos().getCenter().add(blockEntity.getParticleOffset());
-        level.playLocalSound(pos.x(), pos.y(), pos.z(), sound, SoundSource.BLOCKS, 0.7f, 1f, false);
+        level.playLocalSound(pos.x(), pos.y(), pos.z(), sound, SoundSource.BLOCKS, 0.67f, 1f, false);
     }
 
-    private void playDrillLoopSound(MinerBlockEntity blockEntity, float ageInTicks) {
+    private void playDrillSound(MinerBlockEntity blockEntity) {
         if (!blockEntity.spinAnimationState.isStarted()) return;
 
-        long ms = blockEntity.spinAnimationState.getTimeInMillis(ageInTicks);
-        long cycle = ms / DRILL_SOUND_LOOP_MS;
-        
-        if (cycle != blockEntity.getLastDrillLoopCycle()) {
-            blockEntity.setLastDrillLoopCycle(cycle);
-            playSound(blockEntity, SCSounds.MINER_DRILLING.value());
-        }
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        WeakReference<MinerDrillSoundInstance> ref = ACTIVE_DRILL_SOUNDS.get(blockEntity);
+        MinerDrillSoundInstance existing = ref != null ? ref.get() : null;
+        if (existing != null && soundManager.isActive(existing)) return;
+
+        MinerDrillSoundInstance instance = new MinerDrillSoundInstance(blockEntity, SCSounds.MINER_DRILLING.value());
+        soundManager.play(instance);
+        ACTIVE_DRILL_SOUNDS.put(blockEntity, new WeakReference<>(instance));
     }
 
     private void spawnDrillParticles(MinerBlockEntity blockEntity, float ageInTicks, Identifier resourceNodeId) {
