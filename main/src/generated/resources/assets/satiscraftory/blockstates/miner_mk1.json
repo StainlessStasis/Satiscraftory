@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=east": {
-      "model": "manifold:block/producer",
+      "model": "satiscraftory:block/miner_mk1",
       "y": 90
     },
     "facing=north": {
-      "model": "manifold:block/producer"
+      "model": "satiscraftory:block/miner_mk1"
     },
     "facing=south": {
-      "model": "manifold:block/producer",
+      "model": "satiscraftory:block/miner_mk1",
       "y": 180
     },
     "facing=west": {
-      "model": "manifold:block/producer",
+      "model": "satiscraftory:block/miner_mk1",
       "y": 270
     }
   }
