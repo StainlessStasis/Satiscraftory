@@ -47,6 +47,7 @@ public class SCBlocks {
                 () -> BlockBehaviour.Properties.of()
                         .mapColor(MapColor.METAL)
                         .strength(2f)
+                        .noOcclusion()
                         .isViewBlocking((_, _, _) -> false)
         );
     }

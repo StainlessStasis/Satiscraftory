@@ -1,5 +1,9 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.TrapezoidInt;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
@@ -29,5 +33,15 @@ public class SCResourceNodes {
 
     public static ResourceNodeType byBlock(Block block) {
         return TYPES.stream().filter(t -> t.getNodeBlock().get() == block).findFirst().orElse(null);
+    }
+
+    public static ParticleOptions particleFor(Identifier resourceNodeId) {
+        ResourceNodeType type = TYPES.stream()
+                .filter(resourceNodeType -> resourceNodeType.getNodeId().equals(resourceNodeId))
+                .findFirst()
+                .orElse(null);
+
+        Block block = type != null ? type.getResourceBlock() : Blocks.STONE;
+        return new BlockParticleOption(ParticleTypes.BLOCK, block.defaultBlockState());
     }
 }

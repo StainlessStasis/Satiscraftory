@@ -7,16 +7,23 @@ import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerAnim
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import static io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity.PARTICLE_JITTER;
+
 public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRenderState> {
-    private static final Identifier TEXTURE = Satiscraftory.id("textures/factory/miner.png");
+    public static final Identifier TEXTURE = Satiscraftory.id("textures/factory/miner.png");
 
     private final MinerModel model;
 
@@ -44,6 +51,34 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
         state.startupAnimationState.copyFrom(blockEntity.startupAnimationState);
         state.spinAnimationState.copyFrom(blockEntity.spinAnimationState);
+
+        state.resourceNodeId = blockEntity.getResourceNodeId() != null
+                ? blockEntity.getResourceNodeId()
+                : SCResourceNodes.IRON.getNodeId();
+
+        spawnDrillParticles(blockEntity, state);
+    }
+
+    private void spawnDrillParticles(MinerBlockEntity blockEntity, MinerRenderState state) {
+        if (!(blockEntity.getLevel() instanceof Level level)) return;
+        if (!blockEntity.spinAnimationState.isStarted()) return;
+
+        long ms = blockEntity.spinAnimationState.getTimeInMillis(state.ageInTicks);
+        long deltaTime = ms - blockEntity.getLastParticleTime();
+        if (deltaTime >= MinerBlockEntity.PARTICLE_INTERVAL_MS) {
+            blockEntity.setLastParticleTime(ms);
+
+            ParticleOptions particle = SCResourceNodes.particleFor(state.resourceNodeId);
+            BlockPos pos = blockEntity.getBlockPos();
+            Vec3 offset = blockEntity.getParticleOffset();
+            RandomSource random = level.getRandom();
+
+            double x = pos.getX() + 0.5 + offset.x + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
+            double y = pos.getY() + 0.5 + offset.y + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
+            double z = pos.getZ() + 0.5 + offset.z + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
+
+            level.addParticle(particle, x, y, z, 0, 0, 0);
+        }
     }
 
     @Override
