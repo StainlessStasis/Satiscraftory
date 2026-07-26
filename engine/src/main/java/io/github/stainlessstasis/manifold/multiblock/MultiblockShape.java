@@ -31,6 +31,14 @@ public class MultiblockShape {
     public int height() { return height; }
     public BlockPos controllerOffset() { return controllerOffset; }
 
+    public BlockPos canonicalMin() {
+        return BlockPos.ZERO.subtract(controllerOffset);
+    }
+    public BlockPos canonicalMax() {
+        return new BlockPos(width - 1, height - 1, depth - 1).subtract(controllerOffset);
+    }
+
+
     /** Every cell in the box with canonical orientation, relative to the controller */
     public List<BlockPos> canonicalAllOffsets() {
         List<BlockPos> result = new ArrayList<>(width * depth * height);

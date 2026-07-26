@@ -7,6 +7,7 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
@@ -28,9 +29,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Set;
+
 public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0));
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER_UNFILLED);
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);
