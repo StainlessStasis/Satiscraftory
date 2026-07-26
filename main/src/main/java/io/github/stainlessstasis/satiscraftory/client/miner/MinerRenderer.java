@@ -74,7 +74,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
             RandomSource random = level.getRandom();
 
             double x = pos.getX() + 0.5 + offset.x + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
-            double y = pos.getY() + 0.5 + offset.y + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
+            double y = pos.getY() + 0.25 + offset.y + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
             double z = pos.getZ() + 0.5 + offset.z + (random.nextDouble() - 0.5) * 2 * PARTICLE_JITTER;
 
             level.addParticle(particle, x, y, z, 0, 0, 0);

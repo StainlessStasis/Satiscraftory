@@ -28,11 +28,11 @@ public class SCResourceNodes {
     public static final List<ResourceNodeType> TYPES = List.of(IRON, COPPER);
 
     public static ResourceNodeType byName(String name) {
-        return TYPES.stream().filter(t -> t.getName().equals(name)).findFirst().orElse(null);
+        return TYPES.stream().filter(resourceNodeType -> resourceNodeType.getName().equals(name)).findFirst().orElse(null);
     }
 
     public static ResourceNodeType byBlock(Block block) {
-        return TYPES.stream().filter(t -> t.getNodeBlock().get() == block).findFirst().orElse(null);
+        return TYPES.stream().filter(resourceNodeType -> resourceNodeType.getNodeBlock().get() == block).findFirst().orElse(null);
     }
 
     public static ParticleOptions particleFor(Identifier resourceNodeId) {

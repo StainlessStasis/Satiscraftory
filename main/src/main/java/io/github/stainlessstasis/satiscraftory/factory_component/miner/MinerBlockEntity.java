@@ -26,9 +26,9 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public final AnimationState startupAnimationState = new AnimationState();
     public final AnimationState spinAnimationState = new AnimationState();
 
-    public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0.5, -4);
-    public static final long PARTICLE_INTERVAL_MS = 25L;
-    public static final double PARTICLE_JITTER = 0.15d;
+    public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0, -4);
+    public static final long PARTICLE_INTERVAL_MS = 10L;
+    public static final double PARTICLE_JITTER = 0.3d;
     private final Vec3 particleOffset;
     private long lastParticleTime = 0L;
 
