@@ -1,5 +1,9 @@
 # Attributions
-This file contains attributions to any sounds or other assets used by Satiscraftory
+This file contains attributions to any sounds or other assets used by the mod
+
+# Models
+Some models are derived from the game Satisfactory, by Coffee Stain Studios. This mod contains no official assets from Satisfactory. They are used solely as references during the design process of my own models
+
 
 ## Miner Sounds
 https://freesound.org/people/janusnovak/sounds/169012/
