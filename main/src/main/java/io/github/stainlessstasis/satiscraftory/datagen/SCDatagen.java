@@ -15,6 +15,7 @@ public class SCDatagen {
         event.createProvider((output, lookupProvider) ->
                 new SCBlockTagsProvider(output, lookupProvider, Satiscraftory.MODID)
         );
+        event.createProvider(SCSoundsProvider::new);
         event.createDatapackRegistryObjects(SCWorldgenBootstrap.BUILDER);
     }
 }

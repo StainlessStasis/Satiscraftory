@@ -28,14 +28,14 @@ public class MinerAnimations {
             ))
             .build();
 
-    public static final AnimationDefinition SPIN_LOOP = AnimationDefinition.Builder.withLength(0.5F).looping()
+    public static final AnimationDefinition SPIN_LOOP = AnimationDefinition.Builder.withLength(5F).looping()
             .addAnimation("drill_head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
                     new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                    new Keyframe(0.5F, KeyframeAnimations.degreeVec(0.0F, -360.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+                    new Keyframe(5F, KeyframeAnimations.degreeVec(0.0F, -3600.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
             ))
             .addAnimation("drill_head", new AnimationChannel(AnimationChannel.Targets.POSITION,
                     new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
-                    new Keyframe(0.5F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+                    new Keyframe(5F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
             ))
             .build();
 }

@@ -9,5 +9,6 @@ public class SCRegistries {
         SCBlockEntities.BLOCK_ENTITIES.register(bus);
         SCItems.ITEMS.register(bus);
         SCFeatures.FEATURES.register(bus);
+        SCSounds.SOUND_EVENTS.register(bus);
     }
 }

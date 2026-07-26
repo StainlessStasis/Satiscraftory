@@ -8,12 +8,15 @@ import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBloc
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -24,6 +27,7 @@ import static io.github.stainlessstasis.satiscraftory.factory_component.miner.Mi
 
 public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRenderState> {
     public static final Identifier TEXTURE = Satiscraftory.id("textures/factory/miner.png");
+    public static final long DRILL_SOUND_LOOP_MS = 5000L;
 
     private final MinerModel model;
 
@@ -41,6 +45,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
         if (!blockEntity.startupAnimationState.isStarted() && !blockEntity.spinAnimationState.isStarted()) {
             blockEntity.startupAnimationState.start((int) state.gameTime);
+            playSound(blockEntity, SCSounds.MINER_STARTUP.value());
         }
 
         boolean startupEnded = blockEntity.startupAnimationState.getTimeInMillis(state.ageInTicks) >= MinerAnimations.STARTUP.lengthInSeconds() * 1000L;
@@ -56,19 +61,38 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                 ? blockEntity.getResourceNodeId()
                 : SCResourceNodes.IRON.getNodeId();
 
-        spawnDrillParticles(blockEntity, state);
+        playDrillLoopSound(blockEntity, state.ageInTicks);
+        spawnDrillParticles(blockEntity, state.ageInTicks, state.resourceNodeId);
     }
 
-    private void spawnDrillParticles(MinerBlockEntity blockEntity, MinerRenderState state) {
+    private void playSound(MinerBlockEntity blockEntity, SoundEvent sound) {
+        if (!(blockEntity.getLevel() instanceof Level level)) return;
+        Vec3 pos = blockEntity.getBlockPos().getCenter().add(blockEntity.getParticleOffset());
+        level.playLocalSound(pos.x(), pos.y(), pos.z(), sound, SoundSource.BLOCKS, 0.7f, 1f, false);
+    }
+
+    private void playDrillLoopSound(MinerBlockEntity blockEntity, float ageInTicks) {
+        if (!blockEntity.spinAnimationState.isStarted()) return;
+
+        long ms = blockEntity.spinAnimationState.getTimeInMillis(ageInTicks);
+        long cycle = ms / DRILL_SOUND_LOOP_MS;
+        
+        if (cycle != blockEntity.getLastDrillLoopCycle()) {
+            blockEntity.setLastDrillLoopCycle(cycle);
+            playSound(blockEntity, SCSounds.MINER_DRILLING.value());
+        }
+    }
+
+    private void spawnDrillParticles(MinerBlockEntity blockEntity, float ageInTicks, Identifier resourceNodeId) {
         if (!(blockEntity.getLevel() instanceof Level level)) return;
         if (!blockEntity.spinAnimationState.isStarted()) return;
 
-        long ms = blockEntity.spinAnimationState.getTimeInMillis(state.ageInTicks);
+        long ms = blockEntity.spinAnimationState.getTimeInMillis(ageInTicks);
         long deltaTime = ms - blockEntity.getLastParticleTime();
         if (deltaTime >= MinerBlockEntity.PARTICLE_INTERVAL_MS) {
             blockEntity.setLastParticleTime(ms);
 
-            ParticleOptions particle = SCResourceNodes.particleFor(state.resourceNodeId);
+            ParticleOptions particle = SCResourceNodes.particleFor(resourceNodeId);
             BlockPos pos = blockEntity.getBlockPos();
             Vec3 offset = blockEntity.getParticleOffset();
             RandomSource random = level.getRandom();

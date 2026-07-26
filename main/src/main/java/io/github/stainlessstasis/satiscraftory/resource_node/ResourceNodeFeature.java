@@ -98,7 +98,7 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
                 nodeBE.setNodeTypeId(type.getNodeId());
             }
         }
-        
+
         if (type != null) {
             ServerLevel serverLevel = level.getLevel();
             GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), nodePos.immutable());
