@@ -32,7 +32,7 @@ import java.util.WeakHashMap;
 import static io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity.PARTICLE_JITTER;
 
 public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRenderState> {
-    public static final Identifier TEXTURE = Satiscraftory.id("textures/factory/miner.png");
+    public static final Identifier TEXTURE = Satiscraftory.id("textures/block/miner.png");
     private static final Map<MinerBlockEntity, WeakReference<MinerDrillSoundInstance>> ACTIVE_DRILL_SOUNDS = new WeakHashMap<>();
 
     private final MinerModel model;

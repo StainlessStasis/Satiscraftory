@@ -1,6 +1,6 @@
 {
   "parent": "satiscraftory:block/particle_only",
   "textures": {
-    "particle": "satiscraftory:block/miner_mk1"
+    "particle": "satiscraftory:block/miner"
   }
 }

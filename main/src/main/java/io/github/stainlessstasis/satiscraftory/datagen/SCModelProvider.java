@@ -44,7 +44,7 @@ public class SCModelProvider extends FactoryModelProvider {
 
         Identifier minerParticleModel = PARTICLE_ONLY.create(
                 SCBlocks.MINER_MK1.get(),
-                new TextureMapping().put(PARTICLE_SLOT, new Material(Satiscraftory.id("block/miner_mk1"))),
+                new TextureMapping().put(PARTICLE_SLOT, new Material(Satiscraftory.id("block/miner"))),
                 blockModels.modelOutput
         );
         registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), minerParticleModel, false);
