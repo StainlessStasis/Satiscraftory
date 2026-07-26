@@ -1,6 +1,5 @@
-package io.github.stainlessstasis.satiscraftory.world.resource_node;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
-import com.mojang.serialization.Codec;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import net.minecraft.core.GlobalPos;

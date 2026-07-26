@@ -1,8 +1,6 @@
-package io.github.stainlessstasis.satiscraftory.world.resource_node;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import com.mojang.serialization.Codec;
-import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
-import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodePurity;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
@@ -93,11 +91,14 @@ public class ResourceNodeFeature extends Feature<ResourceNodeConfig> {
         level.setBlock(nodePos, config.nodeState(), Block.UPDATE_ALL);
 
         ResourceNodePurity purity = ResourceNodePurity.pickRandom(random);
+        ResourceNodeType type = SCResourceNodes.byBlock(config.nodeState().getBlock());
         if (level.getBlockEntity(nodePos) instanceof ResourceNodeBlockEntity nodeBE) {
             nodeBE.setPurity(purity);
+            if (type != null) {
+                nodeBE.setNodeTypeId(type.getNodeId());
+            }
         }
-
-        ResourceNodeType type = SCResourceNodes.byBlock(config.nodeState().getBlock());
+        
         if (type != null) {
             ServerLevel serverLevel = level.getLevel();
             GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), nodePos.immutable());

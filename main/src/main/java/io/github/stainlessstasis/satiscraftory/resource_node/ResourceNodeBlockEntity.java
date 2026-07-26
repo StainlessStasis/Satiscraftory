@@ -20,6 +20,7 @@ public class ResourceNodeBlockEntity extends BlockEntity {
     public static final ResourceNodePurity DEFAULT_PURITY = ResourceNodePurity.NORMAL;
 
     private Identifier resourceType = DEFAULT_RESOURCE_TYPE;
+    private @Nullable Identifier nodeTypeId = null;
     private ResourceNodePurity purity = DEFAULT_PURITY;
     private @Nullable BlockPos minerPos = null;
 
@@ -46,6 +47,15 @@ public class ResourceNodeBlockEntity extends BlockEntity {
 
     public void setPurity(ResourceNodePurity purity) {
         this.purity = purity;
+        setChanged();
+    }
+
+    public @Nullable Identifier getNodeTypeId() {
+        return nodeTypeId;
+    }
+
+    public void setNodeTypeId(Identifier nodeTypeId) {
+        this.nodeTypeId = nodeTypeId;
         setChanged();
     }
 
@@ -76,6 +86,9 @@ public class ResourceNodeBlockEntity extends BlockEntity {
         super.saveAdditional(output);
         output.putString("ResourceType", resourceType.toString());
         output.putString("Purity", purity.name());
+        if (nodeTypeId != null) {
+            output.putString("NodeTypeId", nodeTypeId.toString());
+        }
         getMinerPos().ifPresent(pos -> output.putLong("MinerPos", pos.asLong()));
     }
 
@@ -84,8 +97,10 @@ public class ResourceNodeBlockEntity extends BlockEntity {
         super.loadAdditional(input);
         resourceType = Identifier.parse(input.getStringOr("ResourceType", DEFAULT_RESOURCE_TYPE.toString()));
         purity = ResourceNodePurity.valueOf(input.getStringOr("Purity", DEFAULT_PURITY.name()));
+        String nodeTypeString = input.getStringOr("NodeTypeId", "");
+        nodeTypeId = nodeTypeString.isEmpty() ? null : Identifier.parse(nodeTypeString);
 
-        long stored = input.getLongOr("MinerPos", Long.MIN_VALUE);
-        minerPos = stored == Long.MIN_VALUE ? null : BlockPos.of(stored).immutable();
+        long storedMinerPos = input.getLongOr("MinerPos", Long.MIN_VALUE);
+        minerPos = storedMinerPos == Long.MIN_VALUE ? null : BlockPos.of(storedMinerPos).immutable();
     }
 }

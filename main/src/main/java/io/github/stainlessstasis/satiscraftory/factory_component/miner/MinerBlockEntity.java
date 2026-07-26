@@ -9,13 +9,24 @@ import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEn
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -73,7 +84,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (!nodeBE.tryAssignMiner(getBlockPos())) return;
 
         linkedNodePos = nodePos.immutable();
-        resourceNodeId = nodeBE.getResourceType();
+        resourceNodeId = nodeBE.getNodeTypeId();
+        syncToClients();
         Producer producer = getProducer();
         if (producer == null) return;
 
@@ -93,6 +105,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         }
         linkedNodePos = null;
         resourceNodeId = null;
+        syncToClients();
     }
 
     public @Nullable BlockPos getLinkedNodePos() {
@@ -113,5 +126,39 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
 
     public Vec3 getParticleOffset() {
         return particleOffset;
+    }
+
+    @Override
+    protected void saveAdditional(@NonNull ValueOutput output) {
+        super.saveAdditional(output);
+        if (resourceNodeId != null) {
+            output.putString("ResourceNodeId", resourceNodeId.toString());
+        }
+    }
+
+    @Override
+    protected void loadAdditional(@NonNull ValueInput input) {
+        super.loadAdditional(input);
+        String resourceNodeString = input.getStringOr("ResourceNodeId", "");
+        System.out.println(resourceNodeString);
+        if (!resourceNodeString.isEmpty()) {
+            resourceNodeId = Identifier.parse(resourceNodeString);
+        }
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NonNull CompoundTag getUpdateTag(HolderLookup.@NonNull Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
+
+    private void syncToClients() {
+        if (level != null) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 }

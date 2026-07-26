@@ -1,7 +1,6 @@
-package io.github.stainlessstasis.satiscraftory.world.resource_node;
+package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

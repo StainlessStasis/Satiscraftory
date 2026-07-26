@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.world;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.world.resource_node.ResourceNodeFeature;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeFeature;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
