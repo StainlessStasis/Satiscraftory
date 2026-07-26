@@ -34,7 +34,7 @@ public class SCModelProvider extends FactoryModelProvider {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
         registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), Manifold.id("block/producer"), false);
-        itemModels.itemModelOutput.accept(SCItems.MINER_MK1.get(), ItemModelUtils.plainModel(Manifold.id("block/producer")));
+        itemModels.generateFlatItem(SCItems.MINER_MK1.get(), ModelTemplates.FLAT_ITEM);
 
         Block belt_mk1 = SCBlocks.BELT_MK1.get();
         Block belt_mk2 = SCBlocks.BELT_MK2.get();
