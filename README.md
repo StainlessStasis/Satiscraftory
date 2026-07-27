@@ -10,14 +10,17 @@ Every factory component always ticks globally and continues to produce resources
 - **​Limited vanilla interoperability** - With the exception of containers, factory components cannot interact with redstone, item entities, hoppers, mobs, etc. Containers function like vanilla chests and can be used as a bridge between Satiscraftory and vanilla/other mods.
 - ​**No integration with other tech mods** - Because block entities are used solely for rendering, Satiscraftory cannot connect to pipes, cables, or machines from any other tech mods. Think of it as a standalone factory game. Also, as mentioned above, you *could* use containers as a bridge, but obviously this would be dependent on chunk loading. Using containers in this way somewhat defeats the whole intent of the mod, but do whatever you want.
 
-​<img width="1919" height="1012" alt="image" src="https://github.com/user-attachments/assets/bd4fb7d9-81f4-4de7-82a0-b31f437e1b5f" />
+<img width="1280" height="720" alt="miner" src="https://github.com/user-attachments/assets/ba870e98-3533-4dd5-b9fa-008cf4897b24" />
 
 # Getting Started
-Find the creative tab on the second page labeled Factory Components, and grab one of each item. There are 3 speeds of belts - choose whichever you want, or use them all together. Consumers are optional if you're using containers.
+(The factory components mentioned below can be found in the dedicated creative tab)
+1. **Locate a Resource Node:** Explore the world to find patches of resources (currently iron or copper). If you can't find one, use the `/findnode` command. You can also manually place them via `/place feature <feature_id>`.
+2. **Build a Miner:** Place a Miner over the node, using the placement preview to ensure a valid placement. Miners are limited to one per node. Once placed, the Miner will begin to produce resources at a rate determined by the node's purity.
+3. **Build Your Factory:** Attach Belts to your Miner to start feeding the resources into Machines. Use Splitters or Mergers to make more complex logistics, such as a manifold design.
 ## Factory Components
 *Note: the bulleted dev tools only work in creative mode.*
 
-**Producer:** The start of your factory. Infinitely generates a single item type.
+**Miner/Producer:** The start of your factory. Infinitely generates a single item type.
 - Right click with an item in hand to produce that item.
 - Right click with an empty hand to increment the production interval. Hold sneak to decrement it.
 
@@ -53,7 +56,8 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 `/factory loaded [optional: same as above]` - Outputs the amount of factory components in loaded chunks<br>
 `/factory rendered [optional: same as above]` - Outputs the amount of factory components in chunks loaded by your client<br>
 `/factory setrecipe <recipe> [at/force]` - Sets a machine's recipe, optionally at the specified block coordinate (in the same dimension). The `force` option will force the machine to clear its buffers and stop crafting so that it can set the new recipe immediately<br>
-`/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick
+`/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick<br>
+`/findnode <type>` - Locates the nearest Resource Nodes of the specified type
 # Known Issues
 - Merging/side-loading a belt puts the items onto the belt at the start of that belt lane, instead of the exact block 
 - Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
