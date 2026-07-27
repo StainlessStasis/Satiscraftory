@@ -49,19 +49,12 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
     ) {
         super.extractRenderState(blockEntity, state, partialTick, cameraPosition, crumblingOverlay);
 
-        if (!blockEntity.startupAnimationState.isStarted() && !blockEntity.spinAnimationState.isStarted()) {
-            blockEntity.startupAnimationState.start((int) state.gameTime);
-            playSound(blockEntity, SCSounds.MINER_STARTUP.value());
-        }
-
-        boolean startupEnded = blockEntity.startupAnimationState.getTimeInMillis(state.ageInTicks) >= MinerAnimations.STARTUP.lengthInSeconds() * 1000L;
-        if (blockEntity.startupAnimationState.isStarted() && startupEnded) {
-            blockEntity.startupAnimationState.stop();
-            blockEntity.spinAnimationState.start((int) state.gameTime);
-        }
+        updateAnimationPhase(blockEntity, state.ageInTicks, state.gameTime);
 
         state.startupAnimationState.copyFrom(blockEntity.startupAnimationState);
         state.spinAnimationState.copyFrom(blockEntity.spinAnimationState);
+        state.cooldownAnimationState.copyFrom(blockEntity.cooldownAnimationState);
+        state.idleAnimationState.copyFrom(blockEntity.idleAnimationState);
 
         state.resourceNodeId = blockEntity.getResourceNodeId() != null
                 ? blockEntity.getResourceNodeId()
@@ -69,6 +62,52 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
         playDrillSound(blockEntity);
         spawnDrillParticles(blockEntity, state.ageInTicks, state.resourceNodeId);
+    }
+
+    private void updateAnimationPhase(MinerBlockEntity miner, float ageInTicks, long gameTime) {
+        boolean bufferFull = miner.isBufferFull();
+
+        switch (miner.animationPhase) {
+            case STARTUP -> {
+                if (!miner.startupAnimationState.isStarted()) {
+                    miner.startupAnimationState.start((int) gameTime);
+                    playSound(miner, SCSounds.MINER_STARTUP.value());
+                    return;
+                }
+                long ms = miner.startupAnimationState.getTimeInMillis(ageInTicks);
+                if (ms >= MinerAnimations.STARTUP.lengthInSeconds() * 1000L) {
+                    miner.startupAnimationState.stop();
+                    if (bufferFull) {
+                        miner.idleAnimationState.start((int) gameTime);
+                        miner.animationPhase = MinerBlockEntity.AnimPhase.IDLE;
+                    } else {
+                        miner.spinAnimationState.start((int) gameTime);
+                        miner.animationPhase = MinerBlockEntity.AnimPhase.SPIN;
+                    }
+                }
+            }
+            case SPIN -> {
+                if (bufferFull) {
+                    miner.spinAnimationState.stop();
+                    miner.cooldownAnimationState.start((int) gameTime);
+                    miner.animationPhase = MinerBlockEntity.AnimPhase.COOLDOWN;
+                }
+            }
+            case COOLDOWN -> {
+                long ms = miner.cooldownAnimationState.getTimeInMillis(ageInTicks);
+                if (ms >= MinerAnimations.COOLDOWN.lengthInSeconds() * 1000L) {
+                    miner.cooldownAnimationState.stop();
+                    miner.idleAnimationState.start((int) gameTime);
+                    miner.animationPhase = MinerBlockEntity.AnimPhase.IDLE;
+                }
+            }
+            case IDLE -> {
+                if (!bufferFull) {
+                    miner.idleAnimationState.stop();
+                    miner.animationPhase = MinerBlockEntity.AnimPhase.STARTUP;
+                }
+            }
+        }
     }
 
     private void playSound(MinerBlockEntity blockEntity, SoundEvent sound) {

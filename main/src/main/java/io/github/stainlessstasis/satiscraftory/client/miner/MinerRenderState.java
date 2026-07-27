@@ -8,5 +8,7 @@ import net.minecraft.world.entity.AnimationState;
 public class MinerRenderState extends MultiblockRenderState {
     public final AnimationState startupAnimationState = new AnimationState();
     public final AnimationState spinAnimationState = new AnimationState();
+    public final AnimationState cooldownAnimationState = new AnimationState();
+    public final AnimationState idleAnimationState = new AnimationState();
     Identifier resourceNodeId = SCResourceNodes.IRON.getNodeId();
 }

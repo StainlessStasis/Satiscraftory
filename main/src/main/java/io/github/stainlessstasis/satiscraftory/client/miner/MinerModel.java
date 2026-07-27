@@ -19,11 +19,16 @@ public class MinerModel extends Model<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
 	private final KeyframeAnimation startup;
 	private final KeyframeAnimation spinLoop;
+	private final KeyframeAnimation cooldown;
+
+	private final KeyframeAnimation idle;
 
 	public MinerModel(ModelPart root) {
-        super(root, RenderTypes::entityCutout);
+		super(root, RenderTypes::entityCutout);
 		this.startup = MinerAnimations.STARTUP.bake(root);
 		this.spinLoop = MinerAnimations.SPIN_LOOP.bake(root);
+		this.cooldown = MinerAnimations.COOLDOWN.bake(root);
+		this.idle = MinerAnimations.IDLE.bake(root);
 	}
 
 	@Override
@@ -34,6 +39,12 @@ public class MinerModel extends Model<MinerRenderState> {
 		}
 		if (state.spinAnimationState.isStarted()) {
 			this.spinLoop.apply(state.spinAnimationState, state.ageInTicks);
+		}
+		if (state.cooldownAnimationState.isStarted()) {
+			this.cooldown.apply(state.cooldownAnimationState, state.ageInTicks);
+		}
+		if (state.idleAnimationState.isStarted()) {
+			this.idle.apply(state.idleAnimationState, state.ageInTicks);
 		}
 	}
 

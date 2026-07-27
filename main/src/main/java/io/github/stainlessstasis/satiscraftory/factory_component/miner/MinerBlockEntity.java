@@ -35,6 +35,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private @Nullable Identifier resourceNodeId = null;
     public final AnimationState startupAnimationState = new AnimationState();
     public final AnimationState spinAnimationState = new AnimationState();
+    public final AnimationState cooldownAnimationState = new AnimationState();
+    public final AnimationState idleAnimationState = new AnimationState();
 
     public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0, -4);
     public static final long PARTICLE_INTERVAL_MS = 10L;
@@ -42,7 +44,12 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
 
+    private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
     private boolean isBufferFull = false;
+    private int consecutiveFullTicks = 0;
+    public boolean isIdling = false;
+    public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
+    public AnimPhase animationPhase = AnimPhase.STARTUP;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -141,9 +148,16 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         Producer producer = miner.getProducer();
         if (producer == null) return;
 
-        boolean full = producer.isBufferFull();
-        if (full != miner.isBufferFull) {
-            miner.isBufferFull = full;
+        boolean currentlyFull = producer.isBufferFull();
+        if (currentlyFull) {
+            miner.consecutiveFullTicks++;
+        } else {
+            miner.consecutiveFullTicks = 0;
+        }
+
+        boolean actuallyFull = miner.consecutiveFullTicks >= FULL_THRESHOLD_TICKS;
+        if (actuallyFull != miner.isBufferFull) {
+            miner.isBufferFull = actuallyFull;
             miner.syncToClients();
         }
     }
