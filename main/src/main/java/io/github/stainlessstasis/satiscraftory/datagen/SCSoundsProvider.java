@@ -35,5 +35,16 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                 )
                 .subtitle("sound."+Satiscraftory.MODID+"miner_drilling")
         );
+        add(SCSounds.MINER_COOLDOWN, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":miner_cooldown", SoundDefinition.SoundType.SOUND)
+                                .volume(1f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .stream()
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+"miner_cooldown")
+        );
     }
 }

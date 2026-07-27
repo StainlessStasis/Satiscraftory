@@ -1,4 +1,14 @@
 {
+  "miner_cooldown": {
+    "sounds": [
+      {
+        "name": "satiscraftory:miner_cooldown",
+        "preload": true,
+        "stream": true
+      }
+    ],
+    "subtitle": "sound.satiscraftoryminer_cooldown"
+  },
   "miner_drilling": {
     "sounds": [
       {

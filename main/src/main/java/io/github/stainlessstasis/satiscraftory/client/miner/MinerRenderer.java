@@ -91,6 +91,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                     miner.spinAnimationState.stop();
                     miner.cooldownAnimationState.start((int) gameTime);
                     miner.animationPhase = MinerBlockEntity.AnimPhase.COOLDOWN;
+                    playSound(miner, SCSounds.MINER_COOLDOWN.value());
                 }
             }
             case COOLDOWN -> {

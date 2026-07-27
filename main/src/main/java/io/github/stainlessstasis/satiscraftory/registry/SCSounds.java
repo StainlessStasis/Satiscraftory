@@ -17,4 +17,8 @@ public class SCSounds {
             "miner_drilling",
             SoundEvent::createVariableRangeEvent
     );
+    public static final Holder<SoundEvent> MINER_COOLDOWN = SOUND_EVENTS.register(
+            "miner_cooldown",
+            SoundEvent::createVariableRangeEvent
+    );
 }
