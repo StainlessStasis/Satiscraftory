@@ -1,4 +1,4 @@
-# 0.3.0-alpha 
+# 0.3.0-alpha (Jul 27, 2026)
 ## New Features
 Added resource nodes and miners!<br><br>
 **Resource Nodes:** Patches of renewable resources which spawn around the world and can be extracted by miners. This update adds two nodes: iron, and copper. Nodes have a purity of impure, normal, or pure which affect the miner's production rate.<br><br>
