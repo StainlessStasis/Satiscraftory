@@ -17,15 +17,18 @@ import org.jspecify.annotations.NonNull;
 
 public class MinerModel extends Model<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
-	private final KeyframeAnimation startup;
+	private final KeyframeAnimation startupRotation;
+	private final KeyframeAnimation startupDescend;
+	private final KeyframeAnimation startupAlreadyDescended;
 	private final KeyframeAnimation spinLoop;
 	private final KeyframeAnimation cooldown;
-
 	private final KeyframeAnimation idle;
 
 	public MinerModel(ModelPart root) {
 		super(root, RenderTypes::entityCutout);
-		this.startup = MinerAnimations.STARTUP.bake(root);
+		this.startupRotation = MinerAnimations.STARTUP_ROTATION.bake(root);
+		this.startupDescend = MinerAnimations.STARTUP_DESCEND.bake(root);
+		this.startupAlreadyDescended = MinerAnimations.STARTUP_ALREADY_DESCENDED.bake(root);
 		this.spinLoop = MinerAnimations.SPIN_LOOP.bake(root);
 		this.cooldown = MinerAnimations.COOLDOWN.bake(root);
 		this.idle = MinerAnimations.IDLE.bake(root);
@@ -34,8 +37,14 @@ public class MinerModel extends Model<MinerRenderState> {
 	@Override
 	public void setupAnim(@NonNull MinerRenderState state) {
 		super.setupAnim(state);
-		if (state.startupAnimationState.isStarted()) {
-			this.startup.apply(state.startupAnimationState, state.ageInTicks);
+		if (state.startupRotationState.isStarted()) {
+			this.startupRotation.apply(state.startupRotationState, state.ageInTicks);
+		}
+		if (state.startupDescendState.isStarted()) {
+			this.startupDescend.apply(state.startupDescendState, state.ageInTicks);
+		}
+		if (state.startupAlreadyDescendedState.isStarted()) {
+			this.startupAlreadyDescended.apply(state.startupAlreadyDescendedState, state.ageInTicks);
 		}
 		if (state.spinAnimationState.isStarted()) {
 			this.spinLoop.apply(state.spinAnimationState, state.ageInTicks);

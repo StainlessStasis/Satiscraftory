@@ -6,7 +6,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.AnimationState;
 
 public class MinerRenderState extends MultiblockRenderState {
-    public final AnimationState startupAnimationState = new AnimationState();
+    public final AnimationState startupRotationState = new AnimationState();
+    public final AnimationState startupDescendState = new AnimationState();
+    public final AnimationState startupAlreadyDescendedState = new AnimationState();
     public final AnimationState spinAnimationState = new AnimationState();
     public final AnimationState cooldownAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();

@@ -33,23 +33,27 @@ import java.util.List;
 public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
     private @Nullable BlockPos linkedNodePos = null;
     private @Nullable Identifier resourceNodeId = null;
-    public final AnimationState startupAnimationState = new AnimationState();
+    public final AnimationState startupRotationState = new AnimationState();
+    public final AnimationState startupDescendState = new AnimationState();
+    public final AnimationState startupAlreadyDescendedState = new AnimationState();
     public final AnimationState spinAnimationState = new AnimationState();
     public final AnimationState cooldownAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();
+
+    public boolean hasDescended = false;
+    public boolean isIdling = false;
+
+    private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
+    private boolean isBufferFull = false;
+    private int consecutiveFullTicks = 0;
+    public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
+    public AnimPhase animationPhase = AnimPhase.STARTUP;
 
     public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0, -4);
     public static final long PARTICLE_INTERVAL_MS = 10L;
     public static final double PARTICLE_JITTER = 0.3d;
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
-
-    private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
-    private boolean isBufferFull = false;
-    private int consecutiveFullTicks = 0;
-    public boolean isIdling = false;
-    public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
-    public AnimPhase animationPhase = AnimPhase.STARTUP;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);

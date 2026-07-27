@@ -51,7 +51,9 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
         updateAnimationPhase(blockEntity, state.ageInTicks, state.gameTime);
 
-        state.startupAnimationState.copyFrom(blockEntity.startupAnimationState);
+        state.startupRotationState.copyFrom(blockEntity.startupRotationState);
+        state.startupDescendState.copyFrom(blockEntity.startupDescendState);
+        state.startupAlreadyDescendedState.copyFrom(blockEntity.startupAlreadyDescendedState);
         state.spinAnimationState.copyFrom(blockEntity.spinAnimationState);
         state.cooldownAnimationState.copyFrom(blockEntity.cooldownAnimationState);
         state.idleAnimationState.copyFrom(blockEntity.idleAnimationState);
@@ -69,19 +71,28 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
         switch (miner.animationPhase) {
             case STARTUP -> {
-                if (!miner.startupAnimationState.isStarted()) {
-                    miner.startupAnimationState.start((int) gameTime);
+                if (!miner.startupRotationState.isStarted()) {
+                    miner.startupRotationState.start((int) gameTime);
+                    if (!miner.hasDescended) {
+                        miner.startupDescendState.start((int) gameTime);
+                    } else {
+                        miner.startupAlreadyDescendedState.start((int) gameTime);
+                    }
                     playSound(miner, SCSounds.MINER_STARTUP.value());
                     return;
                 }
-                long ms = miner.startupAnimationState.getTimeInMillis(ageInTicks);
-                if (ms >= MinerAnimations.STARTUP.lengthInSeconds() * 1000L) {
-                    miner.startupAnimationState.stop();
+                long ms = miner.startupRotationState.getTimeInMillis(ageInTicks);
+                if (ms >= MinerAnimations.STARTUP_ROTATION.lengthInSeconds() * 1000L) {
+                    miner.startupRotationState.stop();
+                    miner.startupDescendState.stop();
+                    miner.startupAlreadyDescendedState.stop();
+                    miner.hasDescended = true;
                     if (bufferFull) {
                         miner.idleAnimationState.start((int) gameTime);
                         miner.animationPhase = MinerBlockEntity.AnimPhase.IDLE;
                     } else {
                         miner.spinAnimationState.start((int) gameTime);
+                        miner.setLastParticleTime(-1L);
                         miner.animationPhase = MinerBlockEntity.AnimPhase.SPIN;
                     }
                 }

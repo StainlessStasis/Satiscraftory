@@ -6,7 +6,7 @@ import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
 
 public class MinerAnimations {
-    public static final AnimationDefinition STARTUP = AnimationDefinition.Builder.withLength(5.0F)
+    public static final AnimationDefinition STARTUP_ROTATION = AnimationDefinition.Builder.withLength(5.0F)
             .addAnimation("drill_head", new AnimationChannel(AnimationChannel.Targets.ROTATION,
                     new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
                     new Keyframe(0.4167F, KeyframeAnimations.degreeVec(0.0F, -0.83F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
@@ -22,8 +22,18 @@ public class MinerAnimations {
                     new Keyframe(4.5833F, KeyframeAnimations.degreeVec(0.0F, -1109.17F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
                     new Keyframe(5.0F, KeyframeAnimations.degreeVec(0.0F, -1440.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
             ))
+            .build();
+
+    public static final AnimationDefinition STARTUP_DESCEND = AnimationDefinition.Builder.withLength(5.0F)
             .addAnimation("drill_head", new AnimationChannel(AnimationChannel.Targets.POSITION,
                     new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
+                    new Keyframe(5.0F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
+            ))
+            .build();
+
+    public static final AnimationDefinition STARTUP_ALREADY_DESCENDED = AnimationDefinition.Builder.withLength(5.0F)
+            .addAnimation("drill_head", new AnimationChannel(AnimationChannel.Targets.POSITION,
+                    new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
                     new Keyframe(5.0F, KeyframeAnimations.posVec(0.0F, -17.0F, 0.0F), AnimationChannel.Interpolations.LINEAR)
             ))
             .build();
