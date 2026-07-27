@@ -565,12 +565,11 @@ public class FactoryNetwork extends SavedData {
         for (Map.Entry<GlobalPos, Producer> entry : producers.entrySet()) {
             GlobalPos pos = entry.getKey();
             Producer producer = entry.getValue();
-            Payload pending = producer.getPending();
             persistedProducers.add(new Persisted.Producer(
                     pos, producer.getItemId(), producer.getInterval(),
                     Optional.ofNullable(producerOutputPos.get(pos)),
                     producer.isActive(),
-                    Optional.ofNullable(pending == null ? null : pending.itemId()),
+                    producer.getBufferedCount(),
                     producer.getNextProductionTick()
             ));
         }
@@ -689,10 +688,9 @@ public class FactoryNetwork extends SavedData {
         }
 
         for (Persisted.Producer producerData : snapshot.producers()) {
-            Payload pending = producerData.pendingItemId().map(Payload::new).orElse(null);
             Producer producer = Producer.restore(
                     producerData.itemType(), producerData.interval(), NO_OP_PORT, network.scheduler,
-                    producerData.active(), pending, producerData.nextProductionTick()
+                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick()
             );
             network.producers.put(producerData.pos(), producer);
             producerData.outputPos().ifPresent(outPos -> network.producerOutputPos.put(producerData.pos(), outPos));

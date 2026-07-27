@@ -3,9 +3,8 @@ package io.github.stainlessstasis.manifold.factory_component.container;
 import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
-import net.minecraft.core.registries.BuiltInRegistries;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class Container implements Port, FactoryComponent {
 
     /** A matching partial stack with room for this payload, or the first empty slot; -1 if neither exists*/
     private int findSlotFor(Payload payload) {
-        int maxStack = maxStackSizeFor(payload.itemId());
+        int maxStack = ItemUtils.maxStackSizeFor(payload.itemId());
         int firstEmpty = -1;
         for (int i = 0; i < slots.length; i++) {
             Payload slot = slots[i];
@@ -86,10 +85,6 @@ public class Container implements Port, FactoryComponent {
             }
         }
         return firstEmpty;
-    }
-
-    private static int maxStackSizeFor(Identifier itemId) {
-        return BuiltInRegistries.ITEM.getOptional(itemId).map(Item::getDefaultMaxStackSize).orElse(64);
     }
 
     public void tick(long currentTick) {

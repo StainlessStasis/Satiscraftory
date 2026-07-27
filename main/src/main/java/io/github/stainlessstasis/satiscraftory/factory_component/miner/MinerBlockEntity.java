@@ -16,14 +16,12 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -44,7 +42,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
 
-    private boolean isBlocked = false;
+    private boolean isBufferFull = false;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -131,11 +129,11 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         return particleOffset;
     }
 
-    public boolean isBlocked() {
+    public boolean isBufferFull() {
         if (level instanceof ServerLevel) {
-            return getMiner().isBlocked();
+            return getMiner().isBufferFull();
         } else {
-            return isBlocked;
+            return isBufferFull;
         }
     }
 
@@ -143,9 +141,9 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         Producer producer = miner.getProducer();
         if (producer == null) return;
 
-        boolean blocked = producer.isBlocked();
-        if (blocked != miner.isBlocked) {
-            miner.isBlocked = blocked;
+        boolean full = producer.isBufferFull();
+        if (full != miner.isBufferFull) {
+            miner.isBufferFull = full;
             miner.syncToClients();
         }
     }
@@ -156,7 +154,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (resourceNodeId != null) {
             output.putString("ResourceNodeId", resourceNodeId.toString());
         }
-        output.putBoolean("IsBlocked", isBlocked);
+        output.putBoolean("IsBlocked", isBufferFull);
     }
 
     @Override
@@ -166,7 +164,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (!resourceNodeString.isEmpty()) {
             resourceNodeId = Identifier.parse(resourceNodeString);
         }
-        isBlocked = input.getBooleanOr("IsBlocked", false);
+        isBufferFull = input.getBooleanOr("IsBlocked", false);
     }
 
     @Override

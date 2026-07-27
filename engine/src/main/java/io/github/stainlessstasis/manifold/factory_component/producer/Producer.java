@@ -22,29 +22,31 @@ public class Producer implements FactoryComponent {
     private final Scheduler scheduler;
     private Scheduler.@Nullable ScheduledTask productionTask;
 
-    private @Nullable Payload pending = null;
+    private int bufferedCount = 0;
     private boolean active = true;
     private long nextProductionTick;
 
-    private Producer(Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, @Nullable Payload pending) {
+    private Producer(Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, int bufferedCount) {
         if (output == null) throw new IllegalArgumentException("Producer needs an output Port");
         this.itemId = itemId;
         this.interval = interval;
         this.output = output;
         this.scheduler = scheduler;
         this.active = active;
-        this.pending = pending;
+        this.bufferedCount = bufferedCount;
     }
 
     public Producer(Identifier itemId, long interval, Port output, Scheduler scheduler) {
-        this(itemId, interval, output, scheduler, true, null);
+        this(itemId, interval, output, scheduler, true, 0);
         scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
     public static Producer restore(
-            Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, Payload pending, long nextProductionTick) {
-        Producer producer = new Producer(itemId, interval, output, scheduler, active, pending);
-        if (pending == null) {
+            Identifier itemId, long interval, Port output,
+            Scheduler scheduler, boolean active, int bufferedCount, long nextProductionTick
+    ) {
+        Producer producer = new Producer(itemId, interval, output, scheduler, active, bufferedCount);
+        if (!producer.isBufferFull()) {
             producer.scheduleNextProduction(nextProductionTick);
         }
         return producer;
@@ -79,24 +81,23 @@ public class Producer implements FactoryComponent {
 
     private void produce() {
         if (!active) return;
-        if (pending != null) return;
+        if (isBufferFull()) return;
 
-        Payload payload = new Payload(itemId);
-        if (output.canAccept(payload)) {
-            output.accept(payload);
-            scheduleNextProduction(scheduler.getCurrentTick() + interval);
-        } else {
-            pending = payload;
-        }
+        bufferedCount++;
+        scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
-    /**
-     * Only needs to be called while blocked; no-op otherwise.
-     */
     public void tick(long currentTick) {
-        if (pending != null && output.canAccept(pending)) {
-            output.accept(pending);
-            pending = null;
+        if (bufferedCount == 0) return;
+
+        boolean wasFull = isBufferFull();
+        Payload payload = new Payload(itemId, 1);
+        if (!output.canAccept(payload)) return;
+
+        output.accept(payload);
+        bufferedCount--;
+
+        if (wasFull && active) {
             scheduleNextProduction(currentTick + interval);
         }
     }
@@ -113,8 +114,9 @@ public class Producer implements FactoryComponent {
         return active;
     }
 
-    public boolean isBlocked() {
-        return pending != null;
+    /** True when the buffer holds a full stack of {@link #itemId} and can't accept another produced item. */
+    public boolean isBufferFull() {
+        return bufferedCount >= ItemUtils.maxStackSizeFor(itemId);
     }
 
     public void setItemId(Identifier itemId) {
@@ -134,12 +136,12 @@ public class Producer implements FactoryComponent {
         return interval;
     }
 
-    /** The item currently stuck waiting for the output to accept it, or null if not jammed*/
-    public @Nullable Payload getPending() {
-        return pending;
+    /** How many of {@link #itemId} are currently buffered, waiting to leave via output. */
+    public int getBufferedCount() {
+        return bufferedCount;
     }
 
-    /** Only meaningful when getPending() == null; a jammed producer has no standing scheduled event. */
+    /** Only meaningful when the buffer isn't full; a full producer has no standing scheduled event. */
     public long getNextProductionTick() {
         return nextProductionTick;
     }

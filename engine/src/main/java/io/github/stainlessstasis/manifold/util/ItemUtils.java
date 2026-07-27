@@ -10,4 +10,9 @@ public final class ItemUtils {
     public static Identifier idOf(Item item) {
         return BuiltInRegistries.ITEM.getKey(item);
     }
+
+    public static int maxStackSizeFor(Identifier itemId) {
+        return BuiltInRegistries.ITEM.getOptional(itemId).map(Item::getDefaultMaxStackSize).orElse(64);
+    }
+
 }
