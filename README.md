@@ -16,7 +16,8 @@ Every factory component always ticks globally and continues to produce resources
 (The factory components mentioned below can be found in the dedicated creative tab)
 1. **Locate a Resource Node:** Explore the world to find patches of resources (currently iron or copper). If you can't find one, use the `/findnode` command. You can also manually place them via `/place feature <feature_id>`.
 2. **Build a Miner:** Place a Miner over the node, using the placement preview to ensure a valid placement. Miners are limited to one per node. Once placed, the Miner will begin to produce resources at a rate determined by the node's purity.
-3. **Build Your Factory:** Attach Belts to your Miner to start feeding the resources into Machines. Use Splitters or Mergers to make more complex logistics, such as a manifold design.
+3. **Build Your Factory:** Attach Belts to your Miner to start feeding the resources into Machines. Use Splitters or Mergers to make more complex logistics, such as a manifold design.<br>
+**Additional Information:** For any info not covered on this page, see the [wiki](https://github.com/StainlessStasis/Satiscraftory/wiki/1.-Getting-Started).
 ## Factory Components
 *Note: the bulleted dev tools only work in creative mode.*
 
@@ -24,7 +25,7 @@ Every factory component always ticks globally and continues to produce resources
 - Right click with an item in hand to produce that item.
 - Right click with an empty hand to increment the production interval. Hold sneak to decrement it.
 
-**Belt:** Transports items between every other factory component. Has 3 shapes: straight, corner, and slope. Belts only have one output, but can take an input from any direction, effectively allowing for mergers (will be officially added later).
+**Belt:** Transports items between every other factory component. Has 3 shapes: straight, corner, and slope.
 - Right click to reverse the belt's direction.
 
 **Splitter/Merger:** Splits one belt into up to 3 new belts, or merges up to 3 belts into one new belt. Uses a round-robin strategy to evenly distribute items. 
