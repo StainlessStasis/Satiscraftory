@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "satiscraftory:block/miner_mk1",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "satiscraftory:block/miner_mk1"
+    },
+    "facing=south": {
+      "model": "satiscraftory:block/miner_mk1",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "satiscraftory:block/miner_mk1",
+      "y": 270
+    }
+  }
+}

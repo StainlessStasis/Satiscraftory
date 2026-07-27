@@ -1,0 +1,27 @@
+{
+  "type": "satiscraftory:resource_node",
+  "config": {
+    "clump_size": {
+      "type": "minecraft:trapezoid",
+      "max": 4,
+      "min": 1,
+      "plateau": 2
+    },
+    "clump_spread": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 30,
+      "min_inclusive": 20
+    },
+    "node_state": {
+      "Name": "satiscraftory:iron_resource_node"
+    },
+    "radius": {
+      "type": "minecraft:uniform",
+      "max_inclusive": 5,
+      "min_inclusive": 3
+    },
+    "resource_state": {
+      "Name": "minecraft:iron_ore"
+    }
+  }
+}

@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.manifold.datagen;
 
 import com.mojang.math.Quadrant;
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block.belt.BeltShape;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltShape;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -25,8 +25,10 @@ public abstract class FactoryModelProvider extends ModelProvider {
     }
 
     public void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, String path, boolean reversed) {
-        Identifier id = Identifier.fromNamespaceAndPath(modId, path);
+        registerHorizontallyRotable(blockModels, block, Identifier.fromNamespaceAndPath(modId, path), reversed);
+    }
 
+    public void registerHorizontallyRotable(BlockModelGenerators blockModels, Block block, Identifier id, boolean reversed) {
         Variant north = new Variant(id);
         Variant east  = north.withYRot(Quadrant.R90);
         Variant south = north.withYRot(Quadrant.R180);

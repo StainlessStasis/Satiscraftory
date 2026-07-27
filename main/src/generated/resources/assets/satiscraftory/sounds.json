@@ -1,0 +1,32 @@
+{
+  "miner_cooldown": {
+    "sounds": [
+      {
+        "name": "satiscraftory:miner_cooldown",
+        "preload": true,
+        "stream": true
+      }
+    ],
+    "subtitle": "sound.satiscraftoryminer_cooldown"
+  },
+  "miner_drilling": {
+    "sounds": [
+      {
+        "name": "satiscraftory:miner_drilling",
+        "preload": true,
+        "stream": true
+      }
+    ],
+    "subtitle": "sound.satiscraftoryminer_drilling"
+  },
+  "miner_startup": {
+    "sounds": [
+      {
+        "name": "satiscraftory:miner_startup",
+        "preload": true,
+        "stream": true
+      }
+    ],
+    "subtitle": "sound.satiscraftoryminer_startup"
+  }
+}

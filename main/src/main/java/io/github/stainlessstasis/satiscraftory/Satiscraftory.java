@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
@@ -22,7 +23,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 
 @Mod(Satiscraftory.MODID)
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public class Satiscraftory {
     public static final String MODID = "satiscraftory";
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -47,6 +48,7 @@ public class Satiscraftory {
             .icon(() -> ManifoldItems.MACHINE.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(ManifoldItems.PRODUCER.get());
+                output.accept(SCItems.MINER_MK1.get());
                 output.accept(SCItems.BELT_MK1.get());
                 output.accept(SCItems.BELT_MK2.get());
                 output.accept(SCItems.BELT_MK3.get());

@@ -1,9 +1,23 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.block.*;
-import io.github.stainlessstasis.manifold.block.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.block_entity.*;
+import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlock;
+import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlock;
+import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock;
+import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlock;
+import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.splitter.SplitterBlock;
+import io.github.stainlessstasis.manifold.factory_component.splitter.SplitterBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -47,4 +61,9 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("merger", () -> new ManifoldBlockEntityType<>(
                     MergerBlockEntity::new,
                     block -> block instanceof MergerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MultiblockFillerBlockEntity>> MULTIBLOCK_FILLER =
+            BLOCK_ENTITIES.register("multiblock_filler", () -> new ManifoldBlockEntityType<>(
+                    MultiblockFillerBlockEntity::new,
+                    block -> block instanceof MultiblockFillerBlock));
 }

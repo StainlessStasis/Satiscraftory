@@ -1,0 +1,42 @@
+package io.github.stainlessstasis.manifold.client.multiblock;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+
+public final class PlacementPreviewSubmission {
+    public static final int VALID_TINT = 0x8000FFFF;
+    public static final int INVALID_TINT = 0x80FF0000;
+
+    private PlacementPreviewSubmission() {}
+
+    public static void submit(
+            PoseStack poseStack, SubmitNodeCollector collector, Level level,
+            MultiblockPreviewer<?> previewer, BlockState previewState,
+            BlockPos origin, Direction facing, int tint
+    ) {
+        BaseEntityBlock block = previewer.getPreviewBlock();
+        BlockEntity blockEntity = block.newBlockEntity(BlockPos.ZERO, previewState);
+        if (blockEntity == null) return;
+
+        MultiblockRenderer<?, ?> renderer = MultiblockPreviewRegistry.get(blockEntity.getType());
+        if (renderer == null) return;
+
+        int light = LevelRenderer.getLightCoords(level, origin);
+        Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+
+        poseStack.pushPose();
+        poseStack.translate(origin.getX() - camPos.x, origin.getY() - camPos.y, origin.getZ() - camPos.z);
+        renderer.submitPreview(poseStack, collector, facing, light, tint);
+        poseStack.popPose();
+    }
+}

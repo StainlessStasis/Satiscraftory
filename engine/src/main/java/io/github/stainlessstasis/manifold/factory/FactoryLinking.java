@@ -1,9 +1,9 @@
 package io.github.stainlessstasis.manifold.factory;
 
-import io.github.stainlessstasis.manifold.block_entity.BeltBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.ContainerBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.MachineBlockEntity;
-import io.github.stainlessstasis.manifold.block_entity.ProducerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

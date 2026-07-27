@@ -2,7 +2,6 @@ package io.github.stainlessstasis.manifold.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stainlessstasis.manifold.factory_component.Container;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
@@ -33,14 +32,14 @@ final class Persisted {
     }
 
     record Producer(GlobalPos pos, Identifier itemType, long interval, Optional<GlobalPos> outputPos,
-                    boolean active, Optional<Identifier> pendingItemId, long nextProductionTick) {
+                    boolean active, int bufferedCount, long nextProductionTick) {
         static final Codec<Producer> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
                 Identifier.CODEC.fieldOf("itemType").forGetter(Producer::itemType),
                 Codec.LONG.fieldOf("interval").forGetter(Producer::interval),
                 GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
                 Codec.BOOL.fieldOf("active").forGetter(Producer::active),
-                Identifier.CODEC.optionalFieldOf("pendingItemId").forGetter(Producer::pendingItemId),
+                Codec.INT.optionalFieldOf("bufferedCount", 0).forGetter(Producer::bufferedCount),
                 Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick)
         ).apply(i, Producer::new));
     }

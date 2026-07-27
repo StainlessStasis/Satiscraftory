@@ -1,6 +1,6 @@
 //package io.github.stainlessstasis.manifold;
 //
-//import io.github.stainlessstasis.manifold.factory_component.Machine;
+//import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 //import io.github.stainlessstasis.manifold.factory_component.Payload;
 //import io.github.stainlessstasis.manifold.factory_component.Port;
 //import io.github.stainlessstasis.manifold.recipe.MachineRecipe;

@@ -4,6 +4,12 @@ import io.github.stainlessstasis.manifold.*;
 import io.github.stainlessstasis.manifold.factory_component.*;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.belt.LanePort;
+import io.github.stainlessstasis.manifold.factory_component.consumer.Consumer;
+import io.github.stainlessstasis.manifold.factory_component.container.Container;
+import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
+import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
+import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
+import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
@@ -59,6 +65,7 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, List<GlobalPos>> splitterOutputPos = new HashMap<>();
     private final Map<GlobalPos, GlobalPos> mergerOutputPos = new HashMap<>();
 
+    private final Map<ResourceKey<Level>, Map<ChunkPos, List<BeltSyncPacket.Entry>>> pendingBeltSyncsByDimension = new HashMap<>();
     private List<TickTarget> tickOrder = null; // cached; null means needs rebuild
     private interface TickTarget {
         void tick(long currentTick);
@@ -91,11 +98,15 @@ public class FactoryNetwork extends SavedData {
         return laneManager;
     }
 
-    public Producer getOrCreateProducer(GlobalPos pos, Supplier<Producer> factory) {
-        return producers.computeIfAbsent(pos, _ -> {
+    private <T> T getOrCreate(Map<GlobalPos, T> registry, GlobalPos pos, Supplier<T> factory) {
+        return registry.computeIfAbsent(pos, _ -> {
             setDirty();
             return factory.get();
         });
+    }
+
+    public Producer getOrCreateProducer(GlobalPos pos, Supplier<Producer> factory) {
+        return getOrCreate(producers, pos, factory);
     }
 
     public @Nullable Producer getProducer(GlobalPos pos) {
@@ -103,38 +114,23 @@ public class FactoryNetwork extends SavedData {
     }
 
     public Consumer getOrCreateConsumer(GlobalPos pos, Supplier<Consumer> factory) {
-        return consumers.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
+        return getOrCreate(consumers, pos, factory);
     }
 
     public Machine getOrCreateMachine(GlobalPos pos, Supplier<Machine> factory) {
-        return machines.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
+        return getOrCreate(machines, pos, factory);
     }
 
     public Container getOrCreateContainer(GlobalPos pos, Supplier<Container> factory) {
-        return containers.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
+        return getOrCreate(containers, pos, factory);
     }
 
     public Splitter getOrCreateSplitter(GlobalPos pos, Supplier<Splitter> factory) {
-        return splitters.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
+        return getOrCreate(splitters, pos, factory);
     }
 
     public Merger getOrCreateMerger(GlobalPos pos, Supplier<Merger> factory) {
-        return mergers.computeIfAbsent(pos, _ -> {
-            setDirty();
-            return factory.get();
-        });
+        return getOrCreate(mergers, pos, factory);
     }
 
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
@@ -218,109 +214,117 @@ public class FactoryNetwork extends SavedData {
 
     // --- ok no more belt lanes ---
 
-    public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos, Direction outputDirection) {
-        Producer producer = producers.get(producerPos);
+    /** Links the output of a single-slot component, e.g. Producer, Container, Merger */
+    private <T extends FactoryComponent> void linkSingleOutput(
+            Map<GlobalPos, T> registry, Map<GlobalPos, GlobalPos> outputPosMap,
+            GlobalPos pos, GlobalPos outputPos, Direction outputDirection
+    ) {
+        T component = registry.get(pos);
         Port port = getPortAt(outputPos, outputDirection);
-        if (producer != null && port != null) {
-            producer.setOutput(port);
-            producerOutputPos.put(producerPos, outputPos);
-            setDirty();
-        }
+        if (component == null || port == null) return;
+
+        component.setOutputPort(0, port);
+        outputPosMap.put(pos, outputPos);
+        setDirty();
+    }
+
+    /** Links one output slot of a multi-slot component, e.g. Machine, Splitter */
+    private <T extends FactoryComponent> void linkSlotOutput(
+            Map<GlobalPos, T> registry, Map<GlobalPos, List<GlobalPos>> outputPosMap,
+            GlobalPos pos, int slotIndex, GlobalPos outputPos, Direction outputDirection
+    ) {
+        T component = registry.get(pos);
+        Port port = getPortAt(outputPos, outputDirection);
+        if (component == null || port == null) return;
+
+        component.setOutputPort(slotIndex, port);
+        List<GlobalPos> slots = outputPosMap.computeIfAbsent(pos, _ -> new ArrayList<>(component.outputSlotCount()));
+        while (slots.size() <= slotIndex) slots.add(null);
+        slots.set(slotIndex, outputPos);
+        setDirty();
+    }
+
+    public void linkProducerOutput(GlobalPos producerPos, GlobalPos outputPos, Direction outputDirection) {
+        linkSingleOutput(producers, producerOutputPos, producerPos, outputPos, outputDirection);
     }
 
     public void linkContainerOutput(GlobalPos containerPos, GlobalPos outputPos, Direction outputDirection) {
-        Container container = containers.get(containerPos);
-        Port port = getPortAt(outputPos, outputDirection);
-        if (container == null || port == null) return;
-
-        container.setOutput(port);
-        containerOutputPos.put(containerPos, outputPos);
-        setDirty();
+        linkSingleOutput(containers, containerOutputPos, containerPos, outputPos, outputDirection);
     }
 
     public void linkMachineOutput(GlobalPos machinePos, int slotIndex, GlobalPos outputPos, Direction outputDirection) {
-        Machine machine = machines.get(machinePos);
-        Port port = getPortAt(outputPos, outputDirection);
-        if (machine == null || port == null) return;
-
-        machine.setOutputPort(slotIndex, port);
-        machineOutputPos.computeIfAbsent(machinePos, _ -> new ArrayList<>(machine.outputSlotCount()));
-        List<GlobalPos> slots = machineOutputPos.get(machinePos);
-        while (slots.size() <= slotIndex) slots.add(null);
-        slots.set(slotIndex, outputPos);
-        setDirty();
+        linkSlotOutput(machines, machineOutputPos, machinePos, slotIndex, outputPos, outputDirection);
     }
 
     public void linkSplitterOutput(GlobalPos splitterPos, int slotIndex, GlobalPos outputPos, Direction outputDirection) {
-        Splitter splitter = splitters.get(splitterPos);
-        Port port = getPortAt(outputPos, outputDirection);
-        if (splitter == null || port == null) return;
-
-        splitter.setOutput(slotIndex, port);
-        splitterOutputPos.computeIfAbsent(splitterPos, _ -> new ArrayList<>(Splitter.MAX_OUTPUTS));
-        List<GlobalPos> slots = splitterOutputPos.get(splitterPos);
-        while (slots.size() <= slotIndex) slots.add(null);
-        slots.set(slotIndex, outputPos);
-        setDirty();
+        linkSlotOutput(splitters, splitterOutputPos, splitterPos, slotIndex, outputPos, outputDirection);
     }
 
     public void linkMergerOutput(GlobalPos mergerPos, GlobalPos outputPos, Direction outputDirection) {
-        Merger merger = mergers.get(mergerPos);
-        Port port = getPortAt(outputPos, outputDirection);
-        if (merger == null || port == null) return;
+        linkSingleOutput(mergers, mergerOutputPos, mergerPos, outputPos, outputDirection);
+    }
 
-        merger.setOutput(port);
-        mergerOutputPos.put(mergerPos, outputPos);
+    private <T> void removeComponent(
+            Map<GlobalPos, T> registry, @Nullable Map<GlobalPos, ?> outputPosMap,
+            GlobalPos pos, @Nullable java.util.function.Consumer<T> onRemoved
+    ) {
+        clearReferencesTo(pos);
+        T removed = registry.remove(pos);
+        if (removed == null) return;
+
+        if (onRemoved != null) onRemoved.accept(removed);
+        if (outputPosMap != null) outputPosMap.remove(pos);
         setDirty();
     }
 
     public void removeProducer(GlobalPos pos) {
-        Producer producer = producers.remove(pos);
-        if (producer != null) {
-            producer.cancelScheduledTask();
-            producerOutputPos.remove(pos);
-            setDirty();
-        }
+        removeComponent(producers, producerOutputPos, pos, Producer::cancelScheduledTask);
     }
 
     public void removeConsumer(GlobalPos pos) {
-        clearReferencesTo(pos);
-        if (consumers.remove(pos) != null) {
-            setDirty();
-        }
+        removeComponent(consumers, null, pos, null);
     }
 
     public void removeMachine(GlobalPos pos) {
-        clearReferencesTo(pos);
-        Machine machine = machines.remove(pos);
-        if (machine != null) {
-            machine.cancelScheduledTask();
-            machineOutputPos.remove(pos);
-            setDirty();
-        }
+        removeComponent(machines, machineOutputPos, pos, Machine::cancelScheduledTask);
     }
 
     public void removeContainer(GlobalPos pos) {
-        clearReferencesTo(pos);
-        if (containers.remove(pos) != null) {
-            containerOutputPos.remove(pos);
-            setDirty();
-        }
+        removeComponent(containers, containerOutputPos, pos, null);
     }
 
     public void removeSplitter(GlobalPos pos) {
-        clearReferencesTo(pos);
-        if (splitters.remove(pos) != null) {
-            splitterOutputPos.remove(pos);
-            setDirty();
-        }
+        removeComponent(splitters, splitterOutputPos, pos, null);
     }
 
     public void removeMerger(GlobalPos pos) {
-        clearReferencesTo(pos);
-        if (mergers.remove(pos) != null) {
-            mergerOutputPos.remove(pos);
-            setDirty();
+        removeComponent(mergers, mergerOutputPos, pos, null);
+    }
+
+    /** Unlinks any single-slot component whose output pointed at removedPos, then drops the entry */
+    private <T extends FactoryComponent> void clearSingleOutputReferencesTo(
+            Map<GlobalPos, T> registry, Map<GlobalPos, GlobalPos> outputPosMap, GlobalPos removedPos
+    ) {
+        for (var entry : outputPosMap.entrySet()) {
+            if (!removedPos.equals(entry.getValue())) continue;
+            T component = registry.get(entry.getKey());
+            if (component != null) component.setOutputPort(0, NO_OP_PORT);
+        }
+        outputPosMap.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+    }
+
+    /** Unlinks any multi-slot component's slot(s) that pointed at removedPos, then clears those slots */
+    private <T extends FactoryComponent> void clearSlotOutputReferencesTo(
+            Map<GlobalPos, T> registry, Map<GlobalPos, List<GlobalPos>> outputPosMap, GlobalPos removedPos
+    ) {
+        for (var entry : outputPosMap.entrySet()) {
+            List<GlobalPos> slots = entry.getValue();
+            for (int i = 0; i < slots.size(); i++) {
+                if (!removedPos.equals(slots.get(i))) continue;
+                T component = registry.get(entry.getKey());
+                if (component != null) component.setOutputPort(i, NO_OP_PORT);
+                slots.set(i, null);
+            }
         }
     }
 
@@ -332,51 +336,11 @@ public class FactoryNetwork extends SavedData {
             return true;
         });
 
-        for (var entry : producerOutputPos.entrySet()) {
-            if (removedPos.equals(entry.getValue())) {
-                Producer producer = producers.get(entry.getKey());
-                if (producer != null) producer.setOutput(NO_OP_PORT);
-            }
-        }
-        producerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
-
-        for (var entry : containerOutputPos.entrySet()) {
-            if (removedPos.equals(entry.getValue())) {
-                Container container = containers.get(entry.getKey());
-                if (container != null) container.setOutput(NO_OP_PORT);
-            }
-        }
-        containerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
-
-        for (var entry : machineOutputPos.entrySet()) {
-            List<GlobalPos> slots = entry.getValue();
-            for (int i = 0; i < slots.size(); i++) {
-                if (removedPos.equals(slots.get(i))) {
-                    Machine machine = machines.get(entry.getKey());
-                    if (machine != null) machine.setOutputPort(i, NO_OP_PORT);
-                    slots.set(i, null);
-                }
-            }
-        }
-
-        for (var entry : splitterOutputPos.entrySet()) {
-            List<GlobalPos> slots = entry.getValue();
-            for (int i = 0; i < slots.size(); i++) {
-                if (removedPos.equals(slots.get(i))) {
-                    Splitter splitter = splitters.get(entry.getKey());
-                    if (splitter != null) splitter.setOutput(i, NO_OP_PORT);
-                    slots.set(i, null);
-                }
-            }
-        }
-
-        for (var entry : mergerOutputPos.entrySet()) {
-            if (removedPos.equals(entry.getValue())) {
-                Merger merger = mergers.get(entry.getKey());
-                if (merger != null) merger.setOutput(NO_OP_PORT);
-            }
-        }
-        mergerOutputPos.entrySet().removeIf(e -> removedPos.equals(e.getValue()));
+        clearSingleOutputReferencesTo(producers, producerOutputPos, removedPos);
+        clearSingleOutputReferencesTo(containers, containerOutputPos, removedPos);
+        clearSingleOutputReferencesTo(mergers, mergerOutputPos, removedPos);
+        clearSlotOutputReferencesTo(machines, machineOutputPos, removedPos);
+        clearSlotOutputReferencesTo(splitters, splitterOutputPos, removedPos);
     }
 
     @Override
@@ -391,37 +355,56 @@ public class FactoryNetwork extends SavedData {
         if (tickOrder == null) tickOrder = computeTickOrder();
         for (TickTarget target : tickOrder) target.tick(currentTick);
 
-        Map<ResourceKey<Level>, List<BeltSyncPacket.Entry>> changedByDimension = new HashMap<>();
-        for (BeltLane lane : new ArrayList<>(laneManager.getAllLanes().values())) {
+        for (var chunkMap : pendingBeltSyncsByDimension.values())
+            for (var list : chunkMap.values()) list.clear();
+
+        for (BeltLane lane : laneManager.getAllLanes().values()) {
             if (!lane.hasUnsyncedChanges(currentTick)) continue;
 
             GlobalPos headPos = lane.headBlock();
-            ServerLevel laneLevel = level.getServer().getLevel(headPos.dimension());
-            if (laneLevel == null) { lane.markSynced(currentTick); continue; }
-
-            BlockPos pos = headPos.pos();
-            if (!hasTrackingPlayers(laneLevel, ChunkPos.containing(pos))) {
+            ResourceKey<Level> dim = headPos.dimension();
+            ServerLevel laneLevel = level.getServer().getLevel(dim);
+            if (laneLevel == null) {
                 lane.markSynced(currentTick);
                 continue;
             }
 
-            List<BlockPos> blockPositions = lane.getBlocks().stream().map(GlobalPos::pos).toList();
-            changedByDimension
-                    .computeIfAbsent(headPos.dimension(), _ -> new ArrayList<>())
-                    .add(new BeltSyncPacket.Entry(pos, blockPositions, currentTick, lane.getItemSnapshots(), lane.isFrontJammed()));
+            BlockPos pos = headPos.pos();
+            ChunkPos chunkPos = ChunkPos.containing(pos);
+
+            if (laneLevel.getChunkSource().chunkMap.getPlayers(chunkPos, false).isEmpty()) {
+                lane.markSynced(currentTick);
+                continue;
+            }
+
+            List<GlobalPos> blocks = lane.getBlocks();
+            List<BlockPos> blockPositions = new ArrayList<>(blocks.size());
+            for (GlobalPos globalPos : blocks) blockPositions.add(globalPos.pos());
+
+            BeltSyncPacket.Entry entry = new BeltSyncPacket.Entry(
+                    pos, blockPositions, currentTick, lane.getItemSnapshots(), lane.isFrontJammed()
+            );
+
+            pendingBeltSyncsByDimension
+                    .computeIfAbsent(dim, _ -> new HashMap<>())
+                    .computeIfAbsent(chunkPos, _ -> new ArrayList<>())
+                    .add(entry);
+
             lane.markSynced(currentTick);
         }
 
-        for (var entry : changedByDimension.entrySet()) {
-            ServerLevel targetLevel = level.getServer().getLevel(entry.getKey());
+        for (var dimEntry : pendingBeltSyncsByDimension.entrySet()) {
+            ServerLevel targetLevel = level.getServer().getLevel(dimEntry.getKey());
             if (targetLevel == null) continue;
 
-            List<BeltSyncPacket.Entry> allChanged = entry.getValue();
-            for (int start = 0; start < allChanged.size(); start += MAX_ENTRIES_PER_PACKET) {
-                int end = Math.min(start + MAX_ENTRIES_PER_PACKET, allChanged.size());
-                BeltSyncPacket payload = new BeltSyncPacket(allChanged.subList(start, end));
-                for (var player : targetLevel.players()) {
-                    PacketDistributor.sendToPlayer(player, payload);
+            for (var chunkEntry : dimEntry.getValue().entrySet()) {
+                List<BeltSyncPacket.Entry> entries = chunkEntry.getValue();
+                if (entries.isEmpty()) continue;
+
+                for (int start = 0; start < entries.size(); start += MAX_ENTRIES_PER_PACKET) {
+                    int end = Math.min(start + MAX_ENTRIES_PER_PACKET, entries.size());
+                    BeltSyncPacket payload = new BeltSyncPacket(new ArrayList<>(entries.subList(start, end)));
+                    PacketDistributor.sendToPlayersTrackingChunk(targetLevel, chunkEntry.getKey(), payload);
                 }
             }
         }
@@ -466,12 +449,6 @@ public class FactoryNetwork extends SavedData {
             if (consumer != null) resolved.add(consumer::tick);
         }
         return resolved;
-    }
-
-    private static boolean hasTrackingPlayers(ServerLevel level, ChunkPos chunkPos) {
-        ServerChunkCache chunkCache = level.getChunkSource();
-        if (!chunkCache.hasChunk(chunkPos.x(), chunkPos.z())) return false;
-        return !chunkCache.chunkMap.getPlayers(chunkPos, false).isEmpty();
     }
 
     private @Nullable Object resolveNode(GlobalPos pos) {
@@ -588,12 +565,11 @@ public class FactoryNetwork extends SavedData {
         for (Map.Entry<GlobalPos, Producer> entry : producers.entrySet()) {
             GlobalPos pos = entry.getKey();
             Producer producer = entry.getValue();
-            Payload pending = producer.getPending();
             persistedProducers.add(new Persisted.Producer(
                     pos, producer.getItemId(), producer.getInterval(),
                     Optional.ofNullable(producerOutputPos.get(pos)),
                     producer.isActive(),
-                    Optional.ofNullable(pending == null ? null : pending.itemId()),
+                    producer.getBufferedCount(),
                     producer.getNextProductionTick()
             ));
         }
@@ -712,10 +688,9 @@ public class FactoryNetwork extends SavedData {
         }
 
         for (Persisted.Producer producerData : snapshot.producers()) {
-            Payload pending = producerData.pendingItemId().map(Payload::new).orElse(null);
             Producer producer = Producer.restore(
                     producerData.itemType(), producerData.interval(), NO_OP_PORT, network.scheduler,
-                    producerData.active(), pending, producerData.nextProductionTick()
+                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick()
             );
             network.producers.put(producerData.pos(), producer);
             producerData.outputPos().ifPresent(outPos -> network.producerOutputPos.put(producerData.pos(), outPos));
