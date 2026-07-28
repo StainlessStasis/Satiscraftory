@@ -65,5 +65,6 @@ public class SCModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
 
         itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
+        itemModels.itemModelOutput.accept(SCItems.IRON_ROD.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_rod")));
     }
 }
