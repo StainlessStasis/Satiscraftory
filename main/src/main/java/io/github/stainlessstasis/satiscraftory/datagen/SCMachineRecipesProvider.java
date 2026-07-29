@@ -22,7 +22,19 @@ public class SCMachineRecipesProvider extends ManifoldRecipeProvider {
                 ManifoldMachineTypes.BASIC_MACHINE,
                 List.of(RecipeIngredient.of(Items.IRON_INGOT, 3)),
                 List.of(RecipeIngredient.of(SCItems.IRON_PLATE, 2)),
-                120L
+                6*20 // 20/min
+        ));
+        output.accept(Satiscraftory.id("iron_rod"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(Items.IRON_INGOT, 1)),
+                List.of(RecipeIngredient.of(SCItems.IRON_ROD, 1)),
+                4*20 // 15/min
+        ));
+        output.accept(Satiscraftory.id("screws"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(SCItems.IRON_ROD, 1)),
+                List.of(RecipeIngredient.of(SCItems.SCREWS, 4)),
+                6*20 // 40/min
         ));
     }
 }

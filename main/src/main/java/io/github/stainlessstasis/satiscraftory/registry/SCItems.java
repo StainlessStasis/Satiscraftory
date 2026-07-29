@@ -15,4 +15,5 @@ public class SCItems {
     public static final DeferredItem<BlockItem> BELT_MK3 = ITEMS.registerSimpleBlockItem("belt_mk3", SCBlocks.BELT_MK3);
     public static final DeferredItem<Item> IRON_PLATE = ITEMS.registerSimpleItem("iron_plate");
     public static final DeferredItem<Item> IRON_ROD = ITEMS.registerSimpleItem("iron_rod");
+    public static final DeferredItem<Item> SCREWS = ITEMS.registerSimpleItem("screws");
 }

@@ -38,6 +38,10 @@ public class SCModelProvider extends FactoryModelProvider {
 
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
+        itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
+        itemModels.itemModelOutput.accept(SCItems.IRON_ROD.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_rod")));
+        itemModels.itemModelOutput.accept(SCItems.SCREWS.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/screws")));
+
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
@@ -63,8 +67,5 @@ public class SCModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
-
-        itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
-        itemModels.itemModelOutput.accept(SCItems.IRON_ROD.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_rod")));
     }
 }
