@@ -13,6 +13,8 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -79,5 +81,10 @@ public class MultiblockFillerBlock extends BaseEntityBlock {
     @Override
     protected boolean propagatesSkylightDown(@NonNull BlockState state) {
         return true;
+    }
+
+    @Override
+    protected @NonNull VoxelShape getOcclusionShape(@NonNull BlockState state) {
+        return Shapes.empty();
     }
 }

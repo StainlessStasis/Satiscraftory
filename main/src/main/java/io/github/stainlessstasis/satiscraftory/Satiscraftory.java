@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.satiscraftory;
 
-import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
@@ -42,9 +41,9 @@ public class Satiscraftory {
         return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("creative_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("itemGroup."+MODID))
-            .withTabsBefore(CreativeModeTabs.COMBAT)
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FACTORY_COMPONENTS_TAB = CREATIVE_MODE_TABS.register("factory_components", () -> CreativeModeTab.builder()
+            .title(Component.translatable("factory_components_tab."+MODID))
+            .withTabsBefore(CreativeModeTabs.OP_BLOCKS)
             .icon(() -> ManifoldItems.MACHINE.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(ManifoldItems.PRODUCER.get());
@@ -57,6 +56,17 @@ public class Satiscraftory {
                 output.accept(ManifoldItems.MACHINE.get());
                 output.accept(ManifoldItems.CONTAINER.get());
                 output.accept(ManifoldItems.CONSUMER.get());
+            }).build()
+    );
+
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FACTORY_ITEMS_TAB = CREATIVE_MODE_TABS.register("factory_items", () -> CreativeModeTab.builder()
+            .title(Component.translatable("factory_items_tab."+MODID))
+            .withTabsBefore(FACTORY_COMPONENTS_TAB.getKey())
+            .icon(() -> SCItems.SCREWS.get().getDefaultInstance())
+            .displayItems((_, output) -> {
+                output.accept(SCItems.IRON_PLATE.get());
+                output.accept(SCItems.IRON_ROD.get());
+                output.accept(SCItems.SCREWS.get());
             }).build()
     );
 }

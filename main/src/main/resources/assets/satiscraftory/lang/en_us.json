@@ -1,5 +1,7 @@
 {
-  "itemGroup.satiscraftory": "Factory Components",
+  "factory_components_tab.satiscraftory": "Factory Components",
+  "factory_items_tab.satiscraftory": "Factory Items",
+
   "block.satiscraftory.belt_mk1": "Belt Mk. 1",
   "block.satiscraftory.belt_mk2": "Belt Mk. 2",
   "block.satiscraftory.belt_mk3": "Belt Mk. 3",
