@@ -63,8 +63,13 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 - Merging/side-loading a belt puts the items onto the belt at the start of that belt lane, instead of the exact block 
 - Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
 - Factory block models clip into each other and cause z-fighting. Size of the models is intended, but they are still placeholders. Will eventually disallow placing them too close to each other, and some will become multiblocks
-# Feedback
+# Get Involved
+## Feedback
 Having other people stress test their system, report bugs, and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. This mod is still in its early stages so I'm open to pretty much anything
+## Help Needed!
+Currently, the bottleneck of the mod is art. I am not an artist by any means, but I do what I can to make things not just boring placeholders. However, trying to develop the mod while also handling art is a difficult and unsustainable task. For instance, the Miner Mk. 1, even with the ability to reference it directly from Satisfactory, still took several full days of work
+
+If you are an artist, animator, or sound designer, and you want to help out, please join the [Discord server](https://discord.gg/A7nnazW8gX) or message me directly (stasis_the_shattered)
 
 ## Reporting Issues
 When reporting logical (CPU, RAM) performance issues, include:
