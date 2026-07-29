@@ -1,3 +1,13 @@
+# 0.3.1-alpha (Jul 28, 2026)
+## New Features
+Added new items!<br>
+**Iron Rod:** 1x iron ingot -> 1x iron rod; 4 sec (15/min)<br>
+**Screws:** 1x iron rod -> 4x screws; 6 sec (40/min)
+
+## Changes & Fixes
+- Fixed Machines not crafting when flushing their outputs, which caused noticeable discrepancies in the expected ratios of factories compared to what they actually produced. This fixes manifold designs not filling up the Machine's buffers, and they now work properly
+- Added factory items (iron plate, iron rod, screws) to their own Factory Items creative tab
+
 # 0.3.0-alpha (Jul 27, 2026)
 ## New Features
 Added resource nodes and miners!<br><br>

@@ -1,11 +1,15 @@
 {
-  "itemGroup.satiscraftory": "Factory Components",
+  "factory_components_tab.satiscraftory": "Factory Components",
+  "factory_items_tab.satiscraftory": "Factory Items",
+
   "block.satiscraftory.belt_mk1": "Belt Mk. 1",
   "block.satiscraftory.belt_mk2": "Belt Mk. 2",
   "block.satiscraftory.belt_mk3": "Belt Mk. 3",
   "block.satiscraftory.miner_mk1": "Miner Mk. 1",
 
   "item.satiscraftory.iron_plate": "Iron Plate",
+  "item.satiscraftory.iron_rod": "Iron Rod",
+  "item.satiscraftory.screws": "Screws",
 
   "sound.satiscraftory.miner_startup": "Miner Whirs",
   "sound.satiscraftory.miner_drilling": "Miner Drills",

@@ -18,8 +18,8 @@ public record ResourceNodeConfig(
             BlockState.CODEC.fieldOf("node_state").forGetter(ResourceNodeConfig::nodeState),
             BlockState.CODEC.fieldOf("resource_state").forGetter(ResourceNodeConfig::resourceState),
             IntProviders.NON_NEGATIVE_CODEC.fieldOf("radius").forGetter(ResourceNodeConfig::radius),
-            IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_size").forGetter(ResourceNodeConfig::clusterSize),
-            IntProviders.NON_NEGATIVE_CODEC.fieldOf("clump_spread").forGetter(ResourceNodeConfig::clusterSpread)
+            IntProviders.NON_NEGATIVE_CODEC.fieldOf("cluster_size").forGetter(ResourceNodeConfig::clusterSize),
+            IntProviders.NON_NEGATIVE_CODEC.fieldOf("cluster_spread").forGetter(ResourceNodeConfig::clusterSpread)
     ).apply(instance, ResourceNodeConfig::new));
 
     public ResourceNodeConfig withNodeState(BlockState nodeState) {
