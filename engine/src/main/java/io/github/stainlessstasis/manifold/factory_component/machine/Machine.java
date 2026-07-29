@@ -122,6 +122,12 @@ public class Machine implements FactoryComponent {
         for (int i = 0; i < recipe.inputCount(); i++) {
             if (bufferedCounts[i] < recipe.inputs().get(i).amount()) return;
         }
+        for (int i = 0; i < recipe.outputCount(); i++) {
+            RecipeIngredient outIngredient = recipe.outputs().get(i);
+            int cap = outIngredient.amount() * bufferMultiplier;
+            if (pendingOutputs.get(i).size() + outIngredient.amount() > cap) return;
+        }
+
         for (int i = 0; i < recipe.inputCount(); i++) {
             bufferedCounts[i] -= recipe.inputs().get(i).amount();
         }
@@ -165,13 +171,16 @@ public class Machine implements FactoryComponent {
     }
 
     private void tryFlushOutputs() {
+        boolean freedSpace = false;
         for (int i = 0; i < pendingOutputs.size(); i++) {
             Deque<Payload> queue = pendingOutputs.get(i);
             Port port = outputPorts.get(i);
             while (!queue.isEmpty() && port.canAccept(queue.peekFirst())) {
                 port.accept(queue.pollFirst());
+                freedSpace = true;
             }
         }
+        if (freedSpace) tryStartCrafting();
     }
 
     public MachineRecipe getRecipe() { return recipe; }
