@@ -32,6 +32,7 @@ import java.util.List;
 
 public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
+    private Identifier pendingRecipeId; // for the presetrecipe command
 
     private static final int[] INPUT_X = {21};
     private static final int[] INPUT_Y = {26};
@@ -72,6 +73,25 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
 
         relink(network);
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
+
+        tryApplyPendingRecipe();
+    }
+
+    public void setPendingRecipe(Identifier recipeId) {
+        this.pendingRecipeId = recipeId;
+        tryApplyPendingRecipe();
+    }
+
+    private void tryApplyPendingRecipe() {
+        if (pendingRecipeId == null || machine == null) return;
+
+        Identifier recipeId = pendingRecipeId;
+        pendingRecipeId = null;
+
+        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        if (recipe == null) return;
+
+        machine.setRecipe(recipe, machine.getOutputPorts());
     }
 
     public void relink(FactoryNetwork network) {
