@@ -16,4 +16,5 @@ public class SCItems {
     public static final DeferredItem<Item> IRON_PLATE = ITEMS.registerSimpleItem("iron_plate");
     public static final DeferredItem<Item> IRON_ROD = ITEMS.registerSimpleItem("iron_rod");
     public static final DeferredItem<Item> SCREWS = ITEMS.registerSimpleItem("screws");
+    public static final DeferredItem<Item> COPPER_SHEET = ITEMS.registerSimpleItem("copper_sheet");
 }

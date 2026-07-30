@@ -41,6 +41,7 @@ public class SCModelProvider extends FactoryModelProvider {
         itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
         itemModels.itemModelOutput.accept(SCItems.IRON_ROD.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_rod")));
         itemModels.itemModelOutput.accept(SCItems.SCREWS.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/screws")));
+        itemModels.itemModelOutput.accept(SCItems.COPPER_SHEET.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/copper_sheet")));
 
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
