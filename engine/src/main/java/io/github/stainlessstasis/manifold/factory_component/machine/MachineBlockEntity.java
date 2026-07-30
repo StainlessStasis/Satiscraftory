@@ -33,10 +33,10 @@ import java.util.List;
 public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
 
-    private static final int[] INPUT_X = {56};
-    private static final int[] INPUT_Y = {35};
-    private static final int[] OUTPUT_X = {116};
-    private static final int[] OUTPUT_Y = {35};
+    private static final int[] INPUT_X = {21};
+    private static final int[] INPUT_Y = {26};
+    private static final int[] OUTPUT_X = {139};
+    private static final int[] OUTPUT_Y = {26};
     private static final int PLAYER_INV_X = 8;
     private static final int PLAYER_INV_Y = 84;
 
