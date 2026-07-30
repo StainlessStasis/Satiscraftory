@@ -1,3 +1,12 @@
+# 0.4.0-alpha (Jul 30, 2026)
+## ⚠️ BREAKING CHANGES ⚠️
+Any Machine that isn't using the default iron ingot recipe will stop working and will need to have its recipe reset. This is a necessary change to implement the new menu.
+
+## New Features
+Added a menu to Machines!
+- Right click a Machine to open its menu. Here you can put in and take out items, and see the crafting progress and items per minute
+- Added new `/factory presetrecipe <id>` command - any Machines you place will automatically have that recipe applied to them, so you don't have to do it manually for each one. This state is volatile and will reset when the game is restarted
+
 # 0.3.1-alpha (Jul 28, 2026)
 ## New Features
 Added new items!<br>

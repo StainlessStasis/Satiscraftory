@@ -88,10 +88,20 @@ public final class FactoryCommands {
                                                         .executes(ctx -> setRecipe(ctx, BlockPosArgument.getBlockPos(ctx, "pos"), true)))))
                         )
                 )
+
+                .then(Commands.literal("presetrecipe")
+                        .requires(GAMEMASTER)
+                        .then(Commands.argument("recipe", IdentifierArgument.id())
+                                .suggests((_, builder) -> SharedSuggestionProvider.suggestResource(
+                                        ManifoldRecipes.allRecipes().keySet(), builder))
+                                .executes(FactoryCommands::presetRecipe))
+                        .then(Commands.literal("clear")
+                                .executes(FactoryCommands::clearPresetRecipe))
+                )
         );
     }
 
-    private static int setRecipe(CommandContext<CommandSourceStack> ctx, BlockPos explicitPos, boolean force) throws CommandSyntaxException {
+    private static int setRecipe(CommandContext<CommandSourceStack> ctx, BlockPos explicitPos, boolean force) {
         CommandSourceStack source = ctx.getSource();
         ServerLevel level = source.getLevel();
         Identifier recipeId = IdentifierArgument.getId(ctx, "recipe");
@@ -133,6 +143,38 @@ public final class FactoryCommands {
         }
 
         source.sendSuccess(() -> Component.literal("Set recipe at " + pos.toShortString() + " to " + recipeId), true);
+        return 1;
+    }
+
+    private static int presetRecipe(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("This command must be run by a player"));
+            return 0;
+        }
+
+        Identifier recipeId = IdentifierArgument.getId(ctx, "recipe");
+        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        if (recipe == null) {
+            source.sendFailure(Component.literal("No such recipe: " + recipeId));
+            return 0;
+        }
+
+        PlacementRecipePresets.set(player.getUUID(), recipeId);
+        source.sendSuccess(() -> Component.literal(
+                "Machines you place will now use recipe " + recipeId + " until cleared"), false);
+        return 1;
+    }
+
+    private static int clearPresetRecipe(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
+        if (!(source.getEntity() instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("This command must be run by a player"));
+            return 0;
+        }
+
+        PlacementRecipePresets.clear(player.getUUID());
+        source.sendSuccess(() -> Component.literal("Cleared your placement recipe preset"), false);
         return 1;
     }
 
