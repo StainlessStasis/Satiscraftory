@@ -57,6 +57,7 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 `/factory loaded [optional: same as above]` - Outputs the amount of factory components in loaded chunks<br>
 `/factory rendered [optional: same as above]` - Outputs the amount of factory components in chunks loaded by your client<br>
 `/factory setrecipe <recipe> [at/force]` - Sets a machine's recipe, optionally at the specified block coordinate (in the same dimension). The `force` option will force the machine to clear its buffers and stop crafting so that it can set the new recipe immediately<br>
+`/factory presetrecipe <recipe>` - Sets a recipe preset which automatically is applied to any machines you place. Does not persist between game restarts<br>
 `/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick<br>
 `/findnode <type>` - Locates the nearest Resource Nodes of the specified type
 # Known Issues
