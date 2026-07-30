@@ -53,17 +53,8 @@ Rendering is easily the largest bottleneck of the mod right now. As mentioned ab
 
 While 5000 on-screen items is still pushing the upper bounds of what's normally expected in a playthrough, there is still massive room for improvement - especially considering that this is *without* having a ton of animated machines on screen, which will only worsen the FPS problem when that time comes. This will be fixed in the near future once [Flywheel](https://github.com/Engine-Room/Flywheel)'s 26.1.2 port is finalized. Flywheel will allow Satiscraftory to take advantage of instanced rendering and hopefully push those FPS numbers up a decent bit.
 # Commands
-`/factory count [optional: belts/consumers/containers/machines/produces]` - Outputs the global amount of factory components. Includes unloaded chunks and other dimensions<br>
-`/factory loaded [optional: same as above]` - Outputs the amount of factory components in loaded chunks<br>
-`/factory rendered [optional: same as above]` - Outputs the amount of factory components in chunks loaded by your client<br>
-`/factory setrecipe <recipe> [at/force]` - Sets a machine's recipe, optionally at the specified block coordinate (in the same dimension). The `force` option will force the machine to clear its buffers and stop crafting so that it can set the new recipe immediately<br>
-`/factory presetrecipe <recipe>` - Sets a recipe preset which automatically is applied to any machines you place. Does not persist between game restarts<br>
-`/factory [freeze/unfreeze]` - Freezes/unfreezes the ticking of all factories, separately from the server tick<br>
-`/findnode <type>` - Locates the nearest Resource Nodes of the specified type
-# Known Issues
-- Merging/side-loading a belt puts the items onto the belt at the start of that belt lane, instead of the exact block 
-- Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
-- Factory block models clip into each other and cause z-fighting. Size of the models is intended, but they are still placeholders. Will eventually disallow placing them too close to each other, and some will become multiblocks
+See the [wiki](https://github.com/StainlessStasis/Satiscraftory/wiki/4.-Commands)
+
 # Get Involved
 ## Feedback
 Having other people stress test their system, report bugs, and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. This mod is still in its early stages so I'm open to pretty much anything
