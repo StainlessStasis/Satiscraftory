@@ -38,10 +38,11 @@ public class SCModelProvider extends FactoryModelProvider {
 
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
-        itemModels.itemModelOutput.accept(SCItems.IRON_PLATE.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_plate")));
-        itemModels.itemModelOutput.accept(SCItems.IRON_ROD.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/iron_rod")));
-        itemModels.itemModelOutput.accept(SCItems.SCREWS.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/screws")));
-        itemModels.itemModelOutput.accept(SCItems.COPPER_SHEET.get(), ItemModelUtils.plainModel(Satiscraftory.id("item/copper_sheet")));
+        for (var itemHolder : SCItems.getFactoryItems()) {
+            Item item = itemHolder.get();
+            Identifier itemId = itemHolder.getKey().identifier();
+            itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(Satiscraftory.id("item/" + itemId.getPath())));
+        }
 
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
