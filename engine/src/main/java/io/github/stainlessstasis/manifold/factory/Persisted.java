@@ -12,6 +12,11 @@ import java.util.*;
 final class Persisted {
     private Persisted() {}
 
+    private static final Codec<int[]> INT_ARRAY_CODEC = Codec.INT.listOf().xmap(
+            list -> list.stream().mapToInt(Integer::intValue).toArray(),
+            arr -> Arrays.stream(arr).boxed().toList()
+    );
+
     record BeltItem(long id, double position, Identifier itemId) {
         static final Codec<BeltItem> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.LONG.optionalFieldOf("id", -1L).forGetter(BeltItem::id),
@@ -57,8 +62,8 @@ final class Persisted {
         ).apply(i, Consumer::new));
     }
 
-    record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, long craftCompletionTick,
-                   int[] bufferedCounts, List<List<Identifier>> pendingOutputItemIds,
+    record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, boolean stalled,
+                   long craftCompletionTick, int[] inputCounts, int[] outputCounts,
                    Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces,
                    Map<Integer, GlobalPos> outputPos) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -66,12 +71,10 @@ final class Persisted {
                 Identifier.CODEC.fieldOf("recipeId").forGetter(Machine::recipeId),
                 Codec.INT.fieldOf("bufferMultiplier").forGetter(Machine::bufferMultiplier),
                 Codec.BOOL.fieldOf("crafting").forGetter(Machine::crafting),
+                Codec.BOOL.optionalFieldOf("stalled", false).forGetter(Machine::stalled),
                 Codec.LONG.fieldOf("craftCompletionTick").forGetter(Machine::craftCompletionTick),
-                Codec.INT.listOf().xmap(
-                        list -> list.stream().mapToInt(Integer::intValue).toArray(),
-                        arr -> Arrays.stream(arr).boxed().toList()
-                ).fieldOf("bufferedCounts").forGetter(Machine::bufferedCounts),
-                Identifier.CODEC.listOf().listOf().fieldOf("pendingOutputItemIds").forGetter(Machine::pendingOutputItemIds),
+                INT_ARRAY_CODEC.fieldOf("inputCounts").forGetter(Machine::inputCounts),
+                INT_ARRAY_CODEC.fieldOf("outputCounts").forGetter(Machine::outputCounts),
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Machine::inputFaces),
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Machine::outputFaces),
                 Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, String::valueOf), GlobalPos.CODEC)

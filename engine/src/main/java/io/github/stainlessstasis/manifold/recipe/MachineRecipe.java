@@ -15,8 +15,28 @@ public record MachineRecipe(
         List<RecipeIngredient> outputs,
         long durationTicks
 ) {
-    public int inputCount() { return inputs.size(); }
-    public int outputCount() { return outputs.size(); }
+    public MachineRecipe {
+        if (outputs.isEmpty()) {
+            throw new IllegalArgumentException("Recipe " + id + " must have at least one output");
+        }
+    }
+
+    public int inputCount() {
+        return inputs.size();
+    }
+    public int outputCount() {
+        return outputs.size();
+    }
+
+    /**
+     * Index 0 is always the main output, the rest are byproducts
+     */
+    public RecipeIngredient mainOutput() {
+        return outputs.getFirst();
+    }
+    public List<RecipeIngredient> byproducts() {
+        return outputs.subList(1, outputs.size());
+    }
 
     public record Data(Identifier machineType, List<RecipeIngredient> inputs,
                        List<RecipeIngredient> outputs, long durationTicks) {
@@ -44,7 +64,6 @@ public record MachineRecipe(
             public Builder input(ItemLike item, int amount) { inputs.add(RecipeIngredient.of(item, amount)); return this; }
             public Builder output(ItemLike item, int amount) { outputs.add(RecipeIngredient.of(item, amount)); return this; }
             public Builder duration(long ticks) { this.duration = ticks; return this; }
-
             public Data build() { return new Data(machineType, List.copyOf(inputs), List.copyOf(outputs), duration); }
         }
     }

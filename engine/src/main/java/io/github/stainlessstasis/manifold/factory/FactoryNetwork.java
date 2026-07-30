@@ -20,7 +20,6 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -611,8 +610,8 @@ public class FactoryNetwork extends SavedData {
 
             persistedMachines.add(new Persisted.Machine(
                     pos, machine.getRecipe().id(), machine.getBufferMultiplier(),
-                    machine.isCrafting(), machine.getCraftCompletionTick(),
-                    machine.getBufferedCounts(), machine.getPendingOutputItemIds(),
+                    machine.isCrafting(), machine.isStalled(), machine.getCraftCompletionTick(),
+                    machine.getInputCounts(), machine.getOutputCounts(),
                     machine.getInputFaceAssignments(), machine.getOutputFaceAssignments(),
                     outputPositions
             ));
@@ -704,8 +703,8 @@ public class FactoryNetwork extends SavedData {
             for (int i = 0; i < recipe.outputCount(); i++) outputPorts.add(NO_OP_PORT);
 
             Machine machine = Machine.restore(recipe, network.scheduler, outputPorts, machineData.bufferMultiplier(),
-                    machineData.crafting(), machineData.craftCompletionTick(),
-                    machineData.bufferedCounts(), machineData.pendingOutputItemIds(),
+                    machineData.crafting(), machineData.stalled(), machineData.craftCompletionTick(),
+                    machineData.inputCounts(), machineData.outputCounts(),
                     machineData.inputFaces(), machineData.outputFaces());
             network.machines.put(machineData.pos(), machine);
 
