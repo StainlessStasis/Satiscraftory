@@ -40,7 +40,8 @@ public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
         String status = menu.isStalled() ? "STALLED"
                 : menu.isCrafting() ? String.format("%.0f%%", progress * 100)
                   : "IDLE";
-        centeredTextNoShadow(graphics, font, status, x + imageWidth / 2, y + 20, TEXT_COLOR);
+        // +6x to account for the % sign, then another +3x for half space of a number
+        centeredTextNoShadow(graphics, font, status, x + 9 + imageWidth / 2, y + 20, TEXT_COLOR);
     }
 
     private void centeredTextNoShadow(GuiGraphicsExtractor graphics, Font font, String str, int x, int y, int color) {
