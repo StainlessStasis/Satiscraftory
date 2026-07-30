@@ -33,6 +33,7 @@ import java.util.List;
 public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
+    private static final double DEMAND_MW = 10d;
 
     private static final int[] INPUT_X = {21};
     private static final int[] INPUT_Y = {26};
@@ -66,6 +67,7 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
             }
             return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
         });
+        network.getPowerGrid().registerConsumer(globalPos, DEMAND_MW, machine::setPowered);
 
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         machine.assignOutputFace(facing, 0);

@@ -355,6 +355,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void tickAll(ServerLevel level, long currentTick) {
+        powerGrid.tick();
         scheduler.tick(currentTick);
 
         if (tickOrder == null) tickOrder = computeTickOrder();

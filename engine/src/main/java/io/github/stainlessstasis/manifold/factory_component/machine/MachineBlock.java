@@ -86,7 +86,10 @@ public class MachineBlock extends AbstractDirectionalFactoryBlock {
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).removeMachine(GlobalPos.of(level.dimension(), pos));
+        FactoryNetwork network = FactoryNetwork.get(level);
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
+        network.removeMachine(globalPos);
+        network.getPowerGrid().unregisterConsumer(globalPos);
     }
 
     @Override
