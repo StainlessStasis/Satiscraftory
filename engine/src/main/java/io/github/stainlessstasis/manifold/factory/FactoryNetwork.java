@@ -48,8 +48,10 @@ public class FactoryNetwork extends SavedData {
     };
 
     private final Scheduler scheduler = new Scheduler();
-    private final Map<GlobalPos, Producer> producers = new HashMap<>();
+    private final PowerGrid powerGrid = new PowerGrid();
     private final LaneManager laneManager = new LaneManager();
+
+    private final Map<GlobalPos, Producer> producers = new HashMap<>();
     private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
     private final Map<GlobalPos, Machine> machines = new HashMap<>();
     private final Map<GlobalPos, Container> containers = new HashMap<>();
@@ -91,6 +93,10 @@ public class FactoryNetwork extends SavedData {
 
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public PowerGrid getPowerGrid() {
+        return powerGrid;
     }
 
     public LaneManager getLaneManager() {

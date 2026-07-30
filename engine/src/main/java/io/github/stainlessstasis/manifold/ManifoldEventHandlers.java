@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold;
 
 import io.github.stainlessstasis.manifold.command.FactoryCommands;
+import io.github.stainlessstasis.manifold.command.PowerDebugCommands;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -26,7 +27,9 @@ public class ManifoldEventHandlers {
 
     @SubscribeEvent
     static void onRegisterCommands(RegisterCommandsEvent event) {
-        FactoryCommands.register(event.getDispatcher());
+        var dispatcher = event.getDispatcher();
+        FactoryCommands.register(dispatcher);
+        PowerDebugCommands.register(dispatcher);
     }
 
     @SubscribeEvent
