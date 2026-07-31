@@ -56,6 +56,9 @@ public final class PowerDebugCommands {
                 .then(Commands.literal("networks")
                         .executes(PowerDebugCommands::listNetworks))
 
+                .then(Commands.literal("clear")
+                        .executes(PowerDebugCommands::clearNetworks))
+
                 .then(Commands.literal("supply")
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .then(Commands.argument("amount", DoubleArgumentType.doubleArg(0))
@@ -193,5 +196,17 @@ public final class PowerDebugCommands {
                     "  " + network.getId() + " - " + network.size() + " node(s): " + network.getMembers()), false);
         }
         return networks.size();
+    }
+
+    private static int clearNetworks(CommandContext<CommandSourceStack> ctx) {
+        ServerLevel level = ctx.getSource().getLevel();
+        PowerGrid grid = FactoryNetwork.get(level).getPowerGrid();
+        int count = grid.getNetworks().size();
+
+        grid.clear();
+
+        ctx.getSource().sendSuccess(() ->
+                Component.literal("Cleared " + count + " power network(s) and reset power grid"), false);
+        return count;
     }
 }

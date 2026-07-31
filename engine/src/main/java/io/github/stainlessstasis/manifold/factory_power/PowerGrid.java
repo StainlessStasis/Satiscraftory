@@ -226,6 +226,26 @@ public class PowerGrid {
         }
     }
 
+    /**
+     * Clears all nodes, connections, and power registrations from the grid
+     */
+    public void clear() {
+        nodes.clear();
+        adjacency.clear();
+        parent.clear();
+        rank.clear();
+
+        supplyByNode.clear();
+        demandByNode.clear();
+        satisfactionByNode.clear();
+        poweredByNode.clear();
+        consumerListeners.clear();
+
+        networkByNode.clear();
+        networks = List.of();
+        dirty = false;
+    }
+
     private void registerInUnionFind(GlobalPos pos) {
         parent.putIfAbsent(pos, pos);
         rank.putIfAbsent(pos, 0);
