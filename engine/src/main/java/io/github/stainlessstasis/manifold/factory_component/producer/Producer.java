@@ -134,6 +134,7 @@ public class Producer implements PowerableFactoryComponent {
         return powered;
     }
 
+    @Override
     public void pauseForPowerLoss() {
         if (productionTask == null) return;
         pausedRemainingTicks = nextProductionTick - scheduler.getCurrentTick();
@@ -141,6 +142,7 @@ public class Producer implements PowerableFactoryComponent {
         productionTask = null;
     }
 
+    @Override
     public void resumeFromPowerLoss() {
         if (pausedRemainingTicks < 0) return;
         long remainingTicks = pausedRemainingTicks;
@@ -148,6 +150,9 @@ public class Producer implements PowerableFactoryComponent {
 
         if (active && !isBufferFull()) {
             scheduleNextProduction(scheduler.getCurrentTick() + remainingTicks);
+            if (productionTask == null) {
+                scheduleNextProduction(scheduler.getCurrentTick() + interval);
+            }
         }
     }
 
