@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.menu.MachineContainerData;
 import io.github.stainlessstasis.manifold.menu.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -31,7 +32,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class MachineBlockEntity extends FactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
+public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
     private static final double DEMAND_MW = 10d;
@@ -54,6 +55,11 @@ public class MachineBlockEntity extends FactoryBlockEntity<Machine> implements M
     }
 
     @Override
+    public double getPowerDemand() {
+        return DEMAND_MW;
+    }
+
+    @Override
     public void onLoad() {
         super.onLoad();
         if (!(level instanceof ServerLevel serverLevel)) return;
@@ -68,7 +74,7 @@ public class MachineBlockEntity extends FactoryBlockEntity<Machine> implements M
             }
             return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
         });
-        network.getPowerGrid().registerConsumer(globalPos, DEMAND_MW, machine::setPowered);
+        registerPowerConsumer(serverLevel);
 
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         machine.assignOutputFace(facing, 0);

@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.producer;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
@@ -13,7 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class ProducerBlockEntity extends FactoryBlockEntity<Producer> {
+public class ProducerBlockEntity extends PowerConsumingFactoryBlockEntity<Producer> {
     private Producer producer;
 
     public ProducerBlockEntity(BlockPos pos, BlockState state) {
@@ -22,6 +23,11 @@ public class ProducerBlockEntity extends FactoryBlockEntity<Producer> {
 
     public ProducerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    @Override
+    public double getPowerDemand() {
+        return 0;
     }
 
     @Override

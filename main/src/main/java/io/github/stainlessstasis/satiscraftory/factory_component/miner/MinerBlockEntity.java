@@ -83,28 +83,17 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     }
 
     @Override
+    public double getPowerDemand() {
+        return DEMAND_MW;
+    }
+
+    @Override
     public void setRemoved() {
         super.setRemoved();
         if (level instanceof ServerLevel serverLevel) {
             unlinkFromResourceNode(serverLevel);
             unregisterPowerConsumer(serverLevel);
         }
-    }
-
-    private void registerPowerConsumer(ServerLevel serverLevel) {
-        if (Config.POWER_REQUIRED.isFalse()) return;
-
-        Producer producer = getFactoryComponent();
-        if (producer == null) return;
-
-        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        PowerGrid powerGrid = FactoryNetwork.get(serverLevel).getPowerGrid();
-        powerGrid.registerConsumer(globalPos, DEMAND_MW, producer::setPowered);
-    }
-
-    private void unregisterPowerConsumer(ServerLevel serverLevel) {
-        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        FactoryNetwork.get(serverLevel).getPowerGrid().unregisterConsumer(globalPos);
     }
 
     @Override
