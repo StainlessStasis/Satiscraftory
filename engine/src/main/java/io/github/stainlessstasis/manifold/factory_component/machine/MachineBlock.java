@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.command.PlacementRecipePresets;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.item.PowerLinkDebugItem;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
@@ -51,6 +52,10 @@ public class MachineBlock extends AbstractDirectionalFactoryBlock {
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof MachineBlockEntity machineBE)) {
+            return InteractionResult.PASS;
+        }
+
+        if (player.getMainHandItem().getItem() instanceof PowerLinkDebugItem) {
             return InteractionResult.PASS;
         }
 
