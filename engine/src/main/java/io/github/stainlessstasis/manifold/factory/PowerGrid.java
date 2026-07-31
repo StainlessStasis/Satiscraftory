@@ -1,5 +1,7 @@
 package io.github.stainlessstasis.manifold.factory;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.GlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -121,6 +123,35 @@ public class PowerGrid {
         return neighbors != null && neighbors.contains(nodeB);
     }
 
+    /**
+     *  Every connection currently in the grid
+     */
+    public Set<Edge> getEdges() {
+        Set<Edge> allEdges = new HashSet<>();
+        for (var adjacencyEntry : adjacency.entrySet()) {
+            for (GlobalPos neighborPos : adjacencyEntry.getValue()) {
+                allEdges.add(Edge.canonical(adjacencyEntry.getKey(), neighborPos));
+            }
+        }
+        return allEdges;
+    }
+
+    /**
+     *  A connection between two nodes
+     */
+    public record Edge(GlobalPos nodeA, GlobalPos nodeB) {
+        public static final Codec<Edge> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("nodeA").forGetter(Edge::nodeA),
+                GlobalPos.CODEC.fieldOf("nodeB").forGetter(Edge::nodeB)
+        ).apply(i, Edge::canonical));
+
+        static Edge canonical(GlobalPos firstNode, GlobalPos secondNode) {
+            return firstNode.toString().compareTo(secondNode.toString()) <= 0
+                    ? new Edge(firstNode, secondNode)
+                    : new Edge(secondNode, firstNode);
+        }
+    }
+
     public Set<GlobalPos> getNodes() {
         return Set.copyOf(nodes);
     }
@@ -154,6 +185,20 @@ public class PowerGrid {
      */
     public boolean isPowered(GlobalPos pos) {
         return poweredByNode.getOrDefault(pos, false);
+    }
+
+    /**
+     * The supply rate at this node, or 0 if it isn't a producer
+     */
+    public double getSupply(GlobalPos pos) {
+        return supplyByNode.getOrDefault(pos, 0d);
+    }
+
+    /**
+     * The demand rate at this node, or 0 if it isn't a consumer
+     */
+    public double getDemand(GlobalPos pos) {
+        return demandByNode.getOrDefault(pos, 0d);
     }
 
     public void tick() {

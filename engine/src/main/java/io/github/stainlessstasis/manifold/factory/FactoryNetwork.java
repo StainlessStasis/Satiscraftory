@@ -671,7 +671,20 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers, persistedSplitters, persistedMergers);
+        List<Persisted.PowerNode> persistedPowerNodes = new ArrayList<>();
+        for (GlobalPos pos : powerGrid.getNodes()) {
+            persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos)));
+        }
+        List<Persisted.PowerEdge> persistedPowerEdges = new ArrayList<>();
+        for (PowerGrid.Edge edge : powerGrid.getEdges()) {
+            persistedPowerEdges.add(new Persisted.PowerEdge(edge));
+        }
+        Persisted.PowerGridData persistedPowerGrid = new Persisted.PowerGridData(persistedPowerNodes, persistedPowerEdges);
+
+        return new Persisted.Snapshot(
+                persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
+                persistedContainers, persistedSplitters, persistedMergers, persistedPowerGrid
+        );
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
@@ -821,6 +834,15 @@ public class FactoryNetwork extends SavedData {
                 Port port = network.getPortAt(outPos, dir);
                 if (port != null) splitter.setOutput(slotIndex, port);
             }
+        }
+
+        for (Persisted.PowerNode powerNodeData : snapshot.powerGrid().nodes()) {
+            network.powerGrid.addNode(powerNodeData.pos());
+            if (powerNodeData.supply() > 0) network.powerGrid.registerProducer(powerNodeData.pos(), powerNodeData.supply());
+            if (powerNodeData.demand() > 0) network.powerGrid.registerConsumer(powerNodeData.pos(), powerNodeData.demand(), null);
+        }
+        for (Persisted.PowerEdge powerEdgeData : snapshot.powerGrid().edges()) {
+            network.powerGrid.addEdge(powerEdgeData.edge().nodeA(), powerEdgeData.edge().nodeB());
         }
 
         return network;
