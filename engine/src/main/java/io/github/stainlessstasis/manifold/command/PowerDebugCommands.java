@@ -1,12 +1,11 @@
 package io.github.stainlessstasis.manifold.command;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory.PowerGrid;
-import io.github.stainlessstasis.manifold.factory.PowerNetwork;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.PowerNetwork;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;

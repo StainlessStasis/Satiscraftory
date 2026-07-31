@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.machine;
 
 import io.github.stainlessstasis.manifold.Scheduler;
-import io.github.stainlessstasis.manifold.factory.Powerable;
+import io.github.stainlessstasis.manifold.factory_power.Powerable;
 import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;

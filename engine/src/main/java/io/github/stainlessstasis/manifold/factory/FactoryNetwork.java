@@ -10,6 +10,7 @@ import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;

@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.Config;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;

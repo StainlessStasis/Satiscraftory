@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.factory;
+package io.github.stainlessstasis.manifold.factory_power;
 
 public interface Powerable {
     void setPowered(boolean powered);

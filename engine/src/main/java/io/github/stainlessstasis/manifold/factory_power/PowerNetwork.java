@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.factory;
+package io.github.stainlessstasis.manifold.factory_power;
 
 import net.minecraft.core.GlobalPos;
 

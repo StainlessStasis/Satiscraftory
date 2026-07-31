@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.item;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
