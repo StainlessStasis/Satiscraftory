@@ -1,5 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
+import io.github.stainlessstasis.manifold.Config;
+import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory.PowerGrid;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
@@ -9,6 +12,7 @@ import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEn
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -31,6 +35,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
+    private static final double DEMAND_MW = 5d;
+
     private @Nullable BlockPos linkedNodePos = null;
     private @Nullable Identifier resourceNodeId = null;
     public final AnimationState startupRotationState = new AnimationState();
@@ -72,6 +78,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         super.onLoad();
         if (level instanceof ServerLevel serverLevel) {
             linkToResourceNode(serverLevel);
+            registerPowerConsumer(serverLevel);
         }
     }
 
@@ -80,7 +87,24 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         super.setRemoved();
         if (level instanceof ServerLevel serverLevel) {
             unlinkFromResourceNode(serverLevel);
+            unregisterPowerConsumer(serverLevel);
         }
+    }
+
+    private void registerPowerConsumer(ServerLevel serverLevel) {
+        if (Config.POWER_REQUIRED.isFalse()) return;
+
+        Producer producer = getProducer();
+        if (producer == null) return;
+
+        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
+        PowerGrid powerGrid = FactoryNetwork.get(serverLevel).getPowerGrid();
+        powerGrid.registerConsumer(globalPos, DEMAND_MW, producer::setPowered);
+    }
+
+    private void unregisterPowerConsumer(ServerLevel serverLevel) {
+        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
+        FactoryNetwork.get(serverLevel).getPowerGrid().unregisterConsumer(globalPos);
     }
 
     @Override

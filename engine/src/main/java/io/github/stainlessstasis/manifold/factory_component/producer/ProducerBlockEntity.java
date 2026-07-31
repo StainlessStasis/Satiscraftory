@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.producer;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class ProducerBlockEntity extends BlockEntity {
+public class ProducerBlockEntity extends FactoryBlockEntity<Producer> {
     private Producer producer;
 
     public ProducerBlockEntity(BlockPos pos, BlockState state) {

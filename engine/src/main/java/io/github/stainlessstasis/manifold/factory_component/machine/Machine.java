@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.machine;
 
 import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.factory.Powerable;
 import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
@@ -12,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public class Machine implements FactoryComponent {
+public class Machine implements FactoryComponent, Powerable {
     private MachineRecipe recipe;
     private final Scheduler scheduler;
     private final int bufferMultiplier; // how many recipe batches worth of input/output each slot can hold at once
@@ -129,9 +130,9 @@ public class Machine implements FactoryComponent {
         this.powered = powered;
 
         if (!powered) {
-            pauseCraft();
+            pauseForPowerLoss();
         } else {
-            resumeCraft();
+            resumeFromPowerLoss();
             tryStartCrafting(); // in case the machine was idle when power came back
         }
     }
@@ -140,14 +141,14 @@ public class Machine implements FactoryComponent {
         return powered;
     }
 
-    private void pauseCraft() {
+    public void pauseForPowerLoss() {
         if (craftTask == null) return;
         pausedRemainingTicks = craftCompletionTick - scheduler.getCurrentTick();
         craftTask.cancel();
         craftTask = null;
     }
 
-    private void resumeCraft() {
+    public void resumeFromPowerLoss() {
         if (pausedRemainingTicks < 0) return;
         craftCompletionTick = scheduler.getCurrentTick() + pausedRemainingTicks;
         craftTask = scheduler.schedule(craftCompletionTick, this::finishCrafting);
