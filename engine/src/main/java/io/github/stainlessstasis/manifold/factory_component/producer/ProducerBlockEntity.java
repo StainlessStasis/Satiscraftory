@@ -62,7 +62,8 @@ public class ProducerBlockEntity extends FactoryBlockEntity<Producer> {
         return getBlockPos().relative(facing);
     }
 
-    public Producer getProducer() {
+    @Override
+    public Producer getFactoryComponent() {
         return producer;
     }
 }

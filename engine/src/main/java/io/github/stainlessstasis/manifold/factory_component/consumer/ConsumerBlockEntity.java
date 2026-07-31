@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.consumer;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -11,7 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class ConsumerBlockEntity extends BlockEntity {
+public class ConsumerBlockEntity extends FactoryBlockEntity<Consumer> {
     private static final int CAPACITY = 8;
     private static final int PROCESS_TIME_TICKS = 0;
 
@@ -37,7 +38,8 @@ public class ConsumerBlockEntity extends BlockEntity {
         FactoryLinking.relinkNeighbors(serverLevel, getBlockPos());
     }
 
-    public Consumer getConsumer() {
+    @Override
+    public Consumer getFactoryComponent() {
         return consumer;
     }
 }

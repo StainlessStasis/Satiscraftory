@@ -94,7 +94,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private void registerPowerConsumer(ServerLevel serverLevel) {
         if (Config.POWER_REQUIRED.isFalse()) return;
 
-        Producer producer = getProducer();
+        Producer producer = getFactoryComponent();
         if (producer == null) return;
 
         GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
@@ -122,7 +122,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         linkedNodePos = nodePos.immutable();
         resourceNodeId = nodeBE.getNodeTypeId();
         syncToClients();
-        Producer producer = getProducer();
+        Producer producer = getFactoryComponent();
         if (producer == null) return;
 
         producer.setItemId(nodeBE.getResourceType());
@@ -166,14 +166,14 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
 
     public boolean isBufferFull() {
         if (level instanceof ServerLevel) {
-            return getMiner().isBufferFull();
+            return getFactoryComponent().isBufferFull();
         } else {
             return isBufferFull;
         }
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
-        Producer producer = miner.getProducer();
+        Producer producer = miner.getFactoryComponent();
         if (producer == null) return;
 
         boolean currentlyFull = producer.isBufferFull();
@@ -223,9 +223,5 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
-    }
-
-    public Producer getMiner() {
-        return getProducer();
     }
 }

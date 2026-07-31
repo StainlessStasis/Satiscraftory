@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.menu.MachineContainerData;
 import io.github.stainlessstasis.manifold.menu.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -30,7 +31,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
+public class MachineBlockEntity extends FactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
     private static final double DEMAND_MW = 10d;
@@ -160,5 +161,8 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
         return Component.translatable("block.manifold.machine");
     }
 
-    public Machine getMachine() { return machine; }
+    @Override
+    public Machine getFactoryComponent() {
+        return machine;
+    }
 }

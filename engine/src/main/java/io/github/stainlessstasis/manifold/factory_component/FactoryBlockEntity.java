@@ -10,5 +10,5 @@ public abstract class FactoryBlockEntity<T extends FactoryComponent> extends Blo
         super(type, worldPosition, blockState);
     }
 
-    abstract T getFactoryComponent();
+    public abstract T getFactoryComponent();
 }
