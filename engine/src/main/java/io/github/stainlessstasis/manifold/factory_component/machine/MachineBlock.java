@@ -3,14 +3,11 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.command.PlacementRecipePresets;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.item.PowerLinkDebugItem;
-import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,7 +52,7 @@ public class MachineBlock extends AbstractDirectionalFactoryBlock {
             return InteractionResult.PASS;
         }
 
-        if (player.getMainHandItem().getItem() instanceof PowerLinkDebugItem) {
+        if (player.getMainHandItem().getItem() instanceof PowerLinkItem) {
             return InteractionResult.PASS;
         }
 

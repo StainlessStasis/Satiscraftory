@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.producer;
 
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.item.PowerLinkDebugItem;
+import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -75,7 +75,7 @@ public class ProducerBlock extends AbstractDirectionalFactoryBlock {
 
         ItemStack heldItem = player.getMainHandItem();
 
-        if (heldItem.getItem() instanceof PowerLinkDebugItem) {
+        if (heldItem.getItem() instanceof PowerLinkItem) {
             return InteractionResult.PASS;
         }
 

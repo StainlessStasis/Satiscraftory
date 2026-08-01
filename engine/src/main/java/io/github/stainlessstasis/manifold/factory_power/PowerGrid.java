@@ -9,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class PowerGrid {
+    public static final int DEFAULT_MAX_CONNECTIONS = 2;
+    private final Map<GlobalPos, Integer> maxConnectionsByNode = new HashMap<>();
+
     private final Set<GlobalPos> nodes = new HashSet<>();
     private final Map<GlobalPos, Set<GlobalPos>> adjacency = new HashMap<>();
 
@@ -87,22 +90,42 @@ public class PowerGrid {
         consumerListeners.remove(pos);
         satisfactionByNode.remove(pos);
         poweredByNode.remove(pos);
+        maxConnectionsByNode.remove(pos);
 
         rebuildUnionFindFromEdges();
         dirty = true;
     }
 
+    public void setMaxConnections(GlobalPos pos, int maxConnections) {
+        addNode(pos);
+        maxConnectionsByNode.put(pos, maxConnections);
+    }
+
+    public int getMaxConnections(GlobalPos pos) {
+        return maxConnectionsByNode.getOrDefault(pos, DEFAULT_MAX_CONNECTIONS);
+    }
+
+    public int getConnectionCount(GlobalPos pos) {
+        return adjacency.getOrDefault(pos, Set.of()).size();
+    }
+
     /**
      *  Connects two nodes, registering either endpoint as a node if needed
      */
-    public void addEdge(GlobalPos nodeA, GlobalPos nodeB) {
-        if (nodeA.equals(nodeB)) return;
+    public boolean addEdge(GlobalPos nodeA, GlobalPos nodeB) {
+        if (nodeA.equals(nodeB)) return false;
+        if (hasEdge(nodeA, nodeB)) return true;
+
         addNode(nodeA);
         addNode(nodeB);
+        if (getConnectionCount(nodeA) >= getMaxConnections(nodeA)) return false;
+        if (getConnectionCount(nodeB) >= getMaxConnections(nodeB)) return false;
+
         adjacency.get(nodeA).add(nodeB);
         adjacency.get(nodeB).add(nodeA);
         union(nodeA, nodeB);
         dirty = true;
+        return true;
     }
 
     /**
