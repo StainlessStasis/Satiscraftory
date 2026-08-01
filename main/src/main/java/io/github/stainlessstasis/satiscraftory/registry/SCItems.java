@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.item.CableItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -16,4 +17,10 @@ public class SCItems {
     public static final DeferredItem<Item> IRON_PLATE = ITEMS.registerSimpleItem("iron_plate");
     public static final DeferredItem<Item> IRON_ROD = ITEMS.registerSimpleItem("iron_rod");
     public static final DeferredItem<Item> SCREWS = ITEMS.registerSimpleItem("screws");
+
+    // TODO: replace this with the one from 0.4.1 merge whenever i do that
+    public static final DeferredItem<Item> CABLE = ITEMS.registerItem(
+            "cable",
+            CableItem::new
+    );
 }

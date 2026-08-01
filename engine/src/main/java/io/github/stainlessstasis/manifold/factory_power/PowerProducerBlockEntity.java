@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class PowerProducerBlockEntity extends BlockEntity {
+public class PowerProducerBlockEntity extends BlockEntity implements PowerLinkable {
     private PowerProducer powerProducer;
 
     public PowerProducerBlockEntity(BlockPos pos, BlockState state) {
@@ -31,7 +31,9 @@ public class PowerProducerBlockEntity extends BlockEntity {
         powerProducer = new PowerProducer(supplyRate);
 
         GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        FactoryNetwork.get(serverLevel).getPowerGrid().registerProducer(globalPos, powerProducer.getEffectiveSupplyRate());
+        PowerGrid powerGrid = FactoryNetwork.get(serverLevel).getPowerGrid();
+        powerGrid.registerProducer(globalPos, powerProducer.getEffectiveSupplyRate());
+        powerGrid.setMaxConnections(globalPos, getMaxPowerConnections());
     }
 
     public PowerProducer getPowerProducer() {
