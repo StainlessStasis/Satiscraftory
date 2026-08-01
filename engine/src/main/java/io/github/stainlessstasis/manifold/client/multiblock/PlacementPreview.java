@@ -21,8 +21,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
+import java.awt.*;
+
 @EventBusSubscriber(modid = Manifold.MODID, value = Dist.CLIENT)
 public class PlacementPreview {
+    public static final Color VALID_COLOR = new Color(0x8000FFFF, true);
+    public static final Color INVALID_COLOR = new Color(0x80FF0000, true);
 
     @SubscribeEvent
     public static void renderPreview(SubmitCustomGeometryEvent event) {
@@ -45,7 +49,7 @@ public class PlacementPreview {
         BlockPos origin = placeContext.getClickedPos();
         Direction facing = previewState.getValue(BlockStateProperties.HORIZONTAL_FACING);
         boolean valid = previewState == block.getStateForPlacement(placeContext);
-        int tint = valid ? PlacementPreviewSubmission.VALID_TINT : PlacementPreviewSubmission.INVALID_TINT;
+        int tint = valid ? VALID_COLOR.getRGB() : INVALID_COLOR.getRGB();
 
         PlacementPreviewSubmission.submit(
                 event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),

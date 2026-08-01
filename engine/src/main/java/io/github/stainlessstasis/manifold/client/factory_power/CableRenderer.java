@@ -5,14 +5,12 @@ import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_power.PowerLinkable;
 import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
-import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -21,17 +19,15 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
-import static io.github.stainlessstasis.manifold.client.multiblock.PlacementPreviewSubmission.VALID_TINT;
+import java.awt.*;
+
+import static io.github.stainlessstasis.manifold.client.multiblock.PlacementPreview.VALID_COLOR;
+
 
 // TODO: should this be in the SC module? i guess it can stay here for now
 @EventBusSubscriber(modid = Manifold.MODID, value = Dist.CLIENT)
 public class CableRenderer {
-    private static final float RED = 0.5f, GREEN = 0.4f, BLUE = 0.3f;
-    // TODO: move the valid tint to a shared constants class
-    private static final float PREVIEW_ALPHA = ((VALID_TINT >> 24) & 0xFF) / 255f;
-    private static final float PREVIEW_RED   = ((VALID_TINT >> 16) & 0xFF) / 255f;
-    private static final float PREVIEW_GREEN = ((VALID_TINT >> 8)  & 0xFF) / 255f;
-    private static final float PREVIEW_BLUE  = ( VALID_TINT        & 0xFF) / 255f;
+    public static final Color CABLE_COLOR = new Color(0xFF36454F, true);
 
     @SubscribeEvent
     public static void renderCables(SubmitCustomGeometryEvent event) {
@@ -50,7 +46,11 @@ public class CableRenderer {
         for (PowerGridSyncPacket.Entry edge : edges) {
             Vec3 anchorA = CableGeometry.resolveAnchor(level, edge.posA());
             Vec3 anchorB = CableGeometry.resolveAnchor(level, edge.posB());
-            CableGeometry.render(builder, event.getPoseStack(), level, cameraPos, anchorA, anchorB, RED, GREEN, BLUE, 1);
+            CableGeometry.render(
+                    builder, event.getPoseStack(), level,
+                    cameraPos, anchorA, anchorB,
+                    CABLE_COLOR.getRed(), CABLE_COLOR.getGreen(), CABLE_COLOR.getBlue(), 1
+            );
         }
 
         BlockPos lookingAtPos = null;
@@ -67,7 +67,10 @@ public class CableRenderer {
         if (player.getMainHandItem().getItem() instanceof PowerLinkItem && chainStart != null && isLookingAtPowerLinkable) {
             Vec3 anchorA = CableGeometry.resolveAnchor(level, chainStart);
             Vec3 anchorB = CableGeometry.resolveAnchor(level, lookingAtPos);
-            CableGeometry.render(builder, event.getPoseStack(), level, cameraPos, anchorA, anchorB, PREVIEW_RED, PREVIEW_GREEN, PREVIEW_BLUE, PREVIEW_ALPHA);
+            CableGeometry.render(
+                    builder, event.getPoseStack(), level, cameraPos, anchorA, anchorB,
+                    VALID_COLOR.getRed(), VALID_COLOR.getGreen(), VALID_COLOR.getBlue(), VALID_COLOR.getAlpha()
+            );
         }
 
         bufferSource.endBatch(RenderTypes.leash());

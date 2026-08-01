@@ -14,9 +14,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public final class PlacementPreviewSubmission {
-    public static final int VALID_TINT = 0x8000FFFF;
-    public static final int INVALID_TINT = 0x80FF0000;
-
     private PlacementPreviewSubmission() {}
 
     public static void submit(
