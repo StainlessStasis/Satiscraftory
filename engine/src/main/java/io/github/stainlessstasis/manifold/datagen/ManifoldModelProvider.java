@@ -21,6 +21,7 @@ public class ManifoldModelProvider extends FactoryModelProvider {
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         Block producer = ManifoldBlocks.PRODUCER.get();
+        Block powerProducer = ManifoldBlocks.POWER_PRODUCER.get();
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
@@ -28,10 +29,12 @@ public class ManifoldModelProvider extends FactoryModelProvider {
         Block merger = ManifoldBlocks.MERGER.get();
 
         registerHorizontallyRotable(blockModels, producer, "block/producer", false);
+        registerHorizontallyRotable(blockModels, powerProducer, "block/producer", false);
         registerHorizontallyRotable(blockModels, machine, "block/machine", false);
         registerHorizontallyRotable(blockModels, container, "block/container", false);
         registerHorizontallyRotable(blockModels, consumer, "block/consumer", false);
         registerHorizontallyRotable(blockModels, splitter, "block/splitter_merger", false);
+        registerHorizontallyRotable(blockModels, merger, "block/splitter_merger", false);
         registerHorizontallyRotable(blockModels, merger, "block/splitter_merger", false);
 
         // need to manually override the item models, otherwise they default to "splitter" and "merger" which is wrong

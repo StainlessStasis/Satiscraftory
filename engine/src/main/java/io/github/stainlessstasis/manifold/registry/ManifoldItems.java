@@ -13,6 +13,8 @@ public class ManifoldItems {
 
     public static final DeferredItem<BlockItem> PRODUCER =
             ITEMS.registerSimpleBlockItem("producer", ManifoldBlocks.PRODUCER);
+    public static final DeferredItem<BlockItem> POWER_PRODUCER =
+            ITEMS.registerSimpleBlockItem("power_producer", ManifoldBlocks.POWER_PRODUCER);
     public static final DeferredItem<BlockItem> CONSUMER =
             ITEMS.registerSimpleBlockItem("consumer", ManifoldBlocks.CONSUMER);
     public static final DeferredItem<BlockItem> MACHINE =

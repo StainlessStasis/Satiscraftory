@@ -3,6 +3,8 @@ package io.github.stainlessstasis.manifold.registry;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducerBlock;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducerBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
@@ -66,4 +68,9 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("multiblock_filler", () -> new ManifoldBlockEntityType<>(
                     MultiblockFillerBlockEntity::new,
                     block -> block instanceof MultiblockFillerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PowerProducerBlockEntity>> POWER_PRODUCER =
+            BLOCK_ENTITIES.register("power_producer", () -> new ManifoldBlockEntityType<>(
+                    PowerProducerBlockEntity::new,
+                    block -> block instanceof PowerProducerBlock));
 }
