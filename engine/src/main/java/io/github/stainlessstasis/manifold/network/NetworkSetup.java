@@ -10,5 +10,6 @@ public final class NetworkSetup {
         PayloadRegistrar registrar = event.registrar(String.valueOf(NETWORK_VERSION));
         registrar.playToClient(BeltSyncPacket.TYPE, BeltSyncPacket.STREAM_CODEC, BeltSyncPacket::handleClient);
         registrar.playToClient(PowerGridSyncPacket.TYPE, PowerGridSyncPacket.STREAM_CODEC, PowerGridSyncPacket::handleClient);
+        registrar.playToClient(ChainStateSyncPacket.TYPE, ChainStateSyncPacket.STREAM_CODEC, ChainStateSyncPacket::handleClient);
     }
 }

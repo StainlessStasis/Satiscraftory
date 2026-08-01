@@ -3,22 +3,26 @@ package io.github.stainlessstasis.manifold.item;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerRegistry;
+import io.github.stainlessstasis.manifold.network.ChainStateSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class PowerLinkItem extends Item {
@@ -31,7 +35,7 @@ public class PowerLinkItem extends Item {
     @Override
     public @NonNull InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        if (player == null || !(context.getLevel() instanceof ServerLevel serverLevel)) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !(context.getLevel() instanceof ServerLevel serverLevel)) {
             return InteractionResult.PASS;
         }
 
@@ -43,7 +47,7 @@ public class PowerLinkItem extends Item {
         GlobalPos resolvedGlobalPos = GlobalPos.of(serverLevel.dimension(), resolvedBlockPos);
 
         if (player.isCrouching()) {
-            chainStartByPlayer.remove(player.getUUID());
+            setChainStart(serverPlayer, null);
             player.sendOverlayMessage(Component.literal("Power link chain reset"));
             return InteractionResult.SUCCESS_SERVER;
         }
@@ -59,7 +63,7 @@ public class PowerLinkItem extends Item {
             }
 
             powerGrid.addNode(resolvedGlobalPos);
-            chainStartByPlayer.put(player.getUUID(), resolvedGlobalPos);
+            setChainStart(serverPlayer, resolvedGlobalPos);
             player.sendOverlayMessage(Component.literal(
                     "Power link chain started at " + resolvedBlockPos.toShortString()));
             return InteractionResult.SUCCESS_SERVER;
@@ -86,7 +90,8 @@ public class PowerLinkItem extends Item {
 
         spawnLinkParticles(serverLevel, chainStartPos.pos(), resolvedBlockPos);
         if (!alreadyConnected) onLinkCreated(context, chainStartPos, resolvedGlobalPos);
-        chainStartByPlayer.put(player.getUUID(), resolvedGlobalPos);
+
+        setChainStart(serverPlayer, resolvedGlobalPos);
 
         player.sendOverlayMessage(Component.literal(
                 (alreadyConnected ? "Already linked " : "Linked ")
@@ -124,7 +129,25 @@ public class PowerLinkItem extends Item {
         }
     }
 
-    public static void clearChain(@Nullable UUID playerId) {
-        if (playerId != null) chainStartByPlayer.remove(playerId);
+    public static void setChainStart(ServerPlayer player, @Nullable GlobalPos globalPos) {
+        if (globalPos == null) {
+            chainStartByPlayer.remove(player.getUUID());
+            PacketDistributor.sendToPlayer(player, new ChainStateSyncPacket(Optional.empty()));
+        } else {
+            chainStartByPlayer.put(player.getUUID(), globalPos);
+            PacketDistributor.sendToPlayer(player, new ChainStateSyncPacket(Optional.of(globalPos.pos())));
+        }
+    }
+
+    public static void clearChain(@Nullable ServerPlayer player) {
+        if (player != null) {
+            setChainStart(player, null);
+        }
+    }
+
+    public static void resync(ServerPlayer player) {
+        GlobalPos pos = chainStartByPlayer.get(player.getUUID());
+        BlockPos blockPos = pos != null && pos.dimension().equals(player.level().dimension()) ? pos.pos() : null;
+        PacketDistributor.sendToPlayer(player, new ChainStateSyncPacket(Optional.ofNullable(blockPos)));
     }
 }
