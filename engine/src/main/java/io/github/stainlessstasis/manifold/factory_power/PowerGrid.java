@@ -19,15 +19,17 @@ public class PowerGrid {
     private final Map<GlobalPos, Integer> rank = new HashMap<>();
 
     private boolean dirty = true;
+    private boolean edgesDirtySinceSync = true;
+
     private List<PowerNetwork> networks = List.of();
     private final Map<GlobalPos, PowerNetwork> networkByNode = new HashMap<>();
-
     private final Map<GlobalPos, Double> supplyByNode = new HashMap<>();
     private final Map<GlobalPos, Double> demandByNode = new HashMap<>();
     private final Map<GlobalPos, Double> satisfactionByNode = new HashMap<>();
     private final Map<GlobalPos, Boolean> poweredByNode = new HashMap<>();
 
     private final Map<GlobalPos, PowerStateListener> consumerListeners = new HashMap<>();
+
 
     public interface PowerStateListener {
         void onPowerStateChanged(boolean powered);
@@ -76,6 +78,7 @@ public class PowerGrid {
         if (!nodes.remove(pos)) return;
 
         Set<GlobalPos> neighbors = adjacency.remove(pos);
+        boolean hadEdges = neighbors != null && !neighbors.isEmpty();
         if (neighbors != null) {
             for (GlobalPos neighbor : neighbors) {
                 Set<GlobalPos> reverse = adjacency.get(neighbor);
@@ -94,6 +97,7 @@ public class PowerGrid {
 
         rebuildUnionFindFromEdges();
         dirty = true;
+        if (hadEdges) edgesDirtySinceSync = true;
     }
 
     public void setMaxConnections(GlobalPos pos, int maxConnections) {
@@ -125,6 +129,7 @@ public class PowerGrid {
         adjacency.get(nodeB).add(nodeA);
         union(nodeA, nodeB);
         dirty = true;
+        edgesDirtySinceSync = true;
         return true;
     }
 
@@ -140,11 +145,20 @@ public class PowerGrid {
 
         rebuildUnionFindFromEdges();
         dirty = true;
+        edgesDirtySinceSync = true;
     }
 
     public boolean hasEdge(GlobalPos nodeA, GlobalPos nodeB) {
         Set<GlobalPos> neighbors = adjacency.get(nodeA);
         return neighbors != null && neighbors.contains(nodeB);
+    }
+
+    public boolean areEdgesDirtySinceSync() {
+        return edgesDirtySinceSync;
+    }
+
+    public void markEdgesSynced() {
+        edgesDirtySinceSync = false;
     }
 
     /**
@@ -276,10 +290,12 @@ public class PowerGrid {
         satisfactionByNode.clear();
         poweredByNode.clear();
         consumerListeners.clear();
+        maxConnectionsByNode.clear();
 
         networkByNode.clear();
         networks = List.of();
         dirty = false;
+        edgesDirtySinceSync = true;
     }
 
     private void registerInUnionFind(GlobalPos pos) {

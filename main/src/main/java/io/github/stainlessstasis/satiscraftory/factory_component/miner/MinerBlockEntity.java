@@ -1,18 +1,15 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
-import io.github.stainlessstasis.manifold.Config;
-import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
+import io.github.stainlessstasis.manifold.factory_power.CableAnchorProvider;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -34,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
+public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess, CableAnchorProvider {
     private static final double DEMAND_MW = 5d;
 
     private @Nullable BlockPos linkedNodePos = null;
@@ -61,6 +58,9 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
 
+    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET = new Vec3(-11, 139.5, 63.5).scale(1/16f);
+    private final Vec3 cableAnchorOffset;
+
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
     }
@@ -71,6 +71,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
         this.particleOffset = DirectionalOffset.toWorld(facing, PARTICLE_LOCAL_OFFSET);
+        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, CABLE_ANCHOR_LOCAL_OFFSET);
     }
 
     @Override
@@ -159,6 +160,11 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         } else {
             return isBufferFull;
         }
+    }
+
+    @Override
+    public Vec3 getCableAnchorPos() {
+        return cableAnchorOffset;
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, MinerBlockEntity miner) {

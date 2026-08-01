@@ -12,6 +12,7 @@ import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
 import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
+import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
@@ -415,6 +416,23 @@ public class FactoryNetwork extends SavedData {
                 }
             }
         }
+
+        Set<PowerGrid.Edge> allEdges = powerGrid.getEdges();
+
+        for (ServerLevel dimLevel : level.getServer().getAllLevels()) {
+            List<PowerGridSyncPacket.Entry> dimEntries = new ArrayList<>();
+            for (PowerGrid.Edge edge : allEdges) {
+                boolean sameDimension = edge.nodeA().dimension().equals(dimLevel.dimension())
+                        && edge.nodeB().dimension().equals(dimLevel.dimension());
+                if (sameDimension) {
+                    dimEntries.add(new PowerGridSyncPacket.Entry(edge.nodeA().pos(), edge.nodeB().pos()));
+                }
+            }
+            PacketDistributor.sendToPlayersInDimension(dimLevel, new PowerGridSyncPacket(dimEntries));
+        }
+
+        powerGrid.markEdgesSynced();
+
     }
 
     private List<TickTarget> computeTickOrder() {
