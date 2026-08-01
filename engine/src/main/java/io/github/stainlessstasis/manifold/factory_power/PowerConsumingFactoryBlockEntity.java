@@ -27,7 +27,9 @@ public abstract class PowerConsumingFactoryBlockEntity<T extends PowerableFactor
     }
 
     public void unregisterPowerConsumer(ServerLevel serverLevel) {
+        PowerGrid powerGrid = FactoryNetwork.get(serverLevel).getPowerGrid();
         GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        FactoryNetwork.get(serverLevel).getPowerGrid().unregisterConsumer(globalPos);
+        powerGrid.unregisterConsumer(globalPos);
+        powerGrid.removeNode(globalPos);
     }
 }

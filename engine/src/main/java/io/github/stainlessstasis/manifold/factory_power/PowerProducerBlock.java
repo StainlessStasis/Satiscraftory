@@ -47,6 +47,9 @@ public class PowerProducerBlock extends BaseEntityBlock {
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).getPowerGrid().unregisterProducer(GlobalPos.of(level.dimension(), pos));
+        PowerGrid powerGrid = FactoryNetwork.get(level).getPowerGrid();
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
+        powerGrid.unregisterProducer(globalPos);
+        powerGrid.removeNode(globalPos);
     }
 }
