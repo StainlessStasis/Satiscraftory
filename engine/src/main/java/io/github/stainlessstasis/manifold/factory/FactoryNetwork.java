@@ -674,7 +674,7 @@ public class FactoryNetwork extends SavedData {
 
         List<Persisted.PowerNode> persistedPowerNodes = new ArrayList<>();
         for (GlobalPos pos : powerGrid.getNodes()) {
-            persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos)));
+            persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos), powerGrid.getMaxConnections(pos)));
         }
         List<Persisted.PowerEdge> persistedPowerEdges = new ArrayList<>();
         for (PowerGrid.Edge edge : powerGrid.getEdges()) {

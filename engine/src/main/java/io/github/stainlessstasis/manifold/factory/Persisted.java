@@ -123,11 +123,12 @@ final class Persisted {
         ).apply(i, Merger::new));
     }
 
-    record PowerNode(GlobalPos pos, double supply, double demand) {
+    record PowerNode(GlobalPos pos, double supply, double demand, int maxConnections) {
         static final Codec<PowerNode> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(PowerNode::pos),
                 Codec.DOUBLE.optionalFieldOf("supply", 0d).forGetter(PowerNode::supply),
-                Codec.DOUBLE.optionalFieldOf("demand", 0d).forGetter(PowerNode::demand)
+                Codec.DOUBLE.optionalFieldOf("demand", 0d).forGetter(PowerNode::demand),
+                Codec.INT.optionalFieldOf("maxConnections", PowerGrid.DEFAULT_MAX_CONNECTIONS).forGetter(PowerNode::maxConnections)
         ).apply(i, PowerNode::new));
     }
 
