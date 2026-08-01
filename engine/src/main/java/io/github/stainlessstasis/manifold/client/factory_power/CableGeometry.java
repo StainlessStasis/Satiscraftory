@@ -11,6 +11,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
+import java.awt.*;
+
 public final class CableGeometry {
     private static final int SEGMENTS = 24;
     private static final float CABLE_WIDTH = 0.05f;
@@ -28,8 +30,13 @@ public final class CableGeometry {
 
     public static void render(
             VertexConsumer builder, PoseStack poseStack, Level level, Vec3 cameraPos,
-            Vec3 startPos, Vec3 endPos, float red, float green, float blue, float alpha
+            Vec3 startPos, Vec3 endPos, Color color
     ) {
+        float red = color.getRed() / 255f;
+        float green = color.getGreen() / 255f;
+        float blue = color.getBlue() / 255f;
+        float alpha = color.getAlpha() / 255f;
+
         poseStack.pushPose();
         poseStack.translate(startPos.x - cameraPos.x, startPos.y - cameraPos.y, startPos.z - cameraPos.z);
         Matrix4f pose = poseStack.last().pose();

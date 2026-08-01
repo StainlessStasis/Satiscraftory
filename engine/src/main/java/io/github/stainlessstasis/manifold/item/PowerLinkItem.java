@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
@@ -100,7 +101,8 @@ public class PowerLinkItem extends Item {
         return InteractionResult.SUCCESS_SERVER;
     }
 
-    protected @Nullable BlockPos resolveLinkTarget(ServerLevel level, BlockPos clickedPos) {
+    @Nullable
+    public BlockPos resolveLinkTarget(Level level, BlockPos clickedPos) {
         BlockPos mbControllerPos = MultiblockFillerRegistry.controllerPosAt(level, clickedPos);
         return mbControllerPos != null ? mbControllerPos : clickedPos;
     }
