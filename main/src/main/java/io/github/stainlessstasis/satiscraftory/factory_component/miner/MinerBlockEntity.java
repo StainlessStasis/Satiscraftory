@@ -58,7 +58,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
 
-    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET =  new Vec3(-1.5, 141, -71).scale(1/16f)
+    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET =  new Vec3(-1.5, 141, -71).scale(1/16f);
     private final Vec3 cableAnchorOffset;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
