@@ -17,8 +17,6 @@ public abstract class PowerConsumingFactoryBlockEntity<T extends PowerableFactor
     public abstract double getPowerDemand();
 
     public void registerPowerConsumer(ServerLevel level) {
-        if (Config.POWER_REQUIRED.isFalse()) return;
-
         T factoryComponent = getFactoryComponent();
         if (factoryComponent == null) return;
 
