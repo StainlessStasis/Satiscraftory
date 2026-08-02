@@ -44,11 +44,12 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public final AnimationState idleAnimationState = new AnimationState();
 
     public boolean hasDescended = false;
-    public boolean isIdling = false;
 
     private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
     private boolean isBufferFull = false;
     private int consecutiveFullTicks = 0;
+    private boolean isPowered = false;
+    private boolean previousPowered = false;
     public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
     public AnimPhase animationPhase = AnimPhase.STARTUP;
 
@@ -162,6 +163,14 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         }
     }
 
+    public boolean isPowered() {
+        if (level instanceof ServerLevel) {
+            return getFactoryComponent().isPowered();
+        } else {
+            return isPowered;
+        }
+    }
+
     @Override
     public Vec3 getCableAnchorPos() {
         BlockPos pos = getBlockPos();
@@ -184,6 +193,12 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             miner.isBufferFull = actuallyFull;
             miner.syncToClients();
         }
+
+        miner.isPowered = miner.getFactoryComponent().isPowered();
+        if (miner.isPowered != miner.previousPowered) {
+            miner.syncToClients();
+        }
+        miner.previousPowered = miner.isPowered;
     }
 
     @Override
@@ -193,6 +208,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             output.putString("ResourceNodeId", resourceNodeId.toString());
         }
         output.putBoolean("IsBlocked", isBufferFull);
+        output.putBoolean("IsPowered", isPowered);
     }
 
     @Override
@@ -203,6 +219,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             resourceNodeId = Identifier.parse(resourceNodeString);
         }
         isBufferFull = input.getBooleanOr("IsBlocked", false);
+        isPowered = input.getBooleanOr("IsPowered", false);
     }
 
     @Override
