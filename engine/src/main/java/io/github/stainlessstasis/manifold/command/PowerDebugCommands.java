@@ -56,6 +56,16 @@ public final class PowerDebugCommands {
                 .then(Commands.literal("networks")
                         .executes(PowerDebugCommands::listNetworks))
 
+                .then(Commands.literal("edges")
+                        .executes(ctx -> {
+                            PowerGrid grid = FactoryNetwork.get(ctx.getSource().getLevel()).getPowerGrid();
+                            for (PowerGrid.Edge edge : grid.getEdges()) {
+                                ctx.getSource().sendSuccess(() -> Component.literal(
+                                        edge.nodeA().pos().toShortString() + " <-> " + edge.nodeB().pos().toShortString()), false);
+                            }
+                            return 1;
+                        }))
+
                 .then(Commands.literal("clear")
                         .executes(PowerDebugCommands::clearNetworks))
 

@@ -42,32 +42,29 @@ public class CableRenderer {
 
         Vec3 cameraPos = minecraft.gameRenderer.getMainCamera().position();
         MultiBufferSource.BufferSource bufferSource = minecraft.renderBuffers().bufferSource();
-        VertexConsumer builder = bufferSource.getBuffer(RenderTypes.leash());
 
         for (PowerGridSyncPacket.Entry edge : edges) {
             Vec3 anchorA = CableGeometry.resolveAnchor(level, edge.posA());
             Vec3 anchorB = CableGeometry.resolveAnchor(level, edge.posB());
-            CableGeometry.render(builder, event.getPoseStack(), level, cameraPos, anchorA, anchorB, CABLE_COLOR);
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.leash());
+            CableGeometry.render(vertexConsumer, event.getPoseStack(), level, cameraPos, anchorA, anchorB, CABLE_COLOR);
+            bufferSource.endBatch(RenderTypes.leash());
         }
 
         if (hasPreview) {
-            renderPreview(builder, event, minecraft, level, player, cameraPos, chainStart);
+            renderPreview(bufferSource, event, minecraft, level, player, cameraPos, chainStart);
         }
-
-        bufferSource.endBatch(RenderTypes.leash());
     }
 
     private static void renderPreview(
-            VertexConsumer builder, SubmitCustomGeometryEvent event, Minecraft minecraft,
+            MultiBufferSource.BufferSource bufferSource, SubmitCustomGeometryEvent event, Minecraft minecraft,
             Level level, LocalPlayer player, Vec3 cameraPos, BlockPos chainStart
     ) {
         if (!(minecraft.hitResult instanceof BlockHitResult blockHitResult) || blockHitResult.getType() != HitResult.Type.BLOCK) {
             return;
         }
 
-        if (!(player.getMainHandItem().getItem() instanceof PowerLinkItem powerLinkItem)) {
-            return;
-        }
+        PowerLinkItem powerLinkItem = (PowerLinkItem) player.getMainHandItem().getItem();
         BlockPos resolvedTargetPos = powerLinkItem.resolveLinkTarget(level, blockHitResult.getBlockPos());
         if (resolvedTargetPos == null || resolvedTargetPos.equals(chainStart)) return;
 
@@ -76,6 +73,9 @@ public class CableRenderer {
 
         Vec3 anchorA = CableGeometry.resolveAnchor(level, chainStart);
         Vec3 anchorB = CableGeometry.resolveAnchor(level, resolvedTargetPos);
+
+        VertexConsumer builder = bufferSource.getBuffer(RenderTypes.leash());
         CableGeometry.render(builder, event.getPoseStack(), level, cameraPos, anchorA, anchorB, previewColor);
+        bufferSource.endBatch(RenderTypes.leash());
     }
 }
