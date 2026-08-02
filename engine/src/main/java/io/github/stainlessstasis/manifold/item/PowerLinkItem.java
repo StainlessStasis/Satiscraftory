@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.item;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerRegistry;
@@ -83,15 +84,18 @@ public class PowerLinkItem extends Item {
         }
 
         boolean alreadyConnected = powerGrid.hasEdge(chainStartPos, resolvedGlobalPos);
+        Manifold.LOGGER.info("[PowerLink] player={} tick={} chainStart={} target={} rawClicked={}",
+                player.getName().getString(), serverLevel.getGameTime(),
+                chainStartPos, resolvedGlobalPos, context.getClickedPos());
         if (!powerGrid.addEdge(chainStartPos, resolvedGlobalPos)) {
             player.sendOverlayMessage(Component.literal(
                     "One end of that connection is already at its cable limit"));
             return InteractionResult.FAIL;
         }
 
-        spawnLinkParticles(serverLevel, chainStartPos.pos(), resolvedBlockPos);
-        if (!alreadyConnected) onLinkCreated(context, chainStartPos, resolvedGlobalPos);
-
+        if (!alreadyConnected) {
+            onLinkCreated(context, chainStartPos, resolvedGlobalPos);
+        }
         setChainStart(serverPlayer, resolvedGlobalPos);
 
         player.sendOverlayMessage(Component.literal(
@@ -116,20 +120,6 @@ public class PowerLinkItem extends Item {
     }
 
     protected void onLinkCreated(UseOnContext context, GlobalPos fromPos, GlobalPos toPos) {}
-
-    protected static void spawnLinkParticles(ServerLevel serverLevel, BlockPos fromBlockPos, BlockPos toBlockPos) {
-        Vec3 fromCenter = Vec3.atCenterOf(fromBlockPos);
-        Vec3 toCenter = Vec3.atCenterOf(toBlockPos);
-
-        double distance = fromCenter.distanceTo(toCenter);
-        int segmentCount = Math.max(1, (int) Math.round(distance * 4));
-
-        for (int segmentIndex = 0; segmentIndex <= segmentCount; segmentIndex++) {
-            double progress = (double) segmentIndex / segmentCount;
-            Vec3 point = fromCenter.lerp(toCenter, progress);
-            serverLevel.sendParticles(ParticleTypes.END_ROD, point.x, point.y, point.z, 1, 0, 0, 0, 0);
-        }
-    }
 
     public static void setChainStart(ServerPlayer player, @Nullable GlobalPos globalPos) {
         if (globalPos == null) {

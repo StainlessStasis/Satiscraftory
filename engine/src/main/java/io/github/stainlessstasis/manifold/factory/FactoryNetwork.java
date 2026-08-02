@@ -417,21 +417,23 @@ public class FactoryNetwork extends SavedData {
             }
         }
 
-        Set<PowerGrid.Edge> allEdges = powerGrid.getEdges();
+        if (powerGrid.areEdgesDirtySinceSync()) {
+            Set<PowerGrid.Edge> allEdges = powerGrid.getEdges();
 
-        for (ServerLevel dimLevel : level.getServer().getAllLevels()) {
-            List<PowerGridSyncPacket.Entry> dimEntries = new ArrayList<>();
-            for (PowerGrid.Edge edge : allEdges) {
-                boolean sameDimension = edge.nodeA().dimension().equals(dimLevel.dimension())
-                        && edge.nodeB().dimension().equals(dimLevel.dimension());
-                if (sameDimension) {
-                    dimEntries.add(new PowerGridSyncPacket.Entry(edge.nodeA().pos(), edge.nodeB().pos()));
+            for (ServerLevel dimLevel : level.getServer().getAllLevels()) {
+                List<PowerGridSyncPacket.Entry> dimEntries = new ArrayList<>();
+                for (PowerGrid.Edge edge : allEdges) {
+                    boolean sameDimension = edge.nodeA().dimension().equals(dimLevel.dimension())
+                            && edge.nodeB().dimension().equals(dimLevel.dimension());
+                    if (sameDimension) {
+                        dimEntries.add(new PowerGridSyncPacket.Entry(edge.nodeA().pos(), edge.nodeB().pos()));
+                    }
                 }
+                PacketDistributor.sendToPlayersInDimension(dimLevel, new PowerGridSyncPacket(dimEntries));
             }
-            PacketDistributor.sendToPlayersInDimension(dimLevel, new PowerGridSyncPacket(dimEntries));
-        }
 
-        powerGrid.markEdgesSynced();
+            powerGrid.markEdgesSynced();
+        }
 
     }
 

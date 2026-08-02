@@ -3,11 +3,14 @@ package io.github.stainlessstasis.manifold;
 import io.github.stainlessstasis.manifold.command.FactoryCommands;
 import io.github.stainlessstasis.manifold.command.PowerDebugCommands;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @EventBusSubscriber(modid = Manifold.MODID)
@@ -35,5 +38,26 @@ public class ManifoldEventHandlers {
     @SubscribeEvent
     static void onAddReloadListeners(AddServerReloadListenersEvent event) {
         event.addListener(Manifold.id("recipes"), new ManifoldRecipes());
+    }
+
+    @SubscribeEvent
+    static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PowerLinkItem.clearChain(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PowerLinkItem.resync(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PowerLinkItem.resync(serverPlayer);
+        }
     }
 }
