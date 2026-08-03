@@ -3,6 +3,8 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.menu.MachineContainerData;
 import io.github.stainlessstasis.manifold.menu.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -30,9 +32,10 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
+public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
+    private static final double DEMAND_MW = 10d;
 
     private static final int[] INPUT_X = {21};
     private static final int[] INPUT_Y = {26};
@@ -52,6 +55,11 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
     }
 
     @Override
+    public double getPowerDemand() {
+        return DEMAND_MW;
+    }
+
+    @Override
     public void onLoad() {
         super.onLoad();
         if (!(level instanceof ServerLevel serverLevel)) return;
@@ -66,6 +74,7 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
             }
             return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
         });
+        registerPowerConsumer(serverLevel);
 
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         machine.assignOutputFace(facing, 0);
@@ -158,5 +167,8 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
         return Component.translatable("block.manifold.machine");
     }
 
-    public Machine getMachine() { return machine; }
+    @Override
+    public Machine getFactoryComponent() {
+        return machine;
+    }
 }

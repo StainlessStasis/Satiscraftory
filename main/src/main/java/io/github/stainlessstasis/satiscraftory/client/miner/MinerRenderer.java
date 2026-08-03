@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
+import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -68,6 +69,8 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
     private void updateAnimationPhase(MinerBlockEntity miner, float ageInTicks, long gameTime) {
         boolean bufferFull = miner.isBufferFull();
+        boolean powered = miner.isPowered();
+        boolean shouldIdle = bufferFull || !powered;
 
         switch (miner.animationPhase) {
             case STARTUP -> {
@@ -87,7 +90,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                     miner.startupDescendState.stop();
                     miner.startupAlreadyDescendedState.stop();
                     miner.hasDescended = true;
-                    if (bufferFull) {
+                    if (shouldIdle) {
                         miner.idleAnimationState.start((int) gameTime);
                         miner.animationPhase = MinerBlockEntity.AnimPhase.IDLE;
                     } else {
@@ -98,7 +101,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                 }
             }
             case SPIN -> {
-                if (bufferFull) {
+                if (shouldIdle) {
                     miner.spinAnimationState.stop();
                     miner.cooldownAnimationState.start((int) gameTime);
                     miner.animationPhase = MinerBlockEntity.AnimPhase.COOLDOWN;
@@ -114,7 +117,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                 }
             }
             case IDLE -> {
-                if (!bufferFull) {
+                if (!shouldIdle) {
                     miner.idleAnimationState.stop();
                     miner.animationPhase = MinerBlockEntity.AnimPhase.STARTUP;
                 }
@@ -179,7 +182,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
     }
 
     @Override
-    public Model<MinerRenderState> getModel() {
+    public PoweredFactoryModel<MinerRenderState> getModel() {
         return model;
     }
 }

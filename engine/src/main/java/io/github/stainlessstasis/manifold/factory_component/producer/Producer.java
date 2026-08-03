@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.producer;
 
 
 import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
@@ -12,7 +13,7 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class Producer implements FactoryComponent {
+public class Producer implements PowerableFactoryComponent {
     public static final Identifier DEFAULT_ITEM_TYPE = ItemUtils.idOf(Items.RAW_IRON);
     public static final long DEFAULT_INTERVAL_TICKS = 1;
 
@@ -25,6 +26,9 @@ public class Producer implements FactoryComponent {
     private int bufferedCount = 0;
     private boolean active = true;
     private long nextProductionTick;
+
+    private boolean powered = true;
+    private long pausedRemainingTicks = -1; // -1 = not paused
 
     private Producer(Identifier itemId, long interval, Port output, Scheduler scheduler, boolean active, int bufferedCount) {
         if (output == null) throw new IllegalArgumentException("Producer needs an output Port");
@@ -80,7 +84,8 @@ public class Producer implements FactoryComponent {
     }
 
     private void produce() {
-        if (!active) return;
+        productionTask = null;
+        if (!active || !powered) return;
         if (isBufferFull()) return;
 
         bufferedCount++;
@@ -97,7 +102,7 @@ public class Producer implements FactoryComponent {
         output.accept(payload);
         bufferedCount--;
 
-        if (wasFull && active) {
+        if (wasFull && active && powered) {
             scheduleNextProduction(currentTick + interval);
         }
     }
@@ -105,13 +110,55 @@ public class Producer implements FactoryComponent {
     public void setActive(boolean active) {
         boolean wasActive = this.active;
         this.active = active;
-        if (active && !wasActive) {
+        if (active && !wasActive && powered) {
             scheduleNextProduction(scheduler.getCurrentTick());
         }
     }
 
     public boolean isActive() {
         return active;
+    }
+
+    public void setPowered(boolean powered) {
+        if (this.powered == powered) return;
+        this.powered = powered;
+
+        if (!powered) {
+            pauseForPowerLoss();
+        } else {
+            resumeFromPowerLoss();
+        }
+    }
+
+    public boolean isPowered() {
+        return powered;
+    }
+
+    @Override
+    public void pauseForPowerLoss() {
+        if (productionTask == null) return;
+        pausedRemainingTicks = nextProductionTick - scheduler.getCurrentTick();
+        productionTask.cancel();
+        productionTask = null;
+    }
+
+    @Override
+    public void resumeFromPowerLoss() {
+        if (pausedRemainingTicks < 0) return;
+        long remainingTicks = pausedRemainingTicks;
+        pausedRemainingTicks = -1;
+
+        if (active && !isBufferFull()) {
+            scheduleNextProduction(scheduler.getCurrentTick() + remainingTicks);
+            if (productionTask == null) {
+                scheduleNextProduction(scheduler.getCurrentTick() + interval);
+            }
+        }
+    }
+
+    @Override
+    public boolean isActivelyWorking() {
+        return productionTask != null;
     }
 
     /** True when the buffer holds a full stack of {@link #itemId} and can't accept another produced item. */
@@ -141,7 +188,7 @@ public class Producer implements FactoryComponent {
         return bufferedCount;
     }
 
-    /** Only meaningful when the buffer isn't full; a full producer has no standing scheduled event. */
+    /** Only meaningful when the buffer isn't full and the producer is powered; a full or unpowered producer has no standing scheduled event. */
     public long getNextProductionTick() {
         return nextProductionTick;
     }

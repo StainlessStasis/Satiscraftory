@@ -1,5 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.consumer;
 
+import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import net.minecraft.core.Direction;
@@ -12,7 +14,7 @@ import java.util.Deque;
 import java.util.List;
 
 
-public class Consumer implements Port {
+public class Consumer implements Port, FactoryComponent {
     private final int capacity;
     private final int processTime;
     private Direction inputDirection;
@@ -102,6 +104,17 @@ public class Consumer implements Port {
         }
         consumer.consumedCount = consumedCount;
         return consumer;
+    }
+
+    @Override
+    public void setOutputPort(int slot, Port port) {
+        Manifold.LOGGER.warn("setOutputPort on Consumer is no-op");
+    }
+
+    @Override
+    public int outputSlotCount() {
+        Manifold.LOGGER.warn("outputSlotCount on Consumer is no-op (will always be 0)");
+        return 0;
     }
 }
 

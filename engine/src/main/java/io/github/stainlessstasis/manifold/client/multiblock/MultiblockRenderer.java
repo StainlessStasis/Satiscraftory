@@ -1,13 +1,18 @@
 package io.github.stainlessstasis.manifold.client.multiblock;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -27,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class MultiblockRenderer<T extends BlockEntity, S extends MultiblockRenderState> implements BlockEntityRenderer<T, S> {
     protected abstract MultiblockShape shape();
     public abstract Identifier getTexture();
-    public abstract Model<S> getModel();
+    public abstract PoweredFactoryModel<S> getModel();
 
     protected MultiblockRenderer(BlockEntityType<T> blockEntityType) {
         MultiblockPreviewRegistry.register(blockEntityType, this);
@@ -47,6 +52,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             renderState.gameTime = gameTime;
             renderState.ageInTicks = gameTime + partialTick;
         }
+
+        if (blockEntity instanceof PowerConsumingFactoryBlockEntity<?> powerConsumingBlockEntity) {
+            renderState.powerIndicatorState = powerConsumingBlockEntity.getPowerIndicatorState();
+        }
     }
 
     private void applyTransform(PoseStack poseStack, Direction facing) {
@@ -64,7 +73,30 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.pushPose();
         applyTransform(poseStack, renderState.facing);
         collector.submitModel(getModel(), renderState, poseStack, getTexture(), renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0, null);
+        submitPowerIndicator(renderState, poseStack);
         poseStack.popPose();
+    }
+
+    private void submitPowerIndicator(S renderState, PoseStack poseStack) {
+        ModelPart indicatorPart = getModel().getPowerIndicatorPart();
+        if (indicatorPart == null) return;
+
+        int tintColor = renderState.powerIndicatorState.color.getRGB();
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.entityCutout(getTexture()));
+
+        poseStack.pushPose();
+        ModelPart parent = getModel().getPowerIndicatorParent();
+        if (parent != null) {
+            parent.translateAndRotate(poseStack);
+        }
+        indicatorPart.visible = true;
+        indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);
+        indicatorPart.visible = false;
+        poseStack.popPose();
+
+        bufferSource.endBatch(RenderTypes.entityCutout(getTexture()));
     }
 
     public void submitPreview(PoseStack poseStack, SubmitNodeCollector collector, Direction facing, int lightCoords, int tintColor) {

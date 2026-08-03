@@ -3,6 +3,7 @@ package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
+import io.github.stainlessstasis.manifold.factory_power.CableAnchorProvider;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
@@ -30,7 +31,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess {
+public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess, CableAnchorProvider {
+    private static final double DEMAND_MW = 5d;
+
     private @Nullable BlockPos linkedNodePos = null;
     private @Nullable Identifier resourceNodeId = null;
     public final AnimationState startupRotationState = new AnimationState();
@@ -41,11 +44,12 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public final AnimationState idleAnimationState = new AnimationState();
 
     public boolean hasDescended = false;
-    public boolean isIdling = false;
 
     private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
     private boolean isBufferFull = false;
     private int consecutiveFullTicks = 0;
+    private boolean isPowered = false;
+    private boolean previousPowered = false;
     public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
     public AnimPhase animationPhase = AnimPhase.STARTUP;
 
@@ -54,6 +58,9 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     public static final double PARTICLE_JITTER = 0.3d;
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
+
+    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET =  new Vec3(-1.5, 141, -71).scale(1/16f);
+    private final Vec3 cableAnchorOffset;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -65,6 +72,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
         this.particleOffset = DirectionalOffset.toWorld(facing, PARTICLE_LOCAL_OFFSET);
+        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, CABLE_ANCHOR_LOCAL_OFFSET);
     }
 
     @Override
@@ -72,7 +80,13 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         super.onLoad();
         if (level instanceof ServerLevel serverLevel) {
             linkToResourceNode(serverLevel);
+            registerPowerConsumer(serverLevel);
         }
+    }
+
+    @Override
+    public double getPowerDemand() {
+        return DEMAND_MW;
     }
 
     @Override
@@ -80,6 +94,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         super.setRemoved();
         if (level instanceof ServerLevel serverLevel) {
             unlinkFromResourceNode(serverLevel);
+            unregisterPowerConsumer(serverLevel);
         }
     }
 
@@ -98,7 +113,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         linkedNodePos = nodePos.immutable();
         resourceNodeId = nodeBE.getNodeTypeId();
         syncToClients();
-        Producer producer = getProducer();
+        Producer producer = getFactoryComponent();
         if (producer == null) return;
 
         producer.setItemId(nodeBE.getResourceType());
@@ -142,14 +157,28 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
 
     public boolean isBufferFull() {
         if (level instanceof ServerLevel) {
-            return getMiner().isBufferFull();
+            return getFactoryComponent().isBufferFull();
         } else {
             return isBufferFull;
         }
     }
 
-    public static void serverTick(Level level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
-        Producer producer = miner.getProducer();
+    public boolean isPowered() {
+        if (level instanceof ServerLevel) {
+            return getFactoryComponent().isPowered();
+        } else {
+            return isPowered;
+        }
+    }
+
+    @Override
+    public Vec3 getCableAnchorPos() {
+        BlockPos pos = getBlockPos();
+        return new Vec3(pos.getX(), pos.getY(), pos.getZ()).add(cableAnchorOffset);
+    }
+
+    public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
+        Producer producer = miner.getFactoryComponent();
         if (producer == null) return;
 
         boolean currentlyFull = producer.isBufferFull();
@@ -164,6 +193,14 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             miner.isBufferFull = actuallyFull;
             miner.syncToClients();
         }
+
+        miner.isPowered = miner.getFactoryComponent().isPowered();
+        if (miner.isPowered != miner.previousPowered) {
+            miner.syncToClients();
+        }
+        miner.previousPowered = miner.isPowered;
+
+        miner.tickPowerIndicator(level);
     }
 
     @Override
@@ -173,6 +210,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             output.putString("ResourceNodeId", resourceNodeId.toString());
         }
         output.putBoolean("IsBlocked", isBufferFull);
+        output.putBoolean("IsPowered", isPowered);
     }
 
     @Override
@@ -183,6 +221,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             resourceNodeId = Identifier.parse(resourceNodeString);
         }
         isBufferFull = input.getBooleanOr("IsBlocked", false);
+        isPowered = input.getBooleanOr("IsPowered", false);
     }
 
     @Override
@@ -199,9 +238,5 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (level != null) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
-    }
-
-    public Producer getMiner() {
-        return getProducer();
     }
 }

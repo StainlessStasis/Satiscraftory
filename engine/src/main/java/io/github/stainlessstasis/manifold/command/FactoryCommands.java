@@ -124,7 +124,7 @@ public final class FactoryCommands {
             return 0;
         }
 
-        Machine machine = machineBE.getMachine();
+        Machine machine = machineBE.getFactoryComponent();
         if (recipe.inputCount() != 1 || recipe.outputCount() != 1) {
             source.sendFailure(Component.literal(
                     "setrecipe currently only supports 1-input/1-output recipes " +

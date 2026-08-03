@@ -69,8 +69,10 @@ public final class MultiblockDevPreview {
         BlockState previewState = previewer.getPreviewBlock().defaultBlockState()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH);
 
-        PlacementPreviewSubmission.submit(event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),
-                previewer, previewState, anchor, Direction.NORTH, PlacementPreviewSubmission.VALID_TINT);
+        PlacementPreviewSubmission.submit(
+                event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),
+                previewer, previewState, anchor, Direction.NORTH, PlacementPreview.VALID_COLOR.getRGB()
+        );
 
         renderBoundsWireframe(event.getPoseStack(), event.getSubmitNodeCollector(), shape, anchor);
     }

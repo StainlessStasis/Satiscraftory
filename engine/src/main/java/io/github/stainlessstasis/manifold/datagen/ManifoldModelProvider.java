@@ -6,6 +6,8 @@ import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
+import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
@@ -19,6 +21,7 @@ public class ManifoldModelProvider extends FactoryModelProvider {
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         Block producer = ManifoldBlocks.PRODUCER.get();
+        Block powerProducer = ManifoldBlocks.POWER_PRODUCER.get();
         Block consumer = ManifoldBlocks.CONSUMER.get();
         Block machine = ManifoldBlocks.MACHINE.get();
         Block container = ManifoldBlocks.CONTAINER.get();
@@ -26,10 +29,12 @@ public class ManifoldModelProvider extends FactoryModelProvider {
         Block merger = ManifoldBlocks.MERGER.get();
 
         registerHorizontallyRotable(blockModels, producer, "block/producer", false);
+        registerHorizontallyRotable(blockModels, powerProducer, "block/producer", false);
         registerHorizontallyRotable(blockModels, machine, "block/machine", false);
         registerHorizontallyRotable(blockModels, container, "block/container", false);
         registerHorizontallyRotable(blockModels, consumer, "block/consumer", false);
         registerHorizontallyRotable(blockModels, splitter, "block/splitter_merger", false);
+        registerHorizontallyRotable(blockModels, merger, "block/splitter_merger", false);
         registerHorizontallyRotable(blockModels, merger, "block/splitter_merger", false);
 
         // need to manually override the item models, otherwise they default to "splitter" and "merger" which is wrong

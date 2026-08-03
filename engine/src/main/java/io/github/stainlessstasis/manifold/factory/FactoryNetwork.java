@@ -10,7 +10,9 @@ import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
+import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
@@ -48,8 +50,10 @@ public class FactoryNetwork extends SavedData {
     };
 
     private final Scheduler scheduler = new Scheduler();
-    private final Map<GlobalPos, Producer> producers = new HashMap<>();
+    private final PowerGrid powerGrid = new PowerGrid();
     private final LaneManager laneManager = new LaneManager();
+
+    private final Map<GlobalPos, Producer> producers = new HashMap<>();
     private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
     private final Map<GlobalPos, Machine> machines = new HashMap<>();
     private final Map<GlobalPos, Container> containers = new HashMap<>();
@@ -91,6 +95,10 @@ public class FactoryNetwork extends SavedData {
 
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public PowerGrid getPowerGrid() {
+        return powerGrid;
     }
 
     public LaneManager getLaneManager() {
@@ -349,6 +357,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void tickAll(ServerLevel level, long currentTick) {
+        powerGrid.tick();
         scheduler.tick(currentTick);
 
         if (tickOrder == null) tickOrder = computeTickOrder();
@@ -407,6 +416,25 @@ public class FactoryNetwork extends SavedData {
                 }
             }
         }
+
+        if (powerGrid.areEdgesDirtySinceSync()) {
+            Set<PowerGrid.Edge> allEdges = powerGrid.getEdges();
+
+            for (ServerLevel dimLevel : level.getServer().getAllLevels()) {
+                List<PowerGridSyncPacket.Entry> dimEntries = new ArrayList<>();
+                for (PowerGrid.Edge edge : allEdges) {
+                    boolean sameDimension = edge.nodeA().dimension().equals(dimLevel.dimension())
+                            && edge.nodeB().dimension().equals(dimLevel.dimension());
+                    if (sameDimension) {
+                        dimEntries.add(new PowerGridSyncPacket.Entry(edge.nodeA().pos(), edge.nodeB().pos()));
+                    }
+                }
+                PacketDistributor.sendToPlayersInDimension(dimLevel, new PowerGridSyncPacket(dimEntries));
+            }
+
+            powerGrid.markEdgesSynced();
+        }
+
     }
 
     private List<TickTarget> computeTickOrder() {
@@ -664,7 +692,20 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers, persistedSplitters, persistedMergers);
+        List<Persisted.PowerNode> persistedPowerNodes = new ArrayList<>();
+        for (GlobalPos pos : powerGrid.getNodes()) {
+            persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos), powerGrid.getMaxConnections(pos)));
+        }
+        List<Persisted.PowerEdge> persistedPowerEdges = new ArrayList<>();
+        for (PowerGrid.Edge edge : powerGrid.getEdges()) {
+            persistedPowerEdges.add(new Persisted.PowerEdge(edge));
+        }
+        Persisted.PowerGridData persistedPowerGrid = new Persisted.PowerGridData(persistedPowerNodes, persistedPowerEdges);
+
+        return new Persisted.Snapshot(
+                persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
+                persistedContainers, persistedSplitters, persistedMergers, persistedPowerGrid
+        );
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
@@ -814,6 +855,15 @@ public class FactoryNetwork extends SavedData {
                 Port port = network.getPortAt(outPos, dir);
                 if (port != null) splitter.setOutput(slotIndex, port);
             }
+        }
+
+        for (Persisted.PowerNode powerNodeData : snapshot.powerGrid().nodes()) {
+            network.powerGrid.addNode(powerNodeData.pos());
+            if (powerNodeData.supply() > 0) network.powerGrid.registerProducer(powerNodeData.pos(), powerNodeData.supply());
+            if (powerNodeData.demand() > 0) network.powerGrid.registerConsumer(powerNodeData.pos(), powerNodeData.demand(), null);
+        }
+        for (Persisted.PowerEdge powerEdgeData : snapshot.powerGrid().edges()) {
+            network.powerGrid.addEdge(powerEdgeData.edge().nodeA(), powerEdgeData.edge().nodeB());
         }
 
         return network;

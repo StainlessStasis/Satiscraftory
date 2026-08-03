@@ -2,8 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.container;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_component.Payload;
-import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
+import io.github.stainlessstasis.manifold.factory_component.*;
 import io.github.stainlessstasis.manifold.menu.ContainerMenu;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -23,7 +22,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class ContainerBlockEntity extends BlockEntity implements net.minecraft.world.Container, MenuProvider {
+public class ContainerBlockEntity extends FactoryBlockEntity<Container> implements net.minecraft.world.Container, MenuProvider {
     public static final int SLOT_COUNT = 27;
 
     private Container container;
@@ -60,11 +59,6 @@ public class ContainerBlockEntity extends BlockEntity implements net.minecraft.w
     public void onNeighborChanged() {
         if (level instanceof ServerLevel serverLevel) relink(FactoryNetwork.get(serverLevel));
     }
-
-    public Container getContainer() {
-        return container;
-    }
-
 
     @Override
     public int getContainerSize() {
@@ -141,5 +135,10 @@ public class ContainerBlockEntity extends BlockEntity implements net.minecraft.w
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, @NonNull Inventory playerInventory, @NonNull Player player) {
         return new ContainerMenu(containerId, playerInventory, this);
+    }
+
+    @Override
+    public Container getFactoryComponent() {
+        return container;
     }
 }

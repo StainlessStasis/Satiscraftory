@@ -41,9 +41,9 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
-        if (level.isClientSide()) return null;
+        if (!(level instanceof ServerLevel serverLevel)) return null;
         return type == SCBlockEntities.MINER.get()
-                ? (lvl, pos, st, be) -> MinerBlockEntity.serverTick(lvl, pos, st, (MinerBlockEntity) be)
+                ? (_, pos, state, be) -> MinerBlockEntity.serverTick(serverLevel, pos, state, (MinerBlockEntity) be)
                 : null;
     }
 

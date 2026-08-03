@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
@@ -122,11 +123,35 @@ final class Persisted {
         ).apply(i, Merger::new));
     }
 
+    record PowerNode(GlobalPos pos, double supply, double demand, int maxConnections) {
+        static final Codec<PowerNode> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(PowerNode::pos),
+                Codec.DOUBLE.optionalFieldOf("supply", 0d).forGetter(PowerNode::supply),
+                Codec.DOUBLE.optionalFieldOf("demand", 0d).forGetter(PowerNode::demand),
+                Codec.INT.optionalFieldOf("maxConnections", PowerGrid.DEFAULT_MAX_CONNECTIONS).forGetter(PowerNode::maxConnections)
+        ).apply(i, PowerNode::new));
+    }
+
+    record PowerEdge(PowerGrid.Edge edge) {
+        static final Codec<PowerEdge> CODEC = RecordCodecBuilder.create(i -> i.group(
+                PowerGrid.Edge.CODEC.fieldOf("nodeA").forGetter(PowerEdge::edge)
+        ).apply(i, PowerEdge::new));
+    }
+
+    record PowerGridData(List<PowerNode> nodes, List<PowerEdge> edges) {
+        static final Codec<PowerGridData> CODEC = RecordCodecBuilder.create(i -> i.group(
+                PowerNode.CODEC.listOf().fieldOf("nodes").forGetter(PowerGridData::nodes),
+                PowerEdge.CODEC.listOf().optionalFieldOf("edges", List.of()).forGetter(PowerGridData::edges)
+        ).apply(i, PowerGridData::new));
+
+        static final PowerGridData EMPTY = new PowerGridData(List.of(), List.of());
+    }
+
     /**
      * The full snapshot of everything FactoryNetwork tracks (producers, belts, machines, ...you get it)
      */
     record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines,
-                    List<Container> containers, List<Splitter> splitters, List<Merger> mergers) {
+                    List<Container> containers, List<Splitter> splitters, List<Merger> mergers, PowerGridData powerGrid) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 BeltLane.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
@@ -134,7 +159,8 @@ final class Persisted {
                 Machine.CODEC.listOf().fieldOf("machines").forGetter(Snapshot::machines),
                 Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers),
                 Splitter.CODEC.listOf().optionalFieldOf("splitters", List.of()).forGetter(Snapshot::splitters),
-                Merger.CODEC.listOf().optionalFieldOf("mergers", List.of()).forGetter(Snapshot::mergers)
+                Merger.CODEC.listOf().optionalFieldOf("mergers", List.of()).forGetter(Snapshot::mergers),
+                PowerGridData.CODEC.optionalFieldOf("powerGrid", PowerGridData.EMPTY).forGetter(Snapshot::powerGrid)
         ).apply(i, Snapshot::new));
     }
 }

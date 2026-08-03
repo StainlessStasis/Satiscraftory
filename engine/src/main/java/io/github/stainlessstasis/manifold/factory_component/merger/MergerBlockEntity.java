@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.merger;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class MergerBlockEntity extends BlockEntity {
+public class MergerBlockEntity extends FactoryBlockEntity<Merger> {
     private Merger merger;
 
     public MergerBlockEntity(BlockPos pos, BlockState state) {
@@ -55,7 +56,8 @@ public class MergerBlockEntity extends BlockEntity {
         }
     }
 
-    public Merger getMerger() {
+    @Override
+    public Merger getFactoryComponent() {
         return merger;
     }
 }

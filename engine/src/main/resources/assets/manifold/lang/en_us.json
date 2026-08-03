@@ -1,8 +1,12 @@
 {
   "block.manifold.producer": "Producer",
+  "block.manifold.power_producer": "Power Producer",
   "block.manifold.splitter": "Splitter",
   "block.manifold.merger": "Merger",
   "block.manifold.machine": "Machine",
   "block.manifold.container": "Container",
-  "block.manifold.consumer": "Consumer"
+  "block.manifold.consumer": "Consumer",
+
+  "manifold.configuration.beltsDropItems": "Belts Drop Items",
+  "manifold.configuration.powerRequired": "Power Required"
 }

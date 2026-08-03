@@ -52,6 +52,7 @@ public class Satiscraftory {
                 output.accept(ManifoldItems.MACHINE.get());
                 output.accept(ManifoldItems.CONTAINER.get());
                 output.accept(ManifoldItems.CONSUMER.get());
+                output.accept(ManifoldItems.POWER_PRODUCER.get());
             }).build()
     );
 
