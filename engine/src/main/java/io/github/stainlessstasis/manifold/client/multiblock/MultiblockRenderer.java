@@ -81,11 +81,18 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         if (indicatorPart == null) return;
 
         int tintColor = renderState.powerIndicatorState.color.getRGB();
-        int fullBrightLight = 0xF000F0;
 
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.entityCutout(getTexture()));
-        indicatorPart.render(poseStack, vertexConsumer, fullBrightLight, OverlayTexture.NO_OVERLAY, tintColor);
+
+        poseStack.pushPose();
+        ModelPart parent = getModel().getPowerIndicatorParent();
+        if (parent != null) {
+            parent.translateAndRotate(poseStack);
+        }
+        indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);
+        poseStack.popPose();
+
         bufferSource.endBatch(RenderTypes.entityCutout(getTexture()));
     }
 

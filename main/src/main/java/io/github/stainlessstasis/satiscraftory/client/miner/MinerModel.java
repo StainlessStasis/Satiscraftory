@@ -15,10 +15,12 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
 	private final ModelPart powerIndicator;
+	private final ModelPart powerIndicatorParent;
 	private final KeyframeAnimation startupRotation;
 	private final KeyframeAnimation startupDescend;
 	private final KeyframeAnimation startupAlreadyDescended;
@@ -28,13 +30,26 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 
 	public MinerModel(ModelPart root) {
 		super(root, RenderTypes::entityCutout);
-		this.powerIndicator = root.getChild("root").getChild("power").getChild("indicator");
+		ModelPart rootPart = root.getChild("root");
+		this.powerIndicatorParent = rootPart;
+		this.powerIndicator = rootPart.getChild("power").getChild("indicator");
+
 		this.startupRotation = MinerAnimations.STARTUP_ROTATION.bake(root);
 		this.startupDescend = MinerAnimations.STARTUP_DESCEND.bake(root);
 		this.startupAlreadyDescended = MinerAnimations.STARTUP_ALREADY_DESCENDED.bake(root);
 		this.spinLoop = MinerAnimations.SPIN_LOOP.bake(root);
 		this.cooldown = MinerAnimations.COOLDOWN.bake(root);
 		this.idle = MinerAnimations.IDLE.bake(root);
+	}
+
+	@Override
+	public ModelPart getPowerIndicatorPart() {
+		return powerIndicator;
+	}
+
+	@Override
+	public @Nullable ModelPart getPowerIndicatorParent() {
+		return powerIndicatorParent;
 	}
 
 	@Override
@@ -318,10 +333,5 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 				.texOffs(260, 332).addBox(-10.0F, -44.75F, 70.0F, 4.0F, 24.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(8.0F, 0.0F, -72.0F));
 
 		return LayerDefinition.create(meshdefinition, 512, 512);
-	}
-
-	@Override
-	public ModelPart getPowerIndicatorPart() {
-		return powerIndicator;
 	}
 }
