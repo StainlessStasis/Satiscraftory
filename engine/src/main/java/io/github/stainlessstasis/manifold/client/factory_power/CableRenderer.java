@@ -5,6 +5,8 @@ import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.client.multiblock.PlacementPreview;
 import io.github.stainlessstasis.manifold.factory_power.PowerLinkable;
 import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -67,6 +69,11 @@ public class CableRenderer {
         PowerLinkItem powerLinkItem = (PowerLinkItem) player.getMainHandItem().getItem();
         BlockPos resolvedTargetPos = powerLinkItem.resolveLinkTarget(level, blockHitResult.getBlockPos());
         if (resolvedTargetPos == null || resolvedTargetPos.equals(chainStart)) return;
+
+        if (level.getBlockEntity(resolvedTargetPos) instanceof MultiblockFillerBlockEntity multiblockFiller) {
+            BlockPos controllerPos = multiblockFiller.getControllerPos();
+            if (controllerPos != null) resolvedTargetPos = controllerPos;
+        }
 
         boolean isValidTarget = level.getBlockEntity(resolvedTargetPos) instanceof PowerLinkable;
         Color previewColor = isValidTarget ? PlacementPreview.VALID_COLOR : PlacementPreview.INVALID_COLOR;
