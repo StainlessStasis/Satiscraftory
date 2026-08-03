@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "satiscraftory:item/cable"
+    "model": "satiscraftory:item/wire"
   }
 }

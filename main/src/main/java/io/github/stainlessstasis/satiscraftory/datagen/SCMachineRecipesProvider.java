@@ -36,5 +36,30 @@ public class SCMachineRecipesProvider extends ManifoldRecipeProvider {
                 List.of(RecipeIngredient.of(SCItems.SCREWS, 4)),
                 6*20 // 40/min
         ));
+
+        output.accept(Satiscraftory.id("copper_ingot"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(Items.RAW_COPPER, 1)),
+                List.of(RecipeIngredient.of(Items.COPPER_INGOT, 1)),
+                2*20 // 30/min
+        ));
+        output.accept(Satiscraftory.id("copper_sheet"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(Items.COPPER_INGOT, 2)),
+                List.of(RecipeIngredient.of(SCItems.COPPER_SHEET, 1)),
+                6*20 // 10/min
+        ));
+        output.accept(Satiscraftory.id("wire"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(Items.COPPER_INGOT, 1)),
+                List.of(RecipeIngredient.of(SCItems.WIRE, 2)),
+                4*20 // 30/min
+        ));
+        output.accept(Satiscraftory.id("cable"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(SCItems.WIRE, 2)),
+                List.of(RecipeIngredient.of(SCItems.CABLE, 1)),
+                2*20 // 30/min
+        ));
     }
 }

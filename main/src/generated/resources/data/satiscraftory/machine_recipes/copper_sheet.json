@@ -1,0 +1,16 @@
+{
+  "durationTicks": 120,
+  "inputs": [
+    {
+      "amount": 2,
+      "itemId": "minecraft:copper_ingot"
+    }
+  ],
+  "machineType": "manifold:basic_machine",
+  "outputs": [
+    {
+      "amount": 1,
+      "itemId": "satiscraftory:copper_sheet"
+    }
+  ]
+}
