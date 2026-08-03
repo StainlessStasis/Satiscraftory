@@ -33,6 +33,7 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 		ModelPart rootPart = root.getChild("root");
 		this.powerIndicatorParent = rootPart;
 		this.powerIndicator = rootPart.getChild("power").getChild("indicator");
+		this.powerIndicator.visible = false;
 
 		this.startupRotation = MinerAnimations.STARTUP_ROTATION.bake(root);
 		this.startupDescend = MinerAnimations.STARTUP_DESCEND.bake(root);

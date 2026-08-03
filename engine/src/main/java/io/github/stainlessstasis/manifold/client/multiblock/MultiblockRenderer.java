@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -90,7 +91,9 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         if (parent != null) {
             parent.translateAndRotate(poseStack);
         }
+        indicatorPart.visible = true;
         indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);
+        indicatorPart.visible = false;
         poseStack.popPose();
 
         bufferSource.endBatch(RenderTypes.entityCutout(getTexture()));
