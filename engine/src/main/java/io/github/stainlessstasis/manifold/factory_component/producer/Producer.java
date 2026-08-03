@@ -156,6 +156,11 @@ public class Producer implements PowerableFactoryComponent {
         }
     }
 
+    @Override
+    public boolean isActivelyWorking() {
+        return productionTask != null;
+    }
+
     /** True when the buffer holds a full stack of {@link #itemId} and can't accept another produced item. */
     public boolean isBufferFull() {
         return bufferedCount >= ItemUtils.maxStackSizeFor(itemId);

@@ -177,7 +177,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         return new Vec3(pos.getX(), pos.getY(), pos.getZ()).add(cableAnchorOffset);
     }
 
-    public static void serverTick(Level level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
+    public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
         Producer producer = miner.getFactoryComponent();
         if (producer == null) return;
 
@@ -199,6 +199,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
             miner.syncToClients();
         }
         miner.previousPowered = miner.isPowered;
+
+        miner.tickPowerIndicator(level);
     }
 
     @Override

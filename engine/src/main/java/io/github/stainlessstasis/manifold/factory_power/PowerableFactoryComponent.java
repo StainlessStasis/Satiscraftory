@@ -7,4 +7,5 @@ public interface PowerableFactoryComponent extends FactoryComponent {
     boolean isPowered();
     void pauseForPowerLoss();
     void resumeFromPowerLoss();
+    boolean isActivelyWorking();
 }

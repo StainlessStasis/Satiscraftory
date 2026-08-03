@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
+import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -181,7 +182,7 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
     }
 
     @Override
-    public Model<MinerRenderState> getModel() {
+    public PoweredFactoryModel<MinerRenderState> getModel() {
         return model;
     }
 }

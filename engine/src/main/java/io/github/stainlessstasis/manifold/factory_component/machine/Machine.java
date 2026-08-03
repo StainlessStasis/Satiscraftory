@@ -155,6 +155,11 @@ public class Machine implements PowerableFactoryComponent {
         pausedRemainingTicks = -1;
     }
 
+    @Override
+    public boolean isActivelyWorking() {
+        return crafting && !stalled;
+    }
+
     private void tryStartCrafting() {
         if (crafting || stalled || !powered) return;
 
