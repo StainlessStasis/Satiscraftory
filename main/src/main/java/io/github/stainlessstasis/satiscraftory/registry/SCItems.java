@@ -36,6 +36,7 @@ public class SCItems {
     public static final DeferredItem<Item> SCREWS = registerFactoryItem("screws");
     public static final DeferredItem<Item> COPPER_SHEET = registerFactoryItem("copper_sheet");
     public static final DeferredItem<Item> WIRE = registerFactoryItem("wire");
+    public static final DeferredItem<Item> CABLE = registerFactoryItem("cable");
 
     public static <B extends Block> DeferredItem<BlockItem> registerFactoryBlockItem(String name, Supplier<B> blockSupplier) {
         DeferredItem<BlockItem> item = ITEMS.registerSimpleBlockItem(name, blockSupplier);

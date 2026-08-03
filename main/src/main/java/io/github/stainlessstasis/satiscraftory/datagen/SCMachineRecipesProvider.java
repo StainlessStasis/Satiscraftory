@@ -55,5 +55,11 @@ public class SCMachineRecipesProvider extends ManifoldRecipeProvider {
                 List.of(RecipeIngredient.of(SCItems.WIRE, 2)),
                 4*20 // 30/min
         ));
+        output.accept(Satiscraftory.id("cable"), new MachineRecipe.Data(
+                ManifoldMachineTypes.BASIC_MACHINE,
+                List.of(RecipeIngredient.of(SCItems.WIRE, 2)),
+                List.of(RecipeIngredient.of(SCItems.CABLE, 1)),
+                2*20 // 30/min
+        ));
     }
 }
