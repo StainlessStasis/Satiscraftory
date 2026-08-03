@@ -1,3 +1,13 @@
+# 0.4.1-alpha (Aug 3, 2026)
+## New Features
+Added new items!<br>
+**Copper Sheet:** 2x copper ingot -> 1x copper sheet; 6 sec (10/min)<br>
+**Wire:** 1x copper ingot -> 2x wire; 4 sec (30/min)<br>
+**Cable:** 2x wire -> 1x cable; 2 sec (30/min)
+
+## Coming Up
+0.5.0 is on the way, and it's bringing **power grids**! I'd estimate it's about 70% done; backend stuff is done, but I need to model and implement power poles & biomass burners. This update will bring machines/miners requiring power, cables with placement preview and daisy-chaining, power poles, and biomass burners. Also, don't worry, there's a config setting to disable power requirements. A survival-friendly gameplay loop is starting to take shape! 
+
 # 0.4.0-alpha (Jul 30, 2026)
 ## ⚠️ BREAKING CHANGES ⚠️
 Any Machine that isn't using the default iron ingot recipe will stop working and will need to have its recipe reset. This is a necessary change to implement the new menu.
