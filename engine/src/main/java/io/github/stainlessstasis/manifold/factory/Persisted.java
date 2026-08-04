@@ -38,7 +38,8 @@ final class Persisted {
     }
 
     record Producer(GlobalPos pos, Identifier itemType, long interval, Optional<GlobalPos> outputPos,
-                    boolean active, int bufferedCount, long nextProductionTick) {
+                    boolean active, int bufferedCount, long nextProductionTick,
+                    boolean powered, long pausedRemainingTicks) {
         static final Codec<Producer> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Producer::pos),
                 Identifier.CODEC.fieldOf("itemType").forGetter(Producer::itemType),
@@ -46,7 +47,9 @@ final class Persisted {
                 GlobalPos.CODEC.optionalFieldOf("outputPos").forGetter(Producer::outputPos),
                 Codec.BOOL.fieldOf("active").forGetter(Producer::active),
                 Codec.INT.optionalFieldOf("bufferedCount", 0).forGetter(Producer::bufferedCount),
-                Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick)
+                Codec.LONG.fieldOf("nextProductionTick").forGetter(Producer::nextProductionTick),
+                Codec.BOOL.optionalFieldOf("powered", true).forGetter(Producer::powered),
+                Codec.LONG.optionalFieldOf("pausedRemainingTicks", -1L).forGetter(Producer::pausedRemainingTicks)
         ).apply(i, Producer::new));
     }
 
@@ -66,7 +69,7 @@ final class Persisted {
     record Machine(GlobalPos pos, Identifier recipeId, int bufferMultiplier, boolean crafting, boolean stalled,
                    long craftCompletionTick, int[] inputCounts, int[] outputCounts,
                    Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces,
-                   Map<Integer, GlobalPos> outputPos) {
+                   Map<Integer, GlobalPos> outputPos, boolean powered, long pausedRemainingTicks) {
         static final Codec<Machine> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Machine::pos),
                 Identifier.CODEC.fieldOf("recipeId").forGetter(Machine::recipeId),
@@ -79,7 +82,9 @@ final class Persisted {
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("inputFaces").forGetter(Machine::inputFaces),
                 Codec.unboundedMap(Direction.CODEC, Codec.INT).fieldOf("outputFaces").forGetter(Machine::outputFaces),
                 Codec.unboundedMap(Codec.STRING.xmap(Integer::parseInt, String::valueOf), GlobalPos.CODEC)
-                        .optionalFieldOf("outputPos", Map.of()).forGetter(Machine::outputPos)
+                        .optionalFieldOf("outputPos", Map.of()).forGetter(Machine::outputPos),
+                Codec.BOOL.optionalFieldOf("powered", true).forGetter(Machine::powered),
+                Codec.LONG.optionalFieldOf("pausedRemainingTicks", -1L).forGetter(Machine::pausedRemainingTicks)
         ).apply(i, Machine::new));
     }
 

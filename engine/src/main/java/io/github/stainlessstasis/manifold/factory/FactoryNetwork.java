@@ -597,7 +597,9 @@ public class FactoryNetwork extends SavedData {
                     Optional.ofNullable(producerOutputPos.get(pos)),
                     producer.isActive(),
                     producer.getBufferedCount(),
-                    producer.getNextProductionTick()
+                    producer.getNextProductionTick(),
+                    producer.isPowered(),
+                    producer.getPausedRemainingTicks()
             ));
         }
 
@@ -641,7 +643,9 @@ public class FactoryNetwork extends SavedData {
                     machine.isCrafting(), machine.isStalled(), machine.getCraftCompletionTick(),
                     machine.getInputCounts(), machine.getOutputCounts(),
                     machine.getInputFaceAssignments(), machine.getOutputFaceAssignments(),
-                    outputPositions
+                    outputPositions,
+                    machine.isPowered(),
+                    machine.getPausedRemainingTicks()
             ));
         }
 
@@ -730,7 +734,8 @@ public class FactoryNetwork extends SavedData {
         for (Persisted.Producer producerData : snapshot.producers()) {
             Producer producer = Producer.restore(
                     producerData.itemType(), producerData.interval(), NO_OP_PORT, network.scheduler,
-                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick()
+                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick(),
+                    producerData.powered(), producerData.pausedRemainingTicks()
             );
             network.producers.put(producerData.pos(), producer);
             producerData.outputPos().ifPresent(outPos -> network.producerOutputPos.put(producerData.pos(), outPos));
@@ -746,7 +751,8 @@ public class FactoryNetwork extends SavedData {
             Machine machine = Machine.restore(recipe, network.scheduler, outputPorts, machineData.bufferMultiplier(),
                     machineData.crafting(), machineData.stalled(), machineData.craftCompletionTick(),
                     machineData.inputCounts(), machineData.outputCounts(),
-                    machineData.inputFaces(), machineData.outputFaces());
+                    machineData.inputFaces(), machineData.outputFaces(),
+                    machineData.powered(), machineData.pausedRemainingTicks());
             network.machines.put(machineData.pos(), machine);
 
             if (!machineData.outputPos().isEmpty()) {

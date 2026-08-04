@@ -48,11 +48,16 @@ public class Machine implements PowerableFactoryComponent {
         this.outputPorts.addAll(initialOutputPorts);
     }
 
+    public long getPausedRemainingTicks() {
+        return pausedRemainingTicks;
+    }
+
     public static Machine restore(
             MachineRecipe recipe, Scheduler scheduler, List<Port> outputPorts,
             int bufferMultiplier, boolean crafting, boolean stalled, long craftCompletionTick,
             int[] inputCounts, int[] outputCounts,
-            Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces
+            Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces,
+            boolean powered, long pausedRemainingTicks
     ) {
         Machine machine = new Machine(recipe, scheduler, outputPorts, bufferMultiplier);
         machine.crafting = crafting;
@@ -60,11 +65,13 @@ public class Machine implements PowerableFactoryComponent {
         machine.craftCompletionTick = craftCompletionTick;
         machine.inputCounts = inputCounts.clone();
         machine.outputCounts = outputCounts.clone();
+        machine.powered = powered;
+        machine.pausedRemainingTicks = pausedRemainingTicks;
 
         for (var entry : inputFaces.entrySet()) machine.assignInputFace(entry.getKey(), entry.getValue());
         for (var entry : outputFaces.entrySet()) machine.assignOutputFace(entry.getKey(), entry.getValue());
 
-        if (crafting && !stalled) {
+        if (crafting && !stalled && powered) {
             machine.craftTask = scheduler.schedule(craftCompletionTick, machine::finishCrafting);
         }
         return machine;

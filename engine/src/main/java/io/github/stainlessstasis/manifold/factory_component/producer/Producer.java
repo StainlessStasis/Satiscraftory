@@ -45,12 +45,19 @@ public class Producer implements PowerableFactoryComponent {
         scheduleNextProduction(scheduler.getCurrentTick() + interval);
     }
 
+    public long getPausedRemainingTicks() {
+        return pausedRemainingTicks;
+    }
+
     public static Producer restore(
             Identifier itemId, long interval, Port output,
-            Scheduler scheduler, boolean active, int bufferedCount, long nextProductionTick
+            Scheduler scheduler, boolean active, int bufferedCount, long nextProductionTick,
+            boolean powered, long pausedRemainingTicks
     ) {
         Producer producer = new Producer(itemId, interval, output, scheduler, active, bufferedCount);
-        if (!producer.isBufferFull()) {
+        producer.powered = powered;
+        producer.pausedRemainingTicks = pausedRemainingTicks;
+        if (powered && !producer.isBufferFull()) {
             producer.scheduleNextProduction(nextProductionTick);
         }
         return producer;
