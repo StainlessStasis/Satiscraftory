@@ -3,7 +3,7 @@ package io.github.stainlessstasis.satiscraftory.factory_component.power_pole;
 import com.mojang.serialization.MapCodec;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
@@ -23,7 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements MultiblockPreviewer<PowerPoleBlock> {
+public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements Multiblock<PowerPoleBlock> {
     public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(1, 1, 3, new BlockPos(0, 0, 0));
     public static final MapCodec<PowerPoleBlock> CODEC = simpleCodec(PowerPoleBlock::new);
 

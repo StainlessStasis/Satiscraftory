@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.client.multiblock;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -18,7 +18,7 @@ public final class PlacementPreviewSubmission {
 
     public static void submit(
             PoseStack poseStack, SubmitNodeCollector collector, Level level,
-            MultiblockPreviewer<?> previewer, BlockState previewState,
+            Multiblock<?> previewer, BlockState previewState,
             BlockPos origin, Direction facing, int tint
     ) {
         BaseEntityBlock block = previewer.getPreviewBlock();

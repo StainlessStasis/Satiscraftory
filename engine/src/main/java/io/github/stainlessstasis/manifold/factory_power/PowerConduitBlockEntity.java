@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_power;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.AbstractFactoryBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
@@ -19,9 +20,7 @@ import java.util.List;
 public abstract class PowerConduitBlockEntity extends BlockEntity implements MultiblockControllerAccess, CableAnchorProvider, PowerLinkable {
     public PowerConduitBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState state) {
         super(type, worldPosition, state);
-        Direction facing = state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
-                ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
-                : Direction.NORTH;
+        Direction facing = AbstractFactoryBlock.facingOf(state);
         this.cableAnchorOffset = DirectionalOffset.toWorld(facing, getLocalCableAnchorOffset());
     }
 

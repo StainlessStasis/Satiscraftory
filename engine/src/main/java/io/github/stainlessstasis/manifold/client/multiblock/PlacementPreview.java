@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.client.multiblock;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -35,7 +35,7 @@ public class PlacementPreview {
         if (player == null) return;
 
         ItemStack held = player.getMainHandItem();
-        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof MultiblockPreviewer<?> multiblockPreviewer)) return;
+        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> multiblockPreviewer)) return;
         if (!(mc.hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return;
 
         UseOnContext useContext = new UseOnContext(player.level(), player, InteractionHand.MAIN_HAND, held, blockHit);

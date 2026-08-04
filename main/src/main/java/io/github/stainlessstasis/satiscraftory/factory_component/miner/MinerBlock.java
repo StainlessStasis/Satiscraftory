@@ -3,7 +3,7 @@ package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -12,10 +12,8 @@ import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEn
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.satiscraftory.util.MessageUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -32,7 +30,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
+public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
     public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER_UNFILLED);
 
@@ -86,25 +84,6 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
     @Override
     public BlockState getPreviewPlacement(BlockPlaceContext context) {
         return super.getStateForPlacement(context);
-    }
-
-    @Override
-    public void setPlacedBy(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state, @Nullable LivingEntity placer, @NonNull ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.isClientSide()) return;
-
-        Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        MultiblockPlacement.stampFillers(level, MULTIBLOCK_SHAPE, pos, facing, ManifoldBlocks.MULTIBLOCK_FILLER.get());
-    }
-
-    @Override
-    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-
-        if (!MultiblockDemolition.isInProgress(level)) {
-            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            MultiblockDemolition.demolishFillers(level, MULTIBLOCK_SHAPE.absoluteFillerPositions(pos, facing));
-        }
     }
 
     @Override
