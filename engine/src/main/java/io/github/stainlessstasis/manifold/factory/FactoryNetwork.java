@@ -857,7 +857,9 @@ public class FactoryNetwork extends SavedData {
             }
         }
 
+        // restore power grid
         for (Persisted.PowerNode powerNodeData : snapshot.powerGrid().nodes()) {
+            network.powerGrid.setMaxConnections(powerNodeData.pos(), powerNodeData.maxConnections());
             network.powerGrid.addNode(powerNodeData.pos());
             if (powerNodeData.supply() > 0) network.powerGrid.registerProducer(powerNodeData.pos(), powerNodeData.supply());
             if (powerNodeData.demand() > 0) network.powerGrid.registerConsumer(powerNodeData.pos(), powerNodeData.demand(), null);
