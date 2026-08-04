@@ -9,7 +9,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class PowerPoleModel<S extends MultiblockRenderState> extends Model<S> {
+public class PowerPoleModel extends Model<MultiblockRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("power_pole"), "main");
 
 	public PowerPoleModel(ModelPart root) {

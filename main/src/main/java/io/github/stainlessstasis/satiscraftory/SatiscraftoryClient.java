@@ -3,6 +3,7 @@ package io.github.stainlessstasis.satiscraftory;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
+import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleRenderer;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,5 +32,6 @@ public class SatiscraftoryClient {
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SCBlockEntities.MINER.get(), MinerRenderer::new);
+        event.registerBlockEntityRenderer(SCBlockEntities.POWER_POLE.get(), PowerPoleRenderer::new);
     }
 }

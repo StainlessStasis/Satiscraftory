@@ -47,7 +47,7 @@ public class SCModelProvider extends FactoryModelProvider {
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
-        
+
         registerFactoryBuilding("miner", SCBlocks.MINER_MK1.get(), SCItems.MINER_MK1.get(), blockModels, itemModels);
         registerFactoryBuilding("power_pole", SCBlocks.POWER_POLE_MK1.get(), SCItems.POWER_POLE_MK1.get(), blockModels, itemModels);
 

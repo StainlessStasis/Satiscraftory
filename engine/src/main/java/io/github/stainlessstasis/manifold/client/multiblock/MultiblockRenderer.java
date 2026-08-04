@@ -9,6 +9,7 @@ import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -32,7 +33,7 @@ import org.jspecify.annotations.Nullable;
 public abstract class MultiblockRenderer<T extends BlockEntity, S extends MultiblockRenderState> implements BlockEntityRenderer<T, S> {
     protected abstract MultiblockShape shape();
     public abstract Identifier getTexture();
-    public abstract PoweredFactoryModel<S> getModel();
+    public abstract Model<S> getModel();
 
     protected MultiblockRenderer(BlockEntityType<T> blockEntityType) {
         MultiblockPreviewRegistry.register(blockEntityType, this);
@@ -78,7 +79,11 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     }
 
     private void submitPowerIndicator(S renderState, PoseStack poseStack) {
-        ModelPart indicatorPart = getModel().getPowerIndicatorPart();
+        if (!(getModel() instanceof PoweredFactoryModel<S> model)) {
+            return;
+        }
+
+        ModelPart indicatorPart = model.getPowerIndicatorPart();
         if (indicatorPart == null) return;
 
         int tintColor = renderState.powerIndicatorState.color.getRGB();
@@ -87,7 +92,7 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.entityCutout(getTexture()));
 
         poseStack.pushPose();
-        ModelPart parent = getModel().getPowerIndicatorParent();
+        ModelPart parent = model.getPowerIndicatorParent();
         if (parent != null) {
             parent.translateAndRotate(poseStack);
         }
