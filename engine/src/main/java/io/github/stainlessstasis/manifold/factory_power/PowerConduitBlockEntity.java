@@ -20,8 +20,7 @@ import java.util.List;
 public abstract class PowerConduitBlockEntity extends BlockEntity implements MultiblockControllerAccess, CableAnchorProvider, PowerLinkable {
     public PowerConduitBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState state) {
         super(type, worldPosition, state);
-        Direction facing = AbstractFactoryBlock.facingOf(state);
-        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, getLocalCableAnchorOffset());
+        this.cableAnchorOffset = getCableOffset(state, getLocalCableAnchorOffset());
     }
 
     protected abstract MultiblockShape getConduitShape();

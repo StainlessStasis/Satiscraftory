@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
+import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +45,7 @@ public abstract class AbstractFactoryBlock extends BaseEntityBlock {
         if (level.isClientSide()) return;
 
         if (this instanceof Multiblock<?> multiblock) {
-            multiblock.stampMultiblockFillers(level, pos, facingOf(state));
+            multiblock.stampMultiblockFillers(level, pos, DirectionalOffset.facingOf(state));
         }
     }
 
@@ -65,13 +66,7 @@ public abstract class AbstractFactoryBlock extends BaseEntityBlock {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
 
         if (this instanceof Multiblock<?> multiblock) {
-            multiblock.demolishMultiblockFillers(level, pos, facingOf(state));
+            multiblock.demolishMultiblockFillers(level, pos, DirectionalOffset.facingOf(state));
         }
-    }
-
-    public static Direction facingOf(BlockState state) {
-        return state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
-                ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
-                : Direction.NORTH;
     }
 }
