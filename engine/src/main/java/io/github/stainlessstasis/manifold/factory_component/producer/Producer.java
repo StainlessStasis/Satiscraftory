@@ -127,6 +127,9 @@ public class Producer implements PowerableFactoryComponent {
             pauseForPowerLoss();
         } else {
             resumeFromPowerLoss();
+            if (productionTask == null && active && !isBufferFull()) {
+                scheduleNextProduction(scheduler.getCurrentTick() + interval);
+            }
         }
     }
 
@@ -150,9 +153,6 @@ public class Producer implements PowerableFactoryComponent {
 
         if (active && !isBufferFull()) {
             scheduleNextProduction(scheduler.getCurrentTick() + remainingTicks);
-            if (productionTask == null) {
-                scheduleNextProduction(scheduler.getCurrentTick() + interval);
-            }
         }
     }
 
