@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory;
 
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerRenderer;
+import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -24,6 +25,7 @@ public class SatiscraftoryClient {
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(MinerModel.LAYER_LOCATION, MinerModel::createBodyLayer);
+        event.registerLayerDefinition(PowerPoleModel.LAYER_LOCATION, PowerPoleModel::createBodyLayer);
     }
 
     @SubscribeEvent

@@ -47,14 +47,9 @@ public class SCModelProvider extends FactoryModelProvider {
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
-
-        Identifier minerParticleModel = PARTICLE_ONLY.create(
-                SCBlocks.MINER_MK1.get(),
-                new TextureMapping().put(PARTICLE_SLOT, new Material(Satiscraftory.id("block/miner"))),
-                blockModels.modelOutput
-        );
-        registerHorizontallyRotable(blockModels, SCBlocks.MINER_MK1.get(), minerParticleModel, false);
-        itemModels.generateFlatItem(SCItems.MINER_MK1.get(), ModelTemplates.FLAT_ITEM);
+        
+        registerFactoryBuilding("miner", SCBlocks.MINER_MK1.get(), SCItems.MINER_MK1.get(), blockModels, itemModels);
+        registerFactoryBuilding("power_pole", SCBlocks.POWER_POLE_MK1.get(), SCItems.POWER_POLE_MK1.get(), blockModels, itemModels);
 
         Block belt_mk1 = SCBlocks.BELT_MK1.get();
         Block belt_mk2 = SCBlocks.BELT_MK2.get();
@@ -69,5 +64,15 @@ public class SCModelProvider extends FactoryModelProvider {
         registerBeltModels(blockModels, itemModels, belt_mk1, belt_mk1_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk2, belt_mk2_item, straight, corner, ascending);
         registerBeltModels(blockModels, itemModels, belt_mk3, belt_mk3_item, straight, corner, ascending);
+    }
+
+    private void registerFactoryBuilding(String id, Block block, Item item, @NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
+        Identifier particle = PARTICLE_ONLY.create(
+                block,
+                new TextureMapping().put(PARTICLE_SLOT, new Material(Satiscraftory.id("block/"+id))),
+                blockModels.modelOutput
+        );
+        registerHorizontallyRotable(blockModels, block, particle, false);
+        itemModels.generateFlatItem(item, ModelTemplates.FLAT_ITEM);
     }
 }

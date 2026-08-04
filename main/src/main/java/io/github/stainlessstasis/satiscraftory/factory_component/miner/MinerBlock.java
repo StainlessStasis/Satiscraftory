@@ -11,6 +11,7 @@ import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
+import io.github.stainlessstasis.satiscraftory.util.MessageUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,18 +61,18 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
 
         BlockPos nodePos = findNearbyResourceNode(level, anchor);
         if (nodePos == null) {
-            warnPlayer(context, Satiscraftory.MODID + ".invalid_placement_for_miner");
+            MessageUtil.warnPlayer(context, Satiscraftory.MODID + ".invalid_placement_for_miner");
             return null;
         }
 
         if (level.getBlockEntity(nodePos) instanceof ResourceNodeBlockEntity nodeBE && nodeBE.isOccupied()) {
-            warnPlayer(context, Satiscraftory.MODID + ".node_already_occupied");
+            MessageUtil.warnPlayer(context, Satiscraftory.MODID + ".node_already_occupied");
             return null;
         }
 
         Direction facing = context.getHorizontalDirection().getOpposite();
         if (!MultiblockPlacement.canPlaceMultiblock(level, MULTIBLOCK_SHAPE, anchor, facing)) {
-            warnPlayer(
+            MessageUtil.warnPlayer(
                     context,
                     Satiscraftory.MODID + ".invalid_multiblock_placement",
                     MULTIBLOCK_SHAPE.width(), MULTIBLOCK_SHAPE.depth(), MULTIBLOCK_SHAPE.height()
@@ -103,14 +104,6 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
         if (!MultiblockDemolition.isInProgress(level)) {
             Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
             MultiblockDemolition.demolishFillers(level, MULTIBLOCK_SHAPE.absoluteFillerPositions(pos, facing));
-        }
-    }
-
-    private static void warnPlayer(BlockPlaceContext context, String translationKey, Object... args) {
-        if (!context.getLevel().isClientSide() && context.getPlayer() != null) {
-            context.getPlayer().sendOverlayMessage(
-                    Component.translatable(translationKey, args).withStyle(ChatFormatting.RED)
-            );
         }
     }
 
