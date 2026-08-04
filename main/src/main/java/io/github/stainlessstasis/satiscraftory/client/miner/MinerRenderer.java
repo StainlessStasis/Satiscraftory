@@ -11,6 +11,7 @@ import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
@@ -34,6 +35,7 @@ import static io.github.stainlessstasis.satiscraftory.factory_component.miner.Mi
 
 public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRenderState> {
     public static final Identifier TEXTURE = Satiscraftory.id("textures/block/miner.png");
+    public static final Vec3 MODEL_OFFSET = new Vec3(0, EntityModel.MODEL_Y_OFFSET, -0.125);
     private static final Map<MinerBlockEntity, WeakReference<MinerDrillSoundInstance>> ACTIVE_DRILL_SOUNDS = new WeakHashMap<>();
 
     private final MinerModel model;
@@ -164,6 +166,11 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
 
             level.addParticle(particle, x, y, z, 0, 0, 0);
         }
+    }
+
+    @Override
+    protected Vec3 getModelOffset() {
+        return MODEL_OFFSET;
     }
 
     @Override

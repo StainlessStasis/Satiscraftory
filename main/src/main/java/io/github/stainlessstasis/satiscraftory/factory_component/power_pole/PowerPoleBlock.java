@@ -24,7 +24,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements Multiblock<PowerPoleBlock> {
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(1, 1, 3, new BlockPos(0, 0, 0));
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(1, 1, 4, new BlockPos(0, 0, 0));
     public static final MapCodec<PowerPoleBlock> CODEC = simpleCodec(PowerPoleBlock::new);
 
     public PowerPoleBlock(Properties properties) {

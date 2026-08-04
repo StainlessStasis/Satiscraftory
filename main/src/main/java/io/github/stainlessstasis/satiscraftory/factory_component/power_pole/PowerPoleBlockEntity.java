@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class PowerPoleBlockEntity extends PowerConduitBlockEntity {
-    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET = new Vec3(0, 2.8, 0);
+    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET = new Vec3(0, 3.5, 0);
 
     public PowerPoleBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.POWER_POLE.get(), pos, state);
