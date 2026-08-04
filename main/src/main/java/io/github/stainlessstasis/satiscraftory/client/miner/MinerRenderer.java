@@ -119,6 +119,9 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
                 }
             }
             case IDLE -> {
+                if (!miner.idleAnimationState.isStarted()) {
+                    miner.idleAnimationState.start((int) gameTime);
+                }
                 if (!shouldIdle) {
                     miner.idleAnimationState.stop();
                     miner.animationPhase = MinerBlockEntity.AnimPhase.STARTUP;

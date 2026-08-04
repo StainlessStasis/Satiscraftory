@@ -13,7 +13,6 @@ public interface CableAnchorProvider {
      */
     default Vec3 getCableOffset(BlockState blockState, Vec3 localOffset) {
         Direction facing = DirectionalOffset.facingOf(blockState);
-
         Vec3 footprintCenter = new Vec3(0.5, 0, 0.5);
         Vec3 rotatedFromCenter = DirectionalOffset.toWorld(facing, localOffset.z(), localOffset.x(), 0);
         return footprintCenter.add(rotatedFromCenter).add(0, localOffset.y(), 0);

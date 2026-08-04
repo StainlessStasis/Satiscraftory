@@ -51,7 +51,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private boolean isPowered = false;
     private boolean previousPowered = false;
     public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
-    public AnimPhase animationPhase = AnimPhase.STARTUP;
+    public AnimPhase animationPhase = AnimPhase.IDLE;
 
     public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0, -4);
     public static final long PARTICLE_INTERVAL_MS = 10L;
@@ -222,6 +222,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         }
         isBufferFull = input.getBooleanOr("IsBlocked", false);
         isPowered = input.getBooleanOr("IsPowered", false);
+        consecutiveFullTicks = isBufferFull ? FULL_THRESHOLD_TICKS : 0;
+        previousPowered = isPowered;
     }
 
     @Override
