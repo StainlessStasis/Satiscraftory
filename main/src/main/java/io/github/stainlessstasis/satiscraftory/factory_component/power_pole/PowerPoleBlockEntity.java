@@ -7,11 +7,14 @@ import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -27,7 +30,7 @@ public class PowerPoleBlockEntity extends BlockEntity implements MultiblockContr
         Direction facing = state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
-        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, new Vec3(0, 2.8, 0));
+        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, 0, 0, 2.8);
     }
 
     @Override

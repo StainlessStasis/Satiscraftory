@@ -13,8 +13,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -76,5 +78,20 @@ public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements M
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
         return new PowerPoleBlockEntity(SCBlockEntities.POWER_POLE.get(), pos, state);
+    }
+
+    @Override
+    public @NonNull RenderShape getRenderShape(@NonNull BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    protected float getShadeBrightness(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos) {
+        return 1f;
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(@NonNull BlockState state) {
+        return true;
     }
 }
