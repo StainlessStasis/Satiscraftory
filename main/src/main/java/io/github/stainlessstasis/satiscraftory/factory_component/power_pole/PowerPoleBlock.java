@@ -6,7 +6,6 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.util.MessageUtil;
 import net.minecraft.core.BlockPos;
