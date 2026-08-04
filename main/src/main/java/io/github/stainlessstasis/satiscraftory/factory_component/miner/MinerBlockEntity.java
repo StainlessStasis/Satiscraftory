@@ -59,7 +59,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private final Vec3 particleOffset;
     private long lastParticleTime = -1L;
 
-    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET =  new Vec3(-1.5, 141, -71).scale(1/16f);
+    public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET = new Vec3(-11, 139, -63.5).scale(1/16f);
     private final Vec3 cableAnchorOffset;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
@@ -72,7 +72,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
         this.particleOffset = DirectionalOffset.toWorld(facing, PARTICLE_LOCAL_OFFSET);
-        this.cableAnchorOffset = DirectionalOffset.toWorld(facing, CABLE_ANCHOR_LOCAL_OFFSET);
+        this.cableAnchorOffset = getCableOffset(state, CABLE_ANCHOR_LOCAL_OFFSET);
     }
 
     @Override
