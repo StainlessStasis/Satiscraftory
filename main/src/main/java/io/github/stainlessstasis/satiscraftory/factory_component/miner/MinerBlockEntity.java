@@ -94,7 +94,6 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         super.setRemoved();
         if (level instanceof ServerLevel serverLevel) {
             unlinkFromResourceNode(serverLevel);
-            unregisterPowerConsumer(serverLevel);
         }
     }
 

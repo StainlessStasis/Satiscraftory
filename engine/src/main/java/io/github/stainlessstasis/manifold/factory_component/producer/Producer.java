@@ -127,16 +127,17 @@ public class Producer implements PowerableFactoryComponent {
     }
 
     public void setPowered(boolean powered) {
-        if (this.powered == powered) return;
+        boolean changed = this.powered != powered;
         this.powered = powered;
 
         if (!powered) {
-            pauseForPowerLoss();
-        } else {
-            resumeFromPowerLoss();
-            if (productionTask == null && active && !isBufferFull()) {
-                scheduleNextProduction(scheduler.getCurrentTick() + interval);
-            }
+            if (changed) pauseForPowerLoss();
+            return;
+        }
+
+        if (changed) resumeFromPowerLoss();
+        if (productionTask == null && active && !isBufferFull()) {
+            scheduleNextProduction(scheduler.getCurrentTick() + interval);
         }
     }
 

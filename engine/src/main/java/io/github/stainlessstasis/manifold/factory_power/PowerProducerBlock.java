@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
+import io.github.stainlessstasis.manifold.factory_component.AbstractFactoryBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
@@ -13,7 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class PowerProducerBlock extends BaseEntityBlock {
+public class PowerProducerBlock extends AbstractDirectionalFactoryBlock {
     public static final double DEFAULT_SUPPLY_RATE = 20d;
 
     public static final MapCodec<PowerProducerBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->
@@ -45,11 +47,11 @@ public class PowerProducerBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {}
+
+    @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        PowerGrid powerGrid = FactoryNetwork.get(level).getPowerGrid();
-        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
-        powerGrid.unregisterProducer(globalPos);
-        powerGrid.removeNode(globalPos);
+        FactoryNetwork.get(level).getPowerGrid().unregisterProducer(GlobalPos.of(level.dimension(), pos));
     }
 }

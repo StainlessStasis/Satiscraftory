@@ -20,6 +20,7 @@ public class PowerGrid {
 
     private boolean dirty = true;
     private boolean edgesDirtySinceSync = true;
+    private Runnable dirtyListener = () -> {};
 
     private List<PowerNetwork> networks = List.of();
     private final Map<GlobalPos, PowerNetwork> networkByNode = new HashMap<>();
@@ -35,6 +36,14 @@ public class PowerGrid {
         void onPowerStateChanged(boolean powered);
     }
 
+    public void setDirtyListener(Runnable listener) {
+        this.dirtyListener = listener != null ? listener : () -> {};
+    }
+
+    private void notifyChanged() {
+        dirtyListener.run();
+    }
+
     /**
      * Adds a bare node with no connections yet (e.g. a pole placed with nothing wired to it)
      */
@@ -43,23 +52,27 @@ public class PowerGrid {
             adjacency.put(pos, new HashSet<>());
             registerInUnionFind(pos);
             dirty = true;
+            notifyChanged();
         }
     }
 
     public void registerProducer(GlobalPos pos, double supplyRate) {
         addNode(pos);
-        supplyByNode.put(pos, supplyRate);
+        Double previous = supplyByNode.put(pos, supplyRate);
+        if (previous == null || previous != supplyRate) notifyChanged();
     }
 
     public void unregisterProducer(GlobalPos pos) {
         supplyByNode.remove(pos);
+        notifyChanged();
     }
+
 
     public void registerConsumer(GlobalPos pos, double demandRate, @Nullable PowerStateListener listener) {
         addNode(pos);
-        demandByNode.put(pos, demandRate);
-        if (listener != null) consumerListeners.put(pos, listener);
-        else consumerListeners.remove(pos);
+        Double previousDemand = demandByNode.put(pos, demandRate);
+        consumerListeners.put(pos, listener);
+        if (previousDemand == null || previousDemand != demandRate) notifyChanged();
     }
 
     public void unregisterConsumer(GlobalPos pos) {
@@ -67,6 +80,7 @@ public class PowerGrid {
         consumerListeners.remove(pos);
         poweredByNode.remove(pos);
         satisfactionByNode.remove(pos);
+        notifyChanged();
     }
 
     /**
@@ -98,11 +112,13 @@ public class PowerGrid {
         rebuildUnionFindFromEdges();
         dirty = true;
         if (hadEdges) edgesDirtySinceSync = true;
+        notifyChanged();
     }
 
     public void setMaxConnections(GlobalPos pos, int maxConnections) {
         addNode(pos);
-        maxConnectionsByNode.put(pos, maxConnections);
+        Integer previous = maxConnectionsByNode.put(pos, maxConnections);
+        if (previous == null || previous != maxConnections) notifyChanged();
     }
 
     public int getMaxConnections(GlobalPos pos) {
@@ -130,6 +146,7 @@ public class PowerGrid {
         union(nodeA, nodeB);
         dirty = true;
         edgesDirtySinceSync = true;
+        notifyChanged();
         return true;
     }
 
@@ -146,6 +163,7 @@ public class PowerGrid {
         rebuildUnionFindFromEdges();
         dirty = true;
         edgesDirtySinceSync = true;
+        notifyChanged();
     }
 
     public boolean hasEdge(GlobalPos nodeA, GlobalPos nodeB) {

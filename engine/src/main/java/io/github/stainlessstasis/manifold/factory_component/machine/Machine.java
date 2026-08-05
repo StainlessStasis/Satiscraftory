@@ -133,15 +133,16 @@ public class Machine implements PowerableFactoryComponent {
     }
 
     public void setPowered(boolean powered) {
-        if (this.powered == powered) return;
+        boolean changed = this.powered != powered;
         this.powered = powered;
 
         if (!powered) {
-            pauseForPowerLoss();
-        } else {
-            resumeFromPowerLoss();
-            tryStartCrafting(); // in case the machine was idle when power came back
+            if (changed) pauseForPowerLoss();
+            return;
         }
+
+        if (changed) resumeFromPowerLoss();
+        tryStartCrafting(); // in case the machine was idle when power came back
     }
 
     public boolean isPowered() {

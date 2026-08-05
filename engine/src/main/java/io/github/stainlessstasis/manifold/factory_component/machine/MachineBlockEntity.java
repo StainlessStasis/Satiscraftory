@@ -117,14 +117,6 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
         }
     }
 
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            unregisterPowerConsumer(serverLevel);
-        }
-    }
-
     private BlockPos resolveOutputPos() {
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         return getBlockPos().relative(facing);

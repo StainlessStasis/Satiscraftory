@@ -38,9 +38,17 @@ import java.util.function.Supplier;
 public class FactoryNetwork extends SavedData {
     private static final int MAX_ENTRIES_PER_PACKET = 150; // for belt syncing
 
+    private FactoryNetwork() {}
+
+    public static FactoryNetwork create() {
+        FactoryNetwork network = new FactoryNetwork();
+        network.powerGrid.setDirtyListener(network::setDirty);
+        return network;
+    }
+
     public static final SavedDataType<FactoryNetwork> TYPE = new SavedDataType<>(
             Manifold.id("factory_network"),
-            FactoryNetwork::new,
+            FactoryNetwork::create,
             Persisted.Snapshot.CODEC.xmap(FactoryNetwork::fromSnapshot, FactoryNetwork::toSnapshot)
     );
 
@@ -81,8 +89,6 @@ public class FactoryNetwork extends SavedData {
     public void setFrozen(boolean frozen) {
         this.frozen = frozen;
     }
-
-    public FactoryNetwork() {}
 
     /**
      * Attached to the Overworld specifically, so there's one shared network
@@ -352,6 +358,7 @@ public class FactoryNetwork extends SavedData {
 
     @Override
     public void setDirty(boolean dirty) {
+        System.out.println("SETTING DIRTY");
         super.setDirty(dirty);
         tickOrder = null;
     }
@@ -705,6 +712,7 @@ public class FactoryNetwork extends SavedData {
             persistedPowerEdges.add(new Persisted.PowerEdge(edge));
         }
         Persisted.PowerGridData persistedPowerGrid = new Persisted.PowerGridData(persistedPowerNodes, persistedPowerEdges);
+        System.out.println("SAVING powerGrid: " + persistedPowerNodes.size() + " nodes, " + persistedPowerEdges.size() + " edges");
 
         return new Persisted.Snapshot(
                 persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
@@ -714,6 +722,7 @@ public class FactoryNetwork extends SavedData {
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
+        System.out.println("LOADING powerGrid: " + snapshot.powerGrid().nodes().size() + " nodes, " + snapshot.powerGrid().edges().size() + " edges");
 
         // restore factory components
         for (Persisted.BeltLane laneData : snapshot.belts()) {
@@ -873,6 +882,8 @@ public class FactoryNetwork extends SavedData {
         for (Persisted.PowerEdge powerEdgeData : snapshot.powerGrid().edges()) {
             network.powerGrid.addEdge(powerEdgeData.edge().nodeA(), powerEdgeData.edge().nodeB());
         }
+
+        network.powerGrid.setDirtyListener(network::setDirty);
 
         return network;
     }
