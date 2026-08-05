@@ -47,13 +47,4 @@ public abstract class PowerConduitBlockEntity extends BlockEntity implements Mul
         grid.addNode(pos);
         grid.setMaxConnections(pos, getMaxPowerConnections());
     }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (level instanceof ServerLevel serverLevel) {
-            FactoryNetwork.get(serverLevel).getPowerGrid()
-                .removeNode(GlobalPos.of(serverLevel.dimension(), getBlockPos()));
-        }
-    }
 }

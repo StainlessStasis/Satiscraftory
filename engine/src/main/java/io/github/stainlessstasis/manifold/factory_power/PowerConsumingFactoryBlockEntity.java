@@ -36,11 +36,6 @@ public abstract class PowerConsumingFactoryBlockEntity<T extends PowerableFactor
         powerGrid.setMaxConnections(globalPos, getMaxPowerConnections());
     }
 
-    public void unregisterPowerConsumer(ServerLevel serverLevel) {
-        GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
-        FactoryNetwork.get(serverLevel).getPowerGrid().removeNode(globalPos);
-    }
-
     public PowerIndicatorState computePowerIndicatorState(ServerLevel level) {
         GlobalPos globalPos = GlobalPos.of(level.dimension(), getBlockPos());
         PowerGrid powerGrid = FactoryNetwork.get(level).getPowerGrid();
