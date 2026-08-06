@@ -11,6 +11,7 @@ import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
 import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducer;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -67,6 +68,7 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, Container> containers = new HashMap<>();
     private final Map<GlobalPos, Splitter> splitters = new HashMap<>();
     private final Map<GlobalPos, Merger> mergers = new HashMap<>();
+    private final Map<GlobalPos, PowerProducer> powerProducers = new HashMap<>();
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
     // keyed by lane UUID rather than GlobalPos since a lane isn't a single position
@@ -144,6 +146,14 @@ public class FactoryNetwork extends SavedData {
 
     public Merger getOrCreateMerger(GlobalPos pos, Supplier<Merger> factory) {
         return getOrCreate(mergers, pos, factory);
+    }
+
+    public PowerProducer getOrCreatePowerProducer(GlobalPos pos, Supplier<PowerProducer> factory) {
+        return getOrCreate(powerProducers, pos, factory);
+    }
+
+    public @Nullable PowerProducer getPowerProducer(GlobalPos pos) {
+        return powerProducers.getOrDefault(pos, null);
     }
 
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
@@ -312,6 +322,10 @@ public class FactoryNetwork extends SavedData {
 
     public void removeMerger(GlobalPos pos) {
         removeComponent(mergers, mergerOutputPos, pos, null);
+    }
+
+    public void removePowerProducer(GlobalPos pos) {
+        removeComponent(powerProducers, null, pos, null);
     }
 
     /** Unlinks any single-slot component whose output pointed at removedPos, then drops the entry */
@@ -703,6 +717,14 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
+        List<Persisted.PowerProducer> persistedPowerProducers = new ArrayList<>();
+        for (Map.Entry<GlobalPos, PowerProducer> entry : powerProducers.entrySet()) {
+            PowerProducer powerProducer = entry.getValue();
+            persistedPowerProducers.add(new Persisted.PowerProducer(
+                    entry.getKey(), powerProducer.getRawSupplyRate(), powerProducer.isActive()
+            ));
+        }
+
         List<Persisted.PowerNode> persistedPowerNodes = new ArrayList<>();
         for (GlobalPos pos : powerGrid.getNodes()) {
             persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos), powerGrid.getMaxConnections(pos)));
@@ -716,7 +738,8 @@ public class FactoryNetwork extends SavedData {
 
         return new Persisted.Snapshot(
                 persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
-                persistedContainers, persistedSplitters, persistedMergers, persistedPowerGrid
+                persistedContainers, persistedSplitters, persistedMergers,
+                persistedPowerProducers, persistedPowerGrid
         );
     }
 
@@ -813,6 +836,11 @@ public class FactoryNetwork extends SavedData {
             mergerData.outputPos().ifPresent(outPos -> network.mergerOutputPos.put(mergerData.pos(), outPos));
         }
 
+        for (Persisted.PowerProducer powerProducerData : snapshot.powerProducers()) {
+            PowerProducer powerProducer = PowerProducer.restore(powerProducerData.supplyRate(), powerProducerData.active());
+            network.powerProducers.put(powerProducerData.pos(), powerProducer);
+        }
+
         // relink outputs
         for (Map.Entry<UUID, GlobalPos> entry : network.laneOutputPos.entrySet()) {
             BeltLane lane = network.laneManager.getLane(entry.getKey());
@@ -898,6 +926,7 @@ public class FactoryNetwork extends SavedData {
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
     public int getContainerCount() { return containers.size(); }
+    public int getPowerProducerCount() { return powerProducers.size(); }
 
     // Counts factory components whose chunk is currently loaded
     // Intended for debug use only
@@ -913,6 +942,7 @@ public class FactoryNetwork extends SavedData {
     public int getLoadedConsumerCount(MinecraftServer server) { return countLoaded(server, consumers.keySet()); }
     public int getLoadedMachineCount(MinecraftServer server) { return countLoaded(server, machines.keySet()); }
     public int getLoadedContainerCount(MinecraftServer server) { return countLoaded(server, containers.keySet()); }
+    public int getLoadedPowerProducerCount(MinecraftServer server) { return countLoaded(server, powerProducers.keySet()); }
 
     private static int countLoaded(MinecraftServer server, Set<GlobalPos> positions) {
         int count = 0;

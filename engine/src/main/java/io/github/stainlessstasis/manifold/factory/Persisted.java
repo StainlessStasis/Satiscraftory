@@ -88,6 +88,14 @@ final class Persisted {
         ).apply(i, Machine::new));
     }
 
+    record PowerProducer(GlobalPos pos, double supplyRate, boolean active) {
+        static final Codec<PowerProducer> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(PowerProducer::pos),
+                Codec.DOUBLE.fieldOf("supplyRate").forGetter(PowerProducer::supplyRate),
+                Codec.BOOL.optionalFieldOf("active", true).forGetter(PowerProducer::active)
+        ).apply(i, PowerProducer::new));
+    }
+
     record ContainerSlot(Optional<Identifier> itemId, int count) {
         static final Codec<ContainerSlot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Identifier.CODEC.optionalFieldOf("itemId").forGetter(ContainerSlot::itemId),
@@ -156,7 +164,8 @@ final class Persisted {
      * The full snapshot of everything FactoryNetwork tracks (producers, belts, machines, ...you get it)
      */
     record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines,
-                    List<Container> containers, List<Splitter> splitters, List<Merger> mergers, PowerGridData powerGrid) {
+                    List<Container> containers, List<Splitter> splitters, List<Merger> mergers,
+                    List<PowerProducer> powerProducers, PowerGridData powerGrid) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 BeltLane.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
@@ -165,6 +174,7 @@ final class Persisted {
                 Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers),
                 Splitter.CODEC.listOf().optionalFieldOf("splitters", List.of()).forGetter(Snapshot::splitters),
                 Merger.CODEC.listOf().optionalFieldOf("mergers", List.of()).forGetter(Snapshot::mergers),
+                PowerProducer.CODEC.listOf().optionalFieldOf("powerProducers", List.of()).forGetter(Snapshot::powerProducers),
                 PowerGridData.CODEC.optionalFieldOf("powerGrid", PowerGridData.EMPTY).forGetter(Snapshot::powerGrid)
         ).apply(i, Snapshot::new));
     }

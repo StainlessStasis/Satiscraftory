@@ -5,12 +5,15 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
-import io.github.stainlessstasis.manifold.factory_component.AbstractFactoryBlock;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
@@ -52,6 +55,17 @@ public class PowerProducerBlock extends AbstractDirectionalFactoryBlock {
     @Override
     protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        FactoryNetwork.get(level).getPowerGrid().unregisterProducer(GlobalPos.of(level.dimension(), pos));
+        FactoryNetwork network = FactoryNetwork.get(level);
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
+        network.removePowerProducer(globalPos);
+        network.getPowerGrid().unregisterProducer(globalPos);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+        return type == ManifoldBlockEntities.POWER_PRODUCER.get()
+                ? (_, pos, state, be) -> PowerProducerBlockEntity.serverTick(serverLevel, pos, state, (PowerProducerBlockEntity) be)
+                : null;
     }
 }

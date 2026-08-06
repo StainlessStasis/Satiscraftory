@@ -1,6 +1,8 @@
 package io.github.stainlessstasis.manifold.factory_power;
 
-public class PowerProducer {
+import io.github.stainlessstasis.manifold.factory_component.Port;
+
+public class PowerProducer implements PowerProducingFactoryComponent {
     private final double supplyRate;
     private boolean active = true;
 
@@ -8,7 +10,18 @@ public class PowerProducer {
         this.supplyRate = supplyRate;
     }
 
+    public static PowerProducer restore(double supplyRate, boolean active) {
+        PowerProducer producer = new PowerProducer(supplyRate);
+        producer.active = active;
+        return producer;
+    }
+
+    @Override
     public double getSupplyRate() {
+        return getEffectiveSupplyRate();
+    }
+
+    public double getRawSupplyRate() {
         return supplyRate;
     }
 
@@ -22,5 +35,13 @@ public class PowerProducer {
 
     public boolean isActive() {
         return active;
+    }
+
+    @Override
+    public void setOutputPort(int slot, Port port) {}
+
+    @Override
+    public int outputSlotCount() {
+        return 0;
     }
 }
