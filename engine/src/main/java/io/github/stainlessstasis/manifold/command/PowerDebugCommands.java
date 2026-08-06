@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.manifold.command;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_power.PowerGrid;
-import io.github.stainlessstasis.manifold.factory_power.PowerNetwork;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerNetwork;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;

@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.factory_power;
+package io.github.stainlessstasis.manifold.factory_component.power_producer;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;

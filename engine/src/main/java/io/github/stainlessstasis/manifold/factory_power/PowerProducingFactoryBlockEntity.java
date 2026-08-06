@@ -2,6 +2,8 @@ package io.github.stainlessstasis.manifold.factory_power;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;

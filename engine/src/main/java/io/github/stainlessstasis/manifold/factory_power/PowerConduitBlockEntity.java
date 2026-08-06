@@ -1,10 +1,10 @@
 package io.github.stainlessstasis.manifold.factory_power;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_component.AbstractFactoryBlock;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;

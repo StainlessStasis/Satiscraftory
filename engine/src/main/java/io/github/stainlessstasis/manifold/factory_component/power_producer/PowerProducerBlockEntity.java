@@ -1,6 +1,7 @@
-package io.github.stainlessstasis.manifold.factory_power;
+package io.github.stainlessstasis.manifold.factory_component.power_producer;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;

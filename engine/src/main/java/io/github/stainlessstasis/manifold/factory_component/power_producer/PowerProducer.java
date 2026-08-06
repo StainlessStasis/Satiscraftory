@@ -1,6 +1,7 @@
-package io.github.stainlessstasis.manifold.factory_power;
+package io.github.stainlessstasis.manifold.factory_component.power_producer;
 
 import io.github.stainlessstasis.manifold.factory_component.Port;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducingFactoryComponent;
 
 public class PowerProducer implements PowerProducingFactoryComponent {
     private final double supplyRate;
