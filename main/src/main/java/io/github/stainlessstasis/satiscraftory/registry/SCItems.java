@@ -34,6 +34,7 @@ public class SCItems {
     public static final DeferredItem<BlockItem> BELT_MK2 = registerFactoryBlockItem("belt_mk2", SCBlocks.BELT_MK2);
     public static final DeferredItem<BlockItem> BELT_MK3 = registerFactoryBlockItem("belt_mk3", SCBlocks.BELT_MK3);
     public static final DeferredItem<BlockItem> POWER_POLE_MK1 = registerFactoryBlockItem("power_pole_mk1", SCBlocks.POWER_POLE_MK1);
+    public static final DeferredItem<BlockItem> BIOMASS_BURNER = registerFactoryBlockItem("biomass_burner", SCBlocks.BIOMASS_BURNER);
 
     public static final DeferredItem<Item> IRON_PLATE = registerFactoryItem("iron_plate");
     public static final DeferredItem<Item> IRON_ROD = registerFactoryItem("iron_rod");

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "satiscraftory:block/biomass_burner",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "satiscraftory:block/biomass_burner"
+    },
+    "facing=south": {
+      "model": "satiscraftory:block/biomass_burner",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "satiscraftory:block/biomass_burner",
+      "y": 270
+    }
+  }
+}

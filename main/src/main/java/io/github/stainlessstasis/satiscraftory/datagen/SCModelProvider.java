@@ -50,6 +50,7 @@ public class SCModelProvider extends FactoryModelProvider {
 
         registerFactoryBuilding("miner", SCBlocks.MINER_MK1.get(), SCItems.MINER_MK1.get(), blockModels, itemModels);
         registerFactoryBuilding("power_pole", SCBlocks.POWER_POLE_MK1.get(), SCItems.POWER_POLE_MK1.get(), blockModels, itemModels);
+        registerFactoryBuilding("biomass_burner", SCBlocks.BIOMASS_BURNER.get(), SCItems.BIOMASS_BURNER.get(), blockModels, itemModels);
 
         Block belt_mk1 = SCBlocks.BELT_MK1.get();
         Block belt_mk2 = SCBlocks.BELT_MK2.get();

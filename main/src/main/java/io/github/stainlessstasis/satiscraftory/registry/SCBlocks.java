@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducerBlock;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -17,12 +18,20 @@ public class SCBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Satiscraftory.MODID);
 
     public static final DeferredBlock<MinerBlock> MINER_MK1 = registerMiner("miner_mk1", 20L); // 60/min
+    public static final DeferredBlock<PowerPoleBlock> POWER_POLE_MK1 = registerPowerPole("power_pole_mk1");
 
     public static final DeferredBlock<BeltBlock> BELT_MK1 = registerBelt("belt_mk1", 1f/20);   // 60/min
     public static final DeferredBlock<BeltBlock> BELT_MK2 = registerBelt("belt_mk2", 2f/20);   // 120/min
     public static final DeferredBlock<BeltBlock> BELT_MK3 = registerBelt("belt_mk3", 4.5f/20); // 270/min
 
-    public static final DeferredBlock<PowerPoleBlock> POWER_POLE_MK1 = registerPowerPole("power_pole_mk1");
+    public static final DeferredBlock<PowerProducerBlock> BIOMASS_BURNER =
+            BLOCKS.registerBlock("biomass_burner",
+    properties -> new PowerProducerBlock(properties, 30d),
+                () -> BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.COLOR_BROWN)
+                        .strength(2f)
+                        .requiresCorrectToolForDrops()
+        );
 
     private static DeferredBlock<BeltBlock> registerBelt(String id, float speed) {
         return BLOCKS.registerBlock(id,

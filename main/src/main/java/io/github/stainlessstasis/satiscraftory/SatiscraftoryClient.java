@@ -1,5 +1,8 @@
 package io.github.stainlessstasis.satiscraftory;
 
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerModel;
+import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
@@ -27,11 +30,13 @@ public class SatiscraftoryClient {
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(MinerModel.LAYER_LOCATION, MinerModel::createBodyLayer);
         event.registerLayerDefinition(PowerPoleModel.LAYER_LOCATION, PowerPoleModel::createBodyLayer);
+        event.registerLayerDefinition(BiomassBurnerModel.LAYER_LOCATION, BiomassBurnerModel::createBodyLayer);
     }
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SCBlockEntities.MINER.get(), MinerRenderer::new);
         event.registerBlockEntityRenderer(SCBlockEntities.POWER_POLE.get(), PowerPoleRenderer::new);
+        event.registerBlockEntityRenderer(ManifoldBlockEntities.POWER_PRODUCER.get(), BiomassBurnerRenderer::new);
     }
 }
