@@ -101,7 +101,7 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
 
         PartDefinition grinder_frame = grinder.addOrReplaceChild("grinder_frame", CubeListBuilder.create().texOffs(182, 51).addBox(-10.0F, -7.0F, 18.0F, 18.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
                 .texOffs(204, 90).addBox(-10.0F, -7.0F, 8.0F, 18.0F, 4.0F, 1.0F, new CubeDeformation(0.0F))
-                .texOffs(200, 0).addBox(-7.0F, -10.0F, 3.0F, 14.0F, 7.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
+                .texOffs(200, 0).addBox(-7.0F, -10.005F, 3.0F, 14.0F, 7.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
         PartDefinition cube_r8 = grinder_frame.addOrReplaceChild("cube_r8", CubeListBuilder.create().texOffs(16, 192).addBox(-19.0F, -13.0F, 8.0F, 3.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
                 .texOffs(212, 56).addBox(-19.0F, -8.0F, 8.0F, 11.0F, 5.0F, 5.0F, new CubeDeformation(0.0F))
@@ -131,12 +131,11 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
                 .texOffs(16, 221).addBox(4.5F, -25.001F, -2.3187F, 4.0F, 1.0F, 9.0F, new CubeDeformation(0.0F))
                 .texOffs(150, 208).addBox(4.0F, -24.001F, -2.8187F, 5.0F, 7.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(13.0F, 0.0F, -23.0F, 0.0F, -1.0472F, 0.0F));
 
-        PartDefinition wall_side5_r1 = decoration_shit.addOrReplaceChild("wall_side5_r1", CubeListBuilder.create().texOffs(148, 57).addBox(-10.5F, -2.905F, -2.5801F, 1.0F, 3.0F, 3.0F, new CubeDeformation(0.0F))
-                .texOffs(224, 192).addBox(-9.5F, -4.005F, -3.0801F, 2.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(20.75F, -25.0F, 3.25F, 0.0F, -2.618F, 0.0F));
+        PartDefinition wall_side4_r1 = decoration_shit.addOrReplaceChild("wall_side4_r1", CubeListBuilder.create().texOffs(224, 192).addBox(-9.5F, -4.005F, -3.0801F, 2.0F, 5.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(20.75F, -25.0F, 3.25F, 0.0F, -2.618F, 0.0F));
 
-        PartDefinition cube_r14 = decoration_shit.addOrReplaceChild("cube_r14", CubeListBuilder.create().texOffs(178, 217).addBox(-1.4F, -10.0F, 12.65F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 2.0944F, 0.0F));
+        PartDefinition cube_r14 = decoration_shit.addOrReplaceChild("cube_r14", CubeListBuilder.create().texOffs(178, 217).addBox(-1.4F, -9.995F, 12.65F, 11.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 2.0944F, 0.0F));
 
-        PartDefinition cube_r15 = decoration_shit.addOrReplaceChild("cube_r15", CubeListBuilder.create().texOffs(186, 133).addBox(-3.4F, -9.995F, 5.05F, 18.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
+        PartDefinition cube_r15 = decoration_shit.addOrReplaceChild("cube_r15", CubeListBuilder.create().texOffs(186, 133).addBox(-3.4F, -10.0F, 5.05F, 18.0F, 2.0F, 5.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, 1.0472F, 0.0F));
 
         PartDefinition cube_r16 = decoration_shit.addOrReplaceChild("cube_r16", CubeListBuilder.create().texOffs(210, 217).addBox(5.5F, -12.999F, 11.4313F, 1.0F, 12.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(13.75F, -0.25F, -23.0F, 0.7854F, -1.0472F, 0.0F));
 
@@ -162,9 +161,9 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
 
         PartDefinition wall_side6_r1 = Hexagon_Shape.addOrReplaceChild("wall_side6_r1", CubeListBuilder.create().texOffs(170, 224).addBox(-7.5F, -0.995F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -5.236F, 0.0F));
 
-        PartDefinition wall_side5_r2 = Hexagon_Shape.addOrReplaceChild("wall_side5_r2", CubeListBuilder.create().texOffs(150, 224).addBox(-7.5F, -1.005F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -4.1888F, 0.0F));
+        PartDefinition wall_side5_r1 = Hexagon_Shape.addOrReplaceChild("wall_side5_r1", CubeListBuilder.create().texOffs(150, 224).addBox(-7.5F, -1.005F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -4.1888F, 0.0F));
 
-        PartDefinition wall_side4_r1 = Hexagon_Shape.addOrReplaceChild("wall_side4_r1", CubeListBuilder.create().texOffs(224, 117).addBox(-7.5F, -0.995F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -3.1416F, 0.0F));
+        PartDefinition wall_side4_r2 = Hexagon_Shape.addOrReplaceChild("wall_side4_r2", CubeListBuilder.create().texOffs(224, 117).addBox(-7.5F, -0.995F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -3.1416F, 0.0F));
 
         PartDefinition wall_side3_r1 = Hexagon_Shape.addOrReplaceChild("wall_side3_r1", CubeListBuilder.create().texOffs(224, 106).addBox(-7.5F, -1.005F, -4.3301F, 1.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
 
@@ -176,26 +175,26 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
 
         PartDefinition wall_side6_r2 = Hexagon_Shape2.addOrReplaceChild("wall_side6_r2", CubeListBuilder.create().texOffs(36, 231).addBox(-8.25F, -14.005F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -4.1888F, 0.0F));
 
-        PartDefinition wall_side5_r3 = Hexagon_Shape2.addOrReplaceChild("wall_side5_r3", CubeListBuilder.create().texOffs(54, 230).addBox(-8.25F, -13.995F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -3.1416F, 0.0F));
+        PartDefinition wall_side5_r2 = Hexagon_Shape2.addOrReplaceChild("wall_side5_r2", CubeListBuilder.create().texOffs(54, 230).addBox(-8.25F, -13.995F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -3.1416F, 0.0F));
 
-        PartDefinition wall_side4_r2 = Hexagon_Shape2.addOrReplaceChild("wall_side4_r2", CubeListBuilder.create().texOffs(128, 227).addBox(-8.25F, -14.005F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
+        PartDefinition wall_side4_r3 = Hexagon_Shape2.addOrReplaceChild("wall_side4_r3", CubeListBuilder.create().texOffs(128, 227).addBox(-8.25F, -14.005F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
 
         PartDefinition wall_side3_r2 = Hexagon_Shape2.addOrReplaceChild("wall_side3_r2", CubeListBuilder.create().texOffs(142, 30).addBox(-8.25F, -13.995F, -0.6699F, 1.0F, 15.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
         PartDefinition Hexagon_Shape3 = the_thing.addOrReplaceChild("Hexagon_Shape3", CubeListBuilder.create().texOffs(164, 152).addBox(-7.5F, -3.995F, -4.3301F, 15.0F, 5.0F, 8.6603F, new CubeDeformation(0.0F))
                 .texOffs(104, 216).addBox(-12.5F, -1.995F, -4.3301F, 5.0F, 2.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(20.75F, -25.0F, 3.25F, 0.0F, -0.5236F, 0.0F));
 
-        PartDefinition wall_side4_r3 = Hexagon_Shape3.addOrReplaceChild("wall_side4_r3", CubeListBuilder.create().texOffs(164, 180).addBox(-7.5F, -4.005F, -4.3301F, 15.0F, 5.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
+        PartDefinition wall_side4_r4 = Hexagon_Shape3.addOrReplaceChild("wall_side4_r4", CubeListBuilder.create().texOffs(164, 180).addBox(-7.5F, -4.005F, -4.3301F, 15.0F, 5.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
 
         PartDefinition wall_side3_r3 = Hexagon_Shape3.addOrReplaceChild("wall_side3_r3", CubeListBuilder.create().texOffs(164, 166).addBox(-7.5F, -4.0F, -4.3301F, 15.0F, 5.0F, 8.6603F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
-        PartDefinition twelve_gon_Shape = the_thing.addOrReplaceChild("12_gon_Shape", CubeListBuilder.create().texOffs(186, 97).addBox(-7.5F, -6.015F, -2.0096F, 15.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offset(21.0F, -37.0F, 3.25F));
+        PartDefinition twelve_gon_Shape = the_thing.addOrReplaceChild("twelve_gon_Shape", CubeListBuilder.create().texOffs(186, 97).addBox(-7.5F, -6.015F, -2.0096F, 15.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offset(21.0F, -37.0F, 3.25F));
 
         PartDefinition wall_side6_r3 = twelve_gon_Shape.addOrReplaceChild("wall_side6_r3", CubeListBuilder.create().texOffs(182, 15).addBox(-8.0F, -5.99F, -2.0096F, 16.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.618F, 0.0F));
 
-        PartDefinition wall_side5_r4 = twelve_gon_Shape.addOrReplaceChild("wall_side5_r4", CubeListBuilder.create().texOffs(186, 115).addBox(-7.5F, -5.995F, -2.0096F, 15.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
+        PartDefinition wall_side5_r3 = twelve_gon_Shape.addOrReplaceChild("wall_side5_r3", CubeListBuilder.create().texOffs(186, 115).addBox(-7.5F, -5.995F, -2.0096F, 15.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
 
-        PartDefinition wall_side4_r4 = twelve_gon_Shape.addOrReplaceChild("wall_side4_r4", CubeListBuilder.create().texOffs(182, 33).addBox(-8.0F, -6.0F, -2.0096F, 16.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
+        PartDefinition wall_side4_r5 = twelve_gon_Shape.addOrReplaceChild("wall_side4_r5", CubeListBuilder.create().texOffs(182, 33).addBox(-8.0F, -6.0F, -2.0096F, 16.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.5708F, 0.0F));
 
         PartDefinition wall_side3_r4 = twelve_gon_Shape.addOrReplaceChild("wall_side3_r4", CubeListBuilder.create().texOffs(102, 184).addBox(-7.5F, -6.005F, -2.0096F, 15.0F, 14.0F, 4.0192F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
@@ -207,11 +206,11 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
 
         PartDefinition wall_side2_r3 = Hexagon_Shape4.addOrReplaceChild("wall_side2_r3", CubeListBuilder.create().texOffs(212, 152).addBox(-5.0F, 4.0F, -2.8867F, 10.0F, 4.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
-        PartDefinition Hexagon_Shape5 = the_thing.addOrReplaceChild("Hexagon_Shape5", CubeListBuilder.create().texOffs(102, 202).addBox(-5.0F, -3.995F, -2.8868F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(21.0F, -20.0F, 3.25F, 0.0F, 0.5236F, 0.0F));
+        PartDefinition Hexagon_Shape5 = the_thing.addOrReplaceChild("Hexagon_Shape5", CubeListBuilder.create().texOffs(102, 202).addBox(-5.0F, -3.995F, -2.8867F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(21.0F, -20.0F, 3.25F, 0.0F, 0.5236F, 0.0F));
 
-        PartDefinition wall_side3_r6 = Hexagon_Shape5.addOrReplaceChild("wall_side3_r6", CubeListBuilder.create().texOffs(204, 76).addBox(-5.0F, -4.005F, -2.8868F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
+        PartDefinition wall_side3_r6 = Hexagon_Shape5.addOrReplaceChild("wall_side3_r6", CubeListBuilder.create().texOffs(204, 76).addBox(-5.0F, -4.005F, -2.8867F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -2.0944F, 0.0F));
 
-        PartDefinition wall_side2_r4 = Hexagon_Shape5.addOrReplaceChild("wall_side2_r4", CubeListBuilder.create().texOffs(182, 203).addBox(-5.0F, -4.0F, -2.8868F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
+        PartDefinition wall_side2_r4 = Hexagon_Shape5.addOrReplaceChild("wall_side2_r4", CubeListBuilder.create().texOffs(182, 203).addBox(-5.0F, -4.0F, -2.8867F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
         PartDefinition power = root.addOrReplaceChild("power", CubeListBuilder.create(), PartPose.offset(8.0F, 2.0F, -35.0F));
 
