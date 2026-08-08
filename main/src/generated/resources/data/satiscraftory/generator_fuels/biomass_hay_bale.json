@@ -1,5 +1,5 @@
 {
   "burnTicks": 600,
   "generatorType": "satiscraftory:biomass",
-  "itemId": "minecraft:hay_block"
+  "item": "minecraft:hay_block"
 }
