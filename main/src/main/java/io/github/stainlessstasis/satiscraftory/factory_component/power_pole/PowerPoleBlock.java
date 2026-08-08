@@ -37,18 +37,11 @@ public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements M
     }
 
     @Override
-    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {
-
-    }
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {}
 
     @Override
     public MultiblockShape getMultiblockShape() {
         return MULTIBLOCK_SHAPE;
-    }
-
-    @Override
-    public BlockState getPreviewPlacement(BlockPlaceContext context) {
-        return super.getStateForPlacement(context);
     }
 
     @Override

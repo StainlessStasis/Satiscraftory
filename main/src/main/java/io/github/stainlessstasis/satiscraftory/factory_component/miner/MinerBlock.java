@@ -46,7 +46,7 @@ public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> 
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(@NonNull BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos anchor = context.getClickedPos();
 
@@ -62,11 +62,6 @@ public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> 
         }
 
         return super.getStateForPlacement(context);
-    }
-
-    @Override
-    public BlockState getPreviewPlacement(BlockPlaceContext context) {
-        return getStateForPlacement(context);
     }
 
     @Override

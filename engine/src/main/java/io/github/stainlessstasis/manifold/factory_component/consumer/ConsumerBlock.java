@@ -49,7 +49,7 @@ public class ConsumerBlock extends AbstractDirectionalFactoryBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(@NonNull BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 

@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.multiblock;
 
+import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,8 +18,16 @@ public interface Multiblock<B extends BaseEntityBlock & Multiblock<B>> {
         return (B) this;
     }
 
+    default boolean isMultiblockPlacementValid(BlockPlaceContext context, Direction facing) {
+        return MultiblockPlacement.canPlaceMultiblock(context.getLevel(), getMultiblockShape(), context.getClickedPos(), facing);
+    }
+
     default BlockState getPreviewPlacement(BlockPlaceContext context) {
-        return getPreviewBlock().getStateForPlacement(context);
+        B block = getPreviewBlock();
+        if (block instanceof AbstractDirectionalFactoryBlock factoryBlock) {
+            return factoryBlock.computeStateForPlacement(context);
+        }
+        return block.getStateForPlacement(context);
     }
 
     default void stampMultiblockFillers(LevelAccessor level, BlockPos controllerPos, Direction facing) {

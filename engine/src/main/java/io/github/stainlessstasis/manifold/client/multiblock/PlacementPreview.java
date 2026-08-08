@@ -35,25 +35,25 @@ public class PlacementPreview {
         if (player == null) return;
 
         ItemStack held = player.getMainHandItem();
-        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> multiblockPreviewer)) return;
+        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> multiblock)) return;
         if (!(mc.hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return;
 
         UseOnContext useContext = new UseOnContext(player.level(), player, InteractionHand.MAIN_HAND, held, blockHit);
         BlockPlaceContext placeContext = new BlockPlaceContext(useContext);
         if (!placeContext.canPlace()) return;
 
-        BaseEntityBlock block = multiblockPreviewer.getPreviewBlock();
-        BlockState previewState = multiblockPreviewer.getPreviewPlacement(placeContext);
+        BaseEntityBlock block = multiblock.getPreviewBlock();
+        BlockState previewState = multiblock.getPreviewPlacement(placeContext);
         if (previewState == null) return;
 
         BlockPos origin = placeContext.getClickedPos();
         Direction facing = previewState.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        boolean valid = previewState == block.getStateForPlacement(placeContext);
+        boolean valid = multiblock.isMultiblockPlacementValid(placeContext, facing);
         int tint = valid ? VALID_COLOR.getRGB() : INVALID_COLOR.getRGB();
 
         PlacementPreviewSubmission.submit(
                 event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),
-                multiblockPreviewer, previewState, origin, facing, tint
+                multiblock, previewState, origin, facing, tint
         );
     }
 }
