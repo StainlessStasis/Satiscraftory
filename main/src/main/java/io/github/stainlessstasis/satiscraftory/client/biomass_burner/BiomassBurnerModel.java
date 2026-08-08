@@ -1,21 +1,23 @@
 package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
-import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderState;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.client.animation.BakedAnimationPhases;
+import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerAnimations;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderState> {
+public class BiomassBurnerModel extends PoweredFactoryModel<BiomassBurnerRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("biomass_burner"), "main");
     private final ModelPart powerIndicator;
     private final List<ModelPart> powerIndicatorAncestry;
+    private final BakedAnimationPhases phaseAnimations;
 
     public BiomassBurnerModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
@@ -23,6 +25,11 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
         ModelPart powerPart = rootPart.getChild("power");
         this.powerIndicatorAncestry = List.of(rootPart, powerPart);
         this.powerIndicator = powerPart.getChild("indicator");
+
+        this.phaseAnimations = new BakedAnimationPhases(
+                root, BiomassBurnerAnimations.IDLE, BiomassBurnerAnimations.STARTUP,
+                BiomassBurnerAnimations.DEATH_AND_DESTRUCTION, BiomassBurnerAnimations.COOLDOWN
+        );
     }
 
     @Override
@@ -33,6 +40,12 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
     @Override
     public List<ModelPart> getPowerIndicatorAncestry() {
         return powerIndicatorAncestry;
+    }
+
+    @Override
+    public void setupAnim(@NonNull BiomassBurnerRenderState state) {
+        super.setupAnim(state);
+        phaseAnimations.apply(state.animationStates, state.ageInTicks);
     }
 
     public static LayerDefinition createBodyLayer() {
