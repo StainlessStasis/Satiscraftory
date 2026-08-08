@@ -32,4 +32,16 @@ public abstract class PowerProducingFactoryBlockEntity<T extends PowerProducingF
         GlobalPos globalPos = GlobalPos.of(level.dimension(), getBlockPos());
         FactoryNetwork.get(level).getPowerGrid().registerProducer(globalPos, component.getSupplyRate());
     }
+
+    @Override
+    public PowerIndicatorState computePowerIndicatorState(ServerLevel level) {
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), getBlockPos());
+        PowerGrid powerGrid = FactoryNetwork.get(level).getPowerGrid();
+
+        if (powerGrid.getConnectionCount(globalPos) == 0) return PowerIndicatorState.NO_CONNECTION;
+
+        T component = getFactoryComponent();
+        boolean working = component != null && component.isActivelyWorking();
+        return working ? PowerIndicatorState.WORKING : PowerIndicatorState.UNPOWERED;
+    }
 }

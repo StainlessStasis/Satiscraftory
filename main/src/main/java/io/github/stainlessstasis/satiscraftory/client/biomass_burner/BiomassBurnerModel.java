@@ -231,12 +231,11 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
 
         PartDefinition wall_side2_r4 = Hexagon_Shape5.addOrReplaceChild("wall_side2_r4", CubeListBuilder.create().texOffs(182, 203).addBox(-5.0F, -4.0F, -2.8867F, 10.0F, 8.0F, 5.7735F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, 0.0F, -1.0472F, 0.0F));
 
-        PartDefinition power = root.addOrReplaceChild("power", CubeListBuilder.create(), PartPose.offset(8.0F, 2.0F, -35.0F));
+        PartDefinition power = root.addOrReplaceChild("power", CubeListBuilder.create().texOffs(92, 216).addBox(-9.5F, -63.0F, 5.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(8.0F, 2.0F, -35.0F));
 
-        PartDefinition indicator = power.addOrReplaceChild("indicator", CubeListBuilder.create().texOffs(214, 203).addBox(-9.5F, -46.0F, 4.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F))
-                .texOffs(92, 216).addBox(-9.5F, -46.0F, 4.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -17.0F, 1.0F));
+        PartDefinition support_r1 = power.addOrReplaceChild("support_r1", CubeListBuilder.create().texOffs(190, 224).addBox(-10.0F, -22.5F, 1.0F, 4.0F, 1.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -17.0F, 1.0F, -0.0873F, 0.0F, 0.0F));
 
-        PartDefinition support_r1 = indicator.addOrReplaceChild("support_r1", CubeListBuilder.create().texOffs(190, 224).addBox(-10.0F, -22.5F, 1.0F, 4.0F, 1.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -0.0873F, 0.0F, 0.0F));
+        PartDefinition indicator = power.addOrReplaceChild("indicator", CubeListBuilder.create().texOffs(214, 203).addBox(-9.5F, -46.0F, 4.0F, 3.0F, 24.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -17.0F, 1.0F));
 
         PartDefinition connection_point = power.addOrReplaceChild("connection_point", CubeListBuilder.create(), PartPose.offsetAndRotation(-50.2487F, 84.0F, -49.0F, 0.0F, 1.0472F, 0.0F));
 
