@@ -4,8 +4,8 @@ import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryMod
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.animation.AnimationPhaseTransition;
-import io.github.stainlessstasis.satiscraftory.client.animation.AnimationPhaseDriver;
+import io.github.stainlessstasis.manifold.animation.AnimationPhaseTransition;
+import io.github.stainlessstasis.manifold.client.animation.AnimationPhaseDriver;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerAnimations;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;

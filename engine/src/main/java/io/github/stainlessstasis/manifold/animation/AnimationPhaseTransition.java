@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.animation;
+package io.github.stainlessstasis.manifold.animation;
 
 public interface AnimationPhaseTransition {
     AnimationPhaseTransition NO_OP = new AnimationPhaseTransition() {};

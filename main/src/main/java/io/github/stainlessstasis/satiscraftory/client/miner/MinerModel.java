@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
+import io.github.stainlessstasis.manifold.client.animation.BakedAnimationPhases;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerAnimations;
@@ -23,12 +24,9 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
 	private final ModelPart powerIndicator;
 	private final List<ModelPart> powerIndicatorAncestry;
-	private final KeyframeAnimation startupRotation;
+	private final BakedAnimationPhases phaseAnimations;
 	private final KeyframeAnimation startupDescend;
 	private final KeyframeAnimation startupAlreadyDescended;
-	private final KeyframeAnimation spinLoop;
-	private final KeyframeAnimation cooldown;
-	private final KeyframeAnimation idle;
 
 	public MinerModel(ModelPart root) {
 		super(root, RenderTypes::entityCutout);
@@ -38,12 +36,12 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 		this.powerIndicator = rootPart.getChild("power").getChild("indicator");
 		this.powerIndicator.visible = false;
 
-		this.startupRotation = MinerAnimations.STARTUP_ROTATION.bake(root);
+		this.phaseAnimations = new BakedAnimationPhases(
+				root, MinerAnimations.IDLE, MinerAnimations.STARTUP_ROTATION,
+				MinerAnimations.SPIN_LOOP, MinerAnimations.COOLDOWN
+		);
 		this.startupDescend = MinerAnimations.STARTUP_DESCEND.bake(root);
 		this.startupAlreadyDescended = MinerAnimations.STARTUP_ALREADY_DESCENDED.bake(root);
-		this.spinLoop = MinerAnimations.SPIN_LOOP.bake(root);
-		this.cooldown = MinerAnimations.COOLDOWN.bake(root);
-		this.idle = MinerAnimations.IDLE.bake(root);
 	}
 
 	@Override
@@ -59,23 +57,13 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	@Override
 	public void setupAnim(@NonNull MinerRenderState state) {
 		super.setupAnim(state);
-		if (state.startupRotationState.isStarted()) {
-			this.startupRotation.apply(state.startupRotationState, state.ageInTicks);
+		phaseAnimations.apply(state.animationStates, state.ageInTicks);
+
+		if (state.animationStates.startupDescend.isStarted()) {
+			this.startupDescend.apply(state.animationStates.startupDescend, state.ageInTicks);
 		}
-		if (state.startupDescendState.isStarted()) {
-			this.startupDescend.apply(state.startupDescendState, state.ageInTicks);
-		}
-		if (state.startupAlreadyDescendedState.isStarted()) {
-			this.startupAlreadyDescended.apply(state.startupAlreadyDescendedState, state.ageInTicks);
-		}
-		if (state.spinAnimationState.isStarted()) {
-			this.spinLoop.apply(state.spinAnimationState, state.ageInTicks);
-		}
-		if (state.cooldownAnimationState.isStarted()) {
-			this.cooldown.apply(state.cooldownAnimationState, state.ageInTicks);
-		}
-		if (state.idleAnimationState.isStarted()) {
-			this.idle.apply(state.idleAnimationState, state.ageInTicks);
+		if (state.animationStates.startupAlreadyDescended.isStarted()) {
+			this.startupAlreadyDescended.apply(state.animationStates.startupAlreadyDescended, state.ageInTicks);
 		}
 	}
 

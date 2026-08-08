@@ -1,8 +1,8 @@
-package io.github.stainlessstasis.satiscraftory.client.animation;
+package io.github.stainlessstasis.manifold.client.animation;
 
-import io.github.stainlessstasis.satiscraftory.animation.AnimationPhase;
-import io.github.stainlessstasis.satiscraftory.animation.AnimationPhaseTransition;
-import io.github.stainlessstasis.satiscraftory.animation.PhasedAnimationStates;
+import io.github.stainlessstasis.manifold.animation.AnimationPhase;
+import io.github.stainlessstasis.manifold.animation.AnimationPhaseTransition;
+import io.github.stainlessstasis.manifold.animation.PhasedAnimationStates;
 import net.minecraft.client.animation.AnimationDefinition;
 
 public class AnimationPhaseDriver {

@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.client.animation.BakedAnimationPhases;
+import io.github.stainlessstasis.manifold.client.animation.BakedAnimationPhases;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerAnimations;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

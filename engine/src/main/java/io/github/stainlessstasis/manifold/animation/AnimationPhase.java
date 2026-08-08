@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.animation;
+package io.github.stainlessstasis.manifold.animation;
 
 public enum AnimationPhase {
     IDLE,

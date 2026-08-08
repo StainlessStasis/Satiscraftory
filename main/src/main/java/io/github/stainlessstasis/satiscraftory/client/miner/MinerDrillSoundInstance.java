@@ -29,7 +29,7 @@ public class MinerDrillSoundInstance extends AbstractTickableSoundInstance {
     @Override
     public void tick() {
         MinerBlockEntity miner = minerRef.get();
-        if (miner == null || miner.isRemoved() || !miner.spinAnimationState.isStarted()) {
+        if (miner == null || miner.isRemoved() || !miner.animationStates.loop.isStarted()) {
             stop();
         }
     }

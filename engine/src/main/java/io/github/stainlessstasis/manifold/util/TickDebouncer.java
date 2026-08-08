@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.util;
+package io.github.stainlessstasis.manifold.util;
 
 /**
  * Debounces a boolean so that it only flips after staying at the new value for a number of consecutive calls

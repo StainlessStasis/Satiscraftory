@@ -1,13 +1,18 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
+import io.github.stainlessstasis.manifold.animation.AnimationPhase;
+import io.github.stainlessstasis.manifold.animation.AnimationPhaseTransition;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_power.CableAnchorProvider;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
-import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
+import io.github.stainlessstasis.manifold.util.FactorySounds;
+import io.github.stainlessstasis.manifold.util.TickDebouncer;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -17,7 +22,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,27 +34,20 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess, CableAnchorProvider {
+public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess, CableAnchorProvider, AnimationPhaseTransition {
     private static final double DEMAND_MW = 5d;
+    private static final int BUFFER_FULL_THRESHOLD_TICKS = 100;
 
     private @Nullable BlockPos linkedNodePos = null;
     private @Nullable Identifier resourceNodeId = null;
-    public final AnimationState startupRotationState = new AnimationState();
-    public final AnimationState startupDescendState = new AnimationState();
-    public final AnimationState startupAlreadyDescendedState = new AnimationState();
-    public final AnimationState spinAnimationState = new AnimationState();
-    public final AnimationState cooldownAnimationState = new AnimationState();
-    public final AnimationState idleAnimationState = new AnimationState();
 
+    public final MinerAnimationStates animationStates = new MinerAnimationStates();
+    public AnimationPhase animationPhase = AnimationPhase.IDLE;
     public boolean hasDescended = false;
 
-    private static final int FULL_THRESHOLD_TICKS = 100; // must be full for 100 ticks to be synced to clients
-    private boolean isBufferFull = false;
-    private int consecutiveFullTicks = 0;
+    private final TickDebouncer bufferFullDebouncer = new TickDebouncer(false, BUFFER_FULL_THRESHOLD_TICKS);
     private boolean isPowered = false;
     private boolean previousPowered = false;
-    public enum AnimPhase { STARTUP, SPIN, COOLDOWN, IDLE }
-    public AnimPhase animationPhase = AnimPhase.IDLE;
 
     public static final Vec3 PARTICLE_LOCAL_OFFSET = new Vec3(0, 0, -4);
     public static final long PARTICLE_INTERVAL_MS = 10L;
@@ -141,6 +138,29 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         return resourceNodeId;
     }
 
+    @Override
+    public void onEnterStartup(long gameTime) {
+        if (!hasDescended) {
+            animationStates.startupDescend.start((int) gameTime);
+        } else {
+            animationStates.startupAlreadyDescended.start((int) gameTime);
+        }
+        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_STARTUP.value(), 0.67f, 1f);
+    }
+
+    @Override
+    public void onEnterLoop(long gameTime) {
+        animationStates.startupDescend.stop();
+        animationStates.startupAlreadyDescended.stop();
+        hasDescended = true;
+        lastParticleTime = -1L;
+    }
+
+    @Override
+    public void onEnterCooldown(long gameTime) {
+        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_COOLDOWN.value(), 0.67f, 1f);
+    }
+
     public void setLastParticleTime(long animationMilliseconds) {
         lastParticleTime = animationMilliseconds;
     }
@@ -153,11 +173,12 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         return particleOffset;
     }
 
+
     public boolean isBufferFull() {
         if (level instanceof ServerLevel) {
             return getFactoryComponent().isBufferFull();
         } else {
-            return isBufferFull;
+            return bufferFullDebouncer.get();
         }
     }
 
@@ -178,24 +199,16 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         Producer producer = miner.getFactoryComponent();
         if (producer == null) return;
 
-        boolean currentlyFull = producer.isBufferFull();
-        if (currentlyFull) {
-            miner.consecutiveFullTicks++;
-        } else {
-            miner.consecutiveFullTicks = 0;
-        }
-
-        boolean actuallyFull = miner.consecutiveFullTicks >= FULL_THRESHOLD_TICKS;
-        if (actuallyFull != miner.isBufferFull) {
-            miner.isBufferFull = actuallyFull;
+        if (miner.bufferFullDebouncer.update(producer.isBufferFull())) {
             miner.syncToClients();
         }
 
-        miner.isPowered = miner.getFactoryComponent().isPowered();
-        if (miner.isPowered != miner.previousPowered) {
+        boolean powered = producer.isPowered();
+        if (powered != miner.previousPowered) {
+            miner.isPowered = powered;
+            miner.previousPowered = powered;
             miner.syncToClients();
         }
-        miner.previousPowered = miner.isPowered;
 
         miner.tickPowerIndicator(level);
     }
@@ -206,7 +219,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (resourceNodeId != null) {
             output.putString("ResourceNodeId", resourceNodeId.toString());
         }
-        output.putBoolean("IsBlocked", isBufferFull);
+        output.putBoolean("IsBlocked", bufferFullDebouncer.get());
         output.putBoolean("IsPowered", isPowered);
     }
 
@@ -217,9 +230,8 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         if (!resourceNodeString.isEmpty()) {
             resourceNodeId = Identifier.parse(resourceNodeString);
         }
-        isBufferFull = input.getBooleanOr("IsBlocked", false);
+        bufferFullDebouncer.restore(input.getBooleanOr("IsBlocked", false));
         isPowered = input.getBooleanOr("IsPowered", false);
-        consecutiveFullTicks = isBufferFull ? FULL_THRESHOLD_TICKS : 0;
         previousPowered = isPowered;
     }
 
