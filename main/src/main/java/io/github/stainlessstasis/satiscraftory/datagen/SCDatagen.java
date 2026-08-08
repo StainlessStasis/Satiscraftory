@@ -12,6 +12,7 @@ public class SCDatagen {
     static void datagen(GatherDataEvent.Client event) {
         event.createProvider(SCModelProvider::new);
         event.createProvider(SCMachineRecipesProvider::new);
+        event.createProvider(SCGeneratorFuelsProvider::new);
         event.createProvider((output, lookupProvider) ->
                 new SCBlockTagsProvider(output, lookupProvider, Satiscraftory.MODID)
         );

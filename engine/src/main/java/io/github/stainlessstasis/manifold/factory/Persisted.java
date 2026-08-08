@@ -88,6 +88,19 @@ final class Persisted {
         ).apply(i, Machine::new));
     }
 
+    record Generator(GlobalPos pos, Identifier generatorType, double powerRate,
+                      Optional<Identifier> heldItemId, int heldCount, boolean burning, long burnEndTick) {
+        static final Codec<Generator> CODEC = RecordCodecBuilder.create(i -> i.group(
+                GlobalPos.CODEC.fieldOf("pos").forGetter(Generator::pos),
+                Identifier.CODEC.fieldOf("generatorType").forGetter(Generator::generatorType),
+                Codec.DOUBLE.fieldOf("powerRate").forGetter(Generator::powerRate),
+                Identifier.CODEC.optionalFieldOf("heldItemId").forGetter(Generator::heldItemId),
+                Codec.INT.optionalFieldOf("heldCount", 0).forGetter(Generator::heldCount),
+                Codec.BOOL.optionalFieldOf("burning", false).forGetter(Generator::burning),
+                Codec.LONG.optionalFieldOf("burnEndTick", -1L).forGetter(Generator::burnEndTick)
+        ).apply(i, Generator::new));
+    }
+
     record PowerProducer(GlobalPos pos, double supplyRate, boolean active) {
         static final Codec<PowerProducer> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(PowerProducer::pos),
@@ -165,7 +178,7 @@ final class Persisted {
      */
     record Snapshot(List<Producer> producers, List<BeltLane> belts, List<Consumer> consumers, List<Machine> machines,
                     List<Container> containers, List<Splitter> splitters, List<Merger> mergers,
-                    List<PowerProducer> powerProducers, PowerGridData powerGrid) {
+                    List<Generator> generators, List<PowerProducer> powerProducers, PowerGridData powerGrid) {
         static final Codec<Snapshot> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Producer.CODEC.listOf().fieldOf("producers").forGetter(Snapshot::producers),
                 BeltLane.CODEC.listOf().fieldOf("belts").forGetter(Snapshot::belts),
@@ -174,6 +187,7 @@ final class Persisted {
                 Container.CODEC.listOf().fieldOf("containers").forGetter(Snapshot::containers),
                 Splitter.CODEC.listOf().optionalFieldOf("splitters", List.of()).forGetter(Snapshot::splitters),
                 Merger.CODEC.listOf().optionalFieldOf("mergers", List.of()).forGetter(Snapshot::mergers),
+                Generator.CODEC.listOf().optionalFieldOf("generators", List.of()).forGetter(Snapshot::generators),
                 PowerProducer.CODEC.listOf().optionalFieldOf("powerProducers", List.of()).forGetter(Snapshot::powerProducers),
                 PowerGridData.CODEC.optionalFieldOf("powerGrid", PowerGridData.EMPTY).forGetter(Snapshot::powerGrid)
         ).apply(i, Snapshot::new));

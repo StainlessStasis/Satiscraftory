@@ -6,12 +6,13 @@ import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.belt.LanePort;
 import io.github.stainlessstasis.manifold.factory_component.consumer.Consumer;
 import io.github.stainlessstasis.manifold.factory_component.container.Container;
+import io.github.stainlessstasis.manifold.factory_component.generator.Generator;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducer;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
-import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducer;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -68,6 +69,7 @@ public class FactoryNetwork extends SavedData {
     private final Map<GlobalPos, Container> containers = new HashMap<>();
     private final Map<GlobalPos, Splitter> splitters = new HashMap<>();
     private final Map<GlobalPos, Merger> mergers = new HashMap<>();
+    private final Map<GlobalPos, Generator> generators = new HashMap<>();
     private final Map<GlobalPos, PowerProducer> powerProducers = new HashMap<>();
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
@@ -148,6 +150,14 @@ public class FactoryNetwork extends SavedData {
         return getOrCreate(mergers, pos, factory);
     }
 
+    public Generator getOrCreateGenerator(GlobalPos pos, Supplier<Generator> factory) {
+        return getOrCreate(generators, pos, factory);
+    }
+
+    public @Nullable Generator getGenerator(GlobalPos pos) {
+        return generators.getOrDefault(pos, null);
+    }
+
     public PowerProducer getOrCreatePowerProducer(GlobalPos pos, Supplier<PowerProducer> factory) {
         return getOrCreate(powerProducers, pos, factory);
     }
@@ -163,6 +173,11 @@ public class FactoryNetwork extends SavedData {
         Consumer consumer = consumers.get(pos);
         if (consumer != null) {
             return (fromDirection == null || consumer.acceptsFrom(fromDirection)) ? consumer : null;
+        }
+
+        Generator generator = generators.get(pos);
+        if (generator != null) {
+            return (fromDirection == null || generator.acceptsFrom(fromDirection)) ? generator : null;
         }
 
         Container container = containers.get(pos);
@@ -322,6 +337,10 @@ public class FactoryNetwork extends SavedData {
 
     public void removeMerger(GlobalPos pos) {
         removeComponent(mergers, mergerOutputPos, pos, null);
+    }
+
+    public void removeGenerator(GlobalPos pos) {
+        removeComponent(generators, null, pos, Generator::cancelScheduledTask);
     }
 
     public void removePowerProducer(GlobalPos pos) {
@@ -717,6 +736,17 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
+        List<Persisted.Generator> persistedGenerators = new ArrayList<>();
+        for (Map.Entry<GlobalPos, Generator> entry : generators.entrySet()) {
+            GlobalPos pos = entry.getKey();
+            Generator generator = entry.getValue();
+            persistedGenerators.add(new Persisted.Generator(
+                    pos, generator.getGeneratorType(), generator.getPowerRate(),
+                    Optional.ofNullable(generator.getHeldItemId()), generator.getHeldCount(),
+                    generator.isBurning(), generator.getBurnEndTick()
+            ));
+        }
+
         List<Persisted.PowerProducer> persistedPowerProducers = new ArrayList<>();
         for (Map.Entry<GlobalPos, PowerProducer> entry : powerProducers.entrySet()) {
             PowerProducer powerProducer = entry.getValue();
@@ -739,7 +769,7 @@ public class FactoryNetwork extends SavedData {
         return new Persisted.Snapshot(
                 persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
                 persistedContainers, persistedSplitters, persistedMergers,
-                persistedPowerProducers, persistedPowerGrid
+                persistedGenerators, persistedPowerProducers, persistedPowerGrid
         );
     }
 
@@ -836,6 +866,15 @@ public class FactoryNetwork extends SavedData {
             mergerData.outputPos().ifPresent(outPos -> network.mergerOutputPos.put(mergerData.pos(), outPos));
         }
 
+        for (Persisted.Generator generatorData : snapshot.generators()) {
+            Generator generator = Generator.restore(
+                    generatorData.generatorType(), generatorData.powerRate(), network.scheduler,
+                    generatorData.heldItemId().orElse(null), generatorData.heldCount(),
+                    generatorData.burning(), generatorData.burnEndTick()
+            );
+            network.generators.put(generatorData.pos(), generator);
+        }
+
         for (Persisted.PowerProducer powerProducerData : snapshot.powerProducers()) {
             PowerProducer powerProducer = PowerProducer.restore(powerProducerData.supplyRate(), powerProducerData.active());
             network.powerProducers.put(powerProducerData.pos(), powerProducer);
@@ -926,6 +965,7 @@ public class FactoryNetwork extends SavedData {
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
     public int getContainerCount() { return containers.size(); }
+    public int getGeneratorCount() { return generators.size(); }
     public int getPowerProducerCount() { return powerProducers.size(); }
 
     // Counts factory components whose chunk is currently loaded
@@ -942,6 +982,7 @@ public class FactoryNetwork extends SavedData {
     public int getLoadedConsumerCount(MinecraftServer server) { return countLoaded(server, consumers.keySet()); }
     public int getLoadedMachineCount(MinecraftServer server) { return countLoaded(server, machines.keySet()); }
     public int getLoadedContainerCount(MinecraftServer server) { return countLoaded(server, containers.keySet()); }
+    public int getLoadedGeneratorCount(MinecraftServer server) { return countLoaded(server, generators.keySet()); }
     public int getLoadedPowerProducerCount(MinecraftServer server) { return countLoaded(server, powerProducers.keySet()); }
 
     private static int countLoaded(MinecraftServer server, Set<GlobalPos> positions) {

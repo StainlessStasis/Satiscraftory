@@ -7,7 +7,7 @@ import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
-import io.github.stainlessstasis.satiscraftory.util.MessageUtil;
+import io.github.stainlessstasis.manifold.util.MessageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -44,24 +44,6 @@ public class PowerPoleBlock extends AbstractDirectionalFactoryBlock implements M
     @Override
     public MultiblockShape getMultiblockShape() {
         return MULTIBLOCK_SHAPE;
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Level level = context.getLevel();
-        BlockPos anchor = context.getClickedPos();
-        Direction facing = context.getHorizontalDirection().getOpposite();
-
-        if (!MultiblockPlacement.canPlaceMultiblock(level, MULTIBLOCK_SHAPE, anchor, facing)) {
-            MessageUtil.warnPlayer(
-                    context,
-                    Satiscraftory.MODID + ".invalid_multiblock_placement",
-                    MULTIBLOCK_SHAPE.width(), MULTIBLOCK_SHAPE.depth(), MULTIBLOCK_SHAPE.height()
-            );
-            return null;
-        }
-
-        return super.getStateForPlacement(context);
     }
 
     @Override

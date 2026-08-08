@@ -1,7 +1,14 @@
 package io.github.stainlessstasis.manifold.factory_component;
 
+import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
+import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
+import io.github.stainlessstasis.manifold.util.MessageUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -21,6 +28,22 @@ public abstract class AbstractDirectionalFactoryBlock extends AbstractFactoryBlo
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Level level = context.getLevel();
+        BlockPos anchor = context.getClickedPos();
+        Direction facing = context.getHorizontalDirection().getOpposite();
+
+        if (this instanceof Multiblock<?> multiblock) {
+            MultiblockShape shape = multiblock.getMultiblockShape();
+            if (!MultiblockPlacement.canPlaceMultiblock(level, multiblock.getMultiblockShape(), anchor, facing)) {
+                MessageUtil.warnPlayer(
+                        context,
+                        Manifold.MODID + ".invalid_multiblock_placement",
+                        shape.width(), shape.depth(), shape.height()
+                );
+                return null;
+            }
+        }
+
         return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 }

@@ -10,13 +10,16 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public interface Multiblock<B extends BaseEntityBlock & Multiblock<B>> {
+    MultiblockShape getMultiblockShape();
+
     @SuppressWarnings("unchecked")
     default B getPreviewBlock() {
         return (B) this;
     }
 
-    MultiblockShape getMultiblockShape();
-    BlockState getPreviewPlacement(BlockPlaceContext context);
+    default BlockState getPreviewPlacement(BlockPlaceContext context) {
+        return getPreviewBlock().getStateForPlacement(context);
+    }
 
     default void stampMultiblockFillers(LevelAccessor level, BlockPos controllerPos, Direction facing) {
         MultiblockPlacement.stampFillers(level, getMultiblockShape(), controllerPos, facing, ManifoldBlocks.MULTIBLOCK_FILLER.get());

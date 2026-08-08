@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.util;
+package io.github.stainlessstasis.manifold.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

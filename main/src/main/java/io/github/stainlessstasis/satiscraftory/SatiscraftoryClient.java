@@ -37,6 +37,6 @@ public class SatiscraftoryClient {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SCBlockEntities.MINER.get(), MinerRenderer::new);
         event.registerBlockEntityRenderer(SCBlockEntities.POWER_POLE.get(), PowerPoleRenderer::new);
-        event.registerBlockEntityRenderer(ManifoldBlockEntities.POWER_PRODUCER.get(), BiomassBurnerRenderer::new);
+        event.registerBlockEntityRenderer(SCBlockEntities.BIOMASS_BURNER.get(), BiomassBurnerRenderer::new);
     }
 }

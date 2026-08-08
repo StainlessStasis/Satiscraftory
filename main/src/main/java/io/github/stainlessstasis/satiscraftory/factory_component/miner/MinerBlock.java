@@ -1,22 +1,18 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
-import io.github.stainlessstasis.satiscraftory.util.MessageUtil;
+import io.github.stainlessstasis.manifold.util.MessageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -26,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
@@ -68,22 +63,12 @@ public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> 
             return null;
         }
 
-        Direction facing = context.getHorizontalDirection().getOpposite();
-        if (!MultiblockPlacement.canPlaceMultiblock(level, MULTIBLOCK_SHAPE, anchor, facing)) {
-            MessageUtil.warnPlayer(
-                    context,
-                    Satiscraftory.MODID + ".invalid_multiblock_placement",
-                    MULTIBLOCK_SHAPE.width(), MULTIBLOCK_SHAPE.depth(), MULTIBLOCK_SHAPE.height()
-            );
-            return null;
-        }
-
         return super.getStateForPlacement(context);
     }
 
     @Override
     public BlockState getPreviewPlacement(BlockPlaceContext context) {
-        return super.getStateForPlacement(context);
+        return getStateForPlacement(context);
     }
 
     @Override

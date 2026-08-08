@@ -12,6 +12,8 @@ import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlo
 import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlock;
 import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock;
 import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlock;
@@ -73,4 +75,9 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("power_producer", () -> new ManifoldBlockEntityType<>(
                     PowerProducerBlockEntity::new,
                     block -> block instanceof PowerProducerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeneratorBlockEntity>> GENERATOR =
+            BLOCK_ENTITIES.register("generator", () -> new ManifoldBlockEntityType<>(
+                    GeneratorBlockEntity::new,
+                    block -> block instanceof GeneratorBlock));
 }

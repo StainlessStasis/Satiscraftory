@@ -8,5 +8,7 @@
   "block.manifold.consumer": "Consumer",
 
   "manifold.configuration.beltsDropItems": "Belts Drop Items",
-  "manifold.configuration.powerRequired": "Power Required"
+  "manifold.configuration.powerRequired": "Power Required",
+
+  "manifold.invalid_multiblock_placement": "This building needs more room to be placed (%sx%sx%s)"
 }
