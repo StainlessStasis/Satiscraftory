@@ -20,16 +20,16 @@ import java.util.List;
 public abstract class PowerConduitBlockEntity extends BlockEntity implements MultiblockControllerAccess, CableAnchorProvider, PowerLinkable {
     public PowerConduitBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState state) {
         super(type, worldPosition, state);
-        this.cableAnchorOffset = getCableOffset(state, getLocalCableAnchorOffset());
+        this.cableAnchorPos = new Vec3(getBlockPos()).add(getCableOffset(state, getLocalCableAnchorOffset()));
     }
 
     protected abstract MultiblockShape getConduitShape();
     protected abstract Vec3 getLocalCableAnchorOffset();
-    private final Vec3 cableAnchorOffset;
+    private final Vec3 cableAnchorPos;
 
     @Override
     public Vec3 getCableAnchorPos() {
-        return Vec3.atLowerCornerOf(getBlockPos()).add(cableAnchorOffset);
+        return cableAnchorPos;
     }
 
     @Override

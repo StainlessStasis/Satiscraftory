@@ -18,7 +18,6 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -60,7 +59,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
     private long lastParticleTime = -1L;
 
     public static final Vec3 CABLE_ANCHOR_LOCAL_OFFSET = new Vec3(-11, 139, -63.5).scale(1/16f);
-    private final Vec3 cableAnchorOffset;
+    private final Vec3 cableAnchorPos;
 
     public MinerBlockEntity(BlockPos pos, BlockState state) {
         this(SCBlockEntities.MINER.get(), pos, state);
@@ -72,7 +71,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
                 ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
                 : Direction.NORTH;
         this.particleOffset = DirectionalOffset.toWorld(facing, PARTICLE_LOCAL_OFFSET);
-        this.cableAnchorOffset = getCableOffset(state, CABLE_ANCHOR_LOCAL_OFFSET);
+        this.cableAnchorPos = new Vec3(getBlockPos()).add(getCableOffset(state, CABLE_ANCHOR_LOCAL_OFFSET));
     }
 
     @Override
@@ -172,8 +171,7 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
 
     @Override
     public Vec3 getCableAnchorPos() {
-        BlockPos pos = getBlockPos();
-        return new Vec3(pos.getX(), pos.getY(), pos.getZ()).add(cableAnchorOffset);
+        return cableAnchorPos;
     }
 
     public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, MinerBlockEntity miner) {
