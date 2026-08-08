@@ -97,9 +97,8 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderTypes.entityCutout(getTexture()));
 
         poseStack.pushPose();
-        ModelPart parent = model.getPowerIndicatorParent();
-        if (parent != null) {
-            parent.translateAndRotate(poseStack);
+        for (ModelPart ancestor : model.getPowerIndicatorAncestry()) {
+            ancestor.translateAndRotate(poseStack);
         }
         indicatorPart.visible = true;
         indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);

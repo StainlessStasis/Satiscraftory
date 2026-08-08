@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Function;
 
 public abstract class PoweredFactoryModel<S extends MultiblockRenderState> extends Model<S> {
@@ -15,7 +16,5 @@ public abstract class PoweredFactoryModel<S extends MultiblockRenderState> exten
     }
 
     public abstract ModelPart getPowerIndicatorPart();
-    public @Nullable ModelPart getPowerIndicatorParent() {
-        return null;
-    }
+    public abstract List<ModelPart> getPowerIndicatorAncestry();
 }

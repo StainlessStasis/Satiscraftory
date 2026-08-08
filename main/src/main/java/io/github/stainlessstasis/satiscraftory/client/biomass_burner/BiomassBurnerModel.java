@@ -10,16 +10,19 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("biomass_burner"), "main");
     private final ModelPart powerIndicator;
-    private final ModelPart powerIndicatorParent;
+    private final List<ModelPart> powerIndicatorAncestry;
 
     public BiomassBurnerModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
         ModelPart rootPart = root.getChild("root");
-        this.powerIndicatorParent = rootPart;
-        this.powerIndicator = rootPart.getChild("power").getChild("indicator");
+        ModelPart powerPart = rootPart.getChild("power");
+        this.powerIndicatorAncestry = List.of(rootPart, powerPart);
+        this.powerIndicator = powerPart.getChild("indicator");
     }
 
     @Override
@@ -28,8 +31,8 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
     }
 
     @Override
-    public @Nullable ModelPart getPowerIndicatorParent() {
-        return powerIndicatorParent;
+    public List<ModelPart> getPowerIndicatorAncestry() {
+        return powerIndicatorAncestry;
     }
 
     public static LayerDefinition createBodyLayer() {

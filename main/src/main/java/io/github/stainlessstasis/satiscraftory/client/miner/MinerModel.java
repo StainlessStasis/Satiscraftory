@@ -17,10 +17,12 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("miner"), "main");
 	private final ModelPart powerIndicator;
-	private final ModelPart powerIndicatorParent;
+	private final List<ModelPart> powerIndicatorAncestry;
 	private final KeyframeAnimation startupRotation;
 	private final KeyframeAnimation startupDescend;
 	private final KeyframeAnimation startupAlreadyDescended;
@@ -31,7 +33,8 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	public MinerModel(ModelPart root) {
 		super(root, RenderTypes::entityCutout);
 		ModelPart rootPart = root.getChild("root");
-		this.powerIndicatorParent = rootPart;
+		ModelPart powerPart = rootPart.getChild("power");
+		this.powerIndicatorAncestry = List.of(rootPart, powerPart);
 		this.powerIndicator = rootPart.getChild("power").getChild("indicator");
 		this.powerIndicator.visible = false;
 
@@ -49,8 +52,8 @@ public class MinerModel extends PoweredFactoryModel<MinerRenderState> {
 	}
 
 	@Override
-	public @Nullable ModelPart getPowerIndicatorParent() {
-		return powerIndicatorParent;
+	public List<ModelPart> getPowerIndicatorAncestry() {
+		return powerIndicatorAncestry;
 	}
 
 	@Override
