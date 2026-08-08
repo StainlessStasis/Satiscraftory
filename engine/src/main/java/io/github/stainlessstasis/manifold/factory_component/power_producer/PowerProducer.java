@@ -45,4 +45,9 @@ public class PowerProducer implements PowerProducingFactoryComponent {
     public int outputSlotCount() {
         return 0;
     }
+
+    @Override
+    public boolean isActivelyWorking() {
+        return active;
+    }
 }

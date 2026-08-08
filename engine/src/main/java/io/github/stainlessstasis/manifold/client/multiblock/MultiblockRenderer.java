@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
+import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -54,8 +55,8 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             renderState.ageInTicks = gameTime + partialTick;
         }
 
-        if (blockEntity instanceof PowerConsumingFactoryBlockEntity<?> powerConsumingBlockEntity) {
-            renderState.powerIndicatorState = powerConsumingBlockEntity.getPowerIndicatorState();
+        if (blockEntity instanceof PowerableFactoryBlockEntity<?> powerableFactoryBlockEntity) {
+            renderState.powerIndicatorState = powerableFactoryBlockEntity.getPowerIndicatorState();
         }
     }
 

@@ -161,4 +161,9 @@ public class Generator implements Port, PowerProducingFactoryComponent {
     public long getBurnEndTick() {
         return burnEndTick;
     }
+
+    @Override
+    public boolean isActivelyWorking() {
+        return burning;
+    }
 }

@@ -2,8 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.producer;
 
 
 import io.github.stainlessstasis.manifold.Scheduler;
-import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryComponent;
-import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
@@ -13,7 +12,7 @@ import net.minecraft.world.item.Items;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-public class Producer implements PowerableFactoryComponent {
+public class Producer implements PowerConsumingFactoryComponent {
     public static final Identifier DEFAULT_ITEM_TYPE = ItemUtils.idOf(Items.RAW_IRON);
     public static final long DEFAULT_INTERVAL_TICKS = 1;
 

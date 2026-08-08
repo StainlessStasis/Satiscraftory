@@ -1,7 +1,6 @@
 package io.github.stainlessstasis.manifold.factory_power;
 
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
 import net.minecraft.core.BlockPos;
@@ -11,7 +10,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 
-public abstract class PowerProducingFactoryBlockEntity<T extends PowerProducingFactoryComponent> extends FactoryBlockEntity<T> implements PowerLinkable {
+public abstract class PowerProducingFactoryBlockEntity<T extends PowerProducingFactoryComponent> extends PowerableFactoryBlockEntity<T> implements PowerLinkable {
     protected PowerProducingFactoryBlockEntity(BlockEntityType<?> type, BlockPos worldPosition, BlockState blockState) {
         super(type, worldPosition, blockState);
     }
