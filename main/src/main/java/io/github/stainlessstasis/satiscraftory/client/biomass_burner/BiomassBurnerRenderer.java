@@ -1,17 +1,13 @@
 package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
+import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderState;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
-import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducerBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
+import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlock;
-import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
-import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
@@ -28,7 +24,7 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
 
     @Override
     protected MultiblockShape shape() {
-        return PowerPoleBlock.MULTIBLOCK_SHAPE;
+        return BiomassBurnerBlock.MULTIBLOCK_SHAPE;
     }
 
     @Override
@@ -37,7 +33,7 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
     }
 
     @Override
-    public Model<MultiblockRenderState> getModel() {
+    public PoweredFactoryModel<MultiblockRenderState> getModel() {
         return model;
     }
 

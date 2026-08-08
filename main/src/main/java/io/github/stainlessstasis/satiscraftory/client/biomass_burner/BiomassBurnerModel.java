@@ -8,12 +8,28 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import org.jspecify.annotations.Nullable;
 
 public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("biomass_burner"), "main");
+    private final ModelPart powerIndicator;
+    private final ModelPart powerIndicatorParent;
 
     public BiomassBurnerModel(ModelPart root) {
         super(root, RenderTypes::entityCutout);
+        ModelPart rootPart = root.getChild("root");
+        this.powerIndicatorParent = rootPart;
+        this.powerIndicator = rootPart.getChild("power").getChild("indicator");
+    }
+
+    @Override
+    public ModelPart getPowerIndicatorPart() {
+        return powerIndicator;
+    }
+
+    @Override
+    public @Nullable ModelPart getPowerIndicatorParent() {
+        return powerIndicatorParent;
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -224,10 +240,5 @@ public class BiomassBurnerModel extends PoweredFactoryModel<MultiblockRenderStat
         PartDefinition cube_r25 = connection_point.addOrReplaceChild("cube_r25", CubeListBuilder.create().texOffs(44, 202).addBox(-30.0F, -66.0F, 8.0F, 4.0F, 24.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, -74.0F, 80.5F, 0.0F, -0.5236F, 0.0F));
 
         return LayerDefinition.create(meshdefinition, 256, 256);
-    }
-
-    @Override
-    public ModelPart getPowerIndicatorPart() {
-        return null;
     }
 }
