@@ -391,7 +391,6 @@ public class FactoryNetwork extends SavedData {
 
     @Override
     public void setDirty(boolean dirty) {
-        System.out.println("SETTING DIRTY");
         super.setDirty(dirty);
         tickOrder = null;
     }

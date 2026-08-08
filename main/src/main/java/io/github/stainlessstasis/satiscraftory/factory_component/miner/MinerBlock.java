@@ -1,7 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -11,7 +10,6 @@ import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -27,7 +25,7 @@ import org.jspecify.annotations.NonNull;
 
 public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER_UNFILLED);
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER);
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);

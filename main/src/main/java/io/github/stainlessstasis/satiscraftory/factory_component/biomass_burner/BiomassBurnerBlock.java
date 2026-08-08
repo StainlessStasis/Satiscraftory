@@ -1,10 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner;
 
 import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
-import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -20,13 +18,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Set;
-
 public class BiomassBurnerBlock extends GeneratorBlock implements Multiblock<BiomassBurnerBlock> {
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 3, 4, new BlockPos(1, 0, 0), Set.of());
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 3, 4, new BlockPos(1, 0, 0), MultiblockUnfilledSets.BIOMASS_BURNER);
 
     public BiomassBurnerBlock(Properties properties, Identifier generatorType, double powerRate) {
         super(properties, generatorType, powerRate);
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
+        return new BiomassBurnerBlockEntity(pos, state);
     }
 
     @Override
