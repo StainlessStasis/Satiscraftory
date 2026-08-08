@@ -40,6 +40,7 @@ public class PowerProducerBlockEntity extends PowerProducingFactoryBlockEntity<P
 
     public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, PowerProducerBlockEntity producerBE) {
         producerBE.updatePowerSupply(level);
+        producerBE.tickPowerIndicator(level);
     }
 
     public PowerProducer getPowerProducer() {

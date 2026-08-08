@@ -3,14 +3,20 @@ package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderState;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
+import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlockEntity, MultiblockRenderState> {
     public static final Identifier TEXTURE = Satiscraftory.id("textures/block/biomass_burner.png");

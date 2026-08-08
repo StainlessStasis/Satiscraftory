@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -43,7 +44,7 @@ public abstract class PowerableFactoryBlockEntity<T extends PowerableFactoryComp
         if (newState == powerIndicatorState) return;
 
         powerIndicatorState = newState;
-        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), PowerProducerBlock.UPDATE_CLIENTS);
+        level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
     }
 
     public PowerIndicatorState getPowerIndicatorState() {

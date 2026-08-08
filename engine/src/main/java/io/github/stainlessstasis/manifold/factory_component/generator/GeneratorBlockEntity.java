@@ -48,6 +48,7 @@ public class GeneratorBlockEntity extends PowerProducingFactoryBlockEntity<Gener
 
     public static void serverTick(ServerLevel level, BlockPos pos, BlockState state, GeneratorBlockEntity generatorBE) {
         generatorBE.updatePowerSupply(level);
+        generatorBE.tickPowerIndicator(level);
     }
 
     @Override

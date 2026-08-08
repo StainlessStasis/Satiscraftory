@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
+import io.github.stainlessstasis.manifold.factory_power.PowerProducingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
@@ -39,7 +40,6 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     protected MultiblockRenderer(BlockEntityType<T> blockEntityType) {
         MultiblockPreviewRegistry.register(blockEntityType, this);
     }
-
 
     @Override
     public void extractRenderState(
