@@ -10,5 +10,6 @@ public class SCRegistries {
         SCItems.ITEMS.register(bus);
         SCFeatures.FEATURES.register(bus);
         SCSounds.SOUND_EVENTS.register(bus);
+        SCMenus.MENUS.register(bus);
     }
 }

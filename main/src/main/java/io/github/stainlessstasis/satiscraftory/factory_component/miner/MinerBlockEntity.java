@@ -10,6 +10,8 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import io.github.stainlessstasis.manifold.util.FactorySounds;
 import io.github.stainlessstasis.manifold.util.TickDebouncer;
+import io.github.stainlessstasis.satiscraftory.menu.miner.MinerContainerData;
+import io.github.stainlessstasis.satiscraftory.menu.miner.MinerMenu;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
@@ -17,11 +19,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,12 +38,20 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.extensions.IMenuProviderExtension;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockControllerAccess, CableAnchorProvider, AnimationPhaseTransition {
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_X;
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_Y;
+
+public class MinerBlockEntity extends ProducerBlockEntity
+        implements MultiblockControllerAccess, CableAnchorProvider, AnimationPhaseTransition,
+        MenuProvider, IMenuProviderExtension {
+    private static final int SLOT_X = (int) (PLAYER_INV_X * 1.5);
+    private static final int SLOT_Y = PLAYER_INV_Y / 2 - 10;
     private static final double DEMAND_MW = 5d;
     private static final int BUFFER_FULL_THRESHOLD_TICKS = 100;
 
@@ -211,6 +228,35 @@ public class MinerBlockEntity extends ProducerBlockEntity implements MultiblockC
         }
 
         miner.tickPowerIndicator(level);
+    }
+
+    @Override
+    public void writeClientSideData(@NonNull AbstractContainerMenu menu, @NonNull RegistryFriendlyByteBuf buf) {
+        Producer producer = getFactoryComponent();
+        buf.writeIdentifier(producer.getItemId());
+        buf.writeVarLong(producer.getInterval());
+        buf.writeDouble(getPowerDemand());
+        buf.writeVarInt(SLOT_X);
+        buf.writeVarInt(SLOT_Y);
+        buf.writeVarInt(PLAYER_INV_X);
+        buf.writeVarInt(PLAYER_INV_Y);
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, @NonNull Inventory playerInventory, @NonNull Player player) {
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+        Producer producer = getFactoryComponent();
+        return new MinerMenu(
+                containerId, playerInventory, producer, getPowerDemand(),
+                SLOT_X, SLOT_Y, PLAYER_INV_X, PLAYER_INV_Y,
+                ContainerLevelAccess.create(serverLevel, getBlockPos()),
+                new MinerContainerData(producer, serverLevel::getGameTime)
+        );
+    }
+
+    @Override
+    public @NonNull Component getDisplayName() {
+        return getBlockState().getBlock().getName();
     }
 
     @Override

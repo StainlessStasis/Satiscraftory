@@ -173,6 +173,34 @@ public class Producer implements PowerConsumingFactoryComponent {
         return bufferedCount >= ItemUtils.maxStackSizeFor(itemId);
     }
 
+    public int getBufferCapacity() {
+        return ItemUtils.maxStackSizeFor(itemId);
+    }
+
+    /** How many of {@link #itemId} are currently buffered, waiting to leave via output. */
+    public int getBufferedCount() {
+        return bufferedCount;
+    }
+
+    /** Manually insert into the buffer (from GUI) */
+    public int tryInsertBuffered(int amount) {
+        int room = getBufferCapacity() - bufferedCount;
+        int inserted = Math.min(amount, room);
+        bufferedCount += inserted;
+        return inserted;
+    }
+
+    /** Manually extract from the buffer (from GUI) */
+    public int tryExtractBuffered(int amount) {
+        int taken = Math.min(amount, bufferedCount);
+        bufferedCount -= taken;
+        return taken;
+    }
+
+    public void setBufferedCountClientSide(int amount) {
+        this.bufferedCount = amount;
+    }
+
     public void setItemId(Identifier itemId) {
         this.itemId = itemId;
     }
@@ -190,10 +218,6 @@ public class Producer implements PowerConsumingFactoryComponent {
         return interval;
     }
 
-    /** How many of {@link #itemId} are currently buffered, waiting to leave via output. */
-    public int getBufferedCount() {
-        return bufferedCount;
-    }
 
     /** Only meaningful when the buffer isn't full and the producer is powered; a full or unpowered producer has no standing scheduled event. */
     public long getNextProductionTick() {

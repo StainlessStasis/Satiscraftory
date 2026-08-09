@@ -1,6 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
+import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -11,6 +13,8 @@ import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -20,6 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
@@ -78,6 +83,28 @@ public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> 
             }
         }
         return null;
+    }
+
+    @Override
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos,
+            @NonNull Player player, @NonNull BlockHitResult hitResult
+    ) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof MinerBlockEntity minerBE)) {
+            return InteractionResult.PASS;
+        }
+
+        if (player.getMainHandItem().getItem() instanceof PowerLinkItem) {
+            return InteractionResult.PASS;
+        }
+
+        player.openMenu(minerBE);
+        return InteractionResult.CONSUME;
     }
 
     @Override
