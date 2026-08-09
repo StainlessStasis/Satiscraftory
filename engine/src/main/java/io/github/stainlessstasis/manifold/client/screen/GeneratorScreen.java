@@ -11,6 +11,7 @@ import static io.github.stainlessstasis.manifold.menu.GuiColors.*;
 public class GeneratorScreen extends FactoryScreen<GeneratorMenu> {
     private static final int HEADER_WIDTH = 96;
     private static final int HEADER_HEIGHT = 40;
+    private static final int HEADER_Y = 20;
 
     public GeneratorScreen(GeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 166);
@@ -50,9 +51,28 @@ public class GeneratorScreen extends FactoryScreen<GeneratorMenu> {
         );
     }
 
+    private String formatItemsPerMinute() {
+        if (!menu.isBurning()) return "0";
+        int burnDurationTicks = menu.getBurnDurationTicks();
+        if (burnDurationTicks <= 0) return "0";
+        double itemsPerMinute = 1200d / burnDurationTicks;
+        return formatRate(itemsPerMinute);
+    }
+
     @Override
     protected void drawFactorySlots(@NonNull GuiGraphicsExtractor graphics, int x, int y) {
         var slot = menu.slots.getFirst();
-        drawSlotBackground(graphics, x + slot.x - 1, y + slot.y - 1);
+        int slotX = x + slot.x - 1;
+        int slotY = y + slot.y - 1;
+
+        drawSlotBackground(graphics, slotX, slotY);
+
+        String rateText = formatItemsPerMinute() + "/min";
+        scaledCenteredText(
+                graphics, font, Component.literal(rateText),
+                slotX + 9,
+                slotY + 21,
+                ACCENT_COLOR, 0.8f
+        );
     }
 }

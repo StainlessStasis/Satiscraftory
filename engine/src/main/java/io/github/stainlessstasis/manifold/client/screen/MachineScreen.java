@@ -16,6 +16,7 @@ public class MachineScreen extends FactoryScreen<MachineMenu> {
 
     private static final int HEADER_WIDTH = 64;
     private static final int HEADER_HEIGHT = 56;
+    private static final int HEADER_Y = 6;
     private static final float ICON_SCALE = 1.5f;
 
     public MachineScreen(MachineMenu menu, Inventory playerInventory, Component title) {
@@ -100,11 +101,5 @@ public class MachineScreen extends FactoryScreen<MachineMenu> {
                     ACCENT_COLOR, 0.8f
             );
         }
-    }
-
-    private String formatRate(double perMinute) {
-        return (perMinute == Math.floor(perMinute))
-                ? String.valueOf((int) perMinute)
-                : String.format("%.1f", perMinute);
     }
 }

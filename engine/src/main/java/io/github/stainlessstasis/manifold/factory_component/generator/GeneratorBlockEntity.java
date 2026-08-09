@@ -26,8 +26,8 @@ import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_X
 import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_Y;
 
 public class GeneratorBlockEntity extends PowerProducingFactoryBlockEntity<Generator> implements MenuProvider, IMenuProviderExtension {
-    private static final int SLOT_X = 80;
-    private static final int SLOT_Y = 33;
+    private static final int SLOT_X = PLAYER_INV_X;
+    private static final int SLOT_Y = PLAYER_INV_Y/2 - 10;
 
     private Generator generator;
 

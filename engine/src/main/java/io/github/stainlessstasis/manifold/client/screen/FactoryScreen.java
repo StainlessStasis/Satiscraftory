@@ -9,11 +9,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.NonNull;
 
 import static io.github.stainlessstasis.manifold.menu.GuiColors.*;
 
-public abstract class FactoryScreen<T extends AbstractContainerMenu & ProgressBar> extends AbstractContainerScreen<T> {
-    protected static final int HEADER_Y = 6;
+public abstract class FactoryScreen<T extends AbstractContainerMenu & ProgressBar> extends AbstractContainerScreen<@NonNull T> {
     protected static final int PROGRESS_BAR_HEIGHT = 4;
     protected static final int SLOT_SIZE = 18;
 
@@ -93,5 +93,14 @@ public abstract class FactoryScreen<T extends AbstractContainerMenu & ProgressBa
         graphics.fill(x, y + height - 1, x + width, y + height, color);
         graphics.fill(x, y, x + 1, y + height, color);
         graphics.fill(x + width - 1, y, x + width, y + height, color);
+    }
+
+    /**
+     * Formats a per-minute rate as a whole number when it lands on an integer, or to one decimal place otherwise
+     */
+    protected String formatRate(double perMinute) {
+        return (perMinute == Math.floor(perMinute))
+                ? String.valueOf((int) perMinute)
+                : String.format("%.1f", perMinute);
     }
 }
