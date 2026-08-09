@@ -61,6 +61,7 @@ public class Satiscraftory {
             .withTabsBefore(FACTORY_COMPONENTS_TAB.getKey())
             .icon(() -> SCItems.SCREWS.get().getDefaultInstance())
             .displayItems((_, output) -> {
+                output.accept(ManifoldItems.CABLE_CUTTER);
                 SCItems.getFactoryItems().forEach(item -> output.accept(item.get()));
             }).build()
     );
