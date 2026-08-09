@@ -1,3 +1,21 @@
+# 0.5.0-alpha (Aug 9, 2026)
+## ⚠️ BREAKING CHANGES ⚠️
+Machines now require 4 MW of power to function; Miners require 5 MW. Existing factories will stop working when you load into the world, but power requirements can be disabled in Manifold's config in the mod list
+
+## New Features
+The largest update so far: power grids!<br>
+**Biomass Burner:** burns combustible, organic items to produce 30 MW of power<br>
+**Power Pole:** supports up to 4 cable connections to make power grids machines and other power poles<br>
+**Cable:** now used to link factory buildings and power poles to form power grids<br>
+**Cable Cutter:** used to remove a cable connection between two endpoints<br>
+*Also, Miners get a menu now :)*
+
+## Changes & Fixes
+- Fixed shift-clicking items into a Machine menu slot deleting the item stack when the slot already had an item(s)
+- Fixed manually adding items to a Machine menu not initiating the crafting process
+
+Sorry this took a bit longer than expected. Modeling and texturing were quite draining, and bugs kept popping up...
+
 # 0.4.1-alpha (Aug 3, 2026)
 ## New Features
 Added new items!<br>
