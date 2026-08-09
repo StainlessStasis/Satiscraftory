@@ -3,6 +3,7 @@ package io.github.stainlessstasis.manifold.menu.generator;
 import io.github.stainlessstasis.manifold.Scheduler;
 import io.github.stainlessstasis.manifold.factory_component.generator.Generator;
 import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
+import io.github.stainlessstasis.manifold.menu.ProgressBar;
 import io.github.stainlessstasis.manifold.menu.SingleSlotMenu;
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,7 +15,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import org.jspecify.annotations.NonNull;
 
-public class GeneratorMenu extends SingleSlotMenu {
+public class GeneratorMenu extends SingleSlotMenu implements ProgressBar {
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_DURATION = 1;
     public static final int DATA_FLAGS    = 2;
@@ -87,6 +88,7 @@ public class GeneratorMenu extends SingleSlotMenu {
         return (data.get(DATA_FLAGS) & FLAG_BURNING) != 0;
     }
 
+    @Override
     public float getProgressFraction() {
         int duration = getBurnDurationTicks();
         if (!isBurning() || duration <= 0) return 0f;

@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.menu.MenuConstants;
+import io.github.stainlessstasis.manifold.menu.ProgressBar;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
@@ -20,7 +21,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MachineMenu extends AbstractContainerMenu {
+public class MachineMenu extends AbstractContainerMenu implements ProgressBar {
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_DURATION = 1;
     public static final int DATA_FLAGS    = 2;
@@ -211,9 +212,7 @@ public class MachineMenu extends AbstractContainerMenu {
         return (data.get(DATA_FLAGS) & FLAG_STALLED) != 0;
     }
 
-    /**
-     * Progress fraction in [0, 1] : 1 when stalled, 0 when idle
-     */
+    @Override
     public float getProgressFraction() {
         if (isStalled()) return 1f;
         int duration = getDurationTicks();
