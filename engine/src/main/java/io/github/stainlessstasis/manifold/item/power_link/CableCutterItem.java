@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import org.jspecify.annotations.NonNull;
 
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class CableCutterItem extends Item {
+public class CableCutterItem extends PowerLinkItem {
     private static final Map<UUID, GlobalPos> selectionByPlayer = new HashMap<>();
 
     public CableCutterItem(Properties properties) {
