@@ -22,7 +22,7 @@ public class MinerDrillSoundInstance extends AbstractTickableSoundInstance {
         z = pos.z();
         looping = true;
         delay = 0;
-        volume = 0.67f;
+        volume = 1f;
         pitch = 1f;
     }
 

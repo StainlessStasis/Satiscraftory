@@ -162,7 +162,7 @@ public class MinerBlockEntity extends ProducerBlockEntity
         } else {
             animationStates.startupAlreadyDescended.start((int) gameTime);
         }
-        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_STARTUP.value(), 0.67f, 1f);
+        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_STARTUP.value(), 1f, 1f);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class MinerBlockEntity extends ProducerBlockEntity
 
     @Override
     public void onEnterCooldown(long gameTime) {
-        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_COOLDOWN.value(), 0.67f, 1f);
+        FactorySounds.playLocal(this, particleOffset, SCSounds.MINER_COOLDOWN.value(), 1f, 1f);
     }
 
     public void setLastParticleTime(long animationMilliseconds) {
