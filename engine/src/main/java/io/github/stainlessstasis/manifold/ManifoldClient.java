@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
 import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
 import io.github.stainlessstasis.manifold.client.command.MultiblockCaptureCommands;
 import io.github.stainlessstasis.manifold.client.screen.ContainerScreen;
+import io.github.stainlessstasis.manifold.client.screen.GeneratorScreen;
 import io.github.stainlessstasis.manifold.client.screen.MachineScreen;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
@@ -38,6 +39,7 @@ public class ManifoldClient {
     static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ManifoldMenus.CONTAINER.get(), ContainerScreen::new);
         event.register(ManifoldMenus.MACHINE.get(), MachineScreen::new);
+        event.register(ManifoldMenus.GENERATOR.get(), GeneratorScreen::new);
     }
 
     @SubscribeEvent

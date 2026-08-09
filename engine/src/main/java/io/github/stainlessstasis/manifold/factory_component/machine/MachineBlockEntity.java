@@ -30,6 +30,9 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_X;
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_Y;
+
 public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
@@ -39,8 +42,6 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
     private static final int[] INPUT_Y = {26};
     private static final int[] OUTPUT_X = {139};
     private static final int[] OUTPUT_Y = {26};
-    private static final int PLAYER_INV_X = 8;
-    private static final int PLAYER_INV_Y = 84;
 
     private Machine machine;
 

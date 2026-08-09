@@ -11,16 +11,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
-public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
-    private static final int PANEL_COLOR = 0xFFC6C6C6;
-    private static final int BORDER_COLOR = 0xFF373737;
-    private static final int SLOT_COLOR = 0xFF8B8B8B;
+import static io.github.stainlessstasis.manifold.menu.GuiColors.*;
 
-    private static final int HEADER_BG = 0xFF1C1C1C;
-    private static final int ACCENT = 0xFFE69442;
-    private static final int HEADER_TEXT = 0xFFE0E0E0;
+public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
     private static final int INGREDIENT_AMOUNT = 0xFFFFFFFF;
-    private static final int EMPTY_SLOT_OVERLAY = 0xB0202020;
 
     private static final int HEADER_WIDTH = 64;
     private static final int HEADER_HEIGHT = 56;
@@ -52,7 +46,7 @@ public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
         int headerX = x + (imageWidth - HEADER_WIDTH) / 2;
         int headerY = y + HEADER_Y;
 
-        graphics.fill(headerX, headerY, headerX + HEADER_WIDTH, headerY + HEADER_HEIGHT, HEADER_BG);
+        graphics.fill(headerX, headerY, headerX + HEADER_WIDTH, headerY + HEADER_HEIGHT, HEADER_BG_COLOR);
         drawBorder(graphics, headerX, headerY, HEADER_WIDTH, HEADER_HEIGHT, BORDER_COLOR);
 
         RecipeIngredient mainOutput = menu.getMachine().getRecipe().mainOutput();
@@ -71,7 +65,7 @@ public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
         float progress = menu.getProgressFraction();
         int filledWidth = Math.round(barWidth * progress);
         if (filledWidth > 0) {
-            graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, ACCENT);
+            graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, ACCENT_COLOR);
         }
 
         String status = menu.isCrafting() ? String.format("Crafting - %.0f%%", progress * 100)
@@ -80,8 +74,8 @@ public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
         scaledCenteredText(
                 graphics, font, Component.literal(status),
                 headerX + HEADER_WIDTH / 2,
-                barY + PROGRESS_BAR_HEIGHT + 4
-                , HEADER_TEXT, 0.7f
+                barY + PROGRESS_BAR_HEIGHT + 4,
+                HEADER_TEXT_COLOR, 0.7f
         );
     }
 
@@ -136,7 +130,7 @@ public class MachineScreen extends AbstractContainerScreen<MachineMenu> {
                     graphics, font, Component.literal(rateText),
                     slotX + 9,
                     slotY + 21,
-                    ACCENT, 0.8f
+                    ACCENT_COLOR, 0.8f
             );
         }
     }

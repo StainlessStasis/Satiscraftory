@@ -5,11 +5,14 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
+import io.github.stainlessstasis.manifold.item.PowerLinkItem;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -61,6 +65,25 @@ public class GeneratorBlock extends AbstractDirectionalFactoryBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
         return new GeneratorBlockEntity(ManifoldBlockEntities.GENERATOR.get(), pos, state);
+    }
+
+    @Override
+    protected @NonNull InteractionResult useWithoutItem(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hitResult) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof GeneratorBlockEntity generatorBE)) {
+            return InteractionResult.PASS;
+        }
+
+        if (player.getMainHandItem().getItem() instanceof PowerLinkItem) {
+            return InteractionResult.PASS;
+        }
+
+        player.openMenu(generatorBE);
+        return InteractionResult.CONSUME;
     }
 
     @Override
