@@ -1,8 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
-import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;

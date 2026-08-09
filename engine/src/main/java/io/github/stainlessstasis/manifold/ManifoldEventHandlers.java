@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold;
 import io.github.stainlessstasis.manifold.command.FactoryCommands;
 import io.github.stainlessstasis.manifold.command.PowerDebugCommands;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.recipe.ManifoldGeneratorFuels;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import net.minecraft.server.level.ServerPlayer;

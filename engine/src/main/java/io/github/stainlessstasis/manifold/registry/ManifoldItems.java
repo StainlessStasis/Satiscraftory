@@ -1,7 +1,8 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.CableCutterItem;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -25,4 +26,5 @@ public class ManifoldItems {
     public static final DeferredItem<BlockItem> MERGER =
             ITEMS.registerSimpleBlockItem("merger", ManifoldBlocks.MERGER);
     public static final DeferredItem<PowerLinkItem> POWER_LINK = ITEMS.registerItem("power_link", PowerLinkItem::new);
+    public static final DeferredItem<CableCutterItem> CABLE_CUTTER = ITEMS.registerItem("cable_cutter", CableCutterItem::new);
 }

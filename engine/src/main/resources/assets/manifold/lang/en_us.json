@@ -6,6 +6,7 @@
   "block.manifold.machine": "Machine",
   "block.manifold.container": "Container",
   "block.manifold.consumer": "Consumer",
+  "item.manifold.cable_cutter": "Cable Cutter",
 
   "manifold.configuration.beltsDropItems": "Belts Drop Items",
   "manifold.configuration.powerRequired": "Power Required",

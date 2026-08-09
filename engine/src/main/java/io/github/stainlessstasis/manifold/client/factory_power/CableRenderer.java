@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.client.multiblock.PlacementPreview;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import net.minecraft.client.Minecraft;

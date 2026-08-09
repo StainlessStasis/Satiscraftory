@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.item;
+package io.github.stainlessstasis.manifold.item.power_link;
 
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
@@ -70,7 +70,7 @@ public class PowerLinkItem extends Item {
         }
 
         if (chainStartPos.equals(resolvedGlobalPos)) {
-            player.sendOverlayMessage(Component.literal("That's already the current chain endpoint"));
+            player.sendOverlayMessage(Component.literal("That's already the current cable endpoint"));
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -99,7 +99,7 @@ public class PowerLinkItem extends Item {
         player.sendOverlayMessage(Component.literal(
                 (alreadyConnected ? "Already linked " : "Linked ")
                         + chainStartPos.pos().toShortString() + " -> " + resolvedBlockPos.toShortString()
-                        + " (sneak-click to start a new chain)"));
+                        + " (sneak-click to start a new cable)"));
         return InteractionResult.SUCCESS_SERVER;
     }
 

@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.command.PlacementRecipePresets;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;

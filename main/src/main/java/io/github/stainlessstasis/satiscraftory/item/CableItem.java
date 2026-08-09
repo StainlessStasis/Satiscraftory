@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.item;
 
 import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
-import io.github.stainlessstasis.manifold.item.PowerLinkItem;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
