@@ -36,7 +36,7 @@ import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_Y
 public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
-    private static final double DEMAND_MW = 10d;
+    private static final double DEMAND_MW = 4d;
 
     private static final int[] INPUT_X = {21};
     private static final int[] INPUT_Y = {26};
