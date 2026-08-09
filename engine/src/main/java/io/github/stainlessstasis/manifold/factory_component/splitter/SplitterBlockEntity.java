@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.splitter;
 
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.FactoryBlockEntity;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-public class SplitterBlockEntity extends BlockEntity {
+public class SplitterBlockEntity extends FactoryBlockEntity<Splitter> {
     private Splitter splitter;
 
     public SplitterBlockEntity(BlockPos pos, BlockState state) {
@@ -60,7 +61,8 @@ public class SplitterBlockEntity extends BlockEntity {
         }
     }
 
-    public Splitter getSplitter() {
+    @Override
+    public Splitter getFactoryComponent() {
         return splitter;
     }
 }

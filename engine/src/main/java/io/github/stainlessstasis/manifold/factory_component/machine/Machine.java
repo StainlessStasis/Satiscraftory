@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.machine;
 
 import io.github.stainlessstasis.manifold.Scheduler;
-import io.github.stainlessstasis.manifold.factory_component.FactoryComponent;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryComponent;
 import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -12,7 +12,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public class Machine implements FactoryComponent {
+public class Machine implements PowerConsumingFactoryComponent {
     private MachineRecipe recipe;
     private final Scheduler scheduler;
     private final int bufferMultiplier; // how many recipe batches worth of input/output each slot can hold at once
@@ -27,6 +27,9 @@ public class Machine implements FactoryComponent {
     private boolean stalled = false; // craft finished, waiting for room in output slots
     private long craftCompletionTick = -1;
     private Scheduler.@Nullable ScheduledTask craftTask;
+
+    private boolean powered = true;
+    private long pausedRemainingTicks = -1; // -1 = not paused
 
     public Machine(MachineRecipe recipe, Scheduler scheduler, List<Port> initialOutputPorts) {
         this(recipe, scheduler, initialOutputPorts, 8);
@@ -44,11 +47,16 @@ public class Machine implements FactoryComponent {
         this.outputPorts.addAll(initialOutputPorts);
     }
 
+    public long getPausedRemainingTicks() {
+        return pausedRemainingTicks;
+    }
+
     public static Machine restore(
             MachineRecipe recipe, Scheduler scheduler, List<Port> outputPorts,
             int bufferMultiplier, boolean crafting, boolean stalled, long craftCompletionTick,
             int[] inputCounts, int[] outputCounts,
-            Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces
+            Map<Direction, Integer> inputFaces, Map<Direction, Integer> outputFaces,
+            boolean powered, long pausedRemainingTicks
     ) {
         Machine machine = new Machine(recipe, scheduler, outputPorts, bufferMultiplier);
         machine.crafting = crafting;
@@ -56,11 +64,13 @@ public class Machine implements FactoryComponent {
         machine.craftCompletionTick = craftCompletionTick;
         machine.inputCounts = inputCounts.clone();
         machine.outputCounts = outputCounts.clone();
+        machine.powered = powered;
+        machine.pausedRemainingTicks = pausedRemainingTicks;
 
         for (var entry : inputFaces.entrySet()) machine.assignInputFace(entry.getKey(), entry.getValue());
         for (var entry : outputFaces.entrySet()) machine.assignOutputFace(entry.getKey(), entry.getValue());
 
-        if (crafting && !stalled) {
+        if (crafting && !stalled && powered) {
             machine.craftTask = scheduler.schedule(craftCompletionTick, machine::finishCrafting);
         }
         return machine;
@@ -121,8 +131,44 @@ public class Machine implements FactoryComponent {
         }
     }
 
+    public void setPowered(boolean powered) {
+        boolean changed = this.powered != powered;
+        this.powered = powered;
+
+        if (!powered) {
+            if (changed) pauseForPowerLoss();
+            return;
+        }
+
+        if (changed) resumeFromPowerLoss();
+        tryStartCrafting(); // in case the machine was idle when power came back
+    }
+
+    public boolean isPowered() {
+        return powered;
+    }
+
+    public void pauseForPowerLoss() {
+        if (craftTask == null) return;
+        pausedRemainingTicks = craftCompletionTick - scheduler.getCurrentTick();
+        craftTask.cancel();
+        craftTask = null;
+    }
+
+    public void resumeFromPowerLoss() {
+        if (pausedRemainingTicks < 0) return;
+        craftCompletionTick = scheduler.getCurrentTick() + pausedRemainingTicks;
+        craftTask = scheduler.schedule(craftCompletionTick, this::finishCrafting);
+        pausedRemainingTicks = -1;
+    }
+
+    @Override
+    public boolean isActivelyWorking() {
+        return crafting && !stalled;
+    }
+
     private void tryStartCrafting() {
-        if (crafting || stalled) return;
+        if (crafting || stalled || !powered) return;
 
         // check inputs are satisfied
         for (int i = 0; i < recipe.inputCount(); i++) {
@@ -195,6 +241,7 @@ public class Machine implements FactoryComponent {
         crafting = false;
         stalled = false;
         craftCompletionTick = -1;
+        pausedRemainingTicks = -1;
         Arrays.fill(inputCounts, 0);
         Arrays.fill(outputCounts, 0);
     }

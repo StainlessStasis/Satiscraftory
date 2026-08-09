@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "satiscraftory:item/power_pole_mk1"
+  }
+}

@@ -22,14 +22,14 @@ public class MinerDrillSoundInstance extends AbstractTickableSoundInstance {
         z = pos.z();
         looping = true;
         delay = 0;
-        volume = 0.67f;
+        volume = 1f;
         pitch = 1f;
     }
 
     @Override
     public void tick() {
         MinerBlockEntity miner = minerRef.get();
-        if (miner == null || miner.isRemoved() || !miner.spinAnimationState.isStarted()) {
+        if (miner == null || miner.isRemoved() || !miner.animationStates.loop.isStarted()) {
             stop();
         }
     }

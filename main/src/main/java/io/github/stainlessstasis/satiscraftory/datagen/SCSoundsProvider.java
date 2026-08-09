@@ -16,10 +16,9 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
         add(SCSounds.MINER_STARTUP, SoundDefinition.definition()
                 .with(
                         sound(Satiscraftory.MODID+":miner_startup", SoundDefinition.SoundType.SOUND)
-                                .volume(1f)
+                                .volume(0.67f)
                                 .pitch(1f)
                                 .attenuationDistance(16)
-                                .stream()
                                 .preload()
                 )
                  .subtitle("sound."+Satiscraftory.MODID+"miner_startup")
@@ -27,10 +26,9 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
         add(SCSounds.MINER_DRILLING, SoundDefinition.definition()
                 .with(
                         sound(Satiscraftory.MODID+":miner_drilling", SoundDefinition.SoundType.SOUND)
-                                .volume(1f)
+                                .volume(0.67f)
                                 .pitch(1f)
                                 .attenuationDistance(16)
-                                .stream()
                                 .preload()
                 )
                 .subtitle("sound."+Satiscraftory.MODID+"miner_drilling")
@@ -38,13 +36,43 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
         add(SCSounds.MINER_COOLDOWN, SoundDefinition.definition()
                 .with(
                         sound(Satiscraftory.MODID+":miner_cooldown", SoundDefinition.SoundType.SOUND)
-                                .volume(1f)
+                                .volume(0.67f)
                                 .pitch(1f)
                                 .attenuationDistance(16)
-                                .stream()
                                 .preload()
                 )
                 .subtitle("sound."+Satiscraftory.MODID+"miner_cooldown")
+        );
+
+        add(SCSounds.BIOMASS_BURNER_STARTUP, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":biomass_burner_startup", SoundDefinition.SoundType.SOUND)
+                                .volume(0.45f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_startup")
+        );
+        add(SCSounds.BIOMASS_BURNER_BURNING, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":biomass_burner_burning", SoundDefinition.SoundType.SOUND)
+                                .volume(0.45f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_burning")
+        );
+        add(SCSounds.BIOMASS_BURNER_COOLDOWN, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":biomass_burner_cooldown", SoundDefinition.SoundType.SOUND)
+                                .volume(0.45f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_cooldown")
         );
     }
 }

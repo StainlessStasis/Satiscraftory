@@ -1,3 +1,31 @@
+# 0.5.0-alpha (Aug 9, 2026)
+## ⚠️ BREAKING CHANGES ⚠️
+Machines now require 4 MW of power to function; Miners require 5 MW. Existing factories will stop working when you load into the world, but power requirements can be disabled in Manifold's config in the mod list
+
+## New Features
+The largest update so far: power grids!<br>
+**Biomass Burner:** burns combustible, organic items to produce 30 MW of power<br>
+**Power Pole:** supports up to 4 cable connections to make power grids machines and other power poles<br>
+**Cable:** now used to link factory buildings and power poles to form power grids<br>
+**Cable Cutter:** used to remove a cable connection between two endpoints<br>
+*Also, Miners get a menu now :)*
+
+## Changes & Fixes
+- Fixed shift-clicking items into a Machine menu slot deleting the item stack when the slot already had an item(s)
+- Fixed manually adding items to a Machine menu not initiating the crafting process
+
+Sorry this took a bit longer than expected. Modeling and texturing were quite draining, and bugs kept popping up...
+
+# 0.4.1-alpha (Aug 3, 2026)
+## New Features
+Added new items!<br>
+**Copper Sheet:** 2x copper ingot -> 1x copper sheet; 6 sec (10/min)<br>
+**Wire:** 1x copper ingot -> 2x wire; 4 sec (30/min)<br>
+**Cable:** 2x wire -> 1x cable; 2 sec (30/min)
+
+## Coming Up
+0.5.0 is on the way, and it's bringing **power grids**! I'd estimate it's about 70% done; backend stuff is done, but I need to model and implement power poles & biomass burners. This update will bring machines/miners requiring power, cables with placement preview and daisy-chaining, power poles, and biomass burners. Also, don't worry, there's a config setting to disable power requirements. A survival-friendly gameplay loop is starting to take shape! 
+
 # 0.4.0-alpha (Jul 30, 2026)
 ## ⚠️ BREAKING CHANGES ⚠️
 Any Machine that isn't using the default iron ingot recipe will stop working and will need to have its recipe reset. This is a necessary change to implement the new menu.

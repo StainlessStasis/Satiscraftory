@@ -1,0 +1,71 @@
+package io.github.stainlessstasis.manifold.factory_component.power_producer;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
+public class PowerProducerBlock extends AbstractDirectionalFactoryBlock {
+    public static final double DEFAULT_SUPPLY_RATE = 20d;
+
+    public static final MapCodec<PowerProducerBlock> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    Codec.DOUBLE.fieldOf("supply_rate").forGetter(PowerProducerBlock::getSupplyRate),
+                    propertiesCodec()
+            ).apply(instance, (supplyRate, properties) -> new PowerProducerBlock(properties, supplyRate))
+    );
+
+    private final double supplyRate;
+
+    public PowerProducerBlock(Properties properties, double supplyRate) {
+        super(properties);
+        this.supplyRate = supplyRate;
+    }
+
+    @Override
+    protected @NonNull MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
+    public double getSupplyRate() {
+        return supplyRate;
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
+        return new PowerProducerBlockEntity(pos, state);
+    }
+
+    @Override
+    protected void notifyNeighborChanged(BlockEntity blockEntity, ServerLevel level) {}
+
+    @Override
+    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        FactoryNetwork network = FactoryNetwork.get(level);
+        GlobalPos globalPos = GlobalPos.of(level.dimension(), pos);
+        network.removePowerProducer(globalPos);
+        network.getPowerGrid().unregisterProducer(globalPos);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+        return type == ManifoldBlockEntities.POWER_PRODUCER.get()
+                ? (_, pos, state, be) -> PowerProducerBlockEntity.serverTick(serverLevel, pos, state, (PowerProducerBlockEntity) be)
+                : null;
+    }
+}

@@ -46,16 +46,13 @@ public class Satiscraftory {
             .withTabsBefore(CreativeModeTabs.OP_BLOCKS)
             .icon(() -> ManifoldItems.MACHINE.get().getDefaultInstance())
             .displayItems((_, output) -> {
-                output.accept(ManifoldItems.PRODUCER.get());
-                output.accept(SCItems.MINER_MK1.get());
-                output.accept(SCItems.BELT_MK1.get());
-                output.accept(SCItems.BELT_MK2.get());
-                output.accept(SCItems.BELT_MK3.get());
+                SCItems.getFactoryBlockItems().forEach(item -> output.accept(item.get()));
                 output.accept(ManifoldItems.SPLITTER.get());
                 output.accept(ManifoldItems.MERGER.get());
                 output.accept(ManifoldItems.MACHINE.get());
                 output.accept(ManifoldItems.CONTAINER.get());
                 output.accept(ManifoldItems.CONSUMER.get());
+                output.accept(ManifoldItems.POWER_PRODUCER.get());
             }).build()
     );
 
@@ -64,9 +61,8 @@ public class Satiscraftory {
             .withTabsBefore(FACTORY_COMPONENTS_TAB.getKey())
             .icon(() -> SCItems.SCREWS.get().getDefaultInstance())
             .displayItems((_, output) -> {
-                output.accept(SCItems.IRON_PLATE.get());
-                output.accept(SCItems.IRON_ROD.get());
-                output.accept(SCItems.SCREWS.get());
+                output.accept(ManifoldItems.CABLE_CUTTER);
+                SCItems.getFactoryItems().forEach(item -> output.accept(item.get()));
             }).build()
     );
 }

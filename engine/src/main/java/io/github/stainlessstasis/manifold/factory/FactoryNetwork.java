@@ -6,11 +6,15 @@ import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.belt.LanePort;
 import io.github.stainlessstasis.manifold.factory_component.consumer.Consumer;
 import io.github.stainlessstasis.manifold.factory_component.container.Container;
+import io.github.stainlessstasis.manifold.factory_component.generator.Generator;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.factory_component.merger.Merger;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducer;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
+import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
+import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
@@ -36,9 +40,17 @@ import java.util.function.Supplier;
 public class FactoryNetwork extends SavedData {
     private static final int MAX_ENTRIES_PER_PACKET = 150; // for belt syncing
 
+    private FactoryNetwork() {}
+
+    public static FactoryNetwork create() {
+        FactoryNetwork network = new FactoryNetwork();
+        network.powerGrid.setDirtyListener(network::setDirty);
+        return network;
+    }
+
     public static final SavedDataType<FactoryNetwork> TYPE = new SavedDataType<>(
             Manifold.id("factory_network"),
-            FactoryNetwork::new,
+            FactoryNetwork::create,
             Persisted.Snapshot.CODEC.xmap(FactoryNetwork::fromSnapshot, FactoryNetwork::toSnapshot)
     );
 
@@ -48,13 +60,17 @@ public class FactoryNetwork extends SavedData {
     };
 
     private final Scheduler scheduler = new Scheduler();
-    private final Map<GlobalPos, Producer> producers = new HashMap<>();
+    private final PowerGrid powerGrid = new PowerGrid();
     private final LaneManager laneManager = new LaneManager();
+
+    private final Map<GlobalPos, Producer> producers = new HashMap<>();
     private final Map<GlobalPos, Consumer> consumers = new HashMap<>();
     private final Map<GlobalPos, Machine> machines = new HashMap<>();
     private final Map<GlobalPos, Container> containers = new HashMap<>();
     private final Map<GlobalPos, Splitter> splitters = new HashMap<>();
     private final Map<GlobalPos, Merger> mergers = new HashMap<>();
+    private final Map<GlobalPos, Generator> generators = new HashMap<>();
+    private final Map<GlobalPos, PowerProducer> powerProducers = new HashMap<>();
 
     private final Map<GlobalPos, GlobalPos> producerOutputPos = new HashMap<>();
     // keyed by lane UUID rather than GlobalPos since a lane isn't a single position
@@ -78,8 +94,6 @@ public class FactoryNetwork extends SavedData {
         this.frozen = frozen;
     }
 
-    public FactoryNetwork() {}
-
     /**
      * Attached to the Overworld specifically, so there's one shared network
      * across all dimensions rather than a separate one per dimension.
@@ -91,6 +105,10 @@ public class FactoryNetwork extends SavedData {
 
     public Scheduler getScheduler() {
         return scheduler;
+    }
+
+    public PowerGrid getPowerGrid() {
+        return powerGrid;
     }
 
     public LaneManager getLaneManager() {
@@ -132,6 +150,22 @@ public class FactoryNetwork extends SavedData {
         return getOrCreate(mergers, pos, factory);
     }
 
+    public Generator getOrCreateGenerator(GlobalPos pos, Supplier<Generator> factory) {
+        return getOrCreate(generators, pos, factory);
+    }
+
+    public @Nullable Generator getGenerator(GlobalPos pos) {
+        return generators.getOrDefault(pos, null);
+    }
+
+    public PowerProducer getOrCreatePowerProducer(GlobalPos pos, Supplier<PowerProducer> factory) {
+        return getOrCreate(powerProducers, pos, factory);
+    }
+
+    public @Nullable PowerProducer getPowerProducer(GlobalPos pos) {
+        return powerProducers.getOrDefault(pos, null);
+    }
+
     public Port getPortAt(GlobalPos pos, @Nullable Direction fromDirection) {
         BeltLane lane = laneManager.laneAt(pos);
         if (lane != null) return new LanePort(laneManager, pos);
@@ -139,6 +173,11 @@ public class FactoryNetwork extends SavedData {
         Consumer consumer = consumers.get(pos);
         if (consumer != null) {
             return (fromDirection == null || consumer.acceptsFrom(fromDirection)) ? consumer : null;
+        }
+
+        Generator generator = generators.get(pos);
+        if (generator != null) {
+            return (fromDirection == null || generator.acceptsFrom(fromDirection)) ? generator : null;
         }
 
         Container container = containers.get(pos);
@@ -300,6 +339,14 @@ public class FactoryNetwork extends SavedData {
         removeComponent(mergers, mergerOutputPos, pos, null);
     }
 
+    public void removeGenerator(GlobalPos pos) {
+        removeComponent(generators, null, pos, Generator::cancelScheduledTask);
+    }
+
+    public void removePowerProducer(GlobalPos pos) {
+        removeComponent(powerProducers, null, pos, null);
+    }
+
     /** Unlinks any single-slot component whose output pointed at removedPos, then drops the entry */
     private <T extends FactoryComponent> void clearSingleOutputReferencesTo(
             Map<GlobalPos, T> registry, Map<GlobalPos, GlobalPos> outputPosMap, GlobalPos removedPos
@@ -349,6 +396,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     public void tickAll(ServerLevel level, long currentTick) {
+        powerGrid.tick();
         scheduler.tick(currentTick);
 
         if (tickOrder == null) tickOrder = computeTickOrder();
@@ -407,6 +455,25 @@ public class FactoryNetwork extends SavedData {
                 }
             }
         }
+
+        if (powerGrid.areEdgesDirtySinceSync()) {
+            Set<PowerGrid.Edge> allEdges = powerGrid.getEdges();
+
+            for (ServerLevel dimLevel : level.getServer().getAllLevels()) {
+                List<PowerGridSyncPacket.Entry> dimEntries = new ArrayList<>();
+                for (PowerGrid.Edge edge : allEdges) {
+                    boolean sameDimension = edge.nodeA().dimension().equals(dimLevel.dimension())
+                            && edge.nodeB().dimension().equals(dimLevel.dimension());
+                    if (sameDimension) {
+                        dimEntries.add(new PowerGridSyncPacket.Entry(edge.nodeA().pos(), edge.nodeB().pos()));
+                    }
+                }
+                PacketDistributor.sendToPlayersInDimension(dimLevel, new PowerGridSyncPacket(dimEntries));
+            }
+
+            powerGrid.markEdgesSynced();
+        }
+
     }
 
     private List<TickTarget> computeTickOrder() {
@@ -569,7 +636,9 @@ public class FactoryNetwork extends SavedData {
                     Optional.ofNullable(producerOutputPos.get(pos)),
                     producer.isActive(),
                     producer.getBufferedCount(),
-                    producer.getNextProductionTick()
+                    producer.getNextProductionTick(),
+                    producer.isPowered(),
+                    producer.getPausedRemainingTicks()
             ));
         }
 
@@ -613,7 +682,9 @@ public class FactoryNetwork extends SavedData {
                     machine.isCrafting(), machine.isStalled(), machine.getCraftCompletionTick(),
                     machine.getInputCounts(), machine.getOutputCounts(),
                     machine.getInputFaceAssignments(), machine.getOutputFaceAssignments(),
-                    outputPositions
+                    outputPositions,
+                    machine.isPowered(),
+                    machine.getPausedRemainingTicks()
             ));
         }
 
@@ -664,11 +735,47 @@ public class FactoryNetwork extends SavedData {
             );
         }
 
-        return new Persisted.Snapshot(persistedProducers, persistedLanes, persistedConsumers, persistedMachines, persistedContainers, persistedSplitters, persistedMergers);
+        List<Persisted.Generator> persistedGenerators = new ArrayList<>();
+        for (Map.Entry<GlobalPos, Generator> entry : generators.entrySet()) {
+            GlobalPos pos = entry.getKey();
+            Generator generator = entry.getValue();
+            persistedGenerators.add(new Persisted.Generator(
+                    pos, generator.getGeneratorType(), generator.getPowerRate(),
+                    Optional.ofNullable(generator.getHeldItemId()), generator.getHeldCount(),
+                    generator.isBurning(), generator.getBurnEndTick(),
+                    Optional.ofNullable(generator.getBurningItemId()), generator.getBurnDurationTicks()
+            ));
+        }
+
+        List<Persisted.PowerProducer> persistedPowerProducers = new ArrayList<>();
+        for (Map.Entry<GlobalPos, PowerProducer> entry : powerProducers.entrySet()) {
+            PowerProducer powerProducer = entry.getValue();
+            persistedPowerProducers.add(new Persisted.PowerProducer(
+                    entry.getKey(), powerProducer.getRawSupplyRate(), powerProducer.isActive()
+            ));
+        }
+
+        List<Persisted.PowerNode> persistedPowerNodes = new ArrayList<>();
+        for (GlobalPos pos : powerGrid.getNodes()) {
+            persistedPowerNodes.add(new Persisted.PowerNode(pos, powerGrid.getSupply(pos), powerGrid.getDemand(pos), powerGrid.getMaxConnections(pos)));
+        }
+        List<Persisted.PowerEdge> persistedPowerEdges = new ArrayList<>();
+        for (PowerGrid.Edge edge : powerGrid.getEdges()) {
+            persistedPowerEdges.add(new Persisted.PowerEdge(edge));
+        }
+        Persisted.PowerGridData persistedPowerGrid = new Persisted.PowerGridData(persistedPowerNodes, persistedPowerEdges);
+        System.out.println("SAVING powerGrid: " + persistedPowerNodes.size() + " nodes, " + persistedPowerEdges.size() + " edges");
+
+        return new Persisted.Snapshot(
+                persistedProducers, persistedLanes, persistedConsumers, persistedMachines,
+                persistedContainers, persistedSplitters, persistedMergers,
+                persistedGenerators, persistedPowerProducers, persistedPowerGrid
+        );
     }
 
     private static FactoryNetwork fromSnapshot(Persisted.Snapshot snapshot) {
         FactoryNetwork network = new FactoryNetwork();
+        System.out.println("LOADING powerGrid: " + snapshot.powerGrid().nodes().size() + " nodes, " + snapshot.powerGrid().edges().size() + " edges");
 
         // restore factory components
         for (Persisted.BeltLane laneData : snapshot.belts()) {
@@ -689,7 +796,8 @@ public class FactoryNetwork extends SavedData {
         for (Persisted.Producer producerData : snapshot.producers()) {
             Producer producer = Producer.restore(
                     producerData.itemType(), producerData.interval(), NO_OP_PORT, network.scheduler,
-                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick()
+                    producerData.active(), producerData.bufferedCount(), producerData.nextProductionTick(),
+                    producerData.powered(), producerData.pausedRemainingTicks()
             );
             network.producers.put(producerData.pos(), producer);
             producerData.outputPos().ifPresent(outPos -> network.producerOutputPos.put(producerData.pos(), outPos));
@@ -705,7 +813,8 @@ public class FactoryNetwork extends SavedData {
             Machine machine = Machine.restore(recipe, network.scheduler, outputPorts, machineData.bufferMultiplier(),
                     machineData.crafting(), machineData.stalled(), machineData.craftCompletionTick(),
                     machineData.inputCounts(), machineData.outputCounts(),
-                    machineData.inputFaces(), machineData.outputFaces());
+                    machineData.inputFaces(), machineData.outputFaces(),
+                    machineData.powered(), machineData.pausedRemainingTicks());
             network.machines.put(machineData.pos(), machine);
 
             if (!machineData.outputPos().isEmpty()) {
@@ -755,6 +864,21 @@ public class FactoryNetwork extends SavedData {
             Merger merger = Merger.restore(mergerData.nextInputIndex(), mergerData.inputFaces(), itemIds);
             network.mergers.put(mergerData.pos(), merger);
             mergerData.outputPos().ifPresent(outPos -> network.mergerOutputPos.put(mergerData.pos(), outPos));
+        }
+
+        for (Persisted.Generator generatorData : snapshot.generators()) {
+            Generator generator = Generator.restore(
+                    generatorData.generatorType(), generatorData.powerRate(), network.scheduler,
+                    generatorData.heldItemId().orElse(null), generatorData.heldCount(),
+                    generatorData.burning(), generatorData.burnEndTick(),
+                    generatorData.burningItemId().orElse(null), generatorData.burnDurationTicks()
+            );
+            network.generators.put(generatorData.pos(), generator);
+        }
+
+        for (Persisted.PowerProducer powerProducerData : snapshot.powerProducers()) {
+            PowerProducer powerProducer = PowerProducer.restore(powerProducerData.supplyRate(), powerProducerData.active());
+            network.powerProducers.put(powerProducerData.pos(), powerProducer);
         }
 
         // relink outputs
@@ -816,6 +940,19 @@ public class FactoryNetwork extends SavedData {
             }
         }
 
+        // restore power grid
+        for (Persisted.PowerNode powerNodeData : snapshot.powerGrid().nodes()) {
+            network.powerGrid.setMaxConnections(powerNodeData.pos(), powerNodeData.maxConnections());
+            network.powerGrid.addNode(powerNodeData.pos());
+            if (powerNodeData.supply() > 0) network.powerGrid.registerProducer(powerNodeData.pos(), powerNodeData.supply());
+            if (powerNodeData.demand() > 0) network.powerGrid.registerConsumer(powerNodeData.pos(), powerNodeData.demand(), null);
+        }
+        for (Persisted.PowerEdge powerEdgeData : snapshot.powerGrid().edges()) {
+            network.powerGrid.addEdge(powerEdgeData.edge().nodeA(), powerEdgeData.edge().nodeB());
+        }
+
+        network.powerGrid.setDirtyListener(network::setDirty);
+
         return network;
     }
 
@@ -829,6 +966,8 @@ public class FactoryNetwork extends SavedData {
     public int getConsumerCount() { return consumers.size(); }
     public int getMachineCount() { return machines.size(); }
     public int getContainerCount() { return containers.size(); }
+    public int getGeneratorCount() { return generators.size(); }
+    public int getPowerProducerCount() { return powerProducers.size(); }
 
     // Counts factory components whose chunk is currently loaded
     // Intended for debug use only
@@ -844,6 +983,8 @@ public class FactoryNetwork extends SavedData {
     public int getLoadedConsumerCount(MinecraftServer server) { return countLoaded(server, consumers.keySet()); }
     public int getLoadedMachineCount(MinecraftServer server) { return countLoaded(server, machines.keySet()); }
     public int getLoadedContainerCount(MinecraftServer server) { return countLoaded(server, containers.keySet()); }
+    public int getLoadedGeneratorCount(MinecraftServer server) { return countLoaded(server, generators.keySet()); }
+    public int getLoadedPowerProducerCount(MinecraftServer server) { return countLoaded(server, powerProducers.keySet()); }
 
     private static int countLoaded(MinecraftServer server, Set<GlobalPos> positions) {
         int count = 0;

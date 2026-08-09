@@ -3,8 +3,9 @@ package io.github.stainlessstasis.manifold.factory_component.machine;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
-import io.github.stainlessstasis.manifold.menu.MachineContainerData;
-import io.github.stainlessstasis.manifold.menu.MachineMenu;
+import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
+import io.github.stainlessstasis.manifold.menu.machine.MachineContainerData;
+import io.github.stainlessstasis.manifold.menu.machine.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
@@ -21,7 +22,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -30,16 +30,18 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMenuProviderExtension {
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_X;
+import static io.github.stainlessstasis.manifold.menu.MenuConstants.PLAYER_INV_Y;
+
+public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine> implements MenuProvider, IMenuProviderExtension {
     private static final Identifier DEFAULT_RECIPE_ID = Manifold.id("basic_processing");
     private Identifier pendingRecipeId; // for the presetrecipe command
+    private static final double DEMAND_MW = 4d;
 
     private static final int[] INPUT_X = {21};
     private static final int[] INPUT_Y = {26};
     private static final int[] OUTPUT_X = {139};
     private static final int[] OUTPUT_Y = {26};
-    private static final int PLAYER_INV_X = 8;
-    private static final int PLAYER_INV_Y = 84;
 
     private Machine machine;
 
@@ -49,6 +51,11 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
 
     public MachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    @Override
+    public double getPowerDemand() {
+        return DEMAND_MW;
     }
 
     @Override
@@ -66,6 +73,7 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
             }
             return new Machine(recipe, network.getScheduler(), List.of(FactoryNetwork.NO_OP_PORT));
         });
+        registerPowerConsumer(serverLevel);
 
         Direction facing = getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
         machine.assignOutputFace(facing, 0);
@@ -122,6 +130,7 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
         for (int i = 0; i < OUTPUT_X.length; i++) {
             buf.writeVarInt(OUTPUT_X[i]); buf.writeVarInt(OUTPUT_Y[i]);
         }
+        buf.writeDouble(getPowerDemand());
         buf.writeVarInt(PLAYER_INV_X);
         buf.writeVarInt(PLAYER_INV_Y);
     }
@@ -146,7 +155,7 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
     public AbstractContainerMenu createMenu(int containerId, @NonNull Inventory playerInventory, @NonNull Player player) {
         if (!(level instanceof ServerLevel serverLevel)) return null;
         return new MachineMenu(
-                containerId, playerInventory, machine,
+                containerId, playerInventory, machine, getPowerDemand(),
                 INPUT_X, INPUT_Y, OUTPUT_X, OUTPUT_Y, PLAYER_INV_X, PLAYER_INV_Y,
                 ContainerLevelAccess.create(serverLevel, getBlockPos()),
                 new MachineContainerData(machine, serverLevel::getGameTime)
@@ -158,5 +167,8 @@ public class MachineBlockEntity extends BlockEntity implements MenuProvider, IMe
         return Component.translatable("block.manifold.machine");
     }
 
-    public Machine getMachine() { return machine; }
+    @Override
+    public Machine getFactoryComponent() {
+        return machine;
+    }
 }

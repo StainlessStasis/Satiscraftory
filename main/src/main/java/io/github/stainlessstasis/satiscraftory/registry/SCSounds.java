@@ -21,4 +21,17 @@ public class SCSounds {
             "miner_cooldown",
             SoundEvent::createVariableRangeEvent
     );
+
+    public static final Holder<SoundEvent> BIOMASS_BURNER_STARTUP = SOUND_EVENTS.register(
+            "biomass_burner_startup",
+            SoundEvent::createVariableRangeEvent
+    );
+    public static final Holder<SoundEvent> BIOMASS_BURNER_BURNING = SOUND_EVENTS.register(
+            "biomass_burner_burning",
+            SoundEvent::createVariableRangeEvent
+    );
+    public static final Holder<SoundEvent> BIOMASS_BURNER_COOLDOWN = SOUND_EVENTS.register(
+            "biomass_burner_cooldown",
+            SoundEvent::createVariableRangeEvent
+    );
 }

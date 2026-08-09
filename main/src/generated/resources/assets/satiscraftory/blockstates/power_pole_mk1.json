@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "satiscraftory:block/power_pole_mk1",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "satiscraftory:block/power_pole_mk1"
+    },
+    "facing=south": {
+      "model": "satiscraftory:block/power_pole_mk1",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "satiscraftory:block/power_pole_mk1",
+      "y": 270
+    }
+  }
+}

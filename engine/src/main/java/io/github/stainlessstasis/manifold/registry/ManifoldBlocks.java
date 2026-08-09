@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
 import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlock;
 import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlock;
@@ -8,7 +9,6 @@ import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock
 import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlock;
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
 import io.github.stainlessstasis.manifold.factory_component.splitter.SplitterBlock;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -20,6 +20,10 @@ public class ManifoldBlocks {
 
     public static final DeferredBlock<ProducerBlock> PRODUCER = BLOCKS.registerBlock("producer",
             properties -> new ProducerBlock(properties, 1L),
+            () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
+
+    public static final DeferredBlock<PowerProducerBlock> POWER_PRODUCER = BLOCKS.registerBlock("power_producer",
+            properties -> new PowerProducerBlock(properties, 20d),
             () -> BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5f).requiresCorrectToolForDrops());
 
     public static final DeferredBlock<ConsumerBlock> CONSUMER = BLOCKS.registerBlock("consumer",

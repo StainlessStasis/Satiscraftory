@@ -1,23 +1,19 @@
 package io.github.stainlessstasis.satiscraftory.factory_component.miner;
 
 import io.github.stainlessstasis.manifold.factory_component.producer.ProducerBlock;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockDemolition;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
-import net.minecraft.ChatFormatting;
+import io.github.stainlessstasis.manifold.util.MessageUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,13 +23,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<MinerBlock> {
+public class MinerBlock extends ProducerBlock implements Multiblock<MinerBlock> {
     public static final int NODE_SEARCH_RADIUS = 5;
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER_UNFILLED);
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 7, 8, new BlockPos(1, 0, 0), MultiblockUnfilledSets.MINER);
 
     public MinerBlock(Properties properties, long intervalTicks) {
         super(properties, intervalTicks);
@@ -41,9 +37,9 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NonNull Level level, @NonNull BlockState blockState, @NonNull BlockEntityType<T> type) {
-        if (level.isClientSide()) return null;
+        if (!(level instanceof ServerLevel serverLevel)) return null;
         return type == SCBlockEntities.MINER.get()
-                ? (lvl, pos, st, be) -> MinerBlockEntity.serverTick(lvl, pos, st, (MinerBlockEntity) be)
+                ? (_, pos, state, be) -> MinerBlockEntity.serverTick(serverLevel, pos, state, (MinerBlockEntity) be)
                 : null;
     }
 
@@ -54,64 +50,22 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public BlockState getStateForPlacement(@NonNull BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos anchor = context.getClickedPos();
 
         BlockPos nodePos = findNearbyResourceNode(level, anchor);
         if (nodePos == null) {
-            warnPlayer(context, Satiscraftory.MODID + ".invalid_placement_for_miner");
+            MessageUtil.warnPlayer(context, Satiscraftory.MODID + ".invalid_placement_for_miner");
             return null;
         }
 
         if (level.getBlockEntity(nodePos) instanceof ResourceNodeBlockEntity nodeBE && nodeBE.isOccupied()) {
-            warnPlayer(context, Satiscraftory.MODID + ".node_already_occupied");
-            return null;
-        }
-
-        Direction facing = context.getHorizontalDirection().getOpposite();
-        if (!MultiblockPlacement.canPlaceMultiblock(level, MULTIBLOCK_SHAPE, anchor, facing)) {
-            warnPlayer(
-                    context,
-                    Satiscraftory.MODID + ".invalid_multiblock_placement",
-                    MULTIBLOCK_SHAPE.width(), MULTIBLOCK_SHAPE.depth(), MULTIBLOCK_SHAPE.height()
-            );
+            MessageUtil.warnPlayer(context, Satiscraftory.MODID + ".node_already_occupied");
             return null;
         }
 
         return super.getStateForPlacement(context);
-    }
-
-    @Override
-    public BlockState getPreviewPlacement(BlockPlaceContext context) {
-        return super.getStateForPlacement(context);
-    }
-
-    @Override
-    public void setPlacedBy(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state, @Nullable LivingEntity placer, @NonNull ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (level.isClientSide()) return;
-
-        Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-        MultiblockPlacement.stampFillers(level, MULTIBLOCK_SHAPE, pos, facing, ManifoldBlocks.MULTIBLOCK_FILLER.get());
-    }
-
-    @Override
-    protected void affectNeighborsAfterRemoval(@NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-
-        if (!MultiblockDemolition.isInProgress(level)) {
-            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            MultiblockDemolition.demolishFillers(level, MULTIBLOCK_SHAPE.absoluteFillerPositions(pos, facing));
-        }
-    }
-
-    private static void warnPlayer(BlockPlaceContext context, String translationKey, Object... args) {
-        if (!context.getLevel().isClientSide() && context.getPlayer() != null) {
-            context.getPlayer().sendOverlayMessage(
-                    Component.translatable(translationKey, args).withStyle(ChatFormatting.RED)
-            );
-        }
     }
 
     @Override
@@ -128,6 +82,28 @@ public class MinerBlock extends ProducerBlock implements MultiblockPreviewer<Min
             }
         }
         return null;
+    }
+
+    @Override
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos,
+            @NonNull Player player, @NonNull BlockHitResult hitResult
+    ) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof MinerBlockEntity minerBE)) {
+            return InteractionResult.PASS;
+        }
+
+        if (player.getMainHandItem().getItem() instanceof PowerLinkItem) {
+            return InteractionResult.PASS;
+        }
+
+        player.openMenu(minerBE);
+        return InteractionResult.CONSUME;
     }
 
     @Override

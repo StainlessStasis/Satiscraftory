@@ -1,6 +1,8 @@
 package io.github.stainlessstasis.manifold.util;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -23,5 +25,11 @@ public final class DirectionalOffset {
      */
     public static Vec3 toWorld(Direction facing, Vec3 offset) {
         return toWorld(facing, offset.z(), offset.x(), offset.y());
+    }
+
+    public static Direction facingOf(BlockState state) {
+        return state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)
+                ? state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                : Direction.NORTH;
     }
 }

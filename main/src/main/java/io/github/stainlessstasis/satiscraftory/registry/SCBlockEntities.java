@@ -2,7 +2,11 @@ package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlockEntity;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
@@ -25,5 +29,17 @@ public class SCBlockEntities {
             BLOCK_ENTITIES.register("miner", () -> new ManifoldBlockEntityType<>(
                     MinerBlockEntity::new,
                     block -> block instanceof MinerBlock)
+            );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PowerPoleBlockEntity>> POWER_POLE =
+            BLOCK_ENTITIES.register("power_pole", () -> new ManifoldBlockEntityType<>(
+                    PowerPoleBlockEntity::new,
+                    block -> block instanceof PowerPoleBlock)
+            );
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BiomassBurnerBlockEntity>> BIOMASS_BURNER =
+            BLOCK_ENTITIES.register("biomass_burner", () -> new ManifoldBlockEntityType<>(
+                    BiomassBurnerBlockEntity::new,
+                    block -> block instanceof BiomassBurnerBlock)
             );
 }

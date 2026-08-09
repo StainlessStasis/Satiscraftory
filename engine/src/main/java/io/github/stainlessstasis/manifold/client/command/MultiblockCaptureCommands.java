@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockDevPreview;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPreviewer;
+import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -31,7 +31,7 @@ public final class MultiblockCaptureCommands {
         if (player == null) return 0;
 
         ItemStack held = player.getMainHandItem();
-        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof MultiblockPreviewer<?> previewer)) {
+        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> previewer)) {
             context.getSource().sendFailure(Component.literal("Hold the multiblock's controller item first."));
             return 0;
         }

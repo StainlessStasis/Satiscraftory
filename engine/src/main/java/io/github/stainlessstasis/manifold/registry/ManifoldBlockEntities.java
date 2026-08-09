@@ -3,6 +3,8 @@ package io.github.stainlessstasis.manifold.registry;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducerBlock;
+import io.github.stainlessstasis.manifold.factory_component.power_producer.PowerProducerBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
@@ -10,6 +12,8 @@ import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlo
 import io.github.stainlessstasis.manifold.factory_component.consumer.ConsumerBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlock;
 import io.github.stainlessstasis.manifold.factory_component.container.ContainerBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock;
 import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.factory_component.merger.MergerBlock;
@@ -66,4 +70,14 @@ public class ManifoldBlockEntities {
             BLOCK_ENTITIES.register("multiblock_filler", () -> new ManifoldBlockEntityType<>(
                     MultiblockFillerBlockEntity::new,
                     block -> block instanceof MultiblockFillerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PowerProducerBlockEntity>> POWER_PRODUCER =
+            BLOCK_ENTITIES.register("power_producer", () -> new ManifoldBlockEntityType<>(
+                    PowerProducerBlockEntity::new,
+                    block -> block instanceof PowerProducerBlock));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeneratorBlockEntity>> GENERATOR =
+            BLOCK_ENTITIES.register("generator", () -> new ManifoldBlockEntityType<>(
+                    GeneratorBlockEntity::new,
+                    block -> block instanceof GeneratorBlock));
 }

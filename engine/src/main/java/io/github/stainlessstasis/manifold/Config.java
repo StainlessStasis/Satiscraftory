@@ -9,5 +9,9 @@ public class Config {
             .comment("Whether belts should drop their items when broken")
             .define("beltsDropItems", true);
 
+    public static final ModConfigSpec.BooleanValue POWER_REQUIRED = BUILDER
+            .comment("Whether power-consuming factory components need to be connected to a satisfied power network to operate")
+            .define("powerRequired", true);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 }

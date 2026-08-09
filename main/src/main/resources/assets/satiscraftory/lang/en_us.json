@@ -6,16 +6,23 @@
   "block.satiscraftory.belt_mk2": "Belt Mk. 2",
   "block.satiscraftory.belt_mk3": "Belt Mk. 3",
   "block.satiscraftory.miner_mk1": "Miner Mk. 1",
+  "block.satiscraftory.power_pole_mk1": "Power Pole Mk. 1",
+  "block.satiscraftory.biomass_burner": "Biomass Burner",
 
   "item.satiscraftory.iron_plate": "Iron Plate",
   "item.satiscraftory.iron_rod": "Iron Rod",
   "item.satiscraftory.screws": "Screws",
+  "item.satiscraftory.copper_sheet": "Copper Sheet",
+  "item.satiscraftory.wire": "Wire",
+  "item.satiscraftory.cable": "Cable",
 
   "sound.satiscraftory.miner_startup": "Miner Whirs",
   "sound.satiscraftory.miner_drilling": "Miner Drills",
   "sound.satiscraftory.miner_cooldown": "Miner Stops",
+  "sound.satiscraftory.biomass_burner_startup": "Biomass Burner Whirs",
+  "sound.satiscraftory.biomass_burner_burning": "Biomass Burns",
+  "sound.satiscraftory.biomass_burner_cooldown": "Biomass Burner Stops",
 
-  "satiscraftory.invalid_multiblock_placement": "This building needs more room to be placed (%sx%sx%s)",
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner"
 }
