@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.Scheduler;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
+import io.github.stainlessstasis.manifold.menu.AbstractFactoryMenu;
 import io.github.stainlessstasis.manifold.menu.MenuConstants;
 import io.github.stainlessstasis.manifold.menu.ProgressBar;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
@@ -21,7 +22,7 @@ import org.jspecify.annotations.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MachineMenu extends AbstractContainerMenu implements ProgressBar {
+public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_DURATION = 1;
     public static final int DATA_FLAGS    = 2;
@@ -33,7 +34,6 @@ public class MachineMenu extends AbstractContainerMenu implements ProgressBar {
     private final Machine machine;
     private final ContainerLevelAccess access;
     private final ContainerData data;
-
     private final int inputCount;
     private final int outputCount;
 
@@ -105,7 +105,7 @@ public class MachineMenu extends AbstractContainerMenu implements ProgressBar {
             int playerInvX, int playerInvY,
             ContainerLevelAccess access, ContainerData serverData
     ) {
-        super(ManifoldMenus.MACHINE.get(), containerId);
+        super(ManifoldMenus.MACHINE.get(), containerId, machine.inputSlotCount() + machine.outputSlotCount());
         this.machine = machine;
         this.access = access;
         this.inputCount = machine.inputSlotCount();
@@ -117,86 +117,22 @@ public class MachineMenu extends AbstractContainerMenu implements ProgressBar {
         for (int i = 0; i < inputCount; i++) {
             addSlot(new MachineInputSlot(machine, i, inputX[i], inputY[i]));
         }
-
         for (int i = 0; i < outputCount; i++) {
             addSlot(new MachineOutputSlot(machine, i, outputX[i], outputY[i]));
         }
 
-        // player inventory
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(
-                        playerInventory,
-                        col + row * 9 + 9,
-                        playerInvX + col * 18,
-                        playerInvY + row * 18
-                ));
-            }
-        }
-
-        // hotbar
-        for (int col = 0; col < 9; col++) {
-            addSlot(new Slot(
-                    playerInventory,
-                    col,
-                    playerInvX + col * 18,
-                    playerInvY + 58
-            ));
-        }
-
+        addPlayerInventorySlots(playerInventory, playerInvX, playerInvY);
         addDataSlots(data);
+    }
+
+    @Override
+    protected int quickInsertRangeEnd() {
+        return inputCount;
     }
 
     @Override
     public boolean stillValid(@NonNull Player player) {
         return AbstractContainerMenu.stillValid(access, player, ManifoldBlocks.MACHINE.get());
-    }
-
-    @Override
-    public @NonNull ItemStack quickMoveStack(@NonNull Player player, int index) {
-        ItemStack quickMovedStack;
-        Slot slot = this.slots.get(index);
-
-        if (!slot.hasItem()) return ItemStack.EMPTY;
-
-        ItemStack rawStack = slot.getItem();
-        quickMovedStack = rawStack.copy();
-
-        int machineSlots = inputCount + outputCount;
-        int playerInvStart = machineSlots;
-        int playerInvEnd = machineSlots + MenuConstants.PLAYER_INV_SIZE;
-        int hotbarStart = playerInvEnd;
-        int hotbarEnd = hotbarStart + MenuConstants.HOTBAR_SIZE;
-
-        if (index < machineSlots) {
-            if (!moveItemStackTo(rawStack, playerInvStart, hotbarEnd, true)) {
-                return ItemStack.EMPTY;
-            }
-        } else {
-            // From player inventory/hotbar -> try input slots
-            if (!moveItemStackTo(rawStack, 0, inputCount, false)) {
-                if (index < playerInvEnd) {
-                    // Player inventory -> try hotbar
-                    if (!moveItemStackTo(rawStack, hotbarStart, hotbarEnd, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else {
-                    // Hotbar -> try player inventory
-                    if (!moveItemStackTo(rawStack, playerInvStart, playerInvEnd, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                }
-            }
-        }
-
-        if (rawStack.isEmpty()) {
-            slot.setByPlayer(ItemStack.EMPTY);
-        } else {
-            slot.setChanged();
-        }
-
-        slot.onTake(player, rawStack);
-        return quickMovedStack;
     }
 
     public int getCraftProgressTicks() {

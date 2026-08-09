@@ -150,6 +150,11 @@ public class Generator implements Port, PowerProducingFactoryComponent {
         return Math.min(MAX_CAPACITY, ItemUtils.maxStackSizeFor(itemId));
     }
 
+    public int getRoomFor(Identifier itemId) {
+        if (heldItemId != null && !heldItemId.equals(itemId)) return 0;
+        return capacityFor(itemId) - heldCount;
+    }
+
     public int getCapacity() {
         return heldItemId != null ? capacityFor(heldItemId) : MAX_CAPACITY;
     }

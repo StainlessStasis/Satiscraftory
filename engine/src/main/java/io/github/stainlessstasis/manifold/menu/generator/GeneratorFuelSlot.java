@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.menu.generator;
 
+import io.github.stainlessstasis.manifold.factory_component.Payload;
 import io.github.stainlessstasis.manifold.factory_component.generator.Generator;
 import io.github.stainlessstasis.manifold.recipe.ManifoldGeneratorFuels;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
@@ -16,6 +17,23 @@ public class GeneratorFuelSlot extends Slot {
     public GeneratorFuelSlot(Generator generator, int x, int y) {
         super(new SimpleContainer(1), 0, x, y);
         this.generator = generator;
+    }
+
+    @Override
+    public @NonNull ItemStack safeInsert(@NonNull ItemStack stack, int amount) {
+        Identifier stackItemId = ItemUtils.idOf(stack.getItem());
+        if (!ManifoldGeneratorFuels.isValidFuel(generator.getGeneratorType(), stackItemId)) return stack;
+
+        int toInsert = Math.min(amount, stack.getCount());
+        int room = generator.getRoomFor(stackItemId);
+        int actualInsert = Math.min(toInsert, room);
+        if (actualInsert <= 0) return stack;
+
+        generator.accept(new Payload(stackItemId, actualInsert));
+
+        ItemStack remainder = stack.copy();
+        remainder.shrink(actualInsert);
+        return remainder;
     }
 
     @Override
