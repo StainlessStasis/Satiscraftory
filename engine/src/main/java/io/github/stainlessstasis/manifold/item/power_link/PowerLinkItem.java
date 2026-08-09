@@ -48,7 +48,7 @@ public class PowerLinkItem extends Item {
 
         if (player.isCrouching()) {
             setChainStart(serverPlayer, null);
-            player.sendOverlayMessage(Component.literal("Power link chain reset"));
+            player.sendOverlayMessage(Component.literal("Cable chain reset"));
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -65,7 +65,7 @@ public class PowerLinkItem extends Item {
             powerGrid.addNode(resolvedGlobalPos);
             setChainStart(serverPlayer, resolvedGlobalPos);
             player.sendOverlayMessage(Component.literal(
-                    "Power link chain started at " + resolvedBlockPos.toShortString()));
+                    "Cable chain started at " + resolvedBlockPos.toShortString()));
             return InteractionResult.SUCCESS_SERVER;
         }
 
