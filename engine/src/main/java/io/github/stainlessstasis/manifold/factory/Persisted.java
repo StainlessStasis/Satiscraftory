@@ -89,7 +89,8 @@ final class Persisted {
     }
 
     record Generator(GlobalPos pos, Identifier generatorType, double powerRate,
-                      Optional<Identifier> heldItemId, int heldCount, boolean burning, long burnEndTick) {
+                     Optional<Identifier> heldItemId, int heldCount, boolean burning, long burnEndTick,
+                     Optional<Identifier> burningItemId, long burnDurationTicks) {
         static final Codec<Generator> CODEC = RecordCodecBuilder.create(i -> i.group(
                 GlobalPos.CODEC.fieldOf("pos").forGetter(Generator::pos),
                 Identifier.CODEC.fieldOf("generatorType").forGetter(Generator::generatorType),
@@ -97,7 +98,9 @@ final class Persisted {
                 Identifier.CODEC.optionalFieldOf("heldItemId").forGetter(Generator::heldItemId),
                 Codec.INT.optionalFieldOf("heldCount", 0).forGetter(Generator::heldCount),
                 Codec.BOOL.optionalFieldOf("burning", false).forGetter(Generator::burning),
-                Codec.LONG.optionalFieldOf("burnEndTick", -1L).forGetter(Generator::burnEndTick)
+                Codec.LONG.optionalFieldOf("burnEndTick", -1L).forGetter(Generator::burnEndTick),
+                Identifier.CODEC.optionalFieldOf("burningItemId").forGetter(Generator::burningItemId),
+                Codec.LONG.optionalFieldOf("burnDurationTicks", -1L).forGetter(Generator::burnDurationTicks)
         ).apply(i, Generator::new));
     }
 

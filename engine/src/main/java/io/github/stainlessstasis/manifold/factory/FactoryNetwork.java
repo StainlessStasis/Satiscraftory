@@ -742,7 +742,8 @@ public class FactoryNetwork extends SavedData {
             persistedGenerators.add(new Persisted.Generator(
                     pos, generator.getGeneratorType(), generator.getPowerRate(),
                     Optional.ofNullable(generator.getHeldItemId()), generator.getHeldCount(),
-                    generator.isBurning(), generator.getBurnEndTick()
+                    generator.isBurning(), generator.getBurnEndTick(),
+                    Optional.ofNullable(generator.getBurningItemId()), generator.getBurnDurationTicks()
             ));
         }
 
@@ -869,7 +870,8 @@ public class FactoryNetwork extends SavedData {
             Generator generator = Generator.restore(
                     generatorData.generatorType(), generatorData.powerRate(), network.scheduler,
                     generatorData.heldItemId().orElse(null), generatorData.heldCount(),
-                    generatorData.burning(), generatorData.burnEndTick()
+                    generatorData.burning(), generatorData.burnEndTick(),
+                    generatorData.burningItemId().orElse(null), generatorData.burnDurationTicks()
             );
             network.generators.put(generatorData.pos(), generator);
         }

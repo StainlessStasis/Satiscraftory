@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.menu;
+package io.github.stainlessstasis.manifold.menu.container;
 
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
 import net.minecraft.world.Container;

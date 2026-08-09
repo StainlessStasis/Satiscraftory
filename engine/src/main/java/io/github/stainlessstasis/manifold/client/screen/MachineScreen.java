@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.client.screen;
 
-import io.github.stainlessstasis.manifold.menu.MachineMenu;
+import io.github.stainlessstasis.manifold.menu.machine.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;

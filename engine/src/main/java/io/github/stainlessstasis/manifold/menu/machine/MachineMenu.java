@@ -1,9 +1,10 @@
-package io.github.stainlessstasis.manifold.menu;
+package io.github.stainlessstasis.manifold.menu.machine;
 
 import io.github.stainlessstasis.manifold.Scheduler;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
+import io.github.stainlessstasis.manifold.menu.MenuConstants;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
@@ -20,13 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MachineMenu extends AbstractContainerMenu {
-    // ContainerData indices
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_DURATION = 1;
     public static final int DATA_FLAGS    = 2;
     public static final int DATA_SIZE     = 3;
 
-    // Flag bit masks
     public static final int FLAG_CRAFTING = 1;
     public static final int FLAG_STALLED  = 2;
 
@@ -164,9 +163,9 @@ public class MachineMenu extends AbstractContainerMenu {
 
         int machineSlots = inputCount + outputCount;
         int playerInvStart = machineSlots;
-        int playerInvEnd = machineSlots + 27;
+        int playerInvEnd = machineSlots + MenuConstants.PLAYER_INV_SIZE;
         int hotbarStart = playerInvEnd;
-        int hotbarEnd = hotbarStart + 9;
+        int hotbarEnd = hotbarStart + MenuConstants.HOTBAR_SIZE;
 
         if (index < machineSlots) {
             if (!moveItemStackTo(rawStack, playerInvStart, hotbarEnd, true)) {

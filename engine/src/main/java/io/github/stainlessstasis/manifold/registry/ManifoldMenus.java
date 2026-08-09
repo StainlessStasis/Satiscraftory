@@ -1,8 +1,9 @@
 package io.github.stainlessstasis.manifold.registry;
 
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.menu.ContainerMenu;
-import io.github.stainlessstasis.manifold.menu.MachineMenu;
+import io.github.stainlessstasis.manifold.menu.container.ContainerMenu;
+import io.github.stainlessstasis.manifold.menu.generator.GeneratorMenu;
+import io.github.stainlessstasis.manifold.menu.machine.MachineMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
@@ -17,4 +18,7 @@ public class ManifoldMenus {
             MENUS.register("container", () -> new MenuType<>(ContainerMenu::new, FeatureFlags.DEFAULT_FLAGS));
     public static final DeferredHolder<MenuType<?>, MenuType<MachineMenu>> MACHINE =
             MENUS.register("machine", () -> IMenuTypeExtension.create(MachineMenu::fromNetwork));
+    public static final DeferredHolder<MenuType<?>, MenuType<GeneratorMenu>> GENERATOR =
+            MENUS.register("generator", () -> IMenuTypeExtension.create(GeneratorMenu::fromNetwork));
+
 }

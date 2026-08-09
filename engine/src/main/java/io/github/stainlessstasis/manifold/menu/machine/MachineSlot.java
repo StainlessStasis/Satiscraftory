@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.menu;
+package io.github.stainlessstasis.manifold.menu.machine;
 
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;

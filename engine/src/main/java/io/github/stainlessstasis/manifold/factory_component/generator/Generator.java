@@ -20,9 +20,11 @@ public class Generator implements Port, PowerProducingFactoryComponent {
 
     private Direction inputDirection;
     private @Nullable Identifier heldItemId;
+    private @Nullable Identifier burningItemId;
     private int heldCount;
     private boolean burning;
     private long burnEndTick = -1;
+    private long burnDurationTicks = -1;
     private Scheduler.@Nullable ScheduledTask burnTask;
 
     public Generator(Identifier generatorType, double powerRate, Scheduler scheduler) {
@@ -33,13 +35,16 @@ public class Generator implements Port, PowerProducingFactoryComponent {
 
     public static Generator restore(
             Identifier generatorType, double powerRate, Scheduler scheduler,
-            @Nullable Identifier heldItemId, int heldCount, boolean burning, long burnEndTick
+            @Nullable Identifier heldItemId, int heldCount, boolean burning, long burnEndTick,
+            @Nullable Identifier burningItemId, long burnDurationTicks
     ) {
         Generator generator = new Generator(generatorType, powerRate, scheduler);
         generator.heldItemId = heldItemId;
         generator.heldCount = heldCount;
         generator.burning = burning;
         generator.burnEndTick = burnEndTick;
+        generator.burningItemId = burningItemId;
+        generator.burnDurationTicks = burnDurationTicks;
 
         if (burning) {
             generator.burnTask = scheduler.schedule(burnEndTick, generator::finishBurning);
@@ -95,6 +100,9 @@ public class Generator implements Port, PowerProducingFactoryComponent {
             heldCount = 0;
             return;
         }
+
+        burningItemId = heldItemId;
+        burnDurationTicks = fuel.burnTicks();
 
         heldCount--;
         burning = true;
@@ -160,6 +168,14 @@ public class Generator implements Port, PowerProducingFactoryComponent {
 
     public long getBurnEndTick() {
         return burnEndTick;
+    }
+
+    public @Nullable Identifier getBurningItemId() {
+        return burningItemId;
+    }
+
+    public long getBurnDurationTicks() {
+        return burnDurationTicks;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.client.screen;
 
-import io.github.stainlessstasis.manifold.menu.ContainerMenu;
+import io.github.stainlessstasis.manifold.menu.container.ContainerMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import org.jspecify.annotations.NonNull;
 
-import static io.github.stainlessstasis.manifold.menu.ContainerMenu.ROWS;
+import static io.github.stainlessstasis.manifold.menu.container.ContainerMenu.ROWS;
 
 /**
  * Basically just a duplicate of vanilla's {@link net.minecraft.client.gui.screens.inventory.ContainerScreen ContainerScreen}
