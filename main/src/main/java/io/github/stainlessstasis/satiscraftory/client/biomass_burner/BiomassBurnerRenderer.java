@@ -15,6 +15,7 @@ import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
@@ -30,13 +31,13 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
     private static final LoopingSoundTracker<BiomassBurnerBlockEntity> BURNING_SOUND = new LoopingSoundTracker<>();
     private static final LoopingParticleTracker<BiomassBurnerBlockEntity> LEAF_PARTICLES = new LoopingParticleTracker<>();
     private static final LoopingParticleTracker<BiomassBurnerBlockEntity> SMOKE_PARTICLES = new LoopingParticleTracker<>();
-    private static final LoopingParticleTracker<BiomassBurnerBlockEntity> LARGE_SMOKE_PARTICLES = new LoopingParticleTracker<>();
 
-    private static final long LEAF_PARTICLE_INTERVAL_MS = 250L;
-    private static final double LEAF_PARTICLE_XZ_JITTER = 0.15d;
+    private static final long LEAF_PARTICLE_INTERVAL_MS = 300L;
+    private static final double LEAF_PARTICLE_XZ_JITTER = 0.25d;
 
-    private static final long SMOKE_PARTICLE_INTERVAL_MS = 200L;
-    private static final double SMOKE_PARTICLE_XZ_JITTER = 0.1d;
+    private static final long SMOKE_PARTICLE_INTERVAL_MS = 50L;
+    private static final double SMOKE_PARTICLE_XZ_JITTER = 0.3d;
+
 
     private final BiomassBurnerModel model;
 
@@ -79,7 +80,8 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
         LEAF_PARTICLES.emitIfDue(blockEntity, burning, ms, LEAF_PARTICLE_INTERVAL_MS, () ->
                 FactoryParticles.spawnJittered(
                         level, blockEntity.getBlockPos(), blockEntity.getLeafParticleOffset(),
-                        LEAF_PARTICLE_XZ_JITTER, random, ParticleTypes.CHERRY_LEAVES
+                        LEAF_PARTICLE_XZ_JITTER, random,
+                        ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, 0xFFB07A2E)
                 )
         );
 
@@ -87,13 +89,6 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
                 FactoryParticles.spawnJittered(
                         level, blockEntity.getBlockPos(), blockEntity.getSmokeParticleOffset(),
                         SMOKE_PARTICLE_XZ_JITTER, random, ParticleTypes.LARGE_SMOKE
-                )
-        );
-
-        LARGE_SMOKE_PARTICLES.emitIfDue(blockEntity, burning, ms, SMOKE_PARTICLE_INTERVAL_MS*2, () ->
-                FactoryParticles.spawnJittered(
-                        level, blockEntity.getBlockPos(), blockEntity.getSmokeParticleOffset(),
-                        SMOKE_PARTICLE_XZ_JITTER, random, ParticleTypes.CAMPFIRE_SIGNAL_SMOKE
                 )
         );
     }

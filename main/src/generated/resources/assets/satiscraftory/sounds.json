@@ -4,8 +4,7 @@
       {
         "name": "satiscraftory:biomass_burner_burning",
         "preload": true,
-        "stream": true,
-        "volume": 0.67
+        "volume": 0.45
       }
     ],
     "subtitle": "sound.satiscraftorybiomass_burner_burning"
@@ -15,8 +14,7 @@
       {
         "name": "satiscraftory:biomass_burner_cooldown",
         "preload": true,
-        "stream": true,
-        "volume": 0.67
+        "volume": 0.45
       }
     ],
     "subtitle": "sound.satiscraftorybiomass_burner_cooldown"
@@ -26,8 +24,7 @@
       {
         "name": "satiscraftory:biomass_burner_startup",
         "preload": true,
-        "stream": true,
-        "volume": 0.67
+        "volume": 0.45
       }
     ],
     "subtitle": "sound.satiscraftorybiomass_burner_startup"
@@ -37,7 +34,6 @@
       {
         "name": "satiscraftory:miner_cooldown",
         "preload": true,
-        "stream": true,
         "volume": 0.67
       }
     ],
@@ -48,7 +44,6 @@
       {
         "name": "satiscraftory:miner_drilling",
         "preload": true,
-        "stream": true,
         "volume": 0.67
       }
     ],
@@ -59,7 +54,6 @@
       {
         "name": "satiscraftory:miner_startup",
         "preload": true,
-        "stream": true,
         "volume": 0.67
       }
     ],

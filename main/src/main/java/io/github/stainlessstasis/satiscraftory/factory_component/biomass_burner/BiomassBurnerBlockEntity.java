@@ -31,7 +31,7 @@ public class BiomassBurnerBlockEntity extends GeneratorBlockEntity
     private final Vec3 cableAnchorPos;
 
     public static final Vec3 SOUND_LOCAL_OFFSET = new Vec3(0, 0, -2);
-    public static final Vec3 LEAF_PARTICLE_LOCAL_OFFSET = new Vec3(0, 0.5, -2);
+    public static final Vec3 LEAF_PARTICLE_LOCAL_OFFSET = new Vec3(0, 0.4, -2);
     public static final Vec3 SMOKE_PARTICLE_LOCAL_OFFSET = new Vec3(0, 2.5, -0.5);
 
     private final Vec3 soundOffset;
