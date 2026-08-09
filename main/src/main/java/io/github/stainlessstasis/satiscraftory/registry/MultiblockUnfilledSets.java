@@ -6,18 +6,10 @@ import java.util.Set;
 
 public class MultiblockUnfilledSets {
     public static final Set<BlockPos> BIOMASS_BURNER = Set.of(
-            new BlockPos(-1, 3, 0),
-            new BlockPos(-1, 3, 1),
-            new BlockPos(-1, 3, 2),
             new BlockPos(0, 2, 2),
-            new BlockPos(0, 3, 1),
-            new BlockPos(0, 3, 2),
             new BlockPos(1, 0, 2),
             new BlockPos(1, 1, 2),
-            new BlockPos(1, 2, 2),
-            new BlockPos(1, 3, 0),
-            new BlockPos(1, 3, 1),
-            new BlockPos(1, 3, 2)
+            new BlockPos(1, 2, 2)
     );
 
     public static final Set<BlockPos> MINER = Set.of(

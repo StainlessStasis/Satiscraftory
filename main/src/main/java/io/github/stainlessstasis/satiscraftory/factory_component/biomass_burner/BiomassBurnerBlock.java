@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
 public class BiomassBurnerBlock extends GeneratorBlock implements Multiblock<BiomassBurnerBlock> {
-    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 3, 4, new BlockPos(1, 0, 0), MultiblockUnfilledSets.BIOMASS_BURNER);
+    public static final MultiblockShape MULTIBLOCK_SHAPE = new MultiblockShape(3, 3, 3, new BlockPos(1, 0, 0), MultiblockUnfilledSets.BIOMASS_BURNER);
 
     public BiomassBurnerBlock(Properties properties, Identifier generatorType, double powerRate) {
         super(properties, generatorType, powerRate);
