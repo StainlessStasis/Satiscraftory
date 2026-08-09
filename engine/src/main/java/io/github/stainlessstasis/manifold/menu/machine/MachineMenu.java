@@ -30,25 +30,26 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
 
     public static final int FLAG_CRAFTING = 1;
     public static final int FLAG_STALLED  = 2;
+    public static final int FLAG_POWERED  = 4;
 
     private final Machine machine;
     private final ContainerLevelAccess access;
     private final ContainerData data;
     private final int inputCount;
     private final int outputCount;
+    private final double powerDemandMw;
 
-    // CLIENT STUFF
     /**
      * Clientside dummy constructor
      */
     public MachineMenu(
-            int containerId, Inventory playerInventory, Machine dummyMachine,
+            int containerId, Inventory playerInventory, Machine dummyMachine, double powerDemandMw,
             int[] inputX, int[] inputY,
             int[] outputX, int[] outputY,
             int playerInvX, int playerInvY
     ) {
         this(
-                containerId, playerInventory, dummyMachine,
+                containerId, playerInventory, dummyMachine, powerDemandMw,
                 inputX, inputY, outputX, outputY, playerInvX, playerInvY,
                 ContainerLevelAccess.NULL,
                 new SimpleContainerData(DATA_SIZE)
@@ -67,6 +68,8 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
         int[] outputX = new int[outputCount], outputY = new int[outputCount];
         for (int i = 0; i < outputCount; i++) { outputX[i] = buf.readVarInt(); outputY[i] = buf.readVarInt(); }
 
+        double powerDemandMw = buf.readDouble();
+
         int playerInvX = buf.readVarInt();
         int playerInvY = buf.readVarInt();
 
@@ -75,7 +78,7 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
 
         Machine dummyMachine = new Machine(recipe, new Scheduler(), dummyPorts);
 
-        return new MachineMenu(containerId, playerInventory, dummyMachine,
+        return new MachineMenu(containerId, playerInventory, dummyMachine, powerDemandMw,
                 inputX, inputY, outputX, outputY, playerInvX, playerInvY);
     }
 
@@ -99,7 +102,7 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
 
     // SERVER STUFF
     public MachineMenu(
-            int containerId, Inventory playerInventory, Machine machine,
+            int containerId, Inventory playerInventory, Machine machine, double powerDemandMw,
             int[] inputX, int[] inputY,
             int[] outputX, int[] outputY,
             int playerInvX, int playerInvY,
@@ -107,6 +110,7 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     ) {
         super(ManifoldMenus.MACHINE.get(), containerId, machine.inputSlotCount() + machine.outputSlotCount());
         this.machine = machine;
+        this.powerDemandMw = powerDemandMw;
         this.access = access;
         this.inputCount = machine.inputSlotCount();
         this.outputCount = machine.outputSlotCount();
@@ -147,13 +151,23 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     public boolean isStalled() {
         return (data.get(DATA_FLAGS) & FLAG_STALLED) != 0;
     }
+    public boolean isPowered() {
+        return (data.get(DATA_FLAGS) & FLAG_POWERED) != 0;
+    }
 
     @Override
     public float getProgressFraction() {
         if (isStalled()) return 1f;
         int duration = getDurationTicks();
         if (!isCrafting() || duration <= 0) return 0f;
-        return (float) getCraftProgressTicks() / duration;
+        return Math.min(1f, (float) getCraftProgressTicks() / duration);
+    }
+
+    public double getCurrentPowerConsumptionMw() {
+        return isPowered() ? powerDemandMw : 0d;
+    }
+    public double getRatedPowerConsumptionMw() {
+        return powerDemandMw;
     }
 
     public Machine getMachine() { return machine; }

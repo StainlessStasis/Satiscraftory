@@ -130,6 +130,7 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
         for (int i = 0; i < OUTPUT_X.length; i++) {
             buf.writeVarInt(OUTPUT_X[i]); buf.writeVarInt(OUTPUT_Y[i]);
         }
+        buf.writeDouble(getPowerDemand());
         buf.writeVarInt(PLAYER_INV_X);
         buf.writeVarInt(PLAYER_INV_Y);
     }
@@ -154,7 +155,7 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
     public AbstractContainerMenu createMenu(int containerId, @NonNull Inventory playerInventory, @NonNull Player player) {
         if (!(level instanceof ServerLevel serverLevel)) return null;
         return new MachineMenu(
-                containerId, playerInventory, machine,
+                containerId, playerInventory, machine, getPowerDemand(),
                 INPUT_X, INPUT_Y, OUTPUT_X, OUTPUT_Y, PLAYER_INV_X, PLAYER_INV_Y,
                 ContainerLevelAccess.create(serverLevel, getBlockPos()),
                 new MachineContainerData(machine, serverLevel::getGameTime)

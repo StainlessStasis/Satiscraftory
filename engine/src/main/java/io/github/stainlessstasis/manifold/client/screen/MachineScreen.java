@@ -15,7 +15,7 @@ public class MachineScreen extends FactoryScreen<MachineMenu> {
     private static final int INGREDIENT_AMOUNT = 0xFFFFFFFF;
 
     private static final int HEADER_WIDTH = 64;
-    private static final int HEADER_HEIGHT = 56;
+    private static final int HEADER_HEIGHT = 62;
     private static final int HEADER_Y = 6;
     private static final float ICON_SCALE = 1.5f;
 
@@ -44,18 +44,31 @@ public class MachineScreen extends FactoryScreen<MachineMenu> {
         );
 
         int barX = headerX + 8;
-        int barY = headerY + 32;
+        int barY = headerY + 30;
         int barWidth = HEADER_WIDTH - 16;
         drawProgressBar(graphics, barX, barY, barWidth);
 
         float progress = menu.getProgressFraction();
-        String status = menu.isCrafting() ? String.format("Crafting - %.0f%%", progress * 100)
-                : menu.isStalled() ? "Stalled"
-                  : "Idle";
+        String status;
+        if (!menu.isPowered()) {
+            status = "Unpowered";
+        } else if (menu.isCrafting()) {
+            status = String.format("Crafting - %.0f%%", progress * 100);
+        } else {
+            status = "Idle";
+        }
         scaledCenteredText(
                 graphics, font, Component.literal(status),
                 headerX + HEADER_WIDTH / 2,
                 barY + PROGRESS_BAR_HEIGHT + 4,
+                HEADER_TEXT_COLOR, 0.7f
+        );
+
+        String powerText = String.format("%.1f / %.1f MW", menu.getCurrentPowerConsumptionMw(), menu.getRatedPowerConsumptionMw());
+        scaledCenteredText(
+                graphics, font, Component.literal(powerText),
+                headerX + HEADER_WIDTH / 2,
+                barY + PROGRESS_BAR_HEIGHT + 15,
                 HEADER_TEXT_COLOR, 0.7f
         );
     }

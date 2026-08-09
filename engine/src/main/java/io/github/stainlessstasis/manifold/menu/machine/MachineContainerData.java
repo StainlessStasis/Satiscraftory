@@ -26,9 +26,7 @@ public class MachineContainerData implements ContainerData {
     }
 
     @Override
-    public void set(int index, int value) {
-        // no-op on server
-    }
+    public void set(int index, int value) {}
 
     @Override
     public int getCount() {
@@ -41,17 +39,25 @@ public class MachineContainerData implements ContainerData {
         }
         if (!machine.isCrafting()) return 0;
 
+        long duration = machine.getRecipe().durationTicks();
+
+        if (!machine.isPowered()) {
+            long pausedRemaining = machine.getPausedRemainingTicks();
+            long elapsed = pausedRemaining >= 0 ? duration - pausedRemaining : duration;
+            return (int) Math.clamp(elapsed, 0, duration);
+        }
+
         long currentTick = currentTickSupplier.getAsLong();
         long completionTick = machine.getCraftCompletionTick();
-        long duration = machine.getRecipe().durationTicks();
         long elapsed = duration - (completionTick - currentTick);
-        return Math.clamp(elapsed, 0, Integer.MAX_VALUE);
+        return (int) Math.clamp(elapsed, 0, duration);
     }
 
     private int computeFlags() {
         int flags = 0;
         if (machine.isCrafting()) flags |= MachineMenu.FLAG_CRAFTING;
         if (machine.isStalled())  flags |= MachineMenu.FLAG_STALLED;
+        if (machine.isPowered())  flags |= MachineMenu.FLAG_POWERED;
         return flags;
     }
 }
