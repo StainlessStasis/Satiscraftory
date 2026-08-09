@@ -1,0 +1,5 @@
+{
+  "burnTicks": 4000,
+  "generatorType": "satiscraftory:biomass",
+  "item": "minecraft:dried_kelp_block"
+}

@@ -1,5 +1,5 @@
 {
-  "burnTicks": 40,
+  "burnTicks": 100,
   "generatorType": "satiscraftory:biomass",
-  "item": "minecraft:wheat"
+  "tag": "minecraft:wool"
 }

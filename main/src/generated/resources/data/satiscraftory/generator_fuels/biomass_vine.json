@@ -1,5 +1,5 @@
 {
-  "burnTicks": 40,
+  "burnTicks": 20,
   "generatorType": "satiscraftory:biomass",
-  "item": "minecraft:wheat"
+  "item": "minecraft:vine"
 }

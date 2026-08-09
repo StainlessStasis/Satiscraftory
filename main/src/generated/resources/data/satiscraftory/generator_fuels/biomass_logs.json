@@ -1,5 +1,5 @@
 {
-  "burnTicks": 200,
+  "burnTicks": 300,
   "generatorType": "satiscraftory:biomass",
   "tag": "minecraft:logs_that_burn"
 }
