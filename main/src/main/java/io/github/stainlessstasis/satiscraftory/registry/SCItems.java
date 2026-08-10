@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.item.CableItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -42,6 +43,8 @@ public class SCItems {
     public static final DeferredItem<Item> COPPER_SHEET = registerFactoryItem("copper_sheet");
     public static final DeferredItem<Item> WIRE = registerFactoryItem("wire");
     public static final DeferredItem<CableItem> CABLE = registerFactoryItem("cable", CableItem::new);
+
+    public static final DeferredItem<BuildGunItem> BUILD_GUN = ITEMS.registerItem("build_gun", BuildGunItem::new);
 
     public static <B extends Block> DeferredItem<BlockItem> registerFactoryBlockItem(String name, Supplier<B> blockSupplier) {
         DeferredItem<BlockItem> item = ITEMS.registerSimpleBlockItem(name, blockSupplier);

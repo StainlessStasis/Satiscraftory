@@ -44,6 +44,8 @@ public class SCModelProvider extends FactoryModelProvider {
             itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(Satiscraftory.id("item/" + itemId.getPath())));
         }
 
+        itemModels.generateFlatItem(SCItems.BUILD_GUN.get(), ModelTemplates.FLAT_ITEM);
+
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
         }
