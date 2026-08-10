@@ -34,7 +34,7 @@ public class PlacementPreview {
         LocalPlayer player = mc.player;
         if (player == null) return;
 
-        ItemStack held = player.getMainHandItem();
+        ItemStack held = PreviewHeldItemSource.resolve(player);
         if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> multiblock)) return;
         if (!(mc.hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return;
 
@@ -42,7 +42,6 @@ public class PlacementPreview {
         BlockPlaceContext placeContext = new BlockPlaceContext(useContext);
         if (!placeContext.canPlace()) return;
 
-        BaseEntityBlock block = multiblock.getPreviewBlock();
         BlockState previewState = multiblock.getPreviewPlacement(placeContext);
         if (previewState == null) return;
 

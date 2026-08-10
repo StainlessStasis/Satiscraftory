@@ -1,10 +1,6 @@
 package io.github.stainlessstasis.satiscraftory;
 
-import io.github.stainlessstasis.manifold.client.screen.ContainerScreen;
-import io.github.stainlessstasis.manifold.client.screen.GeneratorScreen;
-import io.github.stainlessstasis.manifold.client.screen.MachineScreen;
-import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
-import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
+import io.github.stainlessstasis.manifold.client.multiblock.PreviewHeldItemSource;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerModel;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
@@ -12,8 +8,10 @@ import io.github.stainlessstasis.satiscraftory.client.miner.MinerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerScreen;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleRenderer;
+import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCMenus;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -31,7 +29,15 @@ public class SatiscraftoryClient {
     }
 
     @SubscribeEvent
-    static void onClientSetup(FMLClientSetupEvent event) {}
+    static void onClientSetup(FMLClientSetupEvent event) {
+        PreviewHeldItemSource.register(player -> {
+            ItemStack held = player.getMainHandItem();
+            if (held.getItem() instanceof BuildGunItem) {
+                return new ItemStack(BuildGunItem.getSelectedBlockItem(player));
+            }
+            return ItemStack.EMPTY;
+        });
+    }
 
     @SubscribeEvent
     public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
