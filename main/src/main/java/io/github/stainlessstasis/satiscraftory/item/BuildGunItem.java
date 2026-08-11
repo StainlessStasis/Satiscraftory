@@ -80,7 +80,7 @@ public class BuildGunItem extends Item {
             }
         }
         if (!canPlace) {
-            MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun"+".missing_materials", selected.getDescriptionId());
+            MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun"+".missing_materials", Component.translatable(selected.getDescriptionId()));
             return InteractionResult.FAIL;
         }
 

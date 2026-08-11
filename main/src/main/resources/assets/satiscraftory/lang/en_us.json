@@ -28,5 +28,7 @@
   "sound.satiscraftory.biomass_burner_cooldown": "Biomass Burner Stops",
 
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
-  "satiscraftory.node_already_occupied": "This node is already occupied by another Miner"
+  "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
+
+  "satiscraftory.configuration.buildingCosts": "Building Costs"
 }
