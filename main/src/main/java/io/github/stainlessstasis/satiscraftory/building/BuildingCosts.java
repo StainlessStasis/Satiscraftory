@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.recipe;
+package io.github.stainlessstasis.satiscraftory.building;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;

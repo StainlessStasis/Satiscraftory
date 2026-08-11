@@ -2,8 +2,8 @@ package io.github.stainlessstasis.satiscraftory.datagen.building_cost;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import io.github.stainlessstasis.satiscraftory.recipe.BuildingCost;
-import io.github.stainlessstasis.satiscraftory.recipe.BuildingCosts;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;

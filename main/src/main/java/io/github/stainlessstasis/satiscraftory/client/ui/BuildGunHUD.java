@@ -4,7 +4,7 @@ import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
-import io.github.stainlessstasis.satiscraftory.recipe.BuildingCost;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

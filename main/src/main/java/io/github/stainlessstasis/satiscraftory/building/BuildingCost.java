@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.recipe;
+package io.github.stainlessstasis.satiscraftory.building;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

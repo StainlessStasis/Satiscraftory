@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory;
 
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
-import io.github.stainlessstasis.satiscraftory.recipe.BuildingCosts;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
 import net.minecraft.core.registries.Registries;
