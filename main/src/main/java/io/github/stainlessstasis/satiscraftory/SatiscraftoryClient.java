@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory;
 
-import io.github.stainlessstasis.manifold.client.multiblock.PreviewHeldItemSource;
+import io.github.stainlessstasis.manifold.client.block_preview.PreviewHeldItemSource;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerModel;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;

@@ -1,6 +1,7 @@
-package io.github.stainlessstasis.manifold.client.multiblock;
+package io.github.stainlessstasis.manifold.client.block_preview;
 
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -11,7 +12,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,25 +34,52 @@ public class PlacementPreview {
         LocalPlayer player = mc.player;
         if (player == null) return;
 
-        ItemStack held = PreviewHeldItemSource.resolve(player);
-        if (!(held.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof Multiblock<?> multiblock)) return;
+        PreviewHeldItemSource.Resolved resolved = PreviewHeldItemSource.resolve(player);
+        ItemStack held = resolved.stack();
+        if (!(held.getItem() instanceof BlockItem blockItem)) return;
+        if (blockItem.getBlock() instanceof BeltBlock) return;
+
         if (!(mc.hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return;
 
         UseOnContext useContext = new UseOnContext(player.level(), player, InteractionHand.MAIN_HAND, held, blockHit);
         BlockPlaceContext placeContext = new BlockPlaceContext(useContext);
         if (!placeContext.canPlace()) return;
 
+        if (blockItem.getBlock() instanceof Multiblock<?> multiblock) {
+            renderMultiblockPreview(event, player, multiblock, placeContext);
+        } else if (resolved.fromOverride()) {
+            renderPlainBlockPreview(event, blockItem, placeContext);
+        }
+    }
+
+    private static void renderMultiblockPreview(
+            SubmitCustomGeometryEvent event, LocalPlayer player, Multiblock<?> multiblock, BlockPlaceContext placeContext
+    ) {
         BlockState previewState = multiblock.getPreviewPlacement(placeContext);
         if (previewState == null) return;
 
         BlockPos origin = placeContext.getClickedPos();
         Direction facing = previewState.getValue(BlockStateProperties.HORIZONTAL_FACING);
         boolean valid = multiblock.isMultiblockPlacementValid(placeContext, facing);
-        int tint = valid ? VALID_COLOR.getRGB() : INVALID_COLOR.getRGB();
+        Color tint = valid ? VALID_COLOR : INVALID_COLOR;
 
-        PlacementPreviewSubmission.submit(
+        MultiblockPreviewSubmission.submit(
                 event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),
                 multiblock, previewState, origin, facing, tint
         );
     }
+
+    private static void renderPlainBlockPreview(
+            SubmitCustomGeometryEvent event, BlockItem blockItem, BlockPlaceContext placeContext
+    ) {
+        BlockState previewState = blockItem.getBlock().getStateForPlacement(placeContext);
+        if (previewState == null) return;
+
+        BlockPos origin = placeContext.getClickedPos();
+
+        BlockPreviewSubmission.submit(
+                event.getPoseStack(), event.getSubmitNodeCollector(), previewState, origin, VALID_COLOR
+        );
+    }
+
 }

@@ -1,6 +1,8 @@
-package io.github.stainlessstasis.manifold.client.multiblock;
+package io.github.stainlessstasis.manifold.client.block_preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.stainlessstasis.manifold.client.multiblock.MultiblockPreviewRegistry;
+import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -13,13 +15,15 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public final class PlacementPreviewSubmission {
-    private PlacementPreviewSubmission() {}
+import java.awt.*;
+
+public final class MultiblockPreviewSubmission {
+    private MultiblockPreviewSubmission() {}
 
     public static void submit(
             PoseStack poseStack, SubmitNodeCollector collector, Level level,
             Multiblock<?> previewer, BlockState previewState,
-            BlockPos origin, Direction facing, int tint
+            BlockPos origin, Direction facing, Color tint
     ) {
         BaseEntityBlock block = previewer.getPreviewBlock();
         BlockEntity blockEntity = block.newBlockEntity(BlockPos.ZERO, previewState);
@@ -33,7 +37,7 @@ public final class PlacementPreviewSubmission {
 
         poseStack.pushPose();
         poseStack.translate(origin.getX() - camPos.x, origin.getY() - camPos.y, origin.getZ() - camPos.z);
-        renderer.submitPreview(poseStack, collector, facing, light, tint);
+        renderer.submitPreview(poseStack, collector, facing, light, tint.getRGB());
         poseStack.popPose();
     }
 }

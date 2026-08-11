@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Constants;
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.client.block_preview.MultiblockPreviewSubmission;
+import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
@@ -68,17 +70,15 @@ public final class MultiblockDevPreview {
         BlockState previewState = previewer.getPreviewBlock().defaultBlockState()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH);
 
-        PlacementPreviewSubmission.submit(
+        MultiblockPreviewSubmission.submit(
                 event.getPoseStack(), event.getSubmitNodeCollector(), player.level(),
-                previewer, previewState, anchor, Direction.NORTH, PlacementPreview.VALID_COLOR.getRGB()
+                previewer, previewState, anchor, Direction.NORTH, PlacementPreview.VALID_COLOR
         );
 
         renderBoundsWireframe(event.getPoseStack(), event.getSubmitNodeCollector(), shape, anchor);
     }
 
-    private static void renderBoundsWireframe(PoseStack poseStack, SubmitNodeCollector collector,
-                                              MultiblockShape shape, BlockPos anchor) {
-
+    private static void renderBoundsWireframe(PoseStack poseStack, SubmitNodeCollector collector, MultiblockShape shape, BlockPos anchor) {
         BlockPos min = shape.canonicalMin();
         BlockPos max = shape.canonicalMax();
         float minX = min.getX();

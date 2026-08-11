@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -101,7 +102,7 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             ancestor.translateAndRotate(poseStack);
         }
         indicatorPart.visible = true;
-        indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);
+        indicatorPart.render(poseStack, vertexConsumer, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tintColor);
         indicatorPart.visible = false;
         poseStack.popPose();
 

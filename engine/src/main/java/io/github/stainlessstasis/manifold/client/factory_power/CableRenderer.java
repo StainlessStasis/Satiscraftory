@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold.client.factory_power;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.stainlessstasis.manifold.Manifold;
-import io.github.stainlessstasis.manifold.client.multiblock.PlacementPreview;
+import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
 import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
