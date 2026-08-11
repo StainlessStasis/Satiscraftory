@@ -4,11 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +31,11 @@ public class TierUnlockData extends SavedData {
     private final Set<TierUnlock> unlocks = EnumSet.copyOf(STARTING_UNLOCKS);
 
     public TierUnlockData() {}
+
+    public static TierUnlockData get(ServerLevel level) {
+        ServerLevel overworld = level.getServer().overworld();
+        return overworld.getDataStorage().computeIfAbsent(TYPE);
+    }
 
     private static TierUnlockData fromLoaded(int tier, List<TierUnlock> unlocks) {
         TierUnlockData data = new TierUnlockData();

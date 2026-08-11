@@ -21,6 +21,11 @@ public final class SCNetworking {
                 ProgressionSyncPacket.TYPE, ProgressionSyncPacket.STREAM_CODEC,
                 ProgressionSyncPacket::handleClient
         );
+        registrar.playToServer(
+                SelectBuildingPacket.TYPE, SelectBuildingPacket.STREAM_CODEC,
+                SelectBuildingPacket::handleServer
+        );
+
     }
 
     @SubscribeEvent

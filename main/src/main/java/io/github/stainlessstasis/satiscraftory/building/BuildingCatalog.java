@@ -3,9 +3,13 @@ package io.github.stainlessstasis.satiscraftory.building;
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlock;
+import io.github.stainlessstasis.satiscraftory.progression.TierUnlockData;
+import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +58,29 @@ public final class BuildingCatalog {
         return BY_CATEGORY.getOrDefault(category, List.of());
     }
 
+    public static List<BuildingEntry> allForTier(int tier) {
+        return ENTRIES.stream()
+                .filter(entry -> entry.tier() == tier)
+                .toList();
+    }
+
+    /**
+     * @return Uses {@link TierUnlockData} if level is a ServerLevel; otherwise uses {@link TierUnlocks#clientTier()} as a fallback
+     */
+    public static List<BuildingEntry> allForCurrentTier(Level level) {
+        int tier = TierUnlocks.clientTier();
+        if (level instanceof ServerLevel serverLevel) {
+            tier = TierUnlockData.get(serverLevel).tier();
+        }
+        return allForTier(tier);
+    }
+
+    public static List<BuildingEntry> allForTierUnlock(TierUnlock unlock) {
+        return ENTRIES.stream()
+                .filter(entry -> entry.unlock().equals(unlock))
+                .toList();
+    }
+
     public static Optional<BuildingEntry> byId(Identifier itemId) {
         for (BuildingEntry entry : ENTRIES) {
             if (entry.id().equals(itemId)) return Optional.of(entry);
@@ -61,7 +88,7 @@ public final class BuildingCatalog {
         return Optional.empty();
     }
 
-    public static BuildingEntry first() {
+    public static BuildingEntry getFirst() {
         return ENTRIES.getFirst();
     }
 

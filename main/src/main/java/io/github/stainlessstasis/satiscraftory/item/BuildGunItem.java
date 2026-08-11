@@ -1,13 +1,12 @@
 package io.github.stainlessstasis.satiscraftory.item;
 
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
-import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
-import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -28,24 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class BuildGunItem extends Item {
-    // TODO: eventually replace with progression based unlocks
-    private static final List<Supplier<? extends BlockItem>> PLACEABLE_BLOCKS = List.of(
-            SCItems.MINER_MK1,
-            SCItems.BELT_MK1,
-            SCItems.BELT_MK2,
-            SCItems.BELT_MK3,
-            SCItems.POWER_POLE_MK1,
-            SCItems.BIOMASS_BURNER,
-            ManifoldItems.SPLITTER,
-            ManifoldItems.MERGER,
-            ManifoldItems.MACHINE,
-            ManifoldItems.CONTAINER,
-            ManifoldItems.CONSUMER
-    );
-
     private static final Map<UUID, Identifier> selectedBlockByPlayer = new HashMap<>();
 
     public BuildGunItem(Properties properties) {
@@ -144,33 +127,34 @@ public class BuildGunItem extends Item {
     private static void cycleSelection(Player player) {
         UUID uuid = player.getUUID();
         Identifier current = selectedBlockByPlayer.get(uuid);
+        var buildingEntries = BuildingCatalog.allForCurrentTier(player.level());
 
         int index = current == null ? -1 : indexOf(current);
-        int nextIndex = (index + 1) % PLACEABLE_BLOCKS.size();
+        int nextIndex = (index + 1) % buildingEntries.size();
 
-        BlockItem nextItem = PLACEABLE_BLOCKS.get(nextIndex).get();
-        Identifier nextId = BuiltInRegistries.ITEM.getKey(nextItem);
+        Identifier nextId = buildingEntries.get(nextIndex).id();
         selectedBlockByPlayer.put(uuid, nextId);
     }
 
     private static int indexOf(Identifier id) {
-        for (int i = 0; i < PLACEABLE_BLOCKS.size(); i++) {
-            if (BuiltInRegistries.ITEM.getKey(PLACEABLE_BLOCKS.get(i).get()).equals(id)) {
-                return i;
-            }
+        var buildingEntries = BuildingCatalog.all();
+        for (int i = 0; i < buildingEntries.size(); i++) {
+            if (buildingEntries.get(i).id().equals(id)) return i;
         }
         return -1;
+    }
+
+    public static void setSelectedBlock(Player player, Identifier buildingItemId) {
+        selectedBlockByPlayer.put(player.getUUID(), buildingItemId);
     }
 
     public static BlockItem getSelectedBlockItem(Player player) {
         Identifier selectedId = selectedBlockByPlayer.get(player.getUUID());
         if (selectedId != null) {
-            int index = indexOf(selectedId);
-            if (index != -1) {
-                return PLACEABLE_BLOCKS.get(index).get();
-            }
+            BuildingCatalog.BuildingEntry entry = BuildingCatalog.byId(selectedId).orElse(null);
+            if (entry != null) return entry.blockItem();
         }
-        return PLACEABLE_BLOCKS.getFirst().get();
+        return BuildingCatalog.getFirst().blockItem();
     }
 
     public static @Nullable Identifier getSelectedBlockId(Player player) {
@@ -180,9 +164,5 @@ public class BuildGunItem extends Item {
     public static @Nullable BuildingCost getSelectedBuildingCost(Player player) {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(getSelectedBlockItem(player));
         return BuildingCosts.get(selectedId);
-    }
-
-    public static List<Supplier<? extends BlockItem>> getPlaceableBlocks() {
-        return PLACEABLE_BLOCKS;
     }
 }
