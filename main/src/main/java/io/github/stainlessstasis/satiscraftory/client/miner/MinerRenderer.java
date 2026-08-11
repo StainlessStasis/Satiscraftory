@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
-import io.github.stainlessstasis.manifold.client.LoopingSoundTracker;
+import io.github.stainlessstasis.manifold.client.util.LoopingSoundTracker;
 import io.github.stainlessstasis.manifold.client.animation.AnimationPhaseDriver;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;

@@ -73,14 +73,12 @@ public class BuildGunItem extends Item {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(selected);
 
         BuildingCost cost = BuildingCosts.get(selectedId);
-        boolean canPlace = cost != null;
-        if (canPlace) {
-            if (SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean() && !hasRequiredItems(player, cost)) {
-                canPlace = false;
-            }
-        }
+        boolean buildingCostsEnabled = SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean();
+
+        boolean canPlace = !buildingCostsEnabled || cost == null || hasRequiredItems(player, cost);
+
         if (!canPlace) {
-            MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun"+".missing_materials", Component.translatable(selected.getDescriptionId()));
+            MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun.missing_materials", Component.translatable(selected.getDescriptionId()));
             return InteractionResult.FAIL;
         }
 
@@ -94,7 +92,7 @@ public class BuildGunItem extends Item {
         );
 
         InteractionResult result = selected.place(placeContext);
-        if (result.consumesAction() && cost != null && !player.isCreative()) {
+        if (cost != null && result.consumesAction() && !player.isCreative() && buildingCostsEnabled) {
             consumeRequiredItems(player, cost);
         }
         return result;
@@ -154,8 +152,6 @@ public class BuildGunItem extends Item {
         BlockItem nextItem = PLACEABLE_BLOCKS.get(nextIndex).get();
         Identifier nextId = BuiltInRegistries.ITEM.getKey(nextItem);
         selectedBlockByPlayer.put(uuid, nextId);
-
-        player.sendOverlayMessage(Component.translatable(nextItem.getDescriptionId()));
     }
 
     private static int indexOf(Identifier id) {

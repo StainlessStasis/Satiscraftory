@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.manifold.client.screen;
 
+import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.manifold.menu.ProgressBar;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -71,28 +72,15 @@ public abstract class FactoryScreen<T extends AbstractContainerMenu & ProgressBa
     }
 
     protected void drawScaledItem(GuiGraphicsExtractor graphics, ItemStack stack, float cx, float cy, float scale) {
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(cx, cy);
-        graphics.pose().scale(scale, scale);
-        graphics.item(stack, -8, -8);
-        graphics.pose().popMatrix();
+        GuiRenderUtils.scaledItem(graphics, stack, cx, cy, scale);
     }
 
     protected void scaledCenteredText(GuiGraphicsExtractor graphics, Font font, Component text, int centerX, int y, int color, float scale) {
-        var charSequence = text.getVisualOrderText();
-        int width = font.width(charSequence);
-        graphics.pose().pushMatrix();
-        graphics.pose().translate(centerX, y);
-        graphics.pose().scale(scale, scale);
-        graphics.text(font, charSequence, -(width + 1) / 2, 0, color, false);
-        graphics.pose().popMatrix();
+        GuiRenderUtils.scaledCenteredText(graphics, font, text, centerX, y, color, scale);
     }
 
     protected void drawBorder(GuiGraphicsExtractor graphics, int x, int y, int width, int height, int color) {
-        graphics.fill(x, y, x + width, y + 1, color);
-        graphics.fill(x, y + height - 1, x + width, y + height, color);
-        graphics.fill(x, y, x + 1, y + height, color);
-        graphics.fill(x + width - 1, y, x + width, y + height, color);
+        GuiRenderUtils.border(graphics, x, y, width, height, color);
     }
 
     /**

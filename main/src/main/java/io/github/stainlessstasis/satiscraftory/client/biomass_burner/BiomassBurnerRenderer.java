@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
-import io.github.stainlessstasis.manifold.client.LoopingParticleTracker;
-import io.github.stainlessstasis.manifold.client.LoopingSoundTracker;
+import io.github.stainlessstasis.manifold.client.util.LoopingParticleTracker;
+import io.github.stainlessstasis.manifold.client.util.LoopingSoundTracker;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;

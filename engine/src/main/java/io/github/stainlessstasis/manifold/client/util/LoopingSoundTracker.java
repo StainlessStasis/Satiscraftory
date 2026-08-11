@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.client;
+package io.github.stainlessstasis.manifold.client.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;

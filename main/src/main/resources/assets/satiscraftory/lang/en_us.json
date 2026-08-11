@@ -11,6 +11,7 @@
 
   "item.satiscraftory.build_gun": "Build Gun",
   "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
+  "satiscraftory.build_gun.currently_building": "Currently Building:",
 
   "item.satiscraftory.iron_plate": "Iron Plate",
   "item.satiscraftory.iron_rod": "Iron Rod",

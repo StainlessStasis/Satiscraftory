@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.client;
+package io.github.stainlessstasis.manifold.client.util;
 
 import java.util.Map;
 import java.util.WeakHashMap;
