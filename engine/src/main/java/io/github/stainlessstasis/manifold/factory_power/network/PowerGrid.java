@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold.factory_power.network;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stainlessstasis.manifold.Config;
+import io.github.stainlessstasis.manifold.ManifoldConfig;
 import net.minecraft.core.GlobalPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -258,7 +258,7 @@ public class PowerGrid {
     }
 
     public void tick() {
-        if (Config.POWER_REQUIRED.isFalse()) {
+        if (ManifoldConfig.POWER_REQUIRED.isFalse()) {
             for (GlobalPos consumerPos : demandByNode.keySet()) {
                 satisfactionByNode.put(consumerPos, 1d);
                 Boolean previouslyPowered = poweredByNode.put(consumerPos, true);

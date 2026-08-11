@@ -2,7 +2,7 @@ package io.github.stainlessstasis.manifold;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class Config {
+public class ManifoldConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
     public static final ModConfigSpec.BooleanValue BELTS_DROP_ITEMS = BUILDER

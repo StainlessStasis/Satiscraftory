@@ -237,7 +237,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     private void dropEjectedItems(ServerLevel level, GlobalPos removedPos, List<BeltLane.BeltItem> items) {
-        if (Config.BELTS_DROP_ITEMS.isFalse()) return;
+        if (ManifoldConfig.BELTS_DROP_ITEMS.isFalse()) return;
 
         BlockPos blockPos = removedPos.pos();
         for (BeltLane.BeltItem item : items) {

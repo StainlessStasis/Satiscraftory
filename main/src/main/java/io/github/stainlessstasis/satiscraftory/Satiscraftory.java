@@ -11,6 +11,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -33,7 +34,7 @@ public class Satiscraftory {
     public Satiscraftory(IEventBus modEventBus, ModContainer modContainer) {
         CREATIVE_MODE_TABS.register(modEventBus);
         SCRegistries.register(modEventBus);
-//        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, SatiscraftoryConfig.SPEC);
     }
 
     @SubscribeEvent

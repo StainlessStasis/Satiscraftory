@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
 import io.github.stainlessstasis.satiscraftory.recipe.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.recipe.BuildingCosts;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
@@ -72,7 +73,13 @@ public class BuildGunItem extends Item {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(selected);
 
         BuildingCost cost = BuildingCosts.get(selectedId);
-        if (cost != null && !player.isCreative() && !hasRequiredItems(player, cost)) {
+        boolean canPlace = cost != null;
+        if (canPlace) {
+            if (SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean() && !hasRequiredItems(player, cost)) {
+                canPlace = false;
+            }
+        }
+        if (!canPlace) {
             MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun"+".missing_materials", selected.getDescriptionId());
             return InteractionResult.FAIL;
         }

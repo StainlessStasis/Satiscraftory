@@ -21,7 +21,7 @@ public class Manifold {
     public Manifold(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(NetworkSetup::register);
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, ManifoldConfig.SPEC);
         ManifoldRegistries.register(modEventBus);
     }
 
