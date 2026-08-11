@@ -3,7 +3,11 @@
   "inputs": [
     {
       "amount": 1,
-      "itemId": "satiscraftory:iron_plate"
+      "itemId": "satiscraftory:iron_rod"
+    },
+    {
+      "amount": 3,
+      "itemId": "satiscraftory:wire"
     }
   ]
 }

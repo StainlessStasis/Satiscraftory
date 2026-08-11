@@ -2,8 +2,12 @@
   "buildingItemId": "manifold:splitter",
   "inputs": [
     {
-      "amount": 1,
+      "amount": 2,
       "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 2,
+      "itemId": "satiscraftory:cable"
     }
   ]
 }

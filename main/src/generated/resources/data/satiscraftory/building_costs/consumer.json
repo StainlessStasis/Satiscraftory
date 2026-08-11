@@ -2,8 +2,16 @@
   "buildingItemId": "manifold:consumer",
   "inputs": [
     {
-      "amount": 1,
+      "amount": 15,
       "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 10,
+      "itemId": "satiscraftory:iron_rod"
+    },
+    {
+      "amount": 15,
+      "itemId": "satiscraftory:wire"
     }
   ]
 }

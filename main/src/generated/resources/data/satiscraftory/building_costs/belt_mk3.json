@@ -2,8 +2,8 @@
   "buildingItemId": "satiscraftory:belt_mk3",
   "inputs": [
     {
-      "amount": 1,
-      "itemId": "satiscraftory:iron_plate"
+      "amount": 999,
+      "itemId": "minecraft:bedrock"
     }
   ]
 }
