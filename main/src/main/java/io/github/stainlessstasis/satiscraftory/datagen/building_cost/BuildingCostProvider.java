@@ -44,6 +44,6 @@ public abstract class BuildingCostProvider implements DataProvider {
 
     @Override
     public @NonNull String getName() {
-        return "Manifold Building Costs";
+        return "Building Costs";
     }
 }

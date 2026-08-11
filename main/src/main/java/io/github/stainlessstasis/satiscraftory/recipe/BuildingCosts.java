@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.recipe;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -33,7 +33,7 @@ public class BuildingCosts extends SimplePreparableReloadListener<Map<Identifier
                                 .withId(costId);
                         loaded.put(costId, cost);
                     } catch (Exception e) {
-                        Manifold.LOGGER.error("Skipping invalid building cost {}: {}", fileLocation, e.getMessage());
+                        Satiscraftory.LOGGER.error("Skipping invalid building cost {}: {}", fileLocation, e.getMessage());
                     }
                 });
 
@@ -48,12 +48,12 @@ public class BuildingCosts extends SimplePreparableReloadListener<Map<Identifier
         for (BuildingCost cost : COSTS.values()) {
             BuildingCost existing = byBuilding.put(cost.buildingItemId(), cost);
             if (existing != null) {
-                Manifold.LOGGER.warn("Multiple building costs registered for {}, {} will be ignored", cost.buildingItemId(), existing.id());
+                Satiscraftory.LOGGER.warn("Multiple building costs registered for {}, {} will be ignored", cost.buildingItemId(), existing.id());
             }
         }
         COSTS_BY_BUILDING = Map.copyOf(byBuilding);
 
-        Manifold.LOGGER.info("ManifoldBuildingCosts loaded {} building cost(s)", COSTS.size());
+        Satiscraftory.LOGGER.info("BuildingCosts loaded {} building cost(s)", COSTS.size());
     }
 
     private static Identifier trimToCostId(Identifier fileLocation) {

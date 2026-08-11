@@ -7,6 +7,7 @@ import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.ItemLike;
+import org.jspecify.annotations.NonNull;
 
 // TODO: replace placeholders with real implementations (also concrete doesnt exist yet, and SF uses concrete for a lot of buildings...)
 public class SCBuildingCostsProvider extends BuildingCostProvider {
@@ -43,5 +44,10 @@ public class SCBuildingCostsProvider extends BuildingCostProvider {
     private void addCost(CostOutput output, ItemLike buildingItem, BuildingCost.Data data) {
         String name = BuiltInRegistries.ITEM.getKey(buildingItem.asItem()).getPath();
         output.accept(Satiscraftory.id(name), data);
+    }
+
+    @Override
+    public @NonNull String getName() {
+        return "Satiscraftory Building Costs";
     }
 }
