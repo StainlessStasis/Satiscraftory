@@ -37,7 +37,7 @@ public final class BuildGunHUD implements GuiLayer {
     private static final int ITEM_BOX_SPACING = 4;
 
     private static final int ROW_GAP = 4;
-    private static final int BOTTOM_MARGIN = 26;
+    private static final int BOTTOM_MARGIN = 48;
 
     private static final int TITLE_BOX_BG = 0xB0000000;
     private static final int LABEL_COLOR = 0xFFAAAAAA;
