@@ -8,6 +8,7 @@ import io.github.stainlessstasis.satiscraftory.client.miner.MinerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerScreen;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleRenderer;
+import io.github.stainlessstasis.satiscraftory.client.ui.BuildGunHUD;
 import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCMenus;
@@ -19,9 +20,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
 @Mod(value = Satiscraftory.MODID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = Satiscraftory.MODID, value = Dist.CLIENT)
@@ -59,4 +62,10 @@ public class SatiscraftoryClient {
     static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(SCMenus.MINER.get(), MinerScreen::new);
     }
+
+    @SubscribeEvent
+    static void registerGuiLayers(RegisterGuiLayersEvent event) {
+        event.registerAbove(VanillaGuiLayers.HOTBAR, Satiscraftory.id(BuildGunHUD.PATH), new BuildGunHUD());
+    }
+
 }
