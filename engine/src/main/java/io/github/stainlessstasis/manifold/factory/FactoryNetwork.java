@@ -16,7 +16,7 @@ import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -804,7 +804,7 @@ public class FactoryNetwork extends SavedData {
         }
 
         for (Persisted.Machine machineData : snapshot.machines()) {
-            MachineRecipe recipe = ManifoldRecipes.get(machineData.recipeId());
+            MachineRecipe recipe = ManifoldMachineRecipes.get(machineData.recipeId());
             if (recipe == null) continue;
 
             List<Port> outputPorts = new ArrayList<>();

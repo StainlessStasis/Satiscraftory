@@ -5,7 +5,7 @@ import io.github.stainlessstasis.manifold.command.PowerDebugCommands;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.recipe.ManifoldGeneratorFuels;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -38,8 +38,8 @@ public class ManifoldEventHandlers {
 
     @SubscribeEvent
     static void onAddReloadListeners(AddServerReloadListenersEvent event) {
-        event.addListener(Manifold.id("recipes"), new ManifoldRecipes());
-        event.addListener(Manifold.id("generator_fuels"), new ManifoldGeneratorFuels());
+        event.addListener(Manifold.id(ManifoldMachineRecipes.PATH), new ManifoldMachineRecipes());
+        event.addListener(Manifold.id(ManifoldGeneratorFuels.PATH), new ManifoldGeneratorFuels());
     }
 
     @SubscribeEvent

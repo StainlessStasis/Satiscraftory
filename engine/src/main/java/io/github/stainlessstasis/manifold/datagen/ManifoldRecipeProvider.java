@@ -3,7 +3,7 @@ package io.github.stainlessstasis.manifold.datagen;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -19,7 +19,7 @@ public abstract class ManifoldRecipeProvider implements DataProvider {
     private final PackOutput.PathProvider pathProvider;
 
     protected ManifoldRecipeProvider(PackOutput output) {
-        this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, ManifoldRecipes.PATH);
+        this.pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, ManifoldMachineRecipes.PATH);
     }
 
     protected abstract void addRecipes(RecipeOutput output);

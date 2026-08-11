@@ -72,9 +72,6 @@ public class BuildGunItem extends Item {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(selected);
 
         BuildingCost cost = BuildingCosts.get(selectedId);
-        System.out.println(selectedId);
-        System.out.println(BuildingCosts.allCosts());
-        System.out.println(cost);
         if (cost != null && !player.isCreative() && !hasRequiredItems(player, cost)) {
             MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun"+".missing_materials", selected.getDescriptionId());
             return InteractionResult.FAIL;

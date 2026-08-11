@@ -7,7 +7,7 @@ import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlo
 import io.github.stainlessstasis.manifold.menu.machine.MachineContainerData;
 import io.github.stainlessstasis.manifold.menu.machine.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -67,7 +67,7 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
         GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), getBlockPos());
 
         machine = network.getOrCreateMachine(globalPos, () -> {
-            MachineRecipe recipe = ManifoldRecipes.get(DEFAULT_RECIPE_ID);
+            MachineRecipe recipe = ManifoldMachineRecipes.get(DEFAULT_RECIPE_ID);
             if (recipe == null) {
                 throw new IllegalStateException("Missing built-in recipe " + DEFAULT_RECIPE_ID + " - check Manifold's own datapack resources");
             }
@@ -96,7 +96,7 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
         Identifier recipeId = pendingRecipeId;
         pendingRecipeId = null;
 
-        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        MachineRecipe recipe = ManifoldMachineRecipes.get(recipeId);
         if (recipe == null) return;
 
         machine.setRecipe(recipe, machine.getOutputPorts());

@@ -4,10 +4,9 @@ import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlock
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -77,7 +76,7 @@ public final class FactoryCommands {
                         .requires(GAMEMASTER)
                         .then(Commands.argument("recipe", IdentifierArgument.id())
                                 .suggests((_, builder) -> SharedSuggestionProvider.suggestResource(
-                                        ManifoldRecipes.allRecipes().keySet(), builder))
+                                        ManifoldMachineRecipes.allRecipes().keySet(), builder))
                                 .executes(ctx -> setRecipe(ctx, null, false))
                                 .then(Commands.literal("force")
                                         .executes(ctx -> setRecipe(ctx, null, true)))
@@ -93,7 +92,7 @@ public final class FactoryCommands {
                         .requires(GAMEMASTER)
                         .then(Commands.argument("recipe", IdentifierArgument.id())
                                 .suggests((_, builder) -> SharedSuggestionProvider.suggestResource(
-                                        ManifoldRecipes.allRecipes().keySet(), builder))
+                                        ManifoldMachineRecipes.allRecipes().keySet(), builder))
                                 .executes(FactoryCommands::presetRecipe))
                         .then(Commands.literal("clear")
                                 .executes(FactoryCommands::clearPresetRecipe))
@@ -106,7 +105,7 @@ public final class FactoryCommands {
         ServerLevel level = source.getLevel();
         Identifier recipeId = IdentifierArgument.getId(ctx, "recipe");
 
-        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        MachineRecipe recipe = ManifoldMachineRecipes.get(recipeId);
         if (recipe == null) {
             source.sendFailure(Component.literal("No such recipe: " + recipeId));
             return 0;
@@ -154,7 +153,7 @@ public final class FactoryCommands {
         }
 
         Identifier recipeId = IdentifierArgument.getId(ctx, "recipe");
-        MachineRecipe recipe = ManifoldRecipes.get(recipeId);
+        MachineRecipe recipe = ManifoldMachineRecipes.get(recipeId);
         if (recipe == null) {
             source.sendFailure(Component.literal("No such recipe: " + recipeId));
             return 0;

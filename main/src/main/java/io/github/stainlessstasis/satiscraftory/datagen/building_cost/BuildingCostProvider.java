@@ -24,6 +24,7 @@ public abstract class BuildingCostProvider implements DataProvider {
 
     protected abstract void addCosts(CostOutput output);
 
+    @FunctionalInterface
     public interface CostOutput {
         void accept(Identifier id, BuildingCost.Data data);
     }
