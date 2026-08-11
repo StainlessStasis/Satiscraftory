@@ -1,8 +1,10 @@
 package io.github.stainlessstasis.satiscraftory.network;
 
+import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
+import io.github.stainlessstasis.satiscraftory.progression.TierUnlockData;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -33,9 +35,16 @@ public record SelectBuildingPacket(Identifier buildingItemId) implements CustomP
             BuildingCatalog.BuildingEntry entry = BuildingCatalog.byId(packet.buildingItemId()).orElse(null);
             if (entry == null) return;
 
-            player.level();
             boolean unlocked = TierUnlocks.isUnlockedOnServer(player.level().getServer(), entry.unlock());
-            if (!unlocked) return;
+            if (!unlocked) {
+                MessageUtil.warnPlayer(player, Satiscraftory.MODID+".progression.not_unlocked", entry.unlock().name(), entry.tier());
+                return;
+            }
+
+            if (!TierUnlocks.isTierReachedOnServer(player.level().getServer(), entry.tier())) {
+                MessageUtil.warnPlayer(player, Satiscraftory.MODID+".progression.tier_not_met", entry.tier());
+                return;
+            }
 
             BuildGunItem.setSelectedBlock(player, entry.id());
         });

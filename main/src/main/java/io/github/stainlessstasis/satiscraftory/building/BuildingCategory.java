@@ -16,7 +16,7 @@ public enum BuildingCategory {
     private final String translationKey;
 
     BuildingCategory(String path) {
-        this.translationKey = Satiscraftory.MODID+"build_menu.category." + path;
+        this.translationKey = Satiscraftory.MODID+".build_menu.category." + path;
     }
 
     public Component displayName() {

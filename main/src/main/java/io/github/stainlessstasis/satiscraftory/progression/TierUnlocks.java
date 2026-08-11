@@ -19,6 +19,10 @@ public final class TierUnlocks {
         return server.getDataStorage().computeIfAbsent(TierUnlockData.TYPE);
     }
 
+    public static boolean isTierReachedOnServer(MinecraftServer server, int tier) {
+        return tier == server(server).tier();
+    }
+
     public static boolean isUnlockedOnServer(MinecraftServer server, TierUnlock unlock) {
         return server(server).isUnlocked(unlock);
     }

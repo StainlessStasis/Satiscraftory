@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.network;
 
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -8,7 +9,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber
+@EventBusSubscriber(modid = Satiscraftory.MODID)
 public final class SCNetworking {
     public static final int NETWORK_VERSION = 1;
 

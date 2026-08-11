@@ -1,6 +1,7 @@
-package io.github.stainlessstasis.satiscraftory;
+package io.github.stainlessstasis.satiscraftory.client;
 
 import io.github.stainlessstasis.manifold.client.block_preview.PreviewHeldItemSource;
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerModel;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
@@ -21,6 +22,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -45,14 +47,14 @@ public class SatiscraftoryClient {
     }
 
     @SubscribeEvent
-    public static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
+    static void registerLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(MinerModel.LAYER_LOCATION, MinerModel::createBodyLayer);
         event.registerLayerDefinition(PowerPoleModel.LAYER_LOCATION, PowerPoleModel::createBodyLayer);
         event.registerLayerDefinition(BiomassBurnerModel.LAYER_LOCATION, BiomassBurnerModel::createBodyLayer);
     }
 
     @SubscribeEvent
-    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SCBlockEntities.MINER.get(), MinerRenderer::new);
         event.registerBlockEntityRenderer(SCBlockEntities.POWER_POLE.get(), PowerPoleRenderer::new);
         event.registerBlockEntityRenderer(SCBlockEntities.BIOMASS_BURNER.get(), BiomassBurnerRenderer::new);
@@ -67,5 +69,4 @@ public class SatiscraftoryClient {
     static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.HOTBAR, Satiscraftory.id(BuildGunHUD.PATH), new BuildGunHUD());
     }
-
 }

@@ -14,6 +14,5 @@ public enum TierUnlock {
 
     public static final Codec<TierUnlock> CODEC = Codec.STRING.xmap(TierUnlock::valueOf, Enum::name);
 
-    public static final StreamCodec<ByteBuf, TierUnlock> STREAM_CODEC =
-            ByteBufCodecs.STRING_UTF8.map(TierUnlock::valueOf, Enum::name);
+    public static final StreamCodec<ByteBuf, TierUnlock> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(TierUnlock::valueOf, Enum::name);
 }

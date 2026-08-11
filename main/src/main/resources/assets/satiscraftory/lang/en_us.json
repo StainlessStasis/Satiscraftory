@@ -9,10 +9,6 @@
   "block.satiscraftory.power_pole_mk1": "Power Pole Mk. 1",
   "block.satiscraftory.biomass_burner": "Biomass Burner",
 
-  "item.satiscraftory.build_gun": "Build Gun",
-  "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
-  "satiscraftory.build_gun.currently_building": "Currently Building:",
-
   "item.satiscraftory.iron_plate": "Iron Plate",
   "item.satiscraftory.iron_rod": "Iron Rod",
   "item.satiscraftory.screws": "Screws",
@@ -30,5 +26,17 @@
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
 
-  "satiscraftory.configuration.buildingCosts": "Building Costs"
+  "item.satiscraftory.build_gun": "Build Gun",
+  "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
+  "satiscraftory.build_gun.currently_building": "Currently Building:",
+  "satiscraftory.configuration.buildingCosts": "Building Costs",
+  "satiscraftory.build_menu.category.production": "Production",
+  "satiscraftory.build_menu.category.power": "Power",
+  "satiscraftory.build_menu.category.logistics": "Logistics",
+  "satiscraftory.build_menu.category.organization": "Organization",
+  "satiscraftory.build_menu.title": "Building Selection",
+  "satiscraftory.build_menu.tier": "Tier %s",
+
+  "satiscraftory.progression.tier_not_met": "Locked until tier %s",
+  "satiscraftory.progression.not_unlocked": "Unlocked by %s at tier %s"
 }
