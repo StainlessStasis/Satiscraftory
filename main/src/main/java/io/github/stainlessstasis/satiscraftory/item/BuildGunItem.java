@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -29,10 +30,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class BuildGunItem extends Item {
     // TODO: eventually replace with progression based unlocks
-    private static final List<DeferredItem<BlockItem>> PLACEABLE_BLOCKS = List.of(
+    private static final List<Supplier<? extends BlockItem>> PLACEABLE_BLOCKS = List.of(
             SCItems.MINER_MK1,
             SCItems.BELT_MK1,
             SCItems.BELT_MK2,
@@ -43,8 +45,7 @@ public class BuildGunItem extends Item {
             ManifoldItems.MERGER,
             ManifoldItems.MACHINE,
             ManifoldItems.CONTAINER,
-            ManifoldItems.CONSUMER,
-            ManifoldItems.POWER_PRODUCER
+            ManifoldItems.CONSUMER
     );
 
     private static final Map<UUID, Identifier> selectedBlockByPlayer = new HashMap<>();
@@ -183,7 +184,7 @@ public class BuildGunItem extends Item {
         return BuildingCosts.get(selectedId);
     }
 
-    public static List<DeferredItem<BlockItem>> getPlaceableBlocks() {
+    public static List<Supplier<? extends BlockItem>> getPlaceableBlocks() {
         return PLACEABLE_BLOCKS;
     }
 }
