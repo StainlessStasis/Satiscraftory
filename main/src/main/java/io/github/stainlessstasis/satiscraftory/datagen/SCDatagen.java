@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory.datagen;
 
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.datagen.building_cost.SCBuildingCostsProvider;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -13,6 +14,7 @@ public class SCDatagen {
         event.createProvider(SCModelProvider::new);
         event.createProvider(SCMachineRecipesProvider::new);
         event.createProvider(SCGeneratorFuelsProvider::new);
+        event.createProvider(SCBuildingCostsProvider::new);
         event.createProvider((output, lookupProvider) ->
                 new SCBlockTagsProvider(output, lookupProvider, Satiscraftory.MODID)
         );

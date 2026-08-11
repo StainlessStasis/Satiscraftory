@@ -1,0 +1,13 @@
+{
+  "buildingItemId": "manifold:merger",
+  "inputs": [
+    {
+      "amount": 2,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 2,
+      "itemId": "satiscraftory:iron_rod"
+    }
+  ]
+}

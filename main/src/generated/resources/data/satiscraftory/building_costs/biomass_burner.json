@@ -1,0 +1,9 @@
+{
+  "buildingItemId": "satiscraftory:biomass_burner",
+  "inputs": [
+    {
+      "amount": 1,
+      "itemId": "satiscraftory:iron_plate"
+    }
+  ]
+}

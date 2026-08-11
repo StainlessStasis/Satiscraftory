@@ -1,0 +1,9 @@
+{
+  "buildingItemId": "manifold:power_producer",
+  "inputs": [
+    {
+      "amount": 1,
+      "itemId": "satiscraftory:iron_plate"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "buildingItemId": "manifold:machine",
+  "inputs": [
+    {
+      "amount": 1,
+      "itemId": "satiscraftory:iron_plate"
+    }
+  ]
+}

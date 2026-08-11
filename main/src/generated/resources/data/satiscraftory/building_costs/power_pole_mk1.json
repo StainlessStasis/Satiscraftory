@@ -1,0 +1,9 @@
+{
+  "buildingItemId": "satiscraftory:power_pole_mk1",
+  "inputs": [
+    {
+      "amount": 1,
+      "itemId": "satiscraftory:iron_plate"
+    }
+  ]
+}
