@@ -4,7 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
-import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
+import io.github.stainlessstasis.manifold.client.model.HorizontallyCenteredModel;
+import io.github.stainlessstasis.manifold.client.model.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
@@ -140,6 +141,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.pushPose();
         applyGuiTransform(poseStack, facing);
         poseStack.mulPose(Axis.YP.rotationDegrees(spinDegrees));
+        if (getModel() instanceof HorizontallyCenteredModel centeredModel) {
+            Vec3 center = centeredModel.getHorizontalCenter();
+            poseStack.translate(-center.x, 0, -center.z);
+        }
         getModel().setupAnim(renderState);
         VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.entityTranslucent(getTexture()));
         getModel().renderToBuffer(poseStack, buffer, lightCoords, OverlayTexture.NO_OVERLAY, tintColor);

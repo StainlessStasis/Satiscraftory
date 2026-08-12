@@ -2,7 +2,7 @@ package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
 import io.github.stainlessstasis.manifold.client.util.LoopingParticleTracker;
 import io.github.stainlessstasis.manifold.client.util.LoopingSoundTracker;
-import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
+import io.github.stainlessstasis.manifold.client.model.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.util.FactoryParticles;
@@ -111,10 +111,5 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
     @Override
     public @NonNull BiomassBurnerRenderState createRenderState() {
         return new BiomassBurnerRenderState();
-    }
-
-    @Override
-    public float getModelGuiScale() {
-        return 20f;
     }
 }
