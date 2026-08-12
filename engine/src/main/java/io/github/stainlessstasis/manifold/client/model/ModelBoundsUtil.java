@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.client.util;
+package io.github.stainlessstasis.manifold.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.geom.ModelPart;

@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.manifold.client.model;
 
-import io.github.stainlessstasis.manifold.client.util.ModelBoundsUtil;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 
