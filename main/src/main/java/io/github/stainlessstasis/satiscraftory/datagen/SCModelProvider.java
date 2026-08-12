@@ -25,6 +25,12 @@ public class SCModelProvider extends FactoryModelProvider {
             TextureSlot.LAYER0
     );
 
+    public static final ModelTemplate HANDHELD_VERTICALLY_FLIPPED = new ModelTemplate(
+            Optional.of(Satiscraftory.id("item/handheld_vertically_flipped")),
+            Optional.empty(),
+            TextureSlot.LAYER0
+    );
+
     public static final TextureSlot PARTICLE_SLOT = TextureSlot.create("particle");
     public static final ModelTemplate PARTICLE_ONLY = new ModelTemplate(
             Optional.of(Satiscraftory.id("block/particle_only")),
@@ -44,7 +50,7 @@ public class SCModelProvider extends FactoryModelProvider {
             itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(Satiscraftory.id("item/" + itemId.getPath())));
         }
 
-        itemModels.generateFlatItem(SCItems.BUILD_GUN.get(), ModelTemplates.FLAT_HANDHELD_ITEM);
+        itemModels.generateFlatItem(SCItems.BUILD_GUN.get(), HANDHELD_VERTICALLY_FLIPPED);
 
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
