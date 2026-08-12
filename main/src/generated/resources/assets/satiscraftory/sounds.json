@@ -7,7 +7,7 @@
         "volume": 0.45
       }
     ],
-    "subtitle": "sound.satiscraftorybiomass_burner_burning"
+    "subtitle": "sound.satiscraftory.biomass_burner_burning"
   },
   "biomass_burner_cooldown": {
     "sounds": [
@@ -17,7 +17,7 @@
         "volume": 0.45
       }
     ],
-    "subtitle": "sound.satiscraftorybiomass_burner_cooldown"
+    "subtitle": "sound.satiscraftory.biomass_burner_cooldown"
   },
   "biomass_burner_startup": {
     "sounds": [
@@ -27,7 +27,7 @@
         "volume": 0.45
       }
     ],
-    "subtitle": "sound.satiscraftorybiomass_burner_startup"
+    "subtitle": "sound.satiscraftory.biomass_burner_startup"
   },
   "miner_cooldown": {
     "sounds": [
@@ -37,7 +37,7 @@
         "volume": 0.67
       }
     ],
-    "subtitle": "sound.satiscraftoryminer_cooldown"
+    "subtitle": "sound.satiscraftory.miner_cooldown"
   },
   "miner_drilling": {
     "sounds": [
@@ -47,7 +47,7 @@
         "volume": 0.67
       }
     ],
-    "subtitle": "sound.satiscraftoryminer_drilling"
+    "subtitle": "sound.satiscraftory.miner_drilling"
   },
   "miner_startup": {
     "sounds": [
@@ -57,6 +57,6 @@
         "volume": 0.67
       }
     ],
-    "subtitle": "sound.satiscraftoryminer_startup"
+    "subtitle": "sound.satiscraftory.miner_startup"
   }
 }

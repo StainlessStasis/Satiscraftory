@@ -12,13 +12,14 @@ public class SCDatagen {
     @SubscribeEvent
     static void datagen(GatherDataEvent.Client event) {
         event.createProvider(SCModelProvider::new);
+        event.createProvider(SCCraftingRecipesProvider.Runner::new);
         event.createProvider(SCMachineRecipesProvider::new);
         event.createProvider(SCGeneratorFuelsProvider::new);
         event.createProvider(SCBuildingCostsProvider::new);
+        event.createProvider(SCSoundsProvider::new);
+        event.createDatapackRegistryObjects(SCWorldgenBootstrap.BUILDER);
         event.createProvider((output, lookupProvider) ->
                 new SCBlockTagsProvider(output, lookupProvider, Satiscraftory.MODID)
         );
-        event.createProvider(SCSoundsProvider::new);
-        event.createDatapackRegistryObjects(SCWorldgenBootstrap.BUILDER);
     }
 }
