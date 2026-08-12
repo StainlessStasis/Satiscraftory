@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
+import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import net.minecraft.core.HolderGetter;
@@ -60,6 +61,17 @@ public class SCCraftingRecipesProvider extends RecipeProvider {
                 .pattern("#")
                 .define('#', SCItems.WIRE)
                 .unlockedBy("has_wire", has(SCItems.WIRE))
+                .save(output);
+
+        // ========== MISC ==========
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, ManifoldItems.CABLE_CUTTER, 1)
+                .pattern(" W ")
+                .pattern("PSW")
+                .pattern(" P ")
+                .define('W', SCItems.WIRE)
+                .define('P', SCItems.IRON_PLATE)
+                .define('S', Items.SHEARS)
+                .unlockedBy("has_cable", has(SCItems.CABLE))
                 .save(output);
     }
 
