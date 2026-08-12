@@ -32,7 +32,7 @@ public class BuildGunItem extends Item {
     private static final Map<UUID, Identifier> selectedBlockByPlayer = new HashMap<>();
 
     public BuildGunItem(Properties properties) {
-        super(properties);
+        super(properties.stacksTo(1));
     }
 
     @Override
