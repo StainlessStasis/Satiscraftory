@@ -34,10 +34,10 @@ public class MultiblockGuiRenderer extends PictureInPictureRenderer<MultiblockGu
         MultiblockRenderer<?, ?> renderer = rendererFor(renderState.multiblock());
         if (renderer == null) return;
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(renderState.gameTime() % 360L));
         renderer.submitGuiPreviewToBuffer(
                 poseStack, this.bufferSource, renderState.facing(),
-                LightCoordsUtil.FULL_BRIGHT, renderState.tintColor()
+                LightCoordsUtil.FULL_BRIGHT, renderState.tintColor(),
+                renderState.gameTime() % 360L
         );
     }
 

@@ -70,6 +70,12 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.translate(getModelOffset());
     }
 
+    private void applyGuiTransform(PoseStack poseStack, Direction facing) {
+        poseStack.translate(0.5, 0, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180 - facing.toYRot()));
+        poseStack.translate(getModelOffset());
+    }
+
     @Override
     public void submit(
             @NonNull S renderState, @NonNull PoseStack poseStack,
@@ -126,13 +132,14 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.popPose();
     }
 
-    public void submitGuiPreviewToBuffer(PoseStack poseStack, MultiBufferSource bufferSource, Direction facing, int lightCoords, int tintColor) {
+    public void submitGuiPreviewToBuffer(PoseStack poseStack, MultiBufferSource bufferSource, Direction facing, int lightCoords, int tintColor, float spinDegrees) {
         S renderState = createRenderState();
         renderState.facing = facing;
         renderState.lightCoords = lightCoords;
 
         poseStack.pushPose();
-        applyTransform(poseStack, facing);
+        applyGuiTransform(poseStack, facing);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spinDegrees));
         getModel().setupAnim(renderState);
         VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.entityTranslucent(getTexture()));
         getModel().renderToBuffer(poseStack, buffer, lightCoords, OverlayTexture.NO_OVERLAY, tintColor);

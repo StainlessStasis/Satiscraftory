@@ -8,6 +8,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 
 public final class MultiblockPreviewPanel {
+    public static final float MODEL_SCALE = 16f;
+
     private MultiblockPreviewPanel() {}
 
     public static void render(GuiGraphicsExtractor graphics, BlockItem blockItem, int centerX, int centerY, int size, long gameTime) {
@@ -16,7 +18,7 @@ public final class MultiblockPreviewPanel {
             graphics.submitPictureInPictureRenderState(new MultiblockGuiPreviewRenderState(
                     multiblock, Direction.NORTH, gameTime, 0xFFFFFFFF,
                     centerX - half, centerY - half, centerX + half, centerY + half,
-                    size, graphics.peekScissorStack()
+                    MODEL_SCALE, graphics.peekScissorStack()
             ));
         } else {
             renderItemIcon(graphics, blockItem, centerX, centerY, size);
