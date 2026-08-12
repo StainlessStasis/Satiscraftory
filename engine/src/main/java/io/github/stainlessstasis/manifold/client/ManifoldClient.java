@@ -1,8 +1,11 @@
-package io.github.stainlessstasis.manifold;
+package io.github.stainlessstasis.manifold.client;
 
+import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
 import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
 import io.github.stainlessstasis.manifold.client.command.MultiblockCaptureCommands;
+import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockGuiPreviewRenderState;
+import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockGuiRenderer;
 import io.github.stainlessstasis.manifold.client.screen.ContainerScreen;
 import io.github.stainlessstasis.manifold.client.screen.GeneratorScreen;
 import io.github.stainlessstasis.manifold.client.screen.MachineScreen;
@@ -17,6 +20,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -46,5 +50,10 @@ public class ManifoldClient {
     static void registerClientCommands(RegisterClientCommandsEvent event) {
         FactoryClientCommands.register(event.getDispatcher());
         MultiblockCaptureCommands.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    static void registerPIP(RegisterPictureInPictureRenderersEvent event) {
+        event.register(MultiblockGuiPreviewRenderState.class, MultiblockGuiRenderer::new);
     }
 }

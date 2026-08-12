@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.screen;
 
-import io.github.stainlessstasis.manifold.client.multiblock.MultiblockPreviewPanel;
+import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockPreviewPanel;
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;

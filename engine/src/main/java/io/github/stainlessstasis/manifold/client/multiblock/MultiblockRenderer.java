@@ -5,9 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
 import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
-import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
-import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
-import io.github.stainlessstasis.manifold.factory_power.PowerProducingFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
@@ -129,9 +126,14 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.popPose();
     }
 
-    public void renderInGui(PoseStack poseStack, MultiBufferSource bufferSource, Direction facing, int lightCoords, int tintColor) {
+    public void submitGuiPreviewToBuffer(PoseStack poseStack, MultiBufferSource bufferSource, Direction facing, int lightCoords, int tintColor) {
+        S renderState = createRenderState();
+        renderState.facing = facing;
+        renderState.lightCoords = lightCoords;
+
         poseStack.pushPose();
         applyTransform(poseStack, facing);
+        getModel().setupAnim(renderState);
         VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.entityTranslucent(getTexture()));
         getModel().renderToBuffer(poseStack, buffer, lightCoords, OverlayTexture.NO_OVERLAY, tintColor);
         poseStack.popPose();
