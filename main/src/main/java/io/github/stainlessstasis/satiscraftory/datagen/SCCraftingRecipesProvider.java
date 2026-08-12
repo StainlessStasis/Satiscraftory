@@ -73,7 +73,20 @@ public class SCCraftingRecipesProvider extends RecipeProvider {
                 .define('S', Items.SHEARS)
                 .unlockedBy("has_cable", has(SCItems.CABLE))
                 .save(output);
+
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, SCItems.BUILD_GUN, 1)
+                .pattern("PP ")
+                .pattern("WRP")
+                .pattern("RC ")
+                .define('P', SCItems.IRON_PLATE)
+                .define('W', SCItems.WIRE)
+                .define('R', SCItems.IRON_ROD)
+                .define('C', SCItems.CABLE)
+                .unlockedBy("has_iron", has(Items.IRON_INGOT))
+                .save(output);
     }
+
+
 
     public static class Runner extends RecipeProvider.Runner {
         public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
