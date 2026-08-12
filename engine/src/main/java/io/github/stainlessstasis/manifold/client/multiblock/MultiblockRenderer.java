@@ -163,4 +163,9 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     public boolean shouldRenderOffScreen() {
         return true;
     }
+
+    public static final float DEFAULT_MODEL_SCALE = 16f;
+    public float getModelGuiScale() {
+        return DEFAULT_MODEL_SCALE;
+    }
 }

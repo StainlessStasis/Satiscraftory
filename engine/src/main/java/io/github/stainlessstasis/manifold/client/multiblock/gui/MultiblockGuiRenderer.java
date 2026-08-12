@@ -41,6 +41,11 @@ public class MultiblockGuiRenderer extends PictureInPictureRenderer<MultiblockGu
         );
     }
 
+    @Override
+    protected float getTranslateY(int height, int guiScale) {
+        return height / 1.5f;
+    }
+
     public static @Nullable MultiblockRenderer<?, ?> rendererFor(Multiblock<?> multiblock) {
         BaseEntityBlock block = multiblock.getPreviewBlock();
         BlockEntity blockEntity = block.newBlockEntity(BlockPos.ZERO, block.defaultBlockState());

@@ -110,4 +110,9 @@ public class MinerRenderer extends MultiblockRenderer<MinerBlockEntity, MinerRen
     public PoweredFactoryModel<MinerRenderState> getModel() {
         return model;
     }
+
+    @Override
+    public float getModelGuiScale() {
+        return 10f;
+    }
 }

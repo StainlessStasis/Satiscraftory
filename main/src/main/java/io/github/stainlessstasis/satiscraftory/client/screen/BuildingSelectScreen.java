@@ -145,9 +145,9 @@ public class BuildingSelectScreen extends Screen {
         if (buildingEntry == null) return;
 
         int centerX = previewX + previewWidth / 2;
-        int centerY = previewY + previewHeight / 2 - 10;
+//        int centerY = previewY + previewHeight / 2 - 10;
         long fakeGameTime = System.currentTimeMillis() / 50L;
-        MultiblockPreviewPanel.render(graphics, buildingEntry.blockItem(), centerX, centerY, 64, fakeGameTime);
+        MultiblockPreviewPanel.render(graphics, buildingEntry.blockItem(), previewX, previewY, previewWidth, previewHeight, fakeGameTime);
 
         GuiRenderUtils.centeredText(graphics, this.font, Component.translatable(buildingEntry.blockItem().getDescriptionId()),
                 centerX, previewY + previewHeight - 24, TEXT_COLOR);

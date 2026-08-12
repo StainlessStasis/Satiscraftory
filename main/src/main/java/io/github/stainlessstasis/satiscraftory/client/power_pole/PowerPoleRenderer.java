@@ -41,4 +41,9 @@ public class PowerPoleRenderer extends MultiblockRenderer<PowerPoleBlockEntity, 
     public @NonNull MultiblockRenderState createRenderState() {
         return new MultiblockRenderState();
     }
+
+    @Override
+    public float getModelGuiScale() {
+        return 24f;
+    }
 }

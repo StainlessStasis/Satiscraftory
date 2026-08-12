@@ -112,4 +112,9 @@ public class BiomassBurnerRenderer extends MultiblockRenderer<BiomassBurnerBlock
     public @NonNull BiomassBurnerRenderState createRenderState() {
         return new BiomassBurnerRenderState();
     }
+
+    @Override
+    public float getModelGuiScale() {
+        return 20f;
+    }
 }
