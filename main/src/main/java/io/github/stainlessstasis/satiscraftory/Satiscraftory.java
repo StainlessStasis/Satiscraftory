@@ -2,17 +2,22 @@ package io.github.stainlessstasis.satiscraftory;
 
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
+import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.TriState;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
@@ -72,5 +77,13 @@ public class Satiscraftory {
     @SubscribeEvent
     static void onAddReloadListeners(AddServerReloadListenersEvent event) {
         event.addListener(Satiscraftory.id(BuildingCosts.PATH), new BuildingCosts());
+    }
+
+    @SubscribeEvent
+    static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        ItemStack heldItem = event.getItemStack();
+        if (heldItem.getItem() instanceof BuildGunItem) {
+            event.setUseBlock(TriState.FALSE);
+        }
     }
 }

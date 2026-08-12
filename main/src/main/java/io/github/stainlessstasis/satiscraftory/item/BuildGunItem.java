@@ -39,7 +39,7 @@ public class BuildGunItem extends Item {
     public @NonNull InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         if (!(player instanceof ServerPlayer) || !(context.getLevel() instanceof ServerLevel)) {
-            return InteractionResult.PASS;
+            return InteractionResult.SUCCESS; // success is intended to be here so client doesnt open block menus
         }
 
         if (player.isCrouching()) {
@@ -82,7 +82,7 @@ public class BuildGunItem extends Item {
             return InteractionResult.SUCCESS_SERVER;
         }
 
-        return result;
+        return InteractionResult.CONSUME;
     }
 
     public static boolean hasRequiredItems(Player player, BuildingCost cost) {
