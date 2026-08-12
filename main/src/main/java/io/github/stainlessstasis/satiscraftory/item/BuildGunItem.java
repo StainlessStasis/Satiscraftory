@@ -77,6 +77,11 @@ public class BuildGunItem extends Item {
         if (cost != null && result.consumesAction() && !player.isCreative() && buildingCostsEnabled) {
             consumeRequiredItems(player, cost);
         }
+
+        if (result.consumesAction()) {
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
         return result;
     }
 
