@@ -4,6 +4,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.item.CableItem;
 import io.github.stainlessstasis.satiscraftory.registry.block.SCBlocks;
+import io.github.stainlessstasis.satiscraftory.resource_scanner.ResourceNodeScannerItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -45,6 +46,7 @@ public class SCItems {
     public static final DeferredItem<CableItem> CABLE = registerFactoryItem("cable", CableItem::new);
 
     public static final DeferredItem<BuildGunItem> BUILD_GUN = ITEMS.registerItem("build_gun", BuildGunItem::new);
+    public static final DeferredItem<ResourceNodeScannerItem> RESOURCE_NODE_SCANNER = ITEMS.registerItem("resource_node_scanner", ResourceNodeScannerItem::new);
 
     public static <B extends Block> DeferredItem<BlockItem> registerFactoryBlockItem(String name, Supplier<B> blockSupplier) {
         DeferredItem<BlockItem> item = ITEMS.registerSimpleBlockItem(name, blockSupplier);

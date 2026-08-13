@@ -46,5 +46,6 @@
   "satiscraftory.configuration.buildingCosts": "Building Costs",
   "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent",
   "satiscraftory.configuration.generateResourceNodes": "Generate Resource Nodes",
-  "satiscraftory.configuration.resourceNodeScannerRange": "Resource Node Scan Range"
+  "satiscraftory.configuration.resourceNodeScannerRange": "Resource Node Scan Range",
+  "satiscraftory.resource_scanner.no_nodes_found": "No known %s nodes within range"
 }

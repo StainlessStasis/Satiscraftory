@@ -1,0 +1,6 @@
+{
+  "parent": "satiscraftory:item/handheld_vertically_flipped",
+  "textures": {
+    "layer0": "satiscraftory:item/resource_node_scanner"
+  }
+}

@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
+import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
@@ -52,16 +53,8 @@ public final class BuildGunHUD implements GuiLayer {
     private static final int ROW_GAP = 4;
     private static final int BOTTOM_MARGIN = 48;
 
-    private static final int TITLE_BOX_BG = 0xB0000000;
-    private static final int LABEL_COLOR = 0xFFAAAAAA;
-    private static final int NAME_COLOR = 0xFFFFFFFF;
-    private static final int ITEM_BOX_BG = 0xAA777777;
-    private static final int SUFFICIENT_COLOR = 0xFF55FF55;
-    private static final int INSUFFICIENT_COLOR = 0xFFFF5555;
-
     private static final int PROGRESS_BAR_WIDTH = 100;
     private static final int PROGRESS_BAR_HEIGHT = 6;
-    private static final int PROGRESS_BAR_BG = 0xAA000000;
 
     private record ItemBox(ItemStack icon, Component amountText, int color, int width) {}
 
@@ -119,8 +112,8 @@ public final class BuildGunHUD implements GuiLayer {
         int barX = centerX - PROGRESS_BAR_WIDTH / 2;
         int barY = screenHeight / 2 + 20;
 
-        graphics.fill(barX, barY, barX + PROGRESS_BAR_WIDTH, barY + PROGRESS_BAR_HEIGHT, PROGRESS_BAR_BG);
-        graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, INSUFFICIENT_COLOR);
+        graphics.fill(barX, barY, barX + PROGRESS_BAR_WIDTH, barY + PROGRESS_BAR_HEIGHT, HudColors.BAR_TRACK_BG);
+        graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, HudColors.NEGATIVE_COLOR);
     }
 
     private void renderPanel(
@@ -156,24 +149,25 @@ public final class BuildGunHUD implements GuiLayer {
         int boxX = centerX - boxWidth / 2;
         int boxTop = boxBottom - boxHeight;
 
-        graphics.fill(boxX, boxTop, boxX + boxWidth, boxBottom, TITLE_BOX_BG);
+        graphics.fill(boxX, boxTop, boxX + boxWidth, boxBottom, HudColors.PANEL_BG);
 
         if (label != null) {
-            GuiRenderUtils.scaledCenteredText(graphics, font, label, centerX, boxTop + TITLE_PADDING_Y, LABEL_COLOR, LABEL_SCALE);
+            GuiRenderUtils.scaledCenteredText(graphics, font, label, centerX, boxTop + TITLE_PADDING_Y, HudColors.LABEL_COLOR, LABEL_SCALE);
         }
-        GuiRenderUtils.centeredText(graphics, font, name, centerX, boxTop + TITLE_PADDING_Y + labelHeight, NAME_COLOR);
+        GuiRenderUtils.centeredText(graphics, font, name, centerX, boxTop + TITLE_PADDING_Y + labelHeight, HudColors.PRIMARY_TEXT_COLOR);
     }
 
     private List<ItemBox> buildItemBoxes(Font font, LocalPlayer player, List<RecipeIngredient> inputs) {
         List<ItemBox> boxes = new ArrayList<>(inputs.size());
         for (RecipeIngredient ingredient : inputs) {
+
             var itemOptional = BuiltInRegistries.ITEM.getOptional(ingredient.itemId());
             ItemStack iconStack = new ItemStack(itemOptional.orElse(Items.BARRIER));
 
             int held = BuildGunItem.countHeld(player.getInventory(), ingredient.itemId());
             boolean sufficient = held >= ingredient.amount();
             Component amountText = Component.literal(held + "/" + ingredient.amount());
-            int color = sufficient ? SUFFICIENT_COLOR : INSUFFICIENT_COLOR;
+            int color = sufficient ? HudColors.POSITIVE_COLOR : HudColors.NEGATIVE_COLOR;
 
             int textWidth = font.width(amountText);
             int width = Math.max(ITEM_SIZE, textWidth) + ITEM_BOX_PADDING_X * 2;
@@ -222,7 +216,7 @@ public final class BuildGunHUD implements GuiLayer {
             int textWidth = font.width(amountText);
             int width = Math.max(ITEM_SIZE, textWidth) + ITEM_BOX_PADDING_X * 2;
 
-            boxes.add(new ItemBox(iconStack, amountText, SUFFICIENT_COLOR, width));
+            boxes.add(new ItemBox(iconStack, amountText, HudColors.POSITIVE_COLOR, width));
         }
         return boxes;
     }
@@ -236,7 +230,7 @@ public final class BuildGunHUD implements GuiLayer {
 
         for (ItemBox box : itemBoxes) {
             int boxRight = boxX + box.width();
-            graphics.fill(boxX, rowTop, boxRight, rowTop + itemBoxHeight, ITEM_BOX_BG);
+            graphics.fill(boxX, rowTop, boxRight, rowTop + itemBoxHeight, HudColors.ITEM_BOX_BG);
 
             int iconX = boxX + (box.width() - ITEM_SIZE) / 2;
             int iconY = rowTop + ITEM_BOX_PADDING_TOP;

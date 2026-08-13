@@ -4,6 +4,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.DemolitionSelectionSyncPacket;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ProgressionSyncPacket;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import io.github.stainlessstasis.satiscraftory.network.serverbound.DemolitionHoldPingPacket;
 import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectBuildingPacket;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
@@ -27,11 +28,11 @@ public final class SCNetworking {
                 ProgressionSyncPacket.TYPE, ProgressionSyncPacket.STREAM_CODEC,
                 ProgressionSyncPacket::handleClient
         );
+
         registrar.playToServer(
                 SelectBuildingPacket.TYPE, SelectBuildingPacket.STREAM_CODEC,
                 SelectBuildingPacket::handleServer
         );
-
         registrar.playToServer(
                 DemolitionHoldPingPacket.TYPE, DemolitionHoldPingPacket.STREAM_CODEC,
                 DemolitionHoldPingPacket::handleServer
@@ -40,6 +41,12 @@ public final class SCNetworking {
                 DemolitionSelectionSyncPacket.TYPE, DemolitionSelectionSyncPacket.STREAM_CODEC,
                 DemolitionSelectionSyncPacket::handleClient
         );
+
+        registrar.playToClient(
+                ResourceScanResultPacket.TYPE, ResourceScanResultPacket.STREAM_CODEC,
+                ResourceScanResultPacket::handleClient
+        );
+
     }
 
     @SubscribeEvent

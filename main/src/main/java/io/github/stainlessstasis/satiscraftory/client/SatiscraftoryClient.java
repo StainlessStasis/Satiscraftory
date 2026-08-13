@@ -13,6 +13,7 @@ import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleRenderer;
 import io.github.stainlessstasis.satiscraftory.client.building.BuildGunHUD;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
+import io.github.stainlessstasis.satiscraftory.client.resource_scanner.ResourceScannerHUD;
 import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCMenus;
 import net.minecraft.world.item.ItemStack;
@@ -76,5 +77,6 @@ public class SatiscraftoryClient {
     @SubscribeEvent
     static void registerGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.HOTBAR, Satiscraftory.id(BuildGunHUD.PATH), new BuildGunHUD());
+        event.registerAbove(VanillaGuiLayers.HOTBAR, Satiscraftory.id(ResourceScannerHUD.PATH), new ResourceScannerHUD());
     }
 }

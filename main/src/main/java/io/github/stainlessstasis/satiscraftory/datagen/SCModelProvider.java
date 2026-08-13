@@ -51,6 +51,7 @@ public class SCModelProvider extends FactoryModelProvider {
         }
 
         itemModels.generateFlatItem(SCItems.BUILD_GUN.get(), HANDHELD_VERTICALLY_FLIPPED);
+        itemModels.generateFlatItem(SCItems.RESOURCE_NODE_SCANNER.get(), HANDHELD_VERTICALLY_FLIPPED);
 
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());
