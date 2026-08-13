@@ -212,10 +212,13 @@ public final class BuildGunHUD implements GuiLayer {
     private List<ItemBox> refundBoxesFor(Font font, List<RecipeIngredient> inputs) {
         List<ItemBox> boxes = new ArrayList<>(inputs.size());
         for (RecipeIngredient ingredient : inputs) {
+            int amount = SatiscraftoryConfig.scaleForDemolishRefund(ingredient.amount());
+            if (amount <= 0) continue;
+
             var itemOptional = BuiltInRegistries.ITEM.getOptional(ingredient.itemId());
             ItemStack iconStack = new ItemStack(itemOptional.orElse(Items.BARRIER));
 
-            Component amountText = Component.literal("+" + ingredient.amount());
+            Component amountText = Component.literal("+" + amount);
             int textWidth = font.width(amountText);
             int width = Math.max(ITEM_SIZE, textWidth) + ITEM_BOX_PADDING_X * 2;
 

@@ -27,8 +27,6 @@
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
 
   "item.satiscraftory.build_gun": "Build Gun",
-  "satiscraftory.configuration.buildingCosts": "Building Costs",
-
   "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
   "satiscraftory.build_gun.currently_building": "Currently building:",
   "satiscraftory.build_gun.mark_for_demolition": "Click to mark for demolition:",
@@ -43,5 +41,8 @@
   "satiscraftory.build_menu.tier": "Tier %s",
 
   "satiscraftory.progression.tier_not_met": "Locked until tier %s",
-  "satiscraftory.progression.not_unlocked": "Unlocked by %s at tier %s"
+  "satiscraftory.progression.not_unlocked": "Unlocked by %s at tier %s",
+
+  "satiscraftory.configuration.buildingCosts": "Building Costs",
+  "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent"
 }

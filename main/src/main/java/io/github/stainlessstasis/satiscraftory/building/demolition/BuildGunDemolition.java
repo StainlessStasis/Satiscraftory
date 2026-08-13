@@ -43,7 +43,7 @@ public final class BuildGunDemolition {
         Item item = BuiltInRegistries.ITEM.getOptional(ingredient.itemId()).orElse(null);
         if (item == null) return;
 
-        int remaining = ingredient.amount();
+        int remaining = SatiscraftoryConfig.scaleForDemolishRefund(ingredient.amount());
         int maxStackSize = item.getDefaultMaxStackSize();
         while (remaining > 0) {
             int take = Math.min(remaining, maxStackSize);
