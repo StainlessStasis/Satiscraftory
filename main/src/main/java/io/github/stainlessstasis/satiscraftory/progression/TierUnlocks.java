@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.progression;
 
-import io.github.stainlessstasis.satiscraftory.network.ProgressionSyncPacket;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.ProgressionSyncPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;

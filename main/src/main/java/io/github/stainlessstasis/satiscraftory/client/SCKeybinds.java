@@ -2,8 +2,8 @@ package io.github.stainlessstasis.satiscraftory.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.client.screen.BuildingSelectScreen;
-import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
+import io.github.stainlessstasis.satiscraftory.client.building.BuildingSelectScreen;
+import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.bus.api.SubscribeEvent;

@@ -1,11 +1,11 @@
-package io.github.stainlessstasis.satiscraftory.client.screen;
+package io.github.stainlessstasis.satiscraftory.client.building;
 
 import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockPreviewPanel;
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCategory;
-import io.github.stainlessstasis.satiscraftory.network.SelectBuildingPacket;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectBuildingPacket;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;

@@ -27,9 +27,14 @@
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
 
   "item.satiscraftory.build_gun": "Build Gun",
-  "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
-  "satiscraftory.build_gun.currently_building": "Currently Building:",
   "satiscraftory.configuration.buildingCosts": "Building Costs",
+
+  "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
+  "satiscraftory.build_gun.currently_building": "Currently building:",
+  "satiscraftory.build_gun.mark_for_demolition": "Click to mark for demolition:",
+  "satiscraftory.build_gun.marked_for_demolition": "Marked for demolition (%s/%s):",
+  "satiscraftory.build_gun.selection_full": "Selection limit reached (%s)",
+
   "satiscraftory.build_menu.category.production": "Production",
   "satiscraftory.build_menu.category.power": "Power",
   "satiscraftory.build_menu.category.logistics": "Logistics",

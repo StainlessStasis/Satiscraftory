@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
+import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.item.CableItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 public class SCItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Satiscraftory.MODID);

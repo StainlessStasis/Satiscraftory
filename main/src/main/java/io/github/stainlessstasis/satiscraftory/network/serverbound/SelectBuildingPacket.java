@@ -1,10 +1,9 @@
-package io.github.stainlessstasis.satiscraftory.network;
+package io.github.stainlessstasis.satiscraftory.network.serverbound;
 
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
-import io.github.stainlessstasis.satiscraftory.item.BuildGunItem;
-import io.github.stainlessstasis.satiscraftory.progression.TierUnlockData;
+import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

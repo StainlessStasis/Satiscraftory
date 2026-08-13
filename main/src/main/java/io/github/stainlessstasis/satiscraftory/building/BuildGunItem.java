@@ -1,12 +1,9 @@
-package io.github.stainlessstasis.satiscraftory.item;
+package io.github.stainlessstasis.satiscraftory.building;
 
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
-import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
-import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
-import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -24,7 +21,6 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

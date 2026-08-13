@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.network;
+package io.github.stainlessstasis.satiscraftory.network.clientbound;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlock;

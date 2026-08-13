@@ -1,6 +1,11 @@
 package io.github.stainlessstasis.satiscraftory.network;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.DemolitionSelectionSyncPacket;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.ProgressionSyncPacket;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.DemolitionHoldPingPacket;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectBuildingPacket;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,12 +32,27 @@ public final class SCNetworking {
                 SelectBuildingPacket::handleServer
         );
 
+        registrar.playToServer(
+                DemolitionHoldPingPacket.TYPE, DemolitionHoldPingPacket.STREAM_CODEC,
+                DemolitionHoldPingPacket::handleServer
+        );
+        registrar.playToClient(
+                DemolitionSelectionSyncPacket.TYPE, DemolitionSelectionSyncPacket.STREAM_CODEC,
+                DemolitionSelectionSyncPacket::handleClient
+        );
     }
 
     @SubscribeEvent
     static void onPlayerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             TierUnlocks.syncToPlayer(player);
+        }
+    }
+
+    @SubscribeEvent
+    static void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            DemolitionSelectionManager.clear(player);
         }
     }
 }
