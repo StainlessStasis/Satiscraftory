@@ -48,14 +48,14 @@ public class PlacementPreview {
         if (!placeContext.canPlace()) return;
 
         if (blockItem.getBlock() instanceof Multiblock<?> multiblock) {
-            renderMultiblockPreview(event, level, multiblock, placeContext);
+            renderMultiblockPreview(event, level, multiblock, placeContext, blockHit.getBlockPos());
         } else if (resolved.fromOverride()) {
             renderPlainBlockPreview(event, level, blockItem, placeContext);
         }
     }
 
     private static void renderMultiblockPreview(
-            SubmitCustomGeometryEvent event, Level level, Multiblock<?> multiblock, BlockPlaceContext placeContext
+            SubmitCustomGeometryEvent event, Level level, Multiblock<?> multiblock, BlockPlaceContext placeContext, BlockPos hoveredPos
     ) {
         BlockState previewState = multiblock.getPreviewPlacement(placeContext);
         if (previewState == null) return;
@@ -64,7 +64,7 @@ public class PlacementPreview {
         Direction facing = previewState.getValue(BlockStateProperties.HORIZONTAL_FACING);
         boolean valid = multiblock.isMultiblockPlacementValid(placeContext, facing);
 
-        if (!PlacementPreviewChecker.isPreviewable(level, origin, valid)) {
+        if (!PlacementPreviewChecker.isPreviewable(level, hoveredPos, valid)) {
             return;
         }
 
