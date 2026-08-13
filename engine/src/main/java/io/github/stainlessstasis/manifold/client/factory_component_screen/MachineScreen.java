@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.client.screen;
+package io.github.stainlessstasis.manifold.client.factory_component_screen;
 
 import io.github.stainlessstasis.manifold.menu.machine.MachineMenu;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;

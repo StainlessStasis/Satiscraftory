@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold;
+package io.github.stainlessstasis.manifold.util;
 
 import java.util.PriorityQueue;
 

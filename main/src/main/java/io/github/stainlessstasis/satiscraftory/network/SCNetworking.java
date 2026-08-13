@@ -7,6 +7,7 @@ import io.github.stainlessstasis.satiscraftory.network.clientbound.ProgressionSy
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import io.github.stainlessstasis.satiscraftory.network.serverbound.DemolitionHoldPingPacket;
 import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectBuildingPacket;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectScanTargetPacket;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,6 +41,11 @@ public final class SCNetworking {
         registrar.playToClient(
                 DemolitionSelectionSyncPacket.TYPE, DemolitionSelectionSyncPacket.STREAM_CODEC,
                 DemolitionSelectionSyncPacket::handleClient
+        );
+
+        registrar.playToServer(
+                SelectScanTargetPacket.TYPE, SelectScanTargetPacket.STREAM_CODEC,
+                SelectScanTargetPacket::handleServer
         );
 
         registrar.playToClient(

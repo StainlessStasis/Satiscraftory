@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.resource_scanner;
+package io.github.stainlessstasis.satiscraftory.item;
 
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -44,7 +44,7 @@ public class ResourceNodeScannerItem extends Item {
         return InteractionResult.SUCCESS_SERVER;
     }
 
-    private void performScan(ServerPlayer player, ServerLevel level, ResourceNodeType type) {
+    public static void performScan(ServerPlayer player, ServerLevel level, ResourceNodeType type) {
         int range = SatiscraftoryConfig.RESOURCE_NODE_SCANNER_RANGE.get();
 
         var results = ResourceNodeData.get(level)

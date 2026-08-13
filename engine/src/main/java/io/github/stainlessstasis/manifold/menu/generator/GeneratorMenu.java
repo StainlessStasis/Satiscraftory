@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.menu.generator;
 
-import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.util.Scheduler;
 import io.github.stainlessstasis.manifold.factory_component.generator.Generator;
 import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlockEntity;
 import io.github.stainlessstasis.manifold.menu.ProgressBar;

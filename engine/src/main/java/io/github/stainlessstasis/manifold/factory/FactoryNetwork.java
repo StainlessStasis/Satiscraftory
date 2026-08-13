@@ -18,6 +18,7 @@ import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
+import io.github.stainlessstasis.manifold.util.Scheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;

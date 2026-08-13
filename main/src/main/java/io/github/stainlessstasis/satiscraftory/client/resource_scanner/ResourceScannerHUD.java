@@ -5,7 +5,7 @@ import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.resource_scanner.ResourceNodeScannerItem;
+import io.github.stainlessstasis.satiscraftory.item.ResourceNodeScannerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

@@ -1,11 +1,10 @@
 package io.github.stainlessstasis.manifold.menu.machine;
 
-import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.util.Scheduler;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Port;
 import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.menu.AbstractFactoryMenu;
-import io.github.stainlessstasis.manifold.menu.MenuConstants;
 import io.github.stainlessstasis.manifold.menu.ProgressBar;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
@@ -16,7 +15,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
-import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
