@@ -63,6 +63,11 @@ public class PlacementPreview {
         BlockPos origin = placeContext.getClickedPos();
         Direction facing = previewState.getValue(BlockStateProperties.HORIZONTAL_FACING);
         boolean valid = multiblock.isMultiblockPlacementValid(placeContext, facing);
+
+        if (!PlacementPreviewChecker.isPreviewable(level, origin, valid)) {
+            return;
+        }
+
         Color tint = valid ? VALID_COLOR : INVALID_COLOR;
 
         MultiblockPreviewSubmission.submit(

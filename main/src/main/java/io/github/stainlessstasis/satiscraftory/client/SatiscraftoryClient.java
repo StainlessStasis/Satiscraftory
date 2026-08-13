@@ -1,7 +1,9 @@
 package io.github.stainlessstasis.satiscraftory.client;
 
+import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreviewChecker;
 import io.github.stainlessstasis.manifold.client.block_preview.PreviewHeldItemSource;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerModel;
 import io.github.stainlessstasis.satiscraftory.client.biomass_burner.BiomassBurnerRenderer;
 import io.github.stainlessstasis.satiscraftory.client.miner.MinerModel;
@@ -42,6 +44,14 @@ public class SatiscraftoryClient {
                 return new ItemStack(BuildGunItem.getSelectedBlockItem(player));
             }
             return ItemStack.EMPTY;
+        });
+
+        PlacementPreviewChecker.register((context) -> {
+            System.out.println(DemolitionResolver.resolve(context.level(), context.pos()));
+            if (!context.isValid() && DemolitionResolver.resolve(context.level(), context.pos()) != null) {
+                return false;
+            }
+            return true;
         });
     }
 
