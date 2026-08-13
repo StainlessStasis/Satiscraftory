@@ -6,7 +6,7 @@ import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlockEntity;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.Identifier;

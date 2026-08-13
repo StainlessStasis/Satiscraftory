@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.block;
 
 import net.minecraft.core.BlockPos;
 

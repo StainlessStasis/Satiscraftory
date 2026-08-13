@@ -16,5 +16,16 @@ public class SatiscraftoryConfig {
         return Math.round(amount * (DEMOLITION_REFUND_PERCENT.get() / 100f));
     }
 
+    public static final ModConfigSpec.BooleanValue GENERATE_RESOURCE_NODES = BUILDER
+            .comment("Whether Resource Nodes should generate in newly generated chunks. " +
+                    "Does not affect already generated nodes/chunks. MUST RESTART WORLD TO TAKE EFFECT!")
+            .define("generateResourceNodes", true);
+
+    public static final ModConfigSpec.IntValue RESOURCE_NODE_SCANNER_RANGE = BUILDER
+            .comment("Maximum range, in blocks, at which the Resource Node Scanner can detect nodes within. " +
+                    "Note that the scanner only finds nodes which have already generated and been cached. " +
+                    "Increasing this range will not suddenly make it find more nodes if the chunks aren't already generated")
+            .defineInRange("resourceNodeScannerRange", 1000, 1, 100000);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 }

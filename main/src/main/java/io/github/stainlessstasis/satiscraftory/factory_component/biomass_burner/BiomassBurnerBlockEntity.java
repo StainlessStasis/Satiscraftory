@@ -9,7 +9,7 @@ import io.github.stainlessstasis.manifold.animation.AnimationPhase;
 import io.github.stainlessstasis.manifold.animation.PhasedAnimationStates;
 import io.github.stainlessstasis.manifold.util.DirectionalOffset;
 import io.github.stainlessstasis.manifold.util.FactorySounds;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import io.github.stainlessstasis.manifold.util.TickDebouncer;
 import net.minecraft.core.BlockPos;

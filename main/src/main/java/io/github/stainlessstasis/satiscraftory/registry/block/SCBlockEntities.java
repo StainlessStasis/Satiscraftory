@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.block;
 
 import io.github.stainlessstasis.manifold.factory_component.ManifoldBlockEntityType;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;

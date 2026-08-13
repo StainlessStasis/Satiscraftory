@@ -44,5 +44,7 @@
   "satiscraftory.progression.not_unlocked": "Unlocked by %s at tier %s",
 
   "satiscraftory.configuration.buildingCosts": "Building Costs",
-  "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent"
+  "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent",
+  "satiscraftory.configuration.generateResourceNodes": "Generate Resource Nodes",
+  "satiscraftory.configuration.resourceNodeScannerRange": "Resource Node Scan Range"
 }

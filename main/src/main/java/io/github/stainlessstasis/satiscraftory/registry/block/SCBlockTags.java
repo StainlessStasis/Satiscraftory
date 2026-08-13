@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.block;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.minecraft.core.registries.Registries;

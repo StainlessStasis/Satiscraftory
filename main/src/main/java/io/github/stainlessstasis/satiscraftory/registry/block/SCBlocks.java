@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.block;
 
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
 import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
@@ -8,8 +8,8 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlock;
+import io.github.stainlessstasis.satiscraftory.registry.SCGeneratorTypes;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlock;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -43,7 +43,7 @@ public class SCBlocks {
         );
     }
 
-    static DeferredBlock<ResourceNodeBlock> registerResourceNode(String name, Item resource) {
+    public static DeferredBlock<ResourceNodeBlock> registerResourceNode(String name, Item resource) {
         return BLOCKS.registerBlock(name+"_resource_node",
                 properties -> new ResourceNodeBlock(properties, ItemUtils.idOf(resource)),
                 () -> BlockBehaviour.Properties.of()

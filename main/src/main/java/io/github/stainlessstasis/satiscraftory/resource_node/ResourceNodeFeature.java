@@ -1,9 +1,9 @@
 package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import com.mojang.serialization.Codec;
-import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockTags;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;

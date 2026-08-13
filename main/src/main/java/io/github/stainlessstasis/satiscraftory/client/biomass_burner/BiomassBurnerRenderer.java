@@ -11,7 +11,7 @@ import io.github.stainlessstasis.manifold.client.animation.AnimationPhaseDriver;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerAnimations;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;

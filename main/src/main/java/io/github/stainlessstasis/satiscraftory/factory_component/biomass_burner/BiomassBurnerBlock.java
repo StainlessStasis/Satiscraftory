@@ -3,8 +3,8 @@ package io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner
 import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.satiscraftory.registry.MultiblockUnfilledSets;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.MultiblockUnfilledSets;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;

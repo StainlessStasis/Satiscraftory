@@ -3,6 +3,7 @@ package io.github.stainlessstasis.satiscraftory.registry;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.item.CableItem;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlocks;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

@@ -1,6 +1,9 @@
 package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import com.mojang.serialization.Codec;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
@@ -11,6 +14,7 @@ public enum ResourceNodePurity implements StringRepresentable {
     PURE("pure", 25, 2f);
 
     public static final Codec<ResourceNodePurity> CODEC = StringRepresentable.fromEnum(ResourceNodePurity::values);
+    public static final StreamCodec<ByteBuf, ResourceNodePurity> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ResourceNodePurity::valueOf, Enum::name);
 
     private static final int TOTAL_WEIGHT = computeTotalWeight();
 

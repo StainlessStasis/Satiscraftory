@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.world;
 
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
@@ -33,6 +33,10 @@ public class SCResourceNodes {
 
     public static ResourceNodeType byBlock(Block block) {
         return TYPES.stream().filter(resourceNodeType -> resourceNodeType.getNodeBlock().get() == block).findFirst().orElse(null);
+    }
+
+    public static ResourceNodeType byNodeId(Identifier nodeId) {
+        return TYPES.stream().filter(resourceNodeType -> resourceNodeType.getNodeId().equals(nodeId)).findFirst().orElse(null);
     }
 
     public static ParticleOptions particleFor(Identifier resourceNodeId) {

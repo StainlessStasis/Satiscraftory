@@ -1,7 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
+import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +53,7 @@ public class ResourceNodeData extends SavedData {
     private void index(SavedResourceNode node) {
         nodes.put(node.pos(), node);
         ChunkKey key = ChunkKey.of(node.pos());
-        byChunk.computeIfAbsent(key, k -> new CopyOnWriteArrayList<>()).add(node);
+        byChunk.computeIfAbsent(key, _ -> new CopyOnWriteArrayList<>()).add(node);
     }
 
     public SavedResourceNode getAt(GlobalPos pos) {
@@ -59,7 +61,18 @@ public class ResourceNodeData extends SavedData {
     }
 
     public List<SavedResourceNode> getNodesOfType(ResourceNodeType type) {
-        return nodes.values().stream().filter(n -> n.type() == type).toList();
+        return nodes.values().stream().filter(node -> node.type() == type).toList();
+    }
+
+    public List<SavedResourceNode> findNearby(ResourceNodeType type, ResourceKey<Level> dimension, BlockPos origin, double range, int limit) {
+        double rangeSqr = range * range;
+        return nodes.values().stream()
+                .filter(node -> node.type() == type)
+                .filter(node -> node.pos().dimension().equals(dimension))
+                .filter(node -> node.pos().pos().distSqr(origin) <= rangeSqr)
+                .sorted(Comparator.comparingDouble(node -> node.pos().pos().distSqr(origin)))
+                .limit(limit)
+                .toList();
     }
 
     public List<SavedResourceNode> getNodesInChunk(ResourceKey<Level> dimension, ChunkPos chunkPos) {

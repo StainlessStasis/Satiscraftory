@@ -13,7 +13,7 @@ import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleModel;
 import io.github.stainlessstasis.satiscraftory.client.power_pole.PowerPoleRenderer;
 import io.github.stainlessstasis.satiscraftory.client.building.BuildGunHUD;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCMenus;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;

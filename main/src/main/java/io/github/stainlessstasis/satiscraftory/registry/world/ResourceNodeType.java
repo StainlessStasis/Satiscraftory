@@ -1,6 +1,7 @@
-package io.github.stainlessstasis.satiscraftory.registry;
+package io.github.stainlessstasis.satiscraftory.registry.world;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlocks;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlock;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeConfig;
 import net.minecraft.resources.Identifier;
