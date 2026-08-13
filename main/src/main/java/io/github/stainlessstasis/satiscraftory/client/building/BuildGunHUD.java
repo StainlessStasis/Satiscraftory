@@ -120,7 +120,7 @@ public final class BuildGunHUD implements GuiLayer {
         int barY = screenHeight / 2 + 20;
 
         graphics.fill(barX, barY, barX + PROGRESS_BAR_WIDTH, barY + PROGRESS_BAR_HEIGHT, PROGRESS_BAR_BG);
-        graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, SUFFICIENT_COLOR);
+        graphics.fill(barX, barY, barX + filledWidth, barY + PROGRESS_BAR_HEIGHT, INSUFFICIENT_COLOR);
     }
 
     private void renderPanel(
@@ -193,7 +193,7 @@ public final class BuildGunHUD implements GuiLayer {
      * Sums recipe costs across every marked building so the HUD shows one combined refund total
      */
     private List<ItemBox> buildAggregatedRefundItemBoxes(Font font, ClientLevel level, Set<BlockPos> marked) {
-//        if (!SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()) return List.of();
+        if (!SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()) return List.of();
 
         Map<Identifier, Integer> totals = new LinkedHashMap<>();
         for (BlockPos pos : marked) {

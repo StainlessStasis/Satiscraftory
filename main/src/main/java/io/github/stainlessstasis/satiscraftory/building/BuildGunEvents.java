@@ -37,6 +37,7 @@ public class BuildGunEvents {
     @SubscribeEvent
     static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
 
         DemolitionTarget target = DemolitionResolver.resolve(level, event.getPos());
         if (target == null) return;
