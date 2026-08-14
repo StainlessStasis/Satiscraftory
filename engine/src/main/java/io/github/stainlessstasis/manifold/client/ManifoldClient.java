@@ -1,7 +1,9 @@
 package io.github.stainlessstasis.manifold.client;
 
 import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.client.belt.BeltPreviewRenderer;
 import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
+import io.github.stainlessstasis.manifold.client.block_preview.BlockEntityPreviewRegistry;
 import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
 import io.github.stainlessstasis.manifold.client.command.MultiblockCaptureCommands;
 import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockGuiPreviewRenderState;
@@ -37,6 +39,7 @@ public class ManifoldClient {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ManifoldBlockEntities.BELT.get(), BeltRenderer::new);
+        BlockEntityPreviewRegistry.register(ManifoldBlockEntities.BELT.get(), new BeltPreviewRenderer());
     }
 
     @SubscribeEvent

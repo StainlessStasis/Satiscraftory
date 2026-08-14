@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
@@ -31,7 +32,10 @@ public final class BlockPreviewSubmission {
 
     private BlockPreviewSubmission() {}
 
-    public static void submit(
+    /**
+     * @return false if the model for {@code previewState} has no model parts; true otherwise
+     */
+    public static boolean submit(
             PoseStack poseStack, SubmitNodeCollector collector, ClientLevel level,
             BlockState previewState, BlockPos origin, Color tint
     ) {
@@ -39,7 +43,7 @@ public final class BlockPreviewSubmission {
 
         List<BlockStateModelPart> parts = new ArrayList<>();
         model.collectParts(level, origin, previewState, RandomSource.create(MODEL_SEED), parts);
-        if (parts.isEmpty()) return;
+        if (parts.isEmpty()) return false;
 
         Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         float ox = (float) (origin.getX() - camPos.x);
@@ -50,10 +54,11 @@ public final class BlockPreviewSubmission {
         poseStack.translate(ox, oy, oz);
         collector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS, false),
+                RenderTypes.entityTranslucent(AtlasIds.BLOCKS, false),
                 (pose, buffer) -> emitParts(pose, buffer, parts, tint.getRGB())
         );
         poseStack.popPose();
+        return true;
     }
 
     private static void emitParts(PoseStack.Pose pose, VertexConsumer buffer, List<BlockStateModelPart> parts, int argbTint) {
