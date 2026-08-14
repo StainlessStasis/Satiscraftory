@@ -1,18 +1,32 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
+import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public final class ClientResourceScanState {
     public static final int RESULT_LIFETIME_TICKS = 20 * 60; // how long results stay visible before the bar stops showing them
+    public static final double PING_SPEED_BLOCKS_PER_TICK = 500d / 20d;
 
     private static volatile @Nullable Identifier nodeTypeId = null;
     private static volatile List<ResourceScanResultPacket.ScannedNode> results = List.of();
     private static volatile long receivedAtTick = -1;
+    private static volatile double originX = 0;
+    private static volatile double originZ = 0;
 
     private ClientResourceScanState() {}
 
@@ -20,8 +34,12 @@ public final class ClientResourceScanState {
         ClientResourceScanState.nodeTypeId = nodeTypeId;
         ClientResourceScanState.results = results;
 
-        var level = Minecraft.getInstance().level;
+        ClientLevel level = Minecraft.getInstance().level;
         ClientResourceScanState.receivedAtTick = level != null ? level.getGameTime() : 0;
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        ClientResourceScanState.originX = player != null ? player.getX() : 0;
+        ClientResourceScanState.originZ = player != null ? player.getZ() : 0;
     }
 
     public static void clear() {
@@ -38,6 +56,10 @@ public final class ClientResourceScanState {
         return results;
     }
 
+    public static long getReceivedAtTick() {
+        return receivedAtTick;
+    }
+
     public static boolean isActive() {
         if (results.isEmpty()) return false;
 
@@ -45,5 +67,12 @@ public final class ClientResourceScanState {
         if (level == null) return false;
 
         return level.getGameTime() - receivedAtTick <= RESULT_LIFETIME_TICKS;
+    }
+
+    public static double getPingDelayTicks(ResourceScanResultPacket.ScannedNode node) {
+        double dx = (node.pos().getX() + 0.5) - originX;
+        double dz = (node.pos().getZ() + 0.5) - originZ;
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        return distance / PING_SPEED_BLOCKS_PER_TICK;
     }
 }
