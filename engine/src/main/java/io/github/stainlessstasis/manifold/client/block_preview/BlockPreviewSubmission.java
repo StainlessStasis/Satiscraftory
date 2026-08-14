@@ -54,7 +54,7 @@ public final class BlockPreviewSubmission {
         poseStack.translate(ox, oy, oz);
         collector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.entityTranslucent(AtlasIds.BLOCKS, false),
+                RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS, false),
                 (pose, buffer) -> emitParts(pose, buffer, parts, tint.getRGB())
         );
         poseStack.popPose();

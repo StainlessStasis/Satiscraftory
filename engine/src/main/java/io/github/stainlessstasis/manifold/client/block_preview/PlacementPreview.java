@@ -125,14 +125,14 @@ public class PlacementPreview {
         poseStack.translate(origin.getX() - camPos.x, origin.getY() - camPos.y, origin.getZ() - camPos.z);
         collector.submitCustomGeometry(
                 poseStack,
-                RenderTypes.entityTranslucent(AtlasIds.BLOCKS, false),
+                RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS, false),
                 (pose, buffer) -> emitBoxQuads(pose, buffer, box, color)
         );
         poseStack.popPose();
     }
 
     private static void emitBoxQuads(PoseStack.Pose pose, VertexConsumer buffer, AABB box, Color color) {
-        SpriteId spriteId = new SpriteId(AtlasIds.BLOCKS, BOX_TEX);
+        SpriteId spriteId = new SpriteId(TextureAtlas.LOCATION_BLOCKS, BOX_TEX);
         TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().get(spriteId);
 
         int a = color.getAlpha(), r = color.getRed(), g = color.getGreen() , b = color.getBlue() ;

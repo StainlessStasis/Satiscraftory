@@ -24,7 +24,7 @@ public final class BeltRenderUtils {
 
     public static TextureAtlasSprite spriteFor(BeltShape shape) {
         Identifier tex = shape.isCorner() ? CURVED_TEX : (shape.isAscending() ? ASCENDING_TEX : STRAIGHT_TEX);
-        SpriteId spriteId = new SpriteId(AtlasIds.BLOCKS, tex);
+        SpriteId spriteId = new SpriteId(TextureAtlas.LOCATION_BLOCKS, tex);
         return Minecraft.getInstance().getAtlasManager().get(spriteId);
     }
 
