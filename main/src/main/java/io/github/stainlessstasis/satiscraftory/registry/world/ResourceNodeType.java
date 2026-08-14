@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 public class ResourceNodeType {
+    // TODO: translatable component instead of string
     private final String name;
     private final Block resourceBlock;
     private final IntProvider radius;

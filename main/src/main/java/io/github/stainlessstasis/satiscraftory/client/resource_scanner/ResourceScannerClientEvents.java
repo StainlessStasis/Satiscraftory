@@ -18,6 +18,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import org.apache.commons.lang3.StringUtils;
 
 @EventBusSubscriber(modid = Satiscraftory.MODID, value = Dist.CLIENT)
 public final class ResourceScannerClientEvents {
@@ -59,6 +60,8 @@ public final class ResourceScannerClientEvents {
 
     private static RadialMenuOption<ResourceNodeType> toOption(ResourceNodeType type) {
         ItemStack icon = new ItemStack(type.getResourceBlock().asItem());
-        return new RadialMenuOption<>(type, icon, Component.literal(type.getName()));
+
+        String resourceName = StringUtils.capitalize(type.getName());
+        return new RadialMenuOption<>(type, icon, Component.literal(resourceName));
     }
 }
