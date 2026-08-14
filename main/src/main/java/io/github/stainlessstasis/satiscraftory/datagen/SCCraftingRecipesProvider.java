@@ -84,6 +84,17 @@ public class SCCraftingRecipesProvider extends RecipeProvider {
                 .define('C', SCItems.CABLE)
                 .unlockedBy("has_iron", has(Items.IRON_INGOT))
                 .save(output);
+
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, SCItems.RESOURCE_SCANNER, 1)
+                .pattern("W W")
+                .pattern("PWP")
+                .pattern("RC ")
+                .define('P', SCItems.IRON_PLATE)
+                .define('W', SCItems.WIRE)
+                .define('R', SCItems.IRON_ROD)
+                .define('C', SCItems.CABLE)
+                .unlockedBy("has_iron", has(Items.IRON_INGOT))
+                .save(output);
     }
 
 
