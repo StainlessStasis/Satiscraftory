@@ -43,7 +43,7 @@ public final class BlockPreviewSubmission {
 
         List<BlockStateModelPart> parts = new ArrayList<>();
         model.collectParts(level, origin, previewState, RandomSource.create(MODEL_SEED), parts);
-        if (parts.isEmpty()) return false;
+        if (!hasAnyQuads(parts)) return false;
 
         Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
         float ox = (float) (origin.getX() - camPos.x);
@@ -59,6 +59,16 @@ public final class BlockPreviewSubmission {
         );
         poseStack.popPose();
         return true;
+    }
+
+    private static boolean hasAnyQuads(List<BlockStateModelPart> parts) {
+        for (BlockStateModelPart part : parts) {
+            for (Direction direction : Direction.values()) {
+                if (!part.getQuads(direction).isEmpty()) return true;
+            }
+            if (!part.getQuads(null).isEmpty()) return true;
+        }
+        return false;
     }
 
     private static void emitParts(PoseStack.Pose pose, VertexConsumer buffer, List<BlockStateModelPart> parts, int argbTint) {

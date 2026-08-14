@@ -99,12 +99,15 @@ public class PlacementPreview {
         BlockPos origin = placeContext.getClickedPos();
 
         if (blockItem.getBlock() instanceof EntityBlock entityBlock) {
-            BlockEntity probe = entityBlock.newBlockEntity(BlockPos.ZERO, previewState);
-            if (probe != null) {
-                BlockEntityPreviewRegistry.Renderer custom = BlockEntityPreviewRegistry.get(probe.getType());
-                if (custom != null) {
-                    custom.submitPreview(event.getPoseStack(), event.getSubmitNodeCollector(),
-                            level, previewState, origin, VALID_COLOR.getRGB());
+            BlockEntity dummyBE = entityBlock.newBlockEntity(BlockPos.ZERO, previewState);
+            if (dummyBE != null) {
+                BlockEntityPreviewRegistry.Renderer renderer = BlockEntityPreviewRegistry.get(dummyBE.getType());
+                System.out.println(renderer);
+                if (renderer != null) {
+                    renderer.submitPreview(
+                            event.getPoseStack(), event.getSubmitNodeCollector(),
+                            level, previewState, origin, VALID_COLOR.getRGB()
+                    );
                     return;
                 }
             }

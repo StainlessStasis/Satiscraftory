@@ -39,7 +39,6 @@ public class ManifoldClient {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ManifoldBlockEntities.BELT.get(), BeltRenderer::new);
-        BlockEntityPreviewRegistry.register(ManifoldBlockEntities.BELT.get(), new BeltPreviewRenderer());
     }
 
     @SubscribeEvent

@@ -203,8 +203,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
     }
 
-    private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
-                            PoseStack poseStack, SubmitNodeCollector collector) {
+    private void submitItem(
+            BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
+            PoseStack poseStack, SubmitNodeCollector collector
+    ) {
         Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.localT);
         offset = offset.add(0, 0.05, 0);
         float tilt = BeltGeometry.interpolatedTilt(renderState.shape, renderState.reversed, itemRenderData.localT,
