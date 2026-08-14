@@ -3,10 +3,9 @@ package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
-import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.item.ResourceNodeScannerItem;
+import io.github.stainlessstasis.satiscraftory.item.ResourceScannerItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -50,7 +49,7 @@ public final class ResourceScannerHUD implements GuiLayer {
     public void render(@NonNull GuiGraphicsExtractor graphics, @NonNull DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
-        if (player == null || mc.level == null || !(player.getMainHandItem().getItem() instanceof ResourceNodeScannerItem)) return;
+        if (player == null || mc.level == null || !(player.getMainHandItem().getItem() instanceof ResourceScannerItem)) return;
         if (!ClientResourceScanState.isActive()) return;
 
         var results = ClientResourceScanState.getResults();

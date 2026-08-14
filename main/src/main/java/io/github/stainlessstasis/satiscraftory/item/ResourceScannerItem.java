@@ -24,12 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class ResourceNodeScannerItem extends Item {
+public class ResourceScannerItem extends Item {
     private static final ResourceNodeType DEFAULT_SCAN_TYPE = SCResourceNodes.IRON;
     private static final int MAX_RESULTS = 24;
     private static final Map<UUID, Identifier> selectedTypeByPlayer = new HashMap<>();
 
-    public ResourceNodeScannerItem(Properties properties) {
+    public ResourceScannerItem(Properties properties) {
         super(properties.stacksTo(1));
     }
 
@@ -45,7 +45,7 @@ public class ResourceNodeScannerItem extends Item {
     }
 
     public static void performScan(ServerPlayer player, ServerLevel level, ResourceNodeType type) {
-        int range = SatiscraftoryConfig.RESOURCE_NODE_SCANNER_RANGE.get();
+        int range = SatiscraftoryConfig.RESOURCE_SCANNER_RANGE.get();
 
         var results = ResourceNodeData.get(level)
                 .findNearby(type, level.dimension(), player.blockPosition(), range, MAX_RESULTS);
@@ -56,7 +56,7 @@ public class ResourceNodeScannerItem extends Item {
         }
 
         var scannedNodes = results.stream()
-                .map(ResourceNodeScannerItem::toScannedNode)
+                .map(ResourceScannerItem::toScannedNode)
                 .toList();
 
         PacketDistributor.sendToPlayer(player, new ResourceScanResultPacket(type.getNodeId(), scannedNodes));

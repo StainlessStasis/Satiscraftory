@@ -3,7 +3,7 @@ package io.github.stainlessstasis.satiscraftory.network.serverbound;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
-import io.github.stainlessstasis.satiscraftory.item.ResourceNodeScannerItem;
+import io.github.stainlessstasis.satiscraftory.item.ResourceScannerItem;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -30,14 +30,14 @@ public record SelectScanTargetPacket(Identifier nodeTypeId) implements CustomPac
         if (!(context.player() instanceof ServerPlayer player)) return;
 
         context.enqueueWork(() -> {
-            if (!(player.getMainHandItem().getItem() instanceof ResourceNodeScannerItem)) return;
+            if (!(player.getMainHandItem().getItem() instanceof ResourceScannerItem)) return;
 
             ResourceNodeType type = SCResourceNodes.byNodeId(packet.nodeTypeId());
             if (type == null) return;
 
-            ResourceNodeScannerItem.setSelectedType(player, packet.nodeTypeId());
+            ResourceScannerItem.setSelectedType(player, packet.nodeTypeId());
             if (player.level() instanceof ServerLevel serverLevel) {
-                ResourceNodeScannerItem.performScan(player, serverLevel, type);
+                ResourceScannerItem.performScan(player, serverLevel, type);
             }
         });
     }

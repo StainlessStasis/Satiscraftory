@@ -15,6 +15,8 @@
   "item.satiscraftory.copper_sheet": "Copper Sheet",
   "item.satiscraftory.wire": "Wire",
   "item.satiscraftory.cable": "Cable",
+  "item.satiscraftory.build_gun": "Build Gun",
+  "item.satiscraftory.resource_scanner": "Resource Scanner",
 
   "sound.satiscraftory.miner_startup": "Miner Whirs",
   "sound.satiscraftory.miner_drilling": "Miner Drills",
@@ -26,7 +28,6 @@
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
 
-  "item.satiscraftory.build_gun": "Build Gun",
   "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
   "satiscraftory.build_gun.currently_building": "Currently building:",
   "satiscraftory.build_gun.mark_for_demolition": "Click to mark for demolition:",
@@ -46,6 +47,6 @@
   "satiscraftory.configuration.buildingCosts": "Building Costs",
   "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent",
   "satiscraftory.configuration.generateResourceNodes": "Generate Resource Nodes",
-  "satiscraftory.configuration.resourceNodeScannerRange": "Resource Node Scan Range",
+  "satiscraftory.configuration.resourceScannerRange": "Resource Node Scan Range",
   "satiscraftory.resource_scanner.no_nodes_found": "No known %s nodes within range"
 }

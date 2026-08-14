@@ -3,7 +3,7 @@ package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 import io.github.stainlessstasis.manifold.client.radial_menu.RadialMenuOption;
 import io.github.stainlessstasis.manifold.client.radial_menu.RadialMenuScreen;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.item.ResourceNodeScannerItem;
+import io.github.stainlessstasis.satiscraftory.item.ResourceScannerItem;
 import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectScanTargetPacket;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
@@ -42,7 +42,7 @@ public final class ResourceScannerClientEvents {
 
         LocalPlayer player = mc.player;
         if (player == null) return;
-        if (!(player.getMainHandItem().getItem() instanceof ResourceNodeScannerItem)) return;
+        if (!(player.getMainHandItem().getItem() instanceof ResourceScannerItem)) return;
 
         event.setCanceled(true);
         openRadialMenu();

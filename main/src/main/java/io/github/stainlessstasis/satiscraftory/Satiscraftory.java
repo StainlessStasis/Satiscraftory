@@ -65,7 +65,7 @@ public class Satiscraftory {
             .icon(() -> SCItems.SCREWS.get().getDefaultInstance())
             .displayItems((_, output) -> {
                 output.accept(SCItems.BUILD_GUN);
-                output.accept(SCItems.RESOURCE_NODE_SCANNER);
+                output.accept(SCItems.RESOURCE_SCANNER);
                 output.accept(ManifoldItems.CABLE_CUTTER);
                 SCItems.getFactoryItems().forEach(item -> output.accept(item.get()));
             }).build()
