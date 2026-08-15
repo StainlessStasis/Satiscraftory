@@ -1,19 +1,10 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
-import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
-import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -40,6 +31,10 @@ public final class ClientResourceScanState {
         LocalPlayer player = Minecraft.getInstance().player;
         ClientResourceScanState.originX = player != null ? player.getX() : 0;
         ClientResourceScanState.originZ = player != null ? player.getZ() : 0;
+
+        if (player != null) {
+            ScanEffectRenderer.INSTANCE.ping(player.position());
+        }
     }
 
     public static void clear() {

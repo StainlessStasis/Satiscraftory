@@ -1,15 +1,17 @@
 /**
 Credit - Scannable by Sangar: https://modrinth.com/mod/scannable | https://www.curseforge.com/minecraft/mc-mods/scannable
-Code sourced from: https://github.com/MightyPirates/Scannable/blob/1.21.1/common/src/main/resources/assets/scannable/shaders/core/scan_effect.fsh
+Code adapted from: https://github.com/MightyPirates/Scannable/blob/1.21.1/common/src/main/resources/assets/scannable/shaders/core/scan_effect.fsh
 */
 
-#version 150
+#version 330
 
-uniform mat4 invViewMat;
-uniform mat4 invProjMat;
-uniform vec3 pos;
-uniform vec3 center;
-uniform float radius;
+layout(std140) uniform ScanEffectUniforms {
+    mat4 invViewProjMat;
+    vec4 pos;
+    vec4 center;
+    float radius;
+};
+
 uniform sampler2D depthTex;
 
 in vec2 texCoord0;
@@ -28,21 +30,19 @@ float scanlines() {
 }
 
 vec3 worldpos(float depth) {
-    float z = depth * 2.0 - 1.0;
-    vec4 clipSpacePosition = vec4(texCoord0 * 2.0 - 1.0, z, 1.0);
-    vec4 viewSpacePosition = invProjMat * clipSpacePosition;
+    vec4 clipSpacePosition = vec4(texCoord0 * 2.0 - 1.0, depth, 1.0);
+    vec4 viewSpacePosition = invViewProjMat * clipSpacePosition;
     viewSpacePosition /= viewSpacePosition.w;
-    vec4 worldSpacePosition = invViewMat * viewSpacePosition;
 
-    return pos + worldSpacePosition.xyz;
+    return pos.xyz + viewSpacePosition.xyz;
 }
 
 void main() {
     vec4 color = vec4(0, 0, 0, 0);
 
     float depth = texture2D(depthTex, texCoord0).r;
-    vec3 pos = worldpos(depth);
-    float dist = distance(pos, center);
+    vec3 fragWorldPos = worldpos(depth);
+    float dist = distance(fragWorldPos, center.xyz);
 
     if (dist < radius && dist > radius - width && depth < 1) {
         float diff = 1.0 - (radius - dist)/width;
