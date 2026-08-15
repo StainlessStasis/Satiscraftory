@@ -25,10 +25,7 @@ import java.util.OptionalInt;
  */
 public final class ScanEffectRenderer {
     public static final ScanEffectRenderer INSTANCE = new ScanEffectRenderer();
-
     private static final int UNIFORM_BUFFER_SIZE = 112; // mat4 (64) + 2x vec4 (16 each) + float, rounded up to a multiple of 16
-
-    private final DepthOnlyRenderTarget depthSnapshot = new DepthOnlyRenderTarget("scan_effect_depth");
 
     private GpuBuffer uniformBuffer;
     private GpuBuffer triangleBuffer;
@@ -49,11 +46,6 @@ public final class ScanEffectRenderer {
         RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
         var colorView = mainTarget.getColorTextureView();
         if (colorView == null) return;
-
-        if (depthSnapshot.width != mainTarget.width || depthSnapshot.height != mainTarget.height) {
-            depthSnapshot.resize(mainTarget.width, mainTarget.height);
-        }
-        depthSnapshot.copyDepthFrom(mainTarget);
 
         GpuDevice device = RenderSystem.getDevice();
         CommandEncoder encoder = device.createCommandEncoder();
@@ -79,7 +71,7 @@ public final class ScanEffectRenderer {
                     () -> "scan_effect", colorView, OptionalInt.empty()
             )) {
                 pass.setPipeline(ScanEffectPipeline.PIPELINE);
-                pass.bindTexture("depthTex", depthSnapshot.getDepthTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
+                pass.bindTexture("depthTex", mainTarget.getDepthTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
                 pass.setUniform("ScanEffectUniforms", uniformBuffer);
                 pass.setVertexBuffer(0, triangleBuffer);
                 pass.draw(0, 3);

@@ -1,6 +1,5 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stainlessstasis.manifold.client.radial_menu.RadialMenuOption;
 import io.github.stainlessstasis.manifold.client.radial_menu.RadialMenuScreen;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
@@ -22,7 +21,6 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.joml.Matrix4f;
 
 @EventBusSubscriber(modid = Satiscraftory.MODID, value = Dist.CLIENT)
 public final class ResourceScannerClientEvents {
@@ -56,10 +54,10 @@ public final class ResourceScannerClientEvents {
     @SubscribeEvent
     static void render(RenderLevelStageEvent.AfterLevel event) {
         int scanRange = SatiscraftoryConfig.RESOURCE_SCANNER_RANGE.get();
-//        float scanDurationMillis = (float) (scanRange / ClientResourceScanState.PING_SPEED_BLOCKS_PER_TICK) * 50f;
-        ScanEffectRenderer.INSTANCE.render(30f, ClientResourceScanState.SCAN_EFFECT_DURATION_MILLIS);
+        scanRange = Math.min(scanRange, 512);
+        float scanDurationMillis = (float) (scanRange / ClientResourceScanState.PING_SPEED_BLOCKS_PER_TICK) * 100f;
+        ScanEffectRenderer.INSTANCE.render(scanRange, scanDurationMillis);
     }
-
 
     private static void openRadialMenu() {
         var options = SCResourceNodes.TYPES.stream()

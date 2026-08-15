@@ -14,7 +14,7 @@ layout(std140) uniform ScanEffectUniforms {
 
 uniform sampler2D depthTex;
 
-in vec2 texCoord0;
+in vec2 texCoord;
 
 out vec4 fragColor;
 
@@ -30,7 +30,7 @@ float scanlines() {
 }
 
 vec3 worldpos(float depth) {
-    vec4 clipSpacePosition = vec4(texCoord0 * 2.0 - 1.0, depth, 1.0);
+    vec4 clipSpacePosition = vec4(texCoord * 2.0 - 1.0, depth, 1.0);
     vec4 viewSpacePosition = invViewProjMat * clipSpacePosition;
     viewSpacePosition /= viewSpacePosition.w;
 
@@ -40,14 +40,14 @@ vec3 worldpos(float depth) {
 void main() {
     vec4 color = vec4(0, 0, 0, 0);
 
-    float depth = texture(depthTex, texCoord0).r;
+    float depth = texture(depthTex, texCoord).r;
     vec3 fragWorldPos = worldpos(depth);
     float dist = distance(fragWorldPos, center.xyz);
 
     if (dist < radius && dist > radius - width && depth < 1) {
-        float diff = 1.0 - (radius - dist)/width;
+        float diff = 1.0 - (radius - dist) / width;
         vec4 edge = mix(midColor, outerColor, pow(diff, sharpness));
-        color = mix(innerColor, edge, diff) + scanlines()*scanlineColor;
+        color = mix(innerColor, edge, diff) + scanlines() * scanlineColor;
         color *= diff;
     }
 
