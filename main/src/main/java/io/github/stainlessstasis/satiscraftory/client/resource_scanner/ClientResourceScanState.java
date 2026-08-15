@@ -12,6 +12,7 @@ import java.util.List;
 public final class ClientResourceScanState {
     public static final int RESULT_LIFETIME_TICKS = 20 * 60; // how long results stay visible before the bar stops showing them
     public static final double PING_SPEED_BLOCKS_PER_TICK = 500d / 20d;
+    public static final float SCAN_EFFECT_DURATION_MILLIS = 2000f;
 
     private static volatile @Nullable Identifier nodeTypeId = null;
     private static volatile List<ResourceScanResultPacket.ScannedNode> results = List.of();

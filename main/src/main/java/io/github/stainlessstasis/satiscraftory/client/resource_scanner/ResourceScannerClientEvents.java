@@ -56,9 +56,8 @@ public final class ResourceScannerClientEvents {
     @SubscribeEvent
     static void render(RenderLevelStageEvent.AfterLevel event) {
         int scanRange = SatiscraftoryConfig.RESOURCE_SCANNER_RANGE.get();
-        float scanDurationMillis = (float) (scanRange / ClientResourceScanState.PING_SPEED_BLOCKS_PER_TICK) * 50f;
-
-        ScanEffectRenderer.INSTANCE.render(scanRange, scanDurationMillis);
+//        float scanDurationMillis = (float) (scanRange / ClientResourceScanState.PING_SPEED_BLOCKS_PER_TICK) * 50f;
+        ScanEffectRenderer.INSTANCE.render(30f, ClientResourceScanState.SCAN_EFFECT_DURATION_MILLIS);
     }
 
 

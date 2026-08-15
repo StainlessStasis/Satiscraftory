@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
+import io.github.stainlessstasis.manifold.menu.GuiColors;
 import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
@@ -67,7 +68,7 @@ public final class ResourceScannerHUD implements GuiLayer {
         int barX = centerX - BAR_WIDTH / 2;
 
         graphics.fill(barX, barY, barX + BAR_WIDTH, barY + BAR_HEIGHT, HudColors.BAR_TRACK_BG);
-        graphics.fill(centerX - 1, barY - 2, centerX + 1, barY + BAR_HEIGHT + 2, HudColors.ACCENT_COLOR);
+        graphics.fill(centerX - 1, barY - 2, centerX + 1, barY + BAR_HEIGHT + 2, GuiColors.ACCENT_COLOR);
 
         double playerX = player.getX();
         double playerZ = player.getZ();
@@ -126,7 +127,7 @@ public final class ResourceScannerHUD implements GuiLayer {
         if (!isClosestInCluster(placement, allPlacements)) return;
 
         Component distanceText = Component.literal(Math.round(placement.distance()) + "m");
-        int textColor = placement.offScreen() ? HudColors.LABEL_COLOR : HudColors.ACCENT_COLOR;
+        int textColor = placement.offScreen() ? HudColors.LABEL_COLOR : GuiColors.ACCENT_COLOR;
         GuiRenderUtils.centeredText(graphics, font, distanceText, Math.round(placement.centerX()), iconY + MARKER_ICON_SIZE + 1, textColor);
     }
 

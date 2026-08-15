@@ -40,7 +40,7 @@ vec3 worldpos(float depth) {
 void main() {
     vec4 color = vec4(0, 0, 0, 0);
 
-    float depth = texture2D(depthTex, texCoord0).r;
+    float depth = texture(depthTex, texCoord0).r;
     vec3 fragWorldPos = worldpos(depth);
     float dist = distance(fragWorldPos, center.xyz);
 

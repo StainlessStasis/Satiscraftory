@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.CommandEncoder;
@@ -28,6 +29,9 @@ public final class ScanEffectRenderer {
     private static final int UNIFORM_BUFFER_SIZE = 112; // mat4 (64) + 2x vec4 (16 each) + float, rounded up to a multiple of 16
 
     private final DepthOnlyRenderTarget depthSnapshot = new DepthOnlyRenderTarget("scan_effect_depth");
+
+    private GpuBuffer uniformBuffer;
+    private GpuBuffer triangleBuffer;
 
     private long pingStartMillis = -1;
     private Vec3 pingCenter = Vec3.ZERO;
@@ -59,6 +63,8 @@ public final class ScanEffectRenderer {
         Vec3 cameraPos = camera.position();
         float radius = ScanPingRadius.computeRadius(pingStartMillis, scanDurationMillis, scanRange);
 
+        ensureBuffers(device);
+
         try (MemoryStack stack = MemoryStack.stackPush()) {
             ByteBuffer uniformData = Std140Builder.onStack(stack, UNIFORM_BUFFER_SIZE)
                     .putMat4f(invViewProj)
@@ -67,25 +73,32 @@ public final class ScanEffectRenderer {
                     .putFloat(radius)
                     .get();
 
-            try (GpuBuffer uniformBuffer = device.createBuffer(
-                    () -> "scan_effect_uniforms", GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST, uniformData
+            encoder.writeToBuffer(new GpuBufferSlice(uniformBuffer, 0, UNIFORM_BUFFER_SIZE), uniformData);
+
+            try (RenderPass pass = encoder.createRenderPass(
+                    () -> "scan_effect", colorView, OptionalInt.empty()
             )) {
-                try (GpuBuffer triangleBuffer = buildFullscreenTriangle(device)) {
-                    try (RenderPass pass = encoder.createRenderPass(
-                            () -> "scan_effect", colorView, OptionalInt.empty()
-                    )) {
-                        pass.setPipeline(ScanEffectPipeline.PIPELINE);
-                        pass.bindTexture("depthTex", depthSnapshot.getDepthTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
-                        pass.setUniform("ScanEffectUniforms", uniformBuffer);
-                        pass.setVertexBuffer(0, triangleBuffer);
-                        pass.draw(0, 3);
-                    }
-                }
+                pass.setPipeline(ScanEffectPipeline.PIPELINE);
+                pass.bindTexture("depthTex", depthSnapshot.getDepthTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
+                pass.setUniform("ScanEffectUniforms", uniformBuffer);
+                pass.setVertexBuffer(0, triangleBuffer);
+                pass.draw(0, 3);
             }
         }
     }
 
-
+    private void ensureBuffers(GpuDevice device) {
+        if (triangleBuffer == null) {
+            triangleBuffer = buildFullscreenTriangle(device);
+        }
+        if (uniformBuffer == null) {
+            uniformBuffer = device.createBuffer(
+                    () -> "scan_effect_uniforms",
+                    GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST,
+                    UNIFORM_BUFFER_SIZE
+            );
+        }
+    }
 
     private GpuBuffer buildFullscreenTriangle(GpuDevice device) {
         ByteBuffer data = ByteBuffer.allocateDirect(3 * DefaultVertexFormat.POSITION_TEX.getVertexSize());
@@ -102,5 +115,16 @@ public final class ScanEffectRenderer {
     private void putVertex(ByteBuffer buffer, float x, float y, float u, float v) {
         buffer.putFloat(x).putFloat(y).putFloat(0f);
         buffer.putFloat(u).putFloat(v);
+    }
+
+    public void close() {
+        if (uniformBuffer != null) {
+            uniformBuffer.close();
+            uniformBuffer = null;
+        }
+        if (triangleBuffer != null) {
+            triangleBuffer.close();
+            triangleBuffer = null;
+        }
     }
 }

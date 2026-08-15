@@ -10,5 +10,4 @@ public final class HudColors {
     public static final int POSITIVE_COLOR = 0xFF55FF55;
     public static final int NEGATIVE_COLOR = 0xFFFF5555;
     public static final int BAR_TRACK_BG = 0xAA000000;
-    public static final int ACCENT_COLOR = 0xFFE69442;
 }
