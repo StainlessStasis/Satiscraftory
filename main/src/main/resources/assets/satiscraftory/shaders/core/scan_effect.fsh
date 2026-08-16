@@ -15,18 +15,18 @@ layout(std140) uniform ScanEffectUniforms {
 uniform sampler2D depthTex;
 
 in vec2 texCoord;
-
 out vec4 fragColor;
 
 const float width = 10;
 const float sharpness = 10;
-const vec4 outerColor = vec4(0.8, 1.0, 0.9, 1.0);
-const vec4 midColor = vec4(0.4, 0.5, 0.7, 1.0);
-const vec4 innerColor = vec4(0.1, 0.4, 0.9, 1.0);
-const vec4 scanlineColor = vec4(0.6, 1.0, 0.2, 1.0);
+const vec4 outerColor   = vec4(0.0, 0.9, 1.0, 1.0);
+const vec4 midColor     = vec4(0.0, 0.4, 0.8, 1.0);
+const vec4 innerColor   = vec4(0.0, 0.1, 0.3, 1.0);
+const vec4 scanlineColor= vec4(0.2, 1.0, 0.8, 1.0);
 
 float scanlines() {
-    return sin(gl_FragCoord.y)*0.5+0.5;
+    float line = sin(gl_FragCoord.y * 1.5) * 0.5 + 0.5;
+    return step(1.25, line);
 }
 
 vec3 worldpos(float depth) {
