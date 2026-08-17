@@ -6,6 +6,7 @@ import io.github.stainlessstasis.satiscraftory.client.building.BuildingSelectScr
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
-@EventBusSubscriber(modid = Satiscraftory.MODID)
+@EventBusSubscriber(modid = Satiscraftory.MODID, value = Dist.CLIENT)
 public class SCKeybinds {
     public static final KeyMapping.Category CATEGORY = new KeyMapping.Category(Satiscraftory.id("building"));
 
