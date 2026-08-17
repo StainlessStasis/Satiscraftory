@@ -1,5 +1,5 @@
 # Attributions
-This file contains attributions to any sounds or other assets used by the mod
+Some of this mod's assets are derivatives of other works
 
 # Models
 Some models are derived from the game Satisfactory, by Coffee Stain Studios. This mod contains no official assets from Satisfactory. They are used solely as references during the design process of my own models
