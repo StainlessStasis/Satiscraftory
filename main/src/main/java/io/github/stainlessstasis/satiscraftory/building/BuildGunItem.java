@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.SelectedBuildingSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +34,7 @@ import java.util.UUID;
 
 public class BuildGunItem extends Item {
     private static final Map<UUID, Identifier> selectedBlockByPlayer = new HashMap<>();
+    private static @Nullable Identifier clientSelectedId;
 
     public BuildGunItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -45,7 +48,7 @@ public class BuildGunItem extends Item {
         }
 
         if (player.isCrouching()) {
-            cycleSelection(player);
+            cycleSelection(serverPlayer);
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -146,7 +149,7 @@ public class BuildGunItem extends Item {
         }
     }
 
-    private static void cycleSelection(Player player) {
+    private static void cycleSelection(ServerPlayer player) {
         UUID uuid = player.getUUID();
         Identifier current = selectedBlockByPlayer.get(uuid);
         var buildingEntries = BuildingCatalog.allForCurrentTier(player.level());
@@ -156,6 +159,7 @@ public class BuildGunItem extends Item {
 
         Identifier nextId = buildingEntries.get(nextIndex).id();
         selectedBlockByPlayer.put(uuid, nextId);
+        syncSelection(player, nextId);
     }
 
     private static int indexOf(Identifier id) {
@@ -166,8 +170,18 @@ public class BuildGunItem extends Item {
         return -1;
     }
 
-    public static void setSelectedBlock(Player player, Identifier buildingItemId) {
+    public static void setSelectedBlock(ServerPlayer player, Identifier buildingItemId) {
         selectedBlockByPlayer.put(player.getUUID(), buildingItemId);
+        syncSelection(player, buildingItemId);
+    }
+
+    public static void syncSelection(ServerPlayer player) {
+        syncSelection(player, selectedBlockByPlayer.get(player.getUUID()));
+    }
+
+    private static void syncSelection(ServerPlayer player, @Nullable Identifier selectedId) {
+        Identifier selection = selectedId != null ? selectedId : BuildingCatalog.getFirst().id();
+        PacketDistributor.sendToPlayer(player, new SelectedBuildingSyncPacket(selection));
     }
 
     public static BlockItem getSelectedBlockItem(Player player) {
@@ -186,5 +200,22 @@ public class BuildGunItem extends Item {
     public static @Nullable BuildingCost getSelectedBuildingCost(Player player) {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(getSelectedBlockItem(player));
         return BuildingCosts.get(selectedId);
+    }
+    
+    public static void applyClientSync(Identifier selectedId) {
+        clientSelectedId = selectedId;
+    }
+
+    public static BlockItem getSelectedBlockItemClientSide() {
+        if (clientSelectedId != null) {
+            BuildingCatalog.BuildingEntry entry = BuildingCatalog.byId(clientSelectedId).orElse(null);
+            if (entry != null) return entry.blockItem();
+        }
+        return BuildingCatalog.getFirst().blockItem();
+    }
+
+    public static @Nullable BuildingCost getSelectedBuildingCostClientSide() {
+        Identifier selectedId = BuiltInRegistries.ITEM.getKey(getSelectedBlockItemClientSide());
+        return BuildingCosts.getClientSide(selectedId);
     }
 }

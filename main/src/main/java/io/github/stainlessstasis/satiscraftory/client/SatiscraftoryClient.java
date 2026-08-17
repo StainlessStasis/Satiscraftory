@@ -42,7 +42,7 @@ public class SatiscraftoryClient {
         PreviewHeldItemSource.register(player -> {
             ItemStack held = player.getMainHandItem();
             if (held.getItem() instanceof BuildGunItem) {
-                return new ItemStack(BuildGunItem.getSelectedBlockItem(player));
+                return new ItemStack(BuildGunItem.getSelectedBlockItemClientSide());
             }
             return ItemStack.EMPTY;
         });

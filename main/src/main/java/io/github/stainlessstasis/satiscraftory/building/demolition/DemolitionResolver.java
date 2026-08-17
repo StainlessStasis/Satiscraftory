@@ -41,8 +41,7 @@ public final class DemolitionResolver {
 
         // build gun can only ever demolish factory buildings
         if (BuildingCatalog.byId(itemId).isEmpty()) return null;
-
-        BuildingCost cost = BuildingCosts.get(itemId);
+        BuildingCost cost = level.isClientSide() ? BuildingCosts.getClientSide(itemId) : BuildingCosts.get(itemId);
 
         List<BlockPos> allPositions = controllerPos == null
                 ? List.of(targetPos)

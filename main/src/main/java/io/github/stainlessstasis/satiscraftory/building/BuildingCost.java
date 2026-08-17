@@ -3,7 +3,10 @@ package io.github.stainlessstasis.satiscraftory.building;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
 
@@ -14,6 +17,13 @@ import java.util.List;
  * The material cost required to place a building (used by build gun)
  */
 public record BuildingCost(Identifier id, Identifier buildingItemId, List<RecipeIngredient> inputs) {
+    public static final StreamCodec<ByteBuf, BuildingCost> STREAM_CODEC = StreamCodec.composite(
+            Identifier.STREAM_CODEC, BuildingCost::id,
+            Identifier.STREAM_CODEC, BuildingCost::buildingItemId,
+            RecipeIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), BuildingCost::inputs,
+            BuildingCost::new
+    );
+
     public BuildingCost {
         if (inputs.isEmpty()) {
             throw new IllegalArgumentException("BuildingCost " + id + " must have at least one item");

@@ -88,8 +88,8 @@ public final class BuildGunHUD implements GuiLayer {
             return;
         }
 
-        BlockItem selected = BuildGunItem.getSelectedBlockItem(player);
-        BuildingCost cost = BuildGunItem.getSelectedBuildingCost(player);
+        BlockItem selected = BuildGunItem.getSelectedBlockItemClientSide();
+        BuildingCost cost = BuildGunItem.getSelectedBuildingCostClientSide();
         List<RecipeIngredient> inputs = cost != null ? cost.inputs() : List.of();
 
         Component buildingTitle = Component.translatable(Satiscraftory.MODID + ".build_gun.currently_building");

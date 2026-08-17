@@ -3,21 +3,27 @@ package io.github.stainlessstasis.satiscraftory.building;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.network.clientbound.BuildingCostsSyncPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class BuildingCosts extends SimplePreparableReloadListener<Map<Identifier, BuildingCost>> {
     public static final String PATH = "building_costs";
     private static Map<Identifier, BuildingCost> COSTS = Map.of();
     private static Map<Identifier, BuildingCost> COSTS_BY_BUILDING = Map.of();
+    private static Map<Identifier, BuildingCost> CLIENT_COSTS_BY_BUILDING = Map.of();
 
     @Override
     protected @NonNull Map<Identifier, BuildingCost> prepare(ResourceManager resourceManager, @NonNull ProfilerFiller profiler) {
@@ -54,6 +60,11 @@ public class BuildingCosts extends SimplePreparableReloadListener<Map<Identifier
         COSTS_BY_BUILDING = Map.copyOf(byBuilding);
 
         Satiscraftory.LOGGER.info("BuildingCosts loaded {} building cost(s)", COSTS.size());
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            PacketDistributor.sendToAllPlayers(new BuildingCostsSyncPacket(List.copyOf(COSTS.values())));
+        }
     }
 
     private static Identifier trimToCostId(Identifier fileLocation) {
@@ -68,5 +79,17 @@ public class BuildingCosts extends SimplePreparableReloadListener<Map<Identifier
 
     public static Map<Identifier, BuildingCost> allCosts() {
         return COSTS;
+    }
+
+    public static @Nullable BuildingCost getClientSide(Identifier buildingId) {
+        return CLIENT_COSTS_BY_BUILDING.get(buildingId);
+    }
+
+    public static void applyClientSync(List<BuildingCost> costs) {
+        Map<Identifier, BuildingCost> byBuilding = new HashMap<>();
+        for (BuildingCost cost : costs) {
+            byBuilding.put(cost.buildingItemId(), cost);
+        }
+        CLIENT_COSTS_BY_BUILDING = Map.copyOf(byBuilding);
     }
 }
