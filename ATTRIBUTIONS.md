@@ -1,8 +1,8 @@
 # Attributions
 Some of this mod's assets are derivatives of other works
 
-# Models
-Some models are derived from the game Satisfactory, by Coffee Stain Studios. This mod contains no official assets from Satisfactory. They are used solely as references during the design process of my own models
+# Textures/Models
+Some textures and models are derived from the game Satisfactory, by Coffee Stain Studios. This mod contains no official assets from Satisfactory. They are used solely as references during the design process of my own assets. I also rely heavily on the [Satisfactory wiki](https://satisfactory.wiki.gg/) and [FModel](https://fmodel.app/) to help create my assets
 
 # Sounds
 Designa Factory Sounds0019.wav by janusnovak -- https://freesound.org/s/169012/ -- License: Creative Commons 0
