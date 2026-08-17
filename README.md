@@ -46,10 +46,9 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 
 # Roadmap
 Listed approximately in order; things may change, and small patches may fall in between
-- **0.5.1:** Recipes to obtain factory components in survival. Basic survival gameplay loop
-- **0.6.0:** Smelters and Constructors to replace generic Machine
-- **0.7.0:** Assemblers (the first multi-input machine) and more items that require the Assembler, such as reinforced iron plates
-- **0.8.0:** Fluids, pipes, Water Extractor, and Coal Plant. Very large update, maybe even larger in scope than 0.5.0. Expect it to take a while
+- **0.7.0:** Smelters and Constructors to replace generic Machine
+- **0.8.0:** Assemblers (the first multi-input machine) and more items that require the Assembler, such as reinforced iron plates
+- **0.9.0:** Fluids, pipes, Water Extractor, and Coal Plant. Very large update, maybe even larger in scope than 0.5.0. Expect it to take a while
 - **Other:** Expect more items or smaller features from Satisfactory (e.g. Blade Runners, AWESOME Sink). The goal is to fully flesh out tier 1 & 2 progression, and have some elements of tier 3, for the mod to be considered ready for a full release. Also Space Elevator to come eventually...
 - **Future:** In the future, I would like to add some more Minecraft elements to the mod, and not just copy Satisfactory 1:1. For example, automating common vanilla building blocks, adding biome-specific and dimension-specific custom resources, and maybe reworking progression a bit to utilize more vanilla stuff. But that's far away, and for now the focus is making a functional factory game
 
