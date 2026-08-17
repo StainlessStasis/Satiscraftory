@@ -29,6 +29,9 @@ public final class BuildGunEvents {
     @SubscribeEvent
     static void onBlockBreak(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
+        if (!(event.getPlayer().getMainHandItem().getItem() instanceof BuildGunItem)) {
+            return;
+        }
         if (DemolitionResolver.resolve(level, event.getPos()) != null) {
             event.setCanceled(true);
         }
@@ -42,9 +45,12 @@ public final class BuildGunEvents {
         DemolitionTarget target = DemolitionResolver.resolve(level, event.getPos());
         if (target == null) return;
 
-        event.setCanceled(true); // factory buildings are never mined normally, regardless of tool
-
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        if (!player.isCreative()) {
+            event.setCanceled(true); // factory buildings are never mined normally, regardless of tool
+        }
+
         if (!(player.getMainHandItem().getItem() instanceof BuildGunItem)) return;
 
         boolean applied = DemolitionSelectionManager.toggle(player, target.canonicalPos());
