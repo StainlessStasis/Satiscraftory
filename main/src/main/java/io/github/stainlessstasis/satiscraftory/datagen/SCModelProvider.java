@@ -3,9 +3,9 @@ package io.github.stainlessstasis.satiscraftory.datagen;
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.datagen.FactoryModelProvider;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlocks;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlocks;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.model.*;
@@ -21,6 +21,12 @@ import java.util.Optional;
 public class SCModelProvider extends FactoryModelProvider {
     public static final ModelTemplate FLAT_ITEM_2X = new ModelTemplate(
             Optional.of(Satiscraftory.id("item/flat_item_2x")),
+            Optional.empty(),
+            TextureSlot.LAYER0
+    );
+
+    public static final ModelTemplate HANDHELD_VERTICALLY_FLIPPED = new ModelTemplate(
+            Optional.of(Satiscraftory.id("item/handheld_vertically_flipped")),
             Optional.empty(),
             TextureSlot.LAYER0
     );
@@ -43,6 +49,9 @@ public class SCModelProvider extends FactoryModelProvider {
             Identifier itemId = itemHolder.getKey().identifier();
             itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(Satiscraftory.id("item/" + itemId.getPath())));
         }
+
+        itemModels.generateFlatItem(SCItems.BUILD_GUN.get(), HANDHELD_VERTICALLY_FLIPPED);
+        itemModels.generateFlatItem(SCItems.RESOURCE_SCANNER.get(), HANDHELD_VERTICALLY_FLIPPED);
 
         for (var type : SCResourceNodes.TYPES) {
             blockModels.createTrivialCube(type.getNodeBlock().get());

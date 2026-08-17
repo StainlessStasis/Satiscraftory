@@ -1,0 +1,13 @@
+{
+  "buildingItemId": "satiscraftory:belt_mk2",
+  "inputs": [
+    {
+      "amount": 6,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 12,
+      "itemId": "satiscraftory:screws"
+    }
+  ]
+}

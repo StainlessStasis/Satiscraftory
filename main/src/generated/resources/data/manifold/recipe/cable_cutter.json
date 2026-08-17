@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": "satiscraftory:iron_plate",
+    "S": "minecraft:shears",
+    "W": "satiscraftory:wire"
+  },
+  "pattern": [
+    " W ",
+    "PSW",
+    " P "
+  ],
+  "result": {
+    "id": "manifold:cable_cutter"
+  }
+}

@@ -16,8 +16,9 @@ import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
 import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
 import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
-import io.github.stainlessstasis.manifold.recipe.ManifoldRecipes;
+import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
+import io.github.stainlessstasis.manifold.util.Scheduler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
@@ -237,7 +238,7 @@ public class FactoryNetwork extends SavedData {
     }
 
     private void dropEjectedItems(ServerLevel level, GlobalPos removedPos, List<BeltLane.BeltItem> items) {
-        if (Config.BELTS_DROP_ITEMS.isFalse()) return;
+        if (ManifoldConfig.BELTS_DROP_ITEMS.isFalse()) return;
 
         BlockPos blockPos = removedPos.pos();
         for (BeltLane.BeltItem item : items) {
@@ -804,7 +805,7 @@ public class FactoryNetwork extends SavedData {
         }
 
         for (Persisted.Machine machineData : snapshot.machines()) {
-            MachineRecipe recipe = ManifoldRecipes.get(machineData.recipeId());
+            MachineRecipe recipe = ManifoldMachineRecipes.get(machineData.recipeId());
             if (recipe == null) continue;
 
             List<Port> outputPorts = new ArrayList<>();

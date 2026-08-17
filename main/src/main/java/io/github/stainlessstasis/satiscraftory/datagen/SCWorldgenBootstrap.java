@@ -1,9 +1,10 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
-import io.github.stainlessstasis.satiscraftory.registry.SCFeatures;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCFeatures;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeAddFeaturesModifier;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeConfig;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -18,7 +19,6 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.*;
 import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.List;
@@ -82,7 +82,7 @@ public class SCWorldgenBootstrap {
         for (ResourceNodeType type : SCResourceNodes.TYPES) {
             context.register(
                     modifierKey(type),
-                    new BiomeModifiers.AddFeaturesBiomeModifier(
+                    new ResourceNodeAddFeaturesModifier(
                             biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                             HolderSet.direct(placedFeatures.getOrThrow(placedKey(type))),
                             GenerationStep.Decoration.TOP_LAYER_MODIFICATION

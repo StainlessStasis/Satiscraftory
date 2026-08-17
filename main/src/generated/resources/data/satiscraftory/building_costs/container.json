@@ -1,0 +1,13 @@
+{
+  "buildingItemId": "manifold:container",
+  "inputs": [
+    {
+      "amount": 10,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 10,
+      "itemId": "satiscraftory:iron_rod"
+    }
+  ]
+}

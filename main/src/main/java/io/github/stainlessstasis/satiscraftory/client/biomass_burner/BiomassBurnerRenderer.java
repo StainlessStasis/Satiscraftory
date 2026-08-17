@@ -1,8 +1,8 @@
 package io.github.stainlessstasis.satiscraftory.client.biomass_burner;
 
-import io.github.stainlessstasis.manifold.client.LoopingParticleTracker;
-import io.github.stainlessstasis.manifold.client.LoopingSoundTracker;
-import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
+import io.github.stainlessstasis.manifold.client.util.LoopingParticleTracker;
+import io.github.stainlessstasis.manifold.client.util.LoopingSoundTracker;
+import io.github.stainlessstasis.manifold.client.model.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.manifold.util.FactoryParticles;
@@ -11,7 +11,7 @@ import io.github.stainlessstasis.manifold.client.animation.AnimationPhaseDriver;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerAnimations;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;

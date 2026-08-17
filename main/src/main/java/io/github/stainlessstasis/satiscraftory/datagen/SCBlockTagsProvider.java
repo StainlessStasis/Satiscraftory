@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.datagen;
 
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockTags;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockTags;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;

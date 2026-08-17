@@ -1,0 +1,61 @@
+package io.github.stainlessstasis.manifold.client;
+
+import io.github.stainlessstasis.manifold.Manifold;
+import io.github.stainlessstasis.manifold.client.belt.BeltPreviewRenderer;
+import io.github.stainlessstasis.manifold.client.belt.BeltRenderer;
+import io.github.stainlessstasis.manifold.client.block_preview.BlockEntityPreviewRegistry;
+import io.github.stainlessstasis.manifold.client.command.FactoryClientCommands;
+import io.github.stainlessstasis.manifold.client.command.MultiblockCaptureCommands;
+import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockGuiPreviewRenderState;
+import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockGuiRenderer;
+import io.github.stainlessstasis.manifold.client.factory_component_screen.ContainerScreen;
+import io.github.stainlessstasis.manifold.client.factory_component_screen.GeneratorScreen;
+import io.github.stainlessstasis.manifold.client.factory_component_screen.MachineScreen;
+import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
+import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+
+@Mod(value = Manifold.MODID, dist = Dist.CLIENT)
+@EventBusSubscriber(modid = Manifold.MODID, value = Dist.CLIENT)
+public class ManifoldClient {
+    public ManifoldClient(ModContainer container) {
+        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    static void onClientSetup(FMLClientSetupEvent event) {}
+
+    @SubscribeEvent
+    static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ManifoldBlockEntities.BELT.get(), BeltRenderer::new);
+    }
+
+    @SubscribeEvent
+    static void registerScreens(RegisterMenuScreensEvent event) {
+        event.register(ManifoldMenus.CONTAINER.get(), ContainerScreen::new);
+        event.register(ManifoldMenus.MACHINE.get(), MachineScreen::new);
+        event.register(ManifoldMenus.GENERATOR.get(), GeneratorScreen::new);
+    }
+
+    @SubscribeEvent
+    static void registerClientCommands(RegisterClientCommandsEvent event) {
+        FactoryClientCommands.register(event.getDispatcher());
+        MultiblockCaptureCommands.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    static void registerPIP(RegisterPictureInPictureRenderersEvent event) {
+        event.register(MultiblockGuiPreviewRenderState.class, MultiblockGuiRenderer::new);
+    }
+}

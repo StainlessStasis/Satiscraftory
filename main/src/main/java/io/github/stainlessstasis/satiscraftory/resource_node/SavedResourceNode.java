@@ -2,8 +2,8 @@ package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stainlessstasis.satiscraftory.registry.ResourceNodeType;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import net.minecraft.core.GlobalPos;
 
 public record SavedResourceNode(GlobalPos pos, ResourceNodeType type, ResourceNodePurity purity) {

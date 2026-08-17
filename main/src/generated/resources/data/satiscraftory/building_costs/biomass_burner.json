@@ -1,0 +1,17 @@
+{
+  "buildingItemId": "satiscraftory:biomass_burner",
+  "inputs": [
+    {
+      "amount": 15,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 15,
+      "itemId": "satiscraftory:iron_rod"
+    },
+    {
+      "amount": 25,
+      "itemId": "satiscraftory:wire"
+    }
+  ]
+}

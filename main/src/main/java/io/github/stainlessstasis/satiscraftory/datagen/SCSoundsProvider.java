@@ -21,7 +21,7 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                 .subtitle("sound."+Satiscraftory.MODID+"miner_startup")
+                 .subtitle("sound."+Satiscraftory.MODID+".miner_startup")
         );
         add(SCSounds.MINER_DRILLING, SoundDefinition.definition()
                 .with(
@@ -31,7 +31,7 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                .subtitle("sound."+Satiscraftory.MODID+"miner_drilling")
+                .subtitle("sound."+Satiscraftory.MODID+".miner_drilling")
         );
         add(SCSounds.MINER_COOLDOWN, SoundDefinition.definition()
                 .with(
@@ -41,7 +41,7 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                .subtitle("sound."+Satiscraftory.MODID+"miner_cooldown")
+                .subtitle("sound."+Satiscraftory.MODID+".miner_cooldown")
         );
 
         add(SCSounds.BIOMASS_BURNER_STARTUP, SoundDefinition.definition()
@@ -52,7 +52,7 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_startup")
+                .subtitle("sound."+Satiscraftory.MODID+".biomass_burner_startup")
         );
         add(SCSounds.BIOMASS_BURNER_BURNING, SoundDefinition.definition()
                 .with(
@@ -62,7 +62,7 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_burning")
+                .subtitle("sound."+Satiscraftory.MODID+".biomass_burner_burning")
         );
         add(SCSounds.BIOMASS_BURNER_COOLDOWN, SoundDefinition.definition()
                 .with(
@@ -72,7 +72,39 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                                 .attenuationDistance(16)
                                 .preload()
                 )
-                .subtitle("sound."+Satiscraftory.MODID+"biomass_burner_cooldown")
+                .subtitle("sound."+Satiscraftory.MODID+".biomass_burner_cooldown")
+        );
+
+        add(SCSounds.RESOURCE_SCANNER_SCAN, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":resource_scanner_scan", SoundDefinition.SoundType.SOUND)
+                                .volume(1f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".resource_scanner_scan")
+        );
+        add(SCSounds.RESOURCE_SCANNER_PING, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":resource_scanner_ping", SoundDefinition.SoundType.SOUND)
+                                .volume(1f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".resource_scanner_ping")
+        );
+
+        add(SCSounds.BUILD_GUN_DEMOLISH, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":build_gun_demolish", SoundDefinition.SoundType.SOUND)
+                                .volume(1.5f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".build_gun_demolish")
         );
     }
 }

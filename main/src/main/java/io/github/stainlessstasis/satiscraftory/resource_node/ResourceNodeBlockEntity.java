@@ -1,7 +1,7 @@
 package io.github.stainlessstasis.satiscraftory.resource_node;
 
 import io.github.stainlessstasis.manifold.util.ItemUtils;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;

@@ -3,10 +3,9 @@ package io.github.stainlessstasis.manifold.client.multiblock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
-import io.github.stainlessstasis.manifold.factory_power.PowerConsumingFactoryBlockEntity;
-import io.github.stainlessstasis.manifold.factory_power.PowerIndicatorState;
-import io.github.stainlessstasis.manifold.factory_power.PowerProducingFactoryBlockEntity;
+import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
+import io.github.stainlessstasis.manifold.client.model.HorizontallyCenteredModel;
+import io.github.stainlessstasis.manifold.client.model.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.factory_power.PowerableFactoryBlockEntity;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import net.minecraft.client.Minecraft;
@@ -24,6 +23,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -71,6 +71,12 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
         poseStack.translate(getModelOffset());
     }
 
+    private void applyGuiTransform(PoseStack poseStack, Direction facing) {
+        poseStack.translate(0.5, 0, 0.5);
+        poseStack.mulPose(Axis.YP.rotationDegrees(180 - facing.toYRot()));
+        poseStack.translate(getModelOffset());
+    }
+
     @Override
     public void submit(
             @NonNull S renderState, @NonNull PoseStack poseStack,
@@ -101,13 +107,16 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
             ancestor.translateAndRotate(poseStack);
         }
         indicatorPart.visible = true;
-        indicatorPart.render(poseStack, vertexConsumer, 0xF000F0, OverlayTexture.NO_OVERLAY, tintColor);
+        indicatorPart.render(poseStack, vertexConsumer, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, tintColor);
         indicatorPart.visible = false;
         poseStack.popPose();
 
         bufferSource.endBatch(RenderTypes.entityCutout(getTexture()));
     }
 
+    /**
+     * In-world placement preview, see {@link PlacementPreview}
+     */
     public void submitPreview(PoseStack poseStack, SubmitNodeCollector collector, Direction facing, int lightCoords, int tintColor) {
         S renderState = createRenderState();
         renderState.facing = facing;
@@ -121,6 +130,24 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
                 lightCoords, OverlayTexture.NO_OVERLAY,
                 tintColor, null, 0, null
         );
+        poseStack.popPose();
+    }
+
+    public void submitGuiPreviewToBuffer(PoseStack poseStack, MultiBufferSource bufferSource, Direction facing, int lightCoords, int tintColor, float spinDegrees) {
+        S renderState = createRenderState();
+        renderState.facing = facing;
+        renderState.lightCoords = lightCoords;
+
+        poseStack.pushPose();
+        applyGuiTransform(poseStack, facing);
+        poseStack.mulPose(Axis.YP.rotationDegrees(spinDegrees));
+        if (getModel() instanceof HorizontallyCenteredModel centeredModel) {
+            Vec3 center = centeredModel.getHorizontalCenter();
+            poseStack.translate(-center.x, 0, -center.z);
+        }
+        getModel().setupAnim(renderState);
+        VertexConsumer buffer = bufferSource.getBuffer(RenderTypes.entityTranslucent(getTexture()));
+        getModel().renderToBuffer(poseStack, buffer, lightCoords, OverlayTexture.NO_OVERLAY, tintColor);
         poseStack.popPose();
     }
 
@@ -140,5 +167,10 @@ public abstract class MultiblockRenderer<T extends BlockEntity, S extends Multib
     @Override
     public boolean shouldRenderOffScreen() {
         return true;
+    }
+
+    public static final float DEFAULT_MODEL_SCALE = 16f;
+    public float getModelGuiScale() {
+        return DEFAULT_MODEL_SCALE;
     }
 }

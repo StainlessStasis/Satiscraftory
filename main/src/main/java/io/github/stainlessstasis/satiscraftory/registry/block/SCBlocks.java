@@ -1,0 +1,77 @@
+package io.github.stainlessstasis.satiscraftory.registry.block;
+
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
+import io.github.stainlessstasis.manifold.factory_component.generator.GeneratorBlock;
+import io.github.stainlessstasis.manifold.util.BeltConstants;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
+import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.factory_component.biomass_burner.BiomassBurnerBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
+import io.github.stainlessstasis.satiscraftory.factory_component.power_pole.PowerPoleBlock;
+import io.github.stainlessstasis.satiscraftory.registry.SCGeneratorTypes;
+import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlock;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public class SCBlocks {
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Satiscraftory.MODID);
+
+    public static final DeferredBlock<MinerBlock> MINER_MK1 = registerMiner("miner_mk1", 20L); // 60/min
+    public static final DeferredBlock<BeltBlock> BELT_MK1 = registerBelt("belt_mk1", 1f/20);   // 60/min
+    public static final DeferredBlock<BeltBlock> BELT_MK2 = registerBelt("belt_mk2", 2f/20);   // 120/min
+    public static final DeferredBlock<BeltBlock> BELT_MK3 = registerBelt("belt_mk3", 4.5f/20); // 270/min
+    public static final DeferredBlock<PowerPoleBlock> POWER_POLE_MK1 = registerPowerPole("power_pole_mk1");
+    public static final DeferredBlock<GeneratorBlock> BIOMASS_BURNER = BLOCKS.registerBlock("biomass_burner",
+            properties -> new BiomassBurnerBlock(properties, SCGeneratorTypes.BIOMASS, 30d),
+            () -> BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(2f)
+                    .noOcclusion()
+                    .isViewBlocking((_, _, _) -> false)
+    );
+
+    private static DeferredBlock<BeltBlock> registerBelt(String id, float speed) {
+        return BLOCKS.registerBlock(id,
+                properties -> new BeltBlock(properties, BeltConstants.getScaledBeltSpeed(speed)),
+                () -> BlockBehaviour.Properties.of()
+                        .noOcclusion()
+                        .mapColor(MapColor.STONE)
+                        .strength(2f)
+        );
+    }
+
+    public static DeferredBlock<ResourceNodeBlock> registerResourceNode(String name, Item resource) {
+        return BLOCKS.registerBlock(name+"_resource_node",
+                properties -> new ResourceNodeBlock(properties, ItemUtils.idOf(resource)),
+                () -> BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.STONE)
+                        .strength(-1f, 360_000f)
+                        .noLootTable()
+        );
+    }
+
+    private static DeferredBlock<MinerBlock> registerMiner(String id, long intervalTicks) {
+        return BLOCKS.registerBlock(id,
+                properties -> new MinerBlock(properties, intervalTicks),
+                () -> BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.METAL)
+                        .strength(2f)
+                        .noOcclusion()
+                        .isViewBlocking((_, _, _) -> false)
+        );
+    }
+
+    private static DeferredBlock<PowerPoleBlock> registerPowerPole(String id) {
+        return BLOCKS.registerBlock(id,
+                PowerPoleBlock::new,
+                () -> BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.METAL)
+                        .strength(2f)
+                        .noOcclusion()
+                        .isViewBlocking((_, _, _) -> false)
+        );
+    }
+}

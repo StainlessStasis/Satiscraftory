@@ -12,7 +12,7 @@ import io.github.stainlessstasis.manifold.util.FactorySounds;
 import io.github.stainlessstasis.manifold.util.TickDebouncer;
 import io.github.stainlessstasis.satiscraftory.menu.miner.MinerContainerData;
 import io.github.stainlessstasis.satiscraftory.menu.miner.MinerMenu;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import io.github.stainlessstasis.satiscraftory.resource_node.ResourceNodeBlockEntity;
 import net.minecraft.core.BlockPos;

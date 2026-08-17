@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
-import io.github.stainlessstasis.manifold.client.screen.FactoryScreen;
+import io.github.stainlessstasis.manifold.client.factory_component_screen.FactoryScreen;
 import io.github.stainlessstasis.satiscraftory.menu.miner.MinerMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;

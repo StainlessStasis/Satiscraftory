@@ -2,16 +2,11 @@ package io.github.stainlessstasis.satiscraftory.factory_component.power_pole;
 
 import com.mojang.serialization.MapCodec;
 import io.github.stainlessstasis.manifold.factory_component.AbstractDirectionalFactoryBlock;
-import io.github.stainlessstasis.manifold.multiblock.MultiblockPlacement;
 import io.github.stainlessstasis.manifold.multiblock.Multiblock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
-import io.github.stainlessstasis.satiscraftory.Satiscraftory;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
-import io.github.stainlessstasis.manifold.util.MessageUtil;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;

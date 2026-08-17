@@ -1,0 +1,17 @@
+{
+  "buildingItemId": "manifold:machine",
+  "inputs": [
+    {
+      "amount": 8,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 4,
+      "itemId": "satiscraftory:iron_rod"
+    },
+    {
+      "amount": 8,
+      "itemId": "satiscraftory:wire"
+    }
+  ]
+}

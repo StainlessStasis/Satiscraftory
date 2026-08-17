@@ -1,7 +1,10 @@
 package io.github.stainlessstasis.satiscraftory.registry;
 
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
+import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.item.CableItem;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlocks;
+import io.github.stainlessstasis.satiscraftory.item.ResourceScannerItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -14,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 public class SCItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Satiscraftory.MODID);
@@ -42,6 +44,9 @@ public class SCItems {
     public static final DeferredItem<Item> COPPER_SHEET = registerFactoryItem("copper_sheet");
     public static final DeferredItem<Item> WIRE = registerFactoryItem("wire");
     public static final DeferredItem<CableItem> CABLE = registerFactoryItem("cable", CableItem::new);
+
+    public static final DeferredItem<BuildGunItem> BUILD_GUN = ITEMS.registerItem("build_gun", BuildGunItem::new);
+    public static final DeferredItem<ResourceScannerItem> RESOURCE_SCANNER = ITEMS.registerItem("resource_scanner", ResourceScannerItem::new);
 
     public static <B extends Block> DeferredItem<BlockItem> registerFactoryBlockItem(String name, Supplier<B> blockSupplier) {
         DeferredItem<BlockItem> item = ITEMS.registerSimpleBlockItem(name, blockSupplier);

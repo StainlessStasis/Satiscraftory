@@ -1,16 +1,16 @@
 package io.github.stainlessstasis.satiscraftory.client.miner;
 
-import io.github.stainlessstasis.manifold.client.LoopingSoundTracker;
+import io.github.stainlessstasis.manifold.client.util.LoopingSoundTracker;
 import io.github.stainlessstasis.manifold.client.animation.AnimationPhaseDriver;
-import io.github.stainlessstasis.manifold.client.factory_power.PoweredFactoryModel;
+import io.github.stainlessstasis.manifold.client.model.PoweredFactoryModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderer;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockShape;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerAnimations;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlock;
 import io.github.stainlessstasis.satiscraftory.factory_component.miner.MinerBlockEntity;
-import io.github.stainlessstasis.satiscraftory.registry.SCBlockEntities;
-import io.github.stainlessstasis.satiscraftory.registry.SCResourceNodes;
+import io.github.stainlessstasis.satiscraftory.registry.block.SCBlockEntities;
+import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;

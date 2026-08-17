@@ -1,0 +1,13 @@
+{
+  "buildingItemId": "manifold:splitter",
+  "inputs": [
+    {
+      "amount": 2,
+      "itemId": "satiscraftory:iron_plate"
+    },
+    {
+      "amount": 2,
+      "itemId": "satiscraftory:cable"
+    }
+  ]
+}

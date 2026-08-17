@@ -1,0 +1,9 @@
+{
+  "buildingItemId": "satiscraftory:belt_mk3",
+  "inputs": [
+    {
+      "amount": 999,
+      "itemId": "minecraft:bedrock"
+    }
+  ]
+}

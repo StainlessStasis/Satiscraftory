@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.factory_component.PayloadItems;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlock;
-import io.github.stainlessstasis.manifold.factory_component.belt.BeltShape;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -20,9 +19,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
-import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -37,14 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mojang.math.Constants.EPSILON;
-
 public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRenderState> {
     private static final float Z_FIGHTING_ADJUSTMENT = 0.001f;
-
-    private static final Identifier STRAIGHT_TEX = Identifier.fromNamespaceAndPath("manifold", "block/belt/belt_straight");
-    private static final Identifier CURVED_TEX = Identifier.fromNamespaceAndPath("manifold", "block/belt/belt_curved");
-    private static final Identifier ASCENDING_TEX = Identifier.fromNamespaceAndPath("manifold", "block/belt/belt_ascending");
 
     private final ItemModelResolver itemModelResolver;
     private final SpriteGetter sprites;
@@ -81,7 +72,7 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         if (!blockEntity.isFrontJammed()) {
             baseOffset += (float) (blockEntity.getSpeed() * partialTick);
         }
-        renderState.scrollOffset = (float) wrap01(baseOffset);
+        renderState.scrollOffset = (float) BeltRenderUtils.wrap01(baseOffset);
 
         List<BlockPos> laneBlocks = blockEntity.getSyncedLaneBlocks();
         int laneSize = laneBlocks.size();
@@ -212,8 +203,10 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         }
     }
 
-    private void submitItem(BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
-                            PoseStack poseStack, SubmitNodeCollector collector) {
+    private void submitItem(
+            BeltRenderState renderState, BeltRenderState.BeltItemRenderData itemRenderData,
+            PoseStack poseStack, SubmitNodeCollector collector
+    ) {
         Vec3 offset = BeltGeometry.localOffsetAt(renderState.shape, renderState.reversed, itemRenderData.localT);
         offset = offset.add(0, 0.05, 0);
         float tilt = BeltGeometry.interpolatedTilt(renderState.shape, renderState.reversed, itemRenderData.localT,
@@ -236,80 +229,27 @@ public class BeltRenderer implements BlockEntityRenderer<BeltBlockEntity, BeltRe
         poseStack.popPose();
     }
 
-    private TextureAtlasSprite spriteFor(BeltShape shape) {
-        Identifier tex = shape.isCorner() ? CURVED_TEX : (shape.isAscending() ? ASCENDING_TEX : STRAIGHT_TEX);
-        return sprites.get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, tex));
-    }
-
     private void submitBeltStrip(BeltRenderState renderState, PoseStack poseStack, SubmitNodeCollector collector) {
-        TextureAtlasSprite sprite = spriteFor(renderState.shape);
+        TextureAtlasSprite sprite = BeltRenderUtils.spriteFor(renderState.shape);
         RenderType renderType = RenderTypes.entityCutout(sprite.atlasLocation());
         List<BeltGeometry.BeltStripQuad> quads = BeltGeometry.stripQuadsFor(renderState.shape, renderState.cornerSegments);
 
-        boolean flip = needsMirror(renderState.shape, renderState.reversed);
+        boolean flip = BeltRenderUtils.needsMirror(renderState.shape, renderState.reversed);
         double phase = renderState.reversed ? renderState.scrollOffset : (1 - renderState.scrollOffset);
         int count = quads.size();
+        int white = 0xFFFFFFFF;
 
         collector.submitCustomGeometry(poseStack, renderType, (pose, vertexConsumer) -> {
             VertexConsumer wrapped = sprite.wrap(vertexConsumer);
             for (int i = 0; i < count; i++) {
                 float tStart = (float) i / count;
                 float tEnd = (float) (i + 1) / count;
-                emitArcSegment(pose, wrapped, quads.get(i), tStart, tEnd, phase, renderState.lightCoords, flip);
+                BeltRenderUtils.emitArcSegment(
+                        pose, wrapped, quads.get(i), tStart, tEnd, phase,
+                        renderState.lightCoords, flip, white, scratchP0, scratchP1, scratchP2, scratchP3
+                );
             }
         });
-    }
-
-    private boolean needsMirror(BeltShape shape, boolean reversed) {
-        if (reversed) {
-            return shape.isCorner();
-        } else {
-            return shape == BeltShape.EAST_WEST || shape == BeltShape.NORTH_SOUTH;
-        }
-    }
-
-    private void emitQuadSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
-                                 float geomStart, float geomEnd, float vStart, float vEnd, int light) {
-        Vector3f p0 = quad.pointAt(geomStart, 0, scratchP0), p1 = quad.pointAt(geomStart, 1, scratchP1);
-        Vector3f p2 = quad.pointAt(geomEnd, 1, scratchP2), p3 = quad.pointAt(geomEnd, 0, scratchP3);
-
-        buffer.addVertex(pose, p0.x, p0.y, p0.z)
-                .setColor(255, 255, 255, 255).setUv(quad.u0(), vStart)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, p1.x, p1.y, p1.z)
-                .setColor(255, 255, 255, 255).setUv(quad.u1(), vStart)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, p2.x, p2.y, p2.z)
-                .setColor(255, 255, 255, 255).setUv(quad.u1(), vEnd)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-        buffer.addVertex(pose, p3.x, p3.y, p3.z)
-                .setColor(255, 255, 255, 255).setUv(quad.u0(), vEnd)
-                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(pose, 0, 1, 0);
-    }
-
-    private void emitArcSegment(PoseStack.Pose pose, VertexConsumer buffer, BeltGeometry.BeltStripQuad quad,
-                                float tStart, float tEnd, double phase, int light, boolean flip) {
-        float span = quad.v1() - quad.v0();
-        float vStart = (float) (quad.v0() + span * wrap01(tStart + phase));
-        float vEndRaw = vStart + span * (tEnd - tStart);
-
-        if (vEndRaw <= quad.v1() + EPSILON) {
-            emitQuadSegment(pose, buffer, quad, 0f, 1f, reflect(vStart, quad, flip), reflect(vEndRaw, quad, flip), light);
-        } else {
-            float overflow = vEndRaw - quad.v1();
-            float splitT = 1f - overflow / (span * (tEnd - tStart));
-            emitQuadSegment(pose, buffer, quad, 0f, splitT, reflect(vStart, quad, flip), reflect(quad.v1(), quad, flip), light);
-            emitQuadSegment(pose, buffer, quad, splitT, 1f, reflect(quad.v0(), quad, flip), reflect(quad.v0() + overflow, quad, flip), light);
-        }
-    }
-
-    private static float reflect(float v, BeltGeometry.BeltStripQuad quad, boolean flip) {
-        return flip ? (quad.v0() + quad.v1() - v) : v;
-    }
-
-    private static double wrap01(double v) {
-        double w = v % 1;
-        return w < 0 ? w + 1 : w;
     }
 
     private static float antiZFightingOffset(double localT) {

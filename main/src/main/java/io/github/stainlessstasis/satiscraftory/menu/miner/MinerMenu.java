@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.menu.miner;
 
-import io.github.stainlessstasis.manifold.Scheduler;
+import io.github.stainlessstasis.manifold.util.Scheduler;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.menu.ProgressBar;

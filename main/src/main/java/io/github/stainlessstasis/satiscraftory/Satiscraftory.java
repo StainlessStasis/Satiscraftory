@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.satiscraftory;
 
 import io.github.stainlessstasis.manifold.registry.ManifoldItems;
+import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import io.github.stainlessstasis.satiscraftory.registry.SCItems;
 import io.github.stainlessstasis.satiscraftory.registry.SCRegistries;
 import net.minecraft.core.registries.Registries;
@@ -10,6 +11,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
@@ -31,7 +34,7 @@ public class Satiscraftory {
     public Satiscraftory(IEventBus modEventBus, ModContainer modContainer) {
         CREATIVE_MODE_TABS.register(modEventBus);
         SCRegistries.register(modEventBus);
-//        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, SatiscraftoryConfig.SPEC);
     }
 
     @SubscribeEvent
@@ -61,8 +64,15 @@ public class Satiscraftory {
             .withTabsBefore(FACTORY_COMPONENTS_TAB.getKey())
             .icon(() -> SCItems.SCREWS.get().getDefaultInstance())
             .displayItems((_, output) -> {
+                output.accept(SCItems.BUILD_GUN);
+                output.accept(SCItems.RESOURCE_SCANNER);
                 output.accept(ManifoldItems.CABLE_CUTTER);
                 SCItems.getFactoryItems().forEach(item -> output.accept(item.get()));
             }).build()
     );
+
+    @SubscribeEvent
+    static void onAddReloadListeners(AddServerReloadListenersEvent event) {
+        event.addListener(Satiscraftory.id(BuildingCosts.PATH), new BuildingCosts());
+    }
 }

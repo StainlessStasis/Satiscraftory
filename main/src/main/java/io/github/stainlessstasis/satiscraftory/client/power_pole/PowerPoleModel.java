@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.client.power_pole;
 
+import io.github.stainlessstasis.manifold.client.model.HorizontallyCenteredModel;
 import io.github.stainlessstasis.manifold.client.multiblock.MultiblockRenderState;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import net.minecraft.client.model.Model;
@@ -9,7 +10,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 
-public class PowerPoleModel extends Model<MultiblockRenderState> {
+public class PowerPoleModel extends Model<MultiblockRenderState> implements HorizontallyCenteredModel {
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Satiscraftory.id("power_pole"), "main");
 
 	public PowerPoleModel(ModelPart root) {
