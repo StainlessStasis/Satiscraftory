@@ -43,4 +43,9 @@ public class SCSounds {
             "resource_scanner_ping",
             SoundEvent::createVariableRangeEvent
     );
+
+    public static final Holder<SoundEvent> BUILD_GUN_DEMOLISH = SOUND_EVENTS.register(
+            "build_gun_demolish",
+            SoundEvent::createVariableRangeEvent
+    );
 }

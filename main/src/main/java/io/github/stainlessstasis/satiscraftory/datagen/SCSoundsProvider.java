@@ -95,5 +95,16 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                 )
                 .subtitle("sound."+Satiscraftory.MODID+".resource_scanner_ping")
         );
+
+        add(SCSounds.BUILD_GUN_DEMOLISH, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":build_gun_demolish", SoundDefinition.SoundType.SOUND)
+                                .volume(1.5f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".build_gun_demolish")
+        );
     }
 }

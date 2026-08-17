@@ -29,6 +29,16 @@
     ],
     "subtitle": "sound.satiscraftory.biomass_burner_startup"
   },
+  "build_gun_demolish": {
+    "sounds": [
+      {
+        "name": "satiscraftory:build_gun_demolish",
+        "preload": true,
+        "volume": 1.5
+      }
+    ],
+    "subtitle": "sound.satiscraftory.build_gun_demolish"
+  },
   "miner_cooldown": {
     "sounds": [
       {

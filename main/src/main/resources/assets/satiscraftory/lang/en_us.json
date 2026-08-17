@@ -26,6 +26,7 @@
   "sound.satiscraftory.biomass_burner_cooldown": "Biomass Burner Stops",
   "sound.satiscraftory.resource_scanner_scan": "Resource Scanner Scans",
   "sound.satiscraftory.resource_scanner_ping": "Resource Scanner Pings",
+  "sound.satiscraftory.build_gun_demolish": "Build Gun Demolishes",
 
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
