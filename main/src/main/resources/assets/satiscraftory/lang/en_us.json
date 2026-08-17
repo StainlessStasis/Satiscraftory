@@ -24,6 +24,8 @@
   "sound.satiscraftory.biomass_burner_startup": "Biomass Burner Whirs",
   "sound.satiscraftory.biomass_burner_burning": "Biomass Burns",
   "sound.satiscraftory.biomass_burner_cooldown": "Biomass Burner Stops",
+  "sound.satiscraftory.resource_scanner_scan": "Resource Scanner Scans",
+  "sound.satiscraftory.resource_scanner_ping": "Resource Scanner Pings",
 
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",

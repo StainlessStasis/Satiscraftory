@@ -4,11 +4,15 @@ import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,6 +21,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -34,7 +40,7 @@ public class BuildGunItem extends Item {
     @Override
     public @NonNull InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        if (!(player instanceof ServerPlayer) || !(context.getLevel() instanceof ServerLevel)) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !(context.getLevel() instanceof ServerLevel)) {
             return InteractionResult.SUCCESS; // success is intended to be here so client doesnt open block menus
         }
 
@@ -43,10 +49,10 @@ public class BuildGunItem extends Item {
             return InteractionResult.SUCCESS_SERVER;
         }
 
-        return placeSelected(context, player);
+        return placeSelected(context, serverPlayer);
     }
 
-    private InteractionResult placeSelected(UseOnContext context, Player player) {
+    private InteractionResult placeSelected(UseOnContext context, ServerPlayer player) {
         BlockItem selected = getSelectedBlockItem(player);
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(selected);
 
@@ -75,6 +81,21 @@ public class BuildGunItem extends Item {
         }
 
         if (result.consumesAction()) {
+            BlockPos placedPos = placeContext.getClickedPos();
+            BlockState placedState = context.getLevel().getBlockState(placedPos);
+            SoundType soundType = placedState.getSoundType();
+
+            player.connection.send(new ClientboundSoundPacket(
+                    Holder.direct(soundType.getPlaceSound()),
+                    SoundSource.BLOCKS,
+                    placedPos.getX() + 0.5,
+                    placedPos.getY() + 0.5,
+                    placedPos.getZ() + 0.5,
+                    soundType.getVolume(),
+                    soundType.getPitch(),
+                    player.level().getRandom().nextLong()
+            ));
+
             return InteractionResult.SUCCESS_SERVER;
         }
 
