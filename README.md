@@ -72,3 +72,6 @@ When reporting rendering performance issues, include:
 - Average FPS when the factory components are on screen, and average FPS you would have if you were normally going about your world with no factories on screen
 - Any notable rendering mods installed, such as Iris. If using shaders, name the shader pack
 - GPU specs
+
+## Credits
+Some assets (mainly models and sounds) are derivatives of other works. For more information, see [ATTRIBUTIONS.md](https://github.com/StainlessStasis/Satiscraftory/blob/main/ATTRIBUTIONS.md)
