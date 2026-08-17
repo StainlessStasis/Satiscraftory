@@ -1,18 +1,19 @@
 package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
 
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
+import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 public final class ClientResourceScanState {
-    public static final int RESULT_LIFETIME_TICKS = 20 * 60; // how long results stay visible before the bar stops showing them
-    public static final double PING_SPEED_BLOCKS_PER_TICK = 500d / 20d;
-    public static final float SCAN_EFFECT_DURATION_MILLIS = 2000f;
+    public static final int RESULT_LIFETIME_TICKS = 20 * 120; // how long results stay visible before the bar stops showing them
+    public static final double PING_SPEED_BLOCKS_PER_TICK = 300d / 20d;
 
     private static volatile @Nullable Identifier nodeTypeId = null;
     private static volatile List<ResourceScanResultPacket.ScannedNode> results = List.of();
@@ -36,6 +37,8 @@ public final class ClientResourceScanState {
         if (player != null) {
             ScanEffectRenderer.INSTANCE.ping(player.position());
         }
+
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SCSounds.RESOURCE_SCANNER_SCAN.value(), 1f));
     }
 
     public static void clear() {
@@ -69,6 +72,7 @@ public final class ClientResourceScanState {
         double dx = (node.pos().getX() + 0.5) - originX;
         double dz = (node.pos().getZ() + 0.5) - originZ;
         double distance = Math.sqrt(dx * dx + dz * dz);
-        return distance / PING_SPEED_BLOCKS_PER_TICK;
+        double ticks = distance / PING_SPEED_BLOCKS_PER_TICK;
+        return ticks + 15;
     }
 }

@@ -74,5 +74,26 @@ public class SCSoundsProvider extends SoundDefinitionsProvider {
                 )
                 .subtitle("sound."+Satiscraftory.MODID+".biomass_burner_cooldown")
         );
+
+        add(SCSounds.RESOURCE_SCANNER_SCAN, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":resource_scanner_scan", SoundDefinition.SoundType.SOUND)
+                                .volume(1f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".resource_scanner_scan")
+        );
+        add(SCSounds.RESOURCE_SCANNER_PING, SoundDefinition.definition()
+                .with(
+                        sound(Satiscraftory.MODID+":resource_scanner_ping", SoundDefinition.SoundType.SOUND)
+                                .volume(1f)
+                                .pitch(1f)
+                                .attenuationDistance(16)
+                                .preload()
+                )
+                .subtitle("sound."+Satiscraftory.MODID+".resource_scanner_ping")
+        );
     }
 }

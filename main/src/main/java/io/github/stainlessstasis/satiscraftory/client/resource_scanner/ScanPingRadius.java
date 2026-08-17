@@ -5,7 +5,7 @@ package io.github.stainlessstasis.satiscraftory.client.resource_scanner;
  */
 public final class ScanPingRadius {
     private ScanPingRadius() {}
-    private static final float INITIAL_RADIUS = 4f;
+    private static final float INITIAL_RADIUS = 12f;
     private static final float TIME_OFFSET_MILLIS = 200f;
 
     public static float computeRadius(long startMillis, float durationMillis, float targetRadius) {

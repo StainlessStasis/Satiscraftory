@@ -58,5 +58,23 @@
       }
     ],
     "subtitle": "sound.satiscraftory.miner_startup"
+  },
+  "resource_scanner_ping": {
+    "sounds": [
+      {
+        "name": "satiscraftory:resource_scanner_ping",
+        "preload": true
+      }
+    ],
+    "subtitle": "sound.satiscraftory.resource_scanner_ping"
+  },
+  "resource_scanner_scan": {
+    "sounds": [
+      {
+        "name": "satiscraftory:resource_scanner_scan",
+        "preload": true
+      }
+    ],
+    "subtitle": "sound.satiscraftory.resource_scanner_scan"
   }
 }

@@ -34,4 +34,13 @@ public class SCSounds {
             "biomass_burner_cooldown",
             SoundEvent::createVariableRangeEvent
     );
+
+    public static final Holder<SoundEvent> RESOURCE_SCANNER_SCAN = SOUND_EVENTS.register(
+            "resource_scanner_scan",
+            SoundEvent::createVariableRangeEvent
+    );
+    public static final Holder<SoundEvent> RESOURCE_SCANNER_PING = SOUND_EVENTS.register(
+            "resource_scanner_ping",
+            SoundEvent::createVariableRangeEvent
+    );
 }

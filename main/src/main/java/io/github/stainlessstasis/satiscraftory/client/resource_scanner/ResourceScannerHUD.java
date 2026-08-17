@@ -4,6 +4,7 @@ import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.manifold.menu.GuiColors;
 import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.ResourceScanResultPacket;
+import io.github.stainlessstasis.satiscraftory.registry.SCSounds;
 import io.github.stainlessstasis.satiscraftory.registry.world.ResourceNodeType;
 import io.github.stainlessstasis.satiscraftory.registry.world.SCResourceNodes;
 import io.github.stainlessstasis.satiscraftory.item.ResourceScannerItem;
@@ -92,7 +93,7 @@ public final class ResourceScannerHUD implements GuiLayer {
     }
 
     private void playPingSound() {
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 1.25f));
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SCSounds.RESOURCE_SCANNER_PING.value(), 1f));
     }
 
     private MarkerPlacement computePlacement(

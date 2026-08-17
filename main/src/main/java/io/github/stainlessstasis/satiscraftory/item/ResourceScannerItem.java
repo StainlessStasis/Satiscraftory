@@ -33,16 +33,16 @@ public class ResourceScannerItem extends Item {
         super(properties.stacksTo(1));
     }
 
-    @Override
-    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (!(player instanceof ServerPlayer serverPlayer) || !(level instanceof ServerLevel serverLevel)) {
-            return InteractionResult.SUCCESS;
-        }
-
-        performScan(serverPlayer, serverLevel, getSelectedType(player));
-        return InteractionResult.SUCCESS_SERVER;
-    }
+//    @Override
+//    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
+//        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+//        if (!(player instanceof ServerPlayer serverPlayer) || !(level instanceof ServerLevel serverLevel)) {
+//            return InteractionResult.SUCCESS;
+//        }
+//
+//        performScan(serverPlayer, serverLevel, getSelectedType(player));
+//        return InteractionResult.SUCCESS_SERVER;
+//    }
 
     public static void performScan(ServerPlayer player, ServerLevel level, ResourceNodeType type) {
         int range = SatiscraftoryConfig.RESOURCE_SCANNER_RANGE.get();
