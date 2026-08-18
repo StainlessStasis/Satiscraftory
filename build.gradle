@@ -2,11 +2,20 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.141' apply false
+    id 'org.moddedmc.wiki.toolkit' version '0.4.3'
     id 'idea'
 }
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
+}
+
+wiki {
+    docs {
+        satiscraftory {
+            root = file('main/wiki')
+        }
+    }
 }
 
 subprojects {
