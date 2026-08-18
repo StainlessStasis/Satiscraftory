@@ -3,7 +3,6 @@
   "id": "satiscraftory",
   "modid": "satiscraftory",
   "platforms": {
-    "curseforge": "satiscraftory-mod",
     "modrinth": "satisfactory-mod"
   },
   "owners": ["stainlessstasis"]
