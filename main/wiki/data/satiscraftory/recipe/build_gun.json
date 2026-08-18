@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "satiscraftory:cable",
+    "P": "satiscraftory:iron_plate",
+    "R": "satiscraftory:iron_rod",
+    "W": "satiscraftory:wire"
+  },
+  "pattern": [
+    "PP ",
+    "WRP",
+    "RC "
+  ],
+  "result": {
+    "id": "satiscraftory:build_gun"
+  }
+}
