@@ -11,5 +11,12 @@
   "manifold.configuration.beltsDropItems": "Belts Drop Items",
   "manifold.configuration.powerRequired": "Power Required",
 
-  "manifold.invalid_multiblock_placement": "This building needs more room to be placed (%sx%sx%s)"
+  "manifold.invalid_multiblock_placement": "This building needs more room to be placed (%sx%sx%s)",
+
+  "manifold.recipe_menu.title": "Select Recipe",
+  "manifold.recipe_menu.inputs": "Inputs",
+  "manifold.recipe_menu.outputs": "Outputs",
+  "manifold.recipe_menu.duration": "%s per craft",
+  "manifold.recipe_menu.ingredient_rate": "x%s (%s/min)",
+  "manifold.recipe_menu.change_recipe": "Change Recipe"
 }

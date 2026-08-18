@@ -4,7 +4,7 @@ import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerRegistry;
-import io.github.stainlessstasis.manifold.network.ChainStateSyncPacket;
+import io.github.stainlessstasis.manifold.network.clientbound.ChainStateSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;

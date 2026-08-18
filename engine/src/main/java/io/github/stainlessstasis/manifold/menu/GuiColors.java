@@ -11,4 +11,8 @@ public final class GuiColors {
     public static final int ACCENT_COLOR = 0xFFFA9549;
     public static final int ACCENT_COLOR_DARK = 0xFFC86218;
     public static final int EMPTY_SLOT_OVERLAY = 0xB0202020;
+    public static final int OVERLAY_BG = 0xF0101010;
+    public static final int GRID_CELL_BG = 0xFF262626;
+    public static final int GRID_CELL_BG_HOVER = 0xFF3A3A3A;
+    public static final int TEXT_COLOR_DIM = 0xFF9A9A9A;
 }

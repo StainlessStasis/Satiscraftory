@@ -102,7 +102,6 @@ public class PlacementPreview {
             BlockEntity dummyBE = entityBlock.newBlockEntity(BlockPos.ZERO, previewState);
             if (dummyBE != null) {
                 BlockEntityPreviewRegistry.Renderer renderer = BlockEntityPreviewRegistry.get(dummyBE.getType());
-                System.out.println(renderer);
                 if (renderer != null) {
                     renderer.submitPreview(
                             event.getPoseStack(), event.getSubmitNodeCollector(),

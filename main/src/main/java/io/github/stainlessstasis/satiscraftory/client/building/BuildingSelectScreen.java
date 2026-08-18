@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory.client.building;
 
 import io.github.stainlessstasis.manifold.client.multiblock.gui.MultiblockPreviewPanel;
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
+import io.github.stainlessstasis.manifold.client.util.ScreenUtils;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCategory;
@@ -89,7 +90,7 @@ public class BuildingSelectScreen extends Screen {
             BuildingCategory category = categories[i];
             int tabX = gridX + i * tabWidth;
             boolean isSelected = category == selectedCategory;
-            boolean isHovered = isInside(mouseX, mouseY, tabX, panelY, tabWidth, TAB_HEIGHT);
+            boolean isHovered = ScreenUtils.isInside(mouseX, mouseY, tabX, panelY, tabWidth, TAB_HEIGHT);
 
             int bg = isSelected ? TAB_BG_SELECTED : (isHovered ? GRID_CELL_BG_HOVER : TAB_BG);
             graphics.fill(tabX, panelY, tabX + tabWidth, panelY + TAB_HEIGHT, bg);
@@ -113,7 +114,7 @@ public class BuildingSelectScreen extends Screen {
 
             if (cellY + CELL_SIZE < gridY || cellY > gridY + gridHeight) continue;
 
-            boolean isHovered = isInside(mouseX, mouseY, cellX, cellY, CELL_SIZE, CELL_SIZE)
+            boolean isHovered = ScreenUtils.isInside(mouseX, mouseY, cellX, cellY, CELL_SIZE, CELL_SIZE)
                     && mouseY >= gridY && mouseY <= gridY + gridHeight;
             boolean unlocked = TierUnlocks.isUnlockedOnClient(entry.unlock());
 
@@ -181,7 +182,7 @@ public class BuildingSelectScreen extends Screen {
             int tabWidth = gridWidth / categories.length;
             for (int i = 0; i < categories.length; i++) {
                 int tabX = gridX + i * tabWidth;
-                if (isInside(event.x(), event.y(), tabX, panelY, tabWidth, TAB_HEIGHT)) {
+                if (ScreenUtils.isInside(event.x(), event.y(), tabX, panelY, tabWidth, TAB_HEIGHT)) {
                     selectedCategory = categories[i];
                     scrollOffset = 0;
                     return true;
@@ -199,7 +200,7 @@ public class BuildingSelectScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (isInside(mouseX, mouseY, gridX, gridY, gridWidth, gridHeight)) {
+        if (ScreenUtils.isInside(mouseX, mouseY, gridX, gridY, gridWidth, gridHeight)) {
             int rows = (int) Math.ceil(BuildingCatalog.byCategory(selectedCategory).size() / (double) GRID_COLUMNS);
             int contentHeight = rows * (CELL_SIZE + CELL_PADDING);
             int maxScroll = Math.max(0, contentHeight - gridHeight);
@@ -217,10 +218,6 @@ public class BuildingSelectScreen extends Screen {
         }
         ClientPacketDistributor.sendToServer(new SelectBuildingPacket(entry.id()));
         this.onClose();
-    }
-
-    private static boolean isInside(double x, double y, int boxX, int boxY, int boxWidth, int boxHeight) {
-        return x >= boxX && x < boxX + boxWidth && y >= boxY && y < boxY + boxHeight;
     }
 
     @Override

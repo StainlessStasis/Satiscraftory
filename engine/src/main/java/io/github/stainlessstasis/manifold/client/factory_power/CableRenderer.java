@@ -6,7 +6,7 @@ import io.github.stainlessstasis.manifold.client.block_preview.PlacementPreview;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerLinkable;
 import io.github.stainlessstasis.manifold.item.power_link.PowerLinkItem;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlockEntity;
-import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
+import io.github.stainlessstasis.manifold.network.clientbound.PowerGridSyncPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
