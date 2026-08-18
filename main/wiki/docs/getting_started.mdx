@@ -5,11 +5,12 @@ Before you can begin constructing a factory, there are some items you'll need to
 * [Wire](../content/wire)
 * [Cable](../content/cable)
 
-You'll need these to craft a [Build Gun](../content/build_gun), which is used for [building](building) factories.
+You'll need these to craft a [Build Gun](../content/build_gun), which is used for [building](building/building) factories.
 Factory buildings are not obtainable as placeable blocks (except in creative mode), and can only be placed and removed with the Build Gun.
 
 # Resource Nodes
-Your first factory will begin with a [Resource Node](resource_nodes) - an infinitely renewable ore deposit which [Miners](../content/miner_mk1) can extract resources from.
+Your first factory will begin with a [Resource Node](resource_nodes) - an infinitely renewable ore deposit which [Miners](../content/miner_mk1) can extract from.
+
 To find a Resource Node, you can:
 1) Find them naturally by exploring the surface of the Overworld
 2) Craft a [Resource Scanner](../content/resource_scanner) to find any nodes within 1000 blocks (only for chunks already generated)
@@ -18,7 +19,7 @@ To find a Resource Node, you can:
 Once you've found a Resource Node, hold your Build Gun to see the required items needed to build a [Miner](../content/miner_mk1).
 Then, aim at the ground near the node, and right click to build it. The Miner requires 5 MW of [power](power) to work, which means the next step is to produce power.
 
-Press **B** while holding the Build Gun to open the build menu. Navigate to the Power tab, and select Biomass Burner.
+Press **B** while holding the Build Gun to open the [build menu](building/build_menu). Navigate to the Power tab, and select [Biomass Burner](../content/biomass_burner).
 This is a basic generator which burns biomass (e.g. leaves, logs) to produce 30 MW of power. Acquire the necessary items, and build it near your Miner.
 
 Finally, you'll need to connect the Biomass Burner to the Miner using a [Cable](../content/cable) in order for the Miner to receive power.
@@ -28,3 +29,13 @@ Now your Miner will produce items, as indicated by the [power indicator](power) 
 Once that's confirmed, you'll need a way of moving items from the Miner and into other factory buildings to automate production.
 
 # Belts
+[Belts](factory_buildings/belts) are used to automatically move items from place to place without any power requirements.
+They can input and output items at the designated [ports](factory_buildings/info) of each factory building.
+
+The most basic version of a Belt is a Belt Mk. 1, which can move 60 items/minute. Each Belt Mk. 1 requires a single [iron plate](../content/iron_plate).
+From the build menu, select Belt Mk. 1 and place it in front of your Miner's port.
+Raw iron/copper (depending on which node you're at) will start to flow down the Belt.
+Now the items just need somewhere to go.
+
+# Building a Factory
+TODO: Update this section after 0.6.1

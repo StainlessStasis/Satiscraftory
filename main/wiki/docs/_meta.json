@@ -1,6 +1,7 @@
 {
   "getting_started.mdx": "Getting Started",
-  "building.mdx": "Building",
+  "building": "Building",
+  "factory_buildings": "Factory Buildings",
   "power.mdx": "Power",
   "resource_nodes.mdx": "Resource Nodes"
 }
