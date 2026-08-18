@@ -1,0 +1,9 @@
+{
+  "schema": "1",
+  "id": "satiscraftory",
+  "modid": "satiscraftory",
+  "platforms": {
+    "modrinth": "satisfactory-mod"
+  },
+  "owners": ["stainlessstasis"]
+}
