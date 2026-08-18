@@ -1,5 +1,5 @@
 {
-  "test.mdx": "Test",
-  "satiscraftory": "Satiscraftory",
-  "manifold": "Manifold"
+  "items": "Items",
+  "blocks": "Blocks",
+  "machine_recipes": "Machine Recipes"
 }

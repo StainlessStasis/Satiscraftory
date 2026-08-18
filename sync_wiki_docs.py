@@ -14,11 +14,12 @@ What it does:
   2. Copies recipes (same folding applies)
   3. Converts custom machine_recipes/*.json into the wiki's custom recipe format
   4. Copies WikiDataExporter's rendered item images + item properties into main/wiki,
-     then mirrors folded namespaces' images so folded content pages have icons
+     folding folded namespaces straight into the primary modid and sorting images
+     into item/block subfolders based on the lang file
   5. Generates content/<modid>/item/*.mdx and content/<modid>/block/*.mdx pages
      for anything that doesn't already have one
   6. Generates content/<modid>/machine_recipes/*.mdx - one overview page per
-     machine type, listing every recipe it performs
+     machine type, listing every recipe it performs (with items/min)
   7. Keeps every _meta.json (page/folder display names) in sync with what
      actually exists on disk
 """
@@ -44,8 +45,8 @@ MODULES = [
 # A sinytra-wiki.json project only has one modid, and content page IDs must
 # belong to it. Manifold is just the engine, not a separate product, so its
 # content gets folded into the primary modid everywhere: content page ids,
-# lang keys, recipe/ingredient references, and icons all get rewritten from
-# "manifold:x" to "satiscraftory:x" as they're copied in.
+# lang keys, recipe/ingredient references, images, and icons all get
+# rewritten from "manifold:x" to "satiscraftory:x" as they're copied in.
 PRIMARY_MODID = json.loads((DOCS_ROOT / "sinytra-wiki.json").read_text(encoding="utf-8"))["modid"]
 FOLD_MODIDS = {"manifold"}
 
@@ -215,50 +216,77 @@ def update_workbenches(source_modid: str, dest_modid: str, machine_type_to_block
     print(f"[workbenches] updated {dest.relative_to(DOCS_ROOT)}")
 
 
-def sync_exporter_output():
-    """Copies WikiDataExporter's render (item images) and metadata (item
-    properties) output into main/wiki, in case the exporter/toolkit auto-
-    wiring isn't placing them there for you.
+def classify_paths_by_kind(modid: str) -> dict:
+    """Maps a content path (e.g. 'conveyor_belt') to 'item' or 'block' using
+    the lang file's item.<modid>.<path> / block.<modid>.<path> keys, so
+    rendered images can be sorted into matching item/block subfolders."""
+    lang_file = DOCS_ROOT / "assets" / modid / "lang" / "en_us.json"
+    if not lang_file.exists():
+        return {}
+    lang = json.loads(lang_file.read_text(encoding="utf-8"))
+    pattern = re.compile(rf"^(item|block)\.{re.escape(modid)}\.(.+)$")
+    kind_by_path = {}
+    for key in lang:
+        m = pattern.match(key)
+        if m:
+            kind_by_path[m.group(2)] = m.group(1)
+    return kind_by_path
 
-    NOTE: this assumes the exporter writes to <output>/render/... and
-    <output>/metadata/... - if nothing gets copied, check
+
+def copy_namespaced_tree(src_root: Path, dest_root: Path, label: str, sort_by_kind: bool):
+    """Copies each top-level namespace folder under src_root into
+    dest_root/<dest_modid>, folding FOLD_MODIDS straight into the primary
+    modid (so assets/manifold never gets recreated) and, when sort_by_kind
+    is set, sorting files into item/block subfolders via the lang file."""
+    if not src_root.exists():
+        print(f"[export] no '{src_root.name}' folder under {EXPORTER_OUTPUT_DIR}, skipped {label}")
+        return
+
+    for ns_dir in src_root.iterdir():
+        if not ns_dir.is_dir():
+            continue
+        source_modid = ns_dir.name
+        dest_modid = target_modid(source_modid)
+        kind_by_path = classify_paths_by_kind(dest_modid) if sort_by_kind else {}
+        dest_ns_root = dest_root / dest_modid
+
+        count = 0
+        for f in ns_dir.rglob("*"):
+            if f.is_dir():
+                continue
+            rel = f.relative_to(ns_dir)
+            kind = kind_by_path.get(rel.with_suffix("").as_posix()) if sort_by_kind else None
+            dest = (dest_ns_root / kind / rel) if kind else (dest_ns_root / rel)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(f, dest)
+            count += 1
+
+        note = f"folded into {dest_modid}, " if dest_modid != source_modid else ""
+        sorted_note = "sorted by item/block" if sort_by_kind else "merged"
+        print(f"[export] copied {label}: {src_root.name}/{source_modid} -> {dest_root.name}/{dest_modid} ({note}{sorted_note}, {count} files)")
+
+    # clean up any leftover unfolded namespace dir from older runs
+    for fold_modid in FOLD_MODIDS:
+        stray = dest_root / fold_modid
+        if stray.exists():
+            shutil.rmtree(stray)
+            print(f"[export] removed stray {dest_root.name}/{fold_modid} (folded into {PRIMARY_MODID})")
+
+
+def sync_exporter_output():
+    """Copies WikiDataExporter's render (item/block images) and metadata
+    (item properties) output into main/wiki.
+
+    NOTE: assumes the exporter writes to <output>/render/<namespace>/... and
+    <output>/metadata/<namespace>/... - if nothing gets copied, check
     EXPORTER_OUTPUT_DIR and look at what's actually inside it, the exact
     layout isn't fully documented."""
     if not EXPORTER_OUTPUT_DIR.exists():
         print(f"[export] {EXPORTER_OUTPUT_DIR} not found - run the exportClient run config first")
         return
 
-    render_dir = EXPORTER_OUTPUT_DIR / "render"
-    if render_dir.exists():
-        dest = DOCS_ROOT / "assets"
-        dest.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(render_dir, dest, dirs_exist_ok=True)
-        print(f"[export] copied rendered images: {render_dir} -> assets/")
-    else:
-        print(f"[export] no 'render' folder under {EXPORTER_OUTPUT_DIR}, skipped images")
-
-    metadata_dir = EXPORTER_OUTPUT_DIR / "metadata"
-    if metadata_dir.exists():
-        dest = DOCS_ROOT / "data"
-        dest.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(metadata_dir, dest, dirs_exist_ok=True)
-        print(f"[export] copied item properties: {metadata_dir} -> data/")
-    else:
-        print(f"[export] no 'metadata' folder under {EXPORTER_OUTPUT_DIR}, skipped properties")
-
-
-def fold_assets():
-    """Folded content pages use PRIMARY_MODID-based ids, and an id doubles
-    as its icon's asset location - so mirror rendered images for any folded
-    namespace into the primary project's asset folder too."""
-    for source_modid in FOLD_MODIDS:
-        src = DOCS_ROOT / "assets" / source_modid
-        if not src.exists():
-            continue
-        dest = DOCS_ROOT / "assets" / PRIMARY_MODID
-        dest.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(src, dest, dirs_exist_ok=True)
-        print(f"[fold]   mirrored assets/{source_modid} -> assets/{PRIMARY_MODID}")
+    copy_namespaced_tree(EXPORTER_OUTPUT_DIR / "render", DOCS_ROOT / "assets", "rendered images", sort_by_kind=True)
+    copy_namespaced_tree(EXPORTER_OUTPUT_DIR / "metadata", DOCS_ROOT / "data", "item properties", sort_by_kind=False)
 
 
 def generate_content_stubs(source_modid: str, dest_modid: str, lang_file: Path):
@@ -351,7 +379,8 @@ def update_content_meta():
 def generate_machine_recipe_pages(recipes_by_machine_type: dict):
     """Writes one overview page per machine type under
     content/<PRIMARY_MODID>/machine_recipes/, listing every recipe that
-    machine performs. Items belonging to the current project get a
+    machine performs (with items/min for each input and output, based on
+    the recipe's duration). Items belonging to the current project get a
     <ContentLink/> to their own page; everything else (vanilla, other
     namespaces) is shown as plain text, since ContentLink only supports
     linking within the current project or to vanilla items."""
@@ -367,24 +396,38 @@ def generate_machine_recipe_pages(recipes_by_machine_type: dict):
             return f'<ContentLink id="{item_id}"/>'
         return f"`{item_id}`"  # outside the project - can't be linked
 
+    def fmt_rate(rate: float) -> str:
+        return f"{rate:.2f}".rstrip("0").rstrip(".")
+
+    def format_items(items, duration_ticks) -> str:
+        parts = []
+        for item_id, count in items:
+            text = f"{count}x {link(item_id)}"
+            if duration_ticks:
+                rate = count * 1200 / duration_ticks  # 1200 ticks/min @ 20 tps
+                text += f" ({fmt_rate(rate)}/min)"
+            parts.append(text)
+        return ", ".join(parts)
+
     section_meta = {}
     for machine_type, recipes in recipes_by_machine_type.items():
         mt_namespace, mt_path = machine_type.split(":", 1)
         page_file = section_dir / f"{mt_path}.mdx"
+        title = mt_path.replace("_", " ").title()
 
-        lines = [f"# {mt_path.replace('_', ' ').title()}\n"]
+        # frontmatter is required for the page to actually render/route -
+        # missing it is why these pages showed in nav but 404'd before
+        lines = [f"---\ntitle: {title}\n---\n", f"# {title}\n"]
         for r in recipes:
-            inputs = ", ".join(f"{count}x {link(i)}" for i, count in r["inputs"])
-            outputs = ", ".join(f"{count}x {link(i)}" for i, count in r["outputs"])
             lines.append(f"### {r['id'].replace('_', ' ').title()}")
-            lines.append(f"- **Input:** {inputs}")
-            lines.append(f"- **Output:** {outputs}")
+            lines.append(f"- **Input:** {format_items(r['inputs'], r['duration_ticks'])}")
+            lines.append(f"- **Output:** {format_items(r['outputs'], r['duration_ticks'])}")
             if r["duration_ticks"]:
                 lines.append(f"- **Duration:** {r['duration_ticks']} ticks")
             lines.append("")
 
         page_file.write_text("\n".join(lines), encoding="utf-8")
-        section_meta[f"{mt_path}.mdx"] = mt_path.replace("_", " ").title()
+        section_meta[f"{mt_path}.mdx"] = title
         print(f"[machine-page] wrote content/{PRIMARY_MODID}/machine_recipes/{mt_path}.mdx")
 
     (section_dir / "_meta.json").write_text(json.dumps(section_meta, indent=2), encoding="utf-8")
@@ -429,7 +472,6 @@ def main():
 
     print(f"\n=== exporter output ===")
     sync_exporter_output()
-    fold_assets()
 
 if __name__ == "__main__":
     main()
