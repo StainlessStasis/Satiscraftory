@@ -38,4 +38,6 @@ Satiscraftory/run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
-**/run/
+**/run/*
+!**/run/wiki_exporter/
+!**/run/wiki_exporter/config.json

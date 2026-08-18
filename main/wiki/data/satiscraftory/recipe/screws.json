@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "satiscraftory:iron_rod"
+  ],
+  "result": {
+    "count": 4,
+    "id": "satiscraftory:screws"
+  }
+}
