@@ -2,14 +2,14 @@
   "type": "satiscraftory:basic_machine",
   "input": {
     "input_0": {
-      "id": "satiscraftory:iron_rod",
+      "id": "minecraft:raw_iron",
       "count": 1
     }
   },
   "output": {
     "output_0": {
-      "id": "satiscraftory:screws",
-      "count": 4
+      "id": "minecraft:iron_ingot",
+      "count": 1
     }
   }
 }

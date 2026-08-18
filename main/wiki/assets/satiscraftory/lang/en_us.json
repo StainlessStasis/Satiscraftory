@@ -1,14 +1,23 @@
 {
+  "block.manifold.producer": "Producer",
+  "block.manifold.power_producer": "Power Producer",
+  "block.manifold.splitter": "Splitter",
+  "block.manifold.merger": "Merger",
+  "block.manifold.machine": "Machine",
+  "block.manifold.container": "Container",
+  "block.manifold.consumer": "Consumer",
+  "item.manifold.cable_cutter": "Cable Cutter",
+  "manifold.configuration.beltsDropItems": "Belts Drop Items",
+  "manifold.configuration.powerRequired": "Power Required",
+  "manifold.invalid_multiblock_placement": "This building needs more room to be placed (%sx%sx%s)",
   "factory_components_tab.satiscraftory": "Factory Components",
   "factory_items_tab.satiscraftory": "Factory Items",
-
   "block.satiscraftory.belt_mk1": "Belt Mk. 1",
   "block.satiscraftory.belt_mk2": "Belt Mk. 2",
   "block.satiscraftory.belt_mk3": "Belt Mk. 3",
   "block.satiscraftory.miner_mk1": "Miner Mk. 1",
   "block.satiscraftory.power_pole_mk1": "Power Pole Mk. 1",
   "block.satiscraftory.biomass_burner": "Biomass Burner",
-
   "item.satiscraftory.iron_plate": "Iron Plate",
   "item.satiscraftory.iron_rod": "Iron Rod",
   "item.satiscraftory.screws": "Screws",
@@ -17,7 +26,6 @@
   "item.satiscraftory.cable": "Cable",
   "item.satiscraftory.build_gun": "Build Gun",
   "item.satiscraftory.resource_scanner": "Resource Scanner",
-
   "sound.satiscraftory.miner_startup": "Miner Whirs",
   "sound.satiscraftory.miner_drilling": "Miner Drills",
   "sound.satiscraftory.miner_cooldown": "Miner Stops",
@@ -27,32 +35,34 @@
   "sound.satiscraftory.resource_scanner_scan": "Resource Scanner Scans",
   "sound.satiscraftory.resource_scanner_ping": "Resource Scanner Pings",
   "sound.satiscraftory.build_gun_demolish": "Build Gun Demolishes",
-
   "key.category.satiscraftory.building": "Satiscraftory Building",
   "key.satiscraftory.open_build_menu": "Open Build Menu",
-
   "satiscraftory.invalid_placement_for_miner": "Miner must be placed on a Resource Node",
   "satiscraftory.node_already_occupied": "This node is already occupied by another Miner",
-
   "satiscraftory.build_gun.missing_materials": "Missing materials for %s",
   "satiscraftory.build_gun.currently_building": "Currently building:",
   "satiscraftory.build_gun.mark_for_demolition": "Click to mark for demolition:",
   "satiscraftory.build_gun.marked_for_demolition": "Marked for demolition (%s/%s):",
   "satiscraftory.build_gun.selection_full": "Selection limit reached (%s)",
-
   "satiscraftory.build_menu.category.production": "Production",
   "satiscraftory.build_menu.category.power": "Power",
   "satiscraftory.build_menu.category.logistics": "Logistics",
   "satiscraftory.build_menu.category.organization": "Organization",
   "satiscraftory.build_menu.title": "Building Selection",
   "satiscraftory.build_menu.tier": "Tier %s",
-
   "satiscraftory.progression.tier_not_met": "Locked until tier %s",
   "satiscraftory.progression.not_unlocked": "Unlocked by %s at tier %s",
-
   "satiscraftory.configuration.buildingCosts": "Building Costs",
   "satiscraftory.configuration.demolitionRefundPercent": "Demolition Refund Percent",
   "satiscraftory.configuration.generateResourceNodes": "Generate Resource Nodes",
   "satiscraftory.configuration.resourceScannerRange": "Resource Scanner Range",
-  "satiscraftory.resource_scanner.no_nodes_found": "No known %s nodes within range"
+  "satiscraftory.resource_scanner.no_nodes_found": "No known %s nodes within range",
+  "block.satiscraftory.producer": "Producer",
+  "block.satiscraftory.power_producer": "Power Producer",
+  "block.satiscraftory.splitter": "Splitter",
+  "block.satiscraftory.merger": "Merger",
+  "block.satiscraftory.machine": "Machine",
+  "block.satiscraftory.container": "Container",
+  "block.satiscraftory.consumer": "Consumer",
+  "item.satiscraftory.cable_cutter": "Cable Cutter"
 }

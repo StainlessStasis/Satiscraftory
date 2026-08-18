@@ -1,0 +1,15 @@
+{
+  "background": "satiscraftory:gui/basic_machine",
+  "input_slots": {
+    "input_0": {
+      "x": 16,
+      "y": 16
+    }
+  },
+  "output_slots": {
+    "output_0": {
+      "x": 200,
+      "y": 52
+    }
+  }
+}

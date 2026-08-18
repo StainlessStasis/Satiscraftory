@@ -10,14 +10,17 @@ You shouldn't need to ever use this, as it only exists to save me time for makin
 Syncs Satiscraftory/Manifold datagen output into a format suitable for the wiki
 
 What it does:
-  1. Copies lang files
-  2. Copies recipes
+  1. Copies lang files (folding manifold's entries into satiscraftory - see FOLD_MODIDS)
+  2. Copies recipes (same folding applies)
   3. Converts custom machine_recipes/*.json into the wiki's custom recipe format
-  4. Copies WikiDataExporter's rendered item images + item properties into main/wiki
-  5. Generates content/*.mdx pages for any item/block that doesn't already have one
-     (only for the primary modid - see PRIMARY_MODID note below)
-  6. Keeps content/<modid>/_meta.json (page display names) and the
-     top-level content/_meta.json (category names) in sync with whatever pages exist on disk
+  4. Copies WikiDataExporter's rendered item images + item properties into main/wiki,
+     then mirrors folded namespaces' images so folded content pages have icons
+  5. Generates content/<modid>/item/*.mdx and content/<modid>/block/*.mdx pages
+     for anything that doesn't already have one
+  6. Generates content/<modid>/machine_recipes/*.mdx - one overview page per
+     machine type, listing every recipe it performs
+  7. Keeps every _meta.json (page/folder display names) in sync with what
+     actually exists on disk
 """
 
 import json
@@ -39,13 +42,16 @@ MODULES = [
 ]
 
 # A sinytra-wiki.json project only has one modid, and content page IDs must
-# belong to it - pages for other namespaces (e.g. manifold, the engine lib)
-# fail publishing with a namespace mismatch. Only this modid gets content
-# pages generated; other modules still get their lang/recipes synced so
-# their items resolve correctly inside satiscraftory recipes.
+# belong to it. Manifold is just the engine, not a separate product, so its
+# content gets folded into the primary modid everywhere: content page ids,
+# lang keys, recipe/ingredient references, and icons all get rewritten from
+# "manifold:x" to "satiscraftory:x" as they're copied in.
 PRIMARY_MODID = json.loads((DOCS_ROOT / "sinytra-wiki.json").read_text(encoding="utf-8"))["modid"]
+FOLD_MODIDS = {"manifold"}
 
-# Recipe "type" values the wiki can import verbatim (see Game Data docs)
+# Source-namespaced ids that should never get a content page (folded or not).
+EXCLUDED_IDS = {"manifold:producer", "manifold:power_producer"}
+
 SUPPORTED_VANILLA_TYPES = {
     "minecraft:blasting",
     "minecraft:campfire_cooking",
@@ -58,6 +64,33 @@ SUPPORTED_VANILLA_TYPES = {
 }
 
 
+def target_modid(source_modid: str) -> str:
+    return PRIMARY_MODID if source_modid in FOLD_MODIDS else source_modid
+
+
+def fold_id(resource_id: str) -> str:
+    """Rewrites a 'manifold:x' resource id to the primary modid's
+    namespace, regardless of which module's file it came from - cross-
+    module references (e.g. main's recipes citing manifold's shared
+    machine type) need this just as much as manifold's own files do."""
+    namespace, sep, rest = resource_id.partition(":")
+    if sep and namespace in FOLD_MODIDS:
+        return f"{PRIMARY_MODID}:{rest}"
+    return resource_id
+
+
+def fold_json(obj):
+    """Recursively applies fold_id to every dict key and string value in a
+    parsed JSON structure."""
+    if isinstance(obj, str):
+        return fold_id(obj)
+    if isinstance(obj, list):
+        return [fold_json(v) for v in obj]
+    if isinstance(obj, dict):
+        return {fold_id(k): fold_json(v) for k, v in obj.items()}
+    return obj
+
+
 def module_paths(module: str, modid: str):
     src = REPO_ROOT / module / "src"
     return {
@@ -67,99 +100,114 @@ def module_paths(module: str, modid: str):
     }
 
 
-def sync_lang(modid: str, lang_file: Path):
+def sync_lang(source_modid: str, dest_modid: str, lang_file: Path):
     if not lang_file.exists():
         return
-    dest = DOCS_ROOT / "assets" / modid / "lang" / "en_us.json"
+    lang = json.loads(lang_file.read_text(encoding="utf-8"))
+
+    # lang keys look like "item.manifold.cable_cutter" - fold the modid segment
+    rewritten = {}
+    for key, value in lang.items():
+        parts = key.split(".", 2)
+        if len(parts) == 3 and parts[1] in FOLD_MODIDS:
+            parts[1] = PRIMARY_MODID
+            key = ".".join(parts)
+        rewritten[key] = value
+    lang = rewritten
+
+    dest = DOCS_ROOT / "assets" / dest_modid / "lang" / "en_us.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(lang_file.read_text(encoding="utf-8"), encoding="utf-8")
-    print(f"[lang]   {modid}: en_us.json -> {dest.relative_to(DOCS_ROOT)}")
+    existing = json.loads(dest.read_text(encoding="utf-8")) if dest.exists() else {}
+    existing.update(lang)  # merge - folded modules share the primary's lang file
+    dest.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+    print(f"[lang]   {source_modid} -> assets/{dest_modid}/lang/en_us.json ({len(lang)} keys)")
 
 
-def sync_vanilla_recipes(modid: str, recipe_dir: Path):
+def sync_vanilla_recipes(source_modid: str, dest_modid: str, recipe_dir: Path):
     if not recipe_dir.exists():
         return
-    dest_dir = DOCS_ROOT / "data" / modid / "recipe"
+    dest_dir = DOCS_ROOT / "data" / dest_modid / "recipe"
     dest_dir.mkdir(parents=True, exist_ok=True)
     for f in sorted(recipe_dir.glob("*.json")):
         data = json.loads(f.read_text(encoding="utf-8"))
         rtype = data.get("type")
-        if rtype in SUPPORTED_VANILLA_TYPES:
-            (dest_dir / f.name).write_text(f.read_text(encoding="utf-8"), encoding="utf-8")
-            print(f"[recipe] {modid}:{f.stem} ({rtype}) -> copied")
-        else:
-            print(f"[recipe] {modid}:{f.stem} has unsupported/missing type {rtype!r}, skipped")
+        if rtype not in SUPPORTED_VANILLA_TYPES:
+            print(f"[recipe] {source_modid}:{f.stem} has unsupported/missing type {rtype!r}, skipped")
+            continue
+        data = fold_json(data)  # no-op unless the recipe references a folded namespace
+        (dest_dir / f.name).write_text(json.dumps(data, indent=2), encoding="utf-8")
+        print(f"[recipe] {source_modid}:{f.stem} ({rtype}) -> data/{dest_modid}/recipe/{f.name}")
 
 
-def convert_machine_recipes(modid: str, machine_recipe_dir: Path):
+def convert_machine_recipes(source_modid: str, dest_modid: str, machine_recipe_dir: Path):
     """Convert internal MachineRecipe jsons into the wiki's custom recipe
     format. Slot names are input_0, input_1... output_0, output_1...
     Grouped per machineType so you only need one recipe_type file per
-    machine, not per recipe."""
-    if not machine_recipe_dir.exists():
-        return
+    machine, not per recipe.
 
-    machine_types_seen = set()
-    dest_recipe_dir = DOCS_ROOT / "data" / modid / "recipe"
+    Returns {machine_type: [recipe_record, ...]} so callers can build a
+    combined "what does this machine craft" overview page."""
+    if not machine_recipe_dir.exists():
+        return {}
+
+    recipes_by_machine_type = {}
+    dest_recipe_dir = DOCS_ROOT / "data" / dest_modid / "recipe"
     dest_recipe_dir.mkdir(parents=True, exist_ok=True)
 
     for f in sorted(machine_recipe_dir.glob("*.json")):
         data = json.loads(f.read_text(encoding="utf-8"))
-        machine_type = data["machineType"]  # e.g. "manifold:basic_machine"
-        machine_types_seen.add(machine_type)
+        machine_type = fold_id(data["machineType"])  # e.g. "manifold:basic_machine" -> "satiscraftory:basic_machine"
         mt_namespace, mt_path = machine_type.split(":", 1)
 
-        wiki_recipe = {
-            "type": machine_type,
-            "input": {},
-            "output": {},
-        }
+        wiki_recipe = {"type": machine_type, "input": {}, "output": {}}
         for i, inp in enumerate(data.get("inputs", [])):
-            wiki_recipe["input"][f"input_{i}"] = {
-                "id": inp["itemId"],
-                "count": inp.get("amount", 1),
-            }
+            wiki_recipe["input"][f"input_{i}"] = {"id": fold_id(inp["itemId"]), "count": inp.get("amount", 1)}
         for i, out in enumerate(data.get("outputs", [])):
-            wiki_recipe["output"][f"output_{i}"] = {
-                "id": out["itemId"],
-                "count": out.get("amount", 1),
-            }
+            wiki_recipe["output"][f"output_{i}"] = {"id": fold_id(out["itemId"]), "count": out.get("amount", 1)}
 
         out_path = dest_recipe_dir / f"{mt_path}_{f.stem}.json"
         out_path.write_text(json.dumps(wiki_recipe, indent=2), encoding="utf-8")
-        print(f"[machine] {modid}:{f.stem} ({machine_type}) -> {out_path.name}")
+        print(f"[machine] {source_modid}:{f.stem} ({machine_type}) -> data/{dest_modid}/recipe/{out_path.name}")
+
+        recipes_by_machine_type.setdefault(machine_type, []).append({
+            "id": f.stem,
+            "inputs": [(fold_id(inp["itemId"]), inp.get("amount", 1)) for inp in data.get("inputs", [])],
+            "outputs": [(fold_id(out["itemId"]), out.get("amount", 1)) for out in data.get("outputs", [])],
+            "duration_ticks": data.get("durationTicks"),
+        })
 
     # Write/refresh a recipe_type stub per machineType so `input_N`/`output_N`
     # slot names above have somewhere to resolve to. Coordinates are placeholders.
-    rt_dir = DOCS_ROOT / "data" / modid / "recipe_type"
+    rt_dir = DOCS_ROOT / "data" / dest_modid / "recipe_type"
     rt_dir.mkdir(parents=True, exist_ok=True)
-    for machine_type in machine_types_seen:
+    for machine_type in recipes_by_machine_type:
         mt_namespace, mt_path = machine_type.split(":", 1)
-        if mt_namespace != modid:
+        if mt_namespace != dest_modid:
             continue  # recipe_type file lives under its own namespace's data dir
         rt_file = rt_dir / f"{mt_path}.json"
         if rt_file.exists():
             continue  # don't clobber hand-tuned slot coordinates
         stub = {
-            "background": f"{modid}:gui/{mt_path}",
+            "background": f"{dest_modid}:gui/{mt_path}",
             "input_slots": {"input_0": {"x": 16, "y": 16}},
             "output_slots": {"output_0": {"x": 200, "y": 52}},
         }
         rt_file.write_text(json.dumps(stub, indent=2), encoding="utf-8")
         print(f"[TODO]   wrote placeholder recipe_type {rt_file.relative_to(DOCS_ROOT)}")
-        print(f"         -> add a GUI screenshot at assets/{modid}/gui/{mt_path}.png")
+        print(f"         -> add a GUI screenshot at assets/{dest_modid}/gui/{mt_path}.png")
         print(f"         -> fix slot coords, and add extra input_N/output_N slots if needed")
 
-    return machine_types_seen
+    return recipes_by_machine_type
 
 
-def update_workbenches(modid: str, machine_type_to_blocks: dict):
+def update_workbenches(source_modid: str, dest_modid: str, machine_type_to_blocks: dict):
     """machine_type_to_blocks: {"manifold:basic_processing": ["satiscraftory:constructor_mk1"]}
     Fill this in by hand below once you know which block(s) process which
     machineType - the datagen files don't currently record that mapping."""
     if not machine_type_to_blocks:
         return
-    dest = DOCS_ROOT / "data" / modid / "workbenches.json"
+    machine_type_to_blocks = fold_json(machine_type_to_blocks)
+    dest = DOCS_ROOT / "data" / dest_modid / "workbenches.json"
     dest.parent.mkdir(parents=True, exist_ok=True)
     existing = json.loads(dest.read_text(encoding="utf-8")) if dest.exists() else {}
     existing.update(machine_type_to_blocks)
@@ -169,11 +217,13 @@ def update_workbenches(modid: str, machine_type_to_blocks: dict):
 
 def sync_exporter_output():
     """Copies WikiDataExporter's render (item images) and metadata (item
-    properties) output into main/wiki
+    properties) output into main/wiki, in case the exporter/toolkit auto-
+    wiring isn't placing them there for you.
 
     NOTE: this assumes the exporter writes to <output>/render/... and
     <output>/metadata/... - if nothing gets copied, check
-    EXPORTER_OUTPUT_DIR and look at what's actually inside it"""
+    EXPORTER_OUTPUT_DIR and look at what's actually inside it, the exact
+    layout isn't fully documented."""
     if not EXPORTER_OUTPUT_DIR.exists():
         print(f"[export] {EXPORTER_OUTPUT_DIR} not found - run the exportClient run config first")
         return
@@ -197,27 +247,45 @@ def sync_exporter_output():
         print(f"[export] no 'metadata' folder under {EXPORTER_OUTPUT_DIR}, skipped properties")
 
 
-def generate_content_stubs(modid: str, lang_file: Path):
-    """One stub content page per item.<modid>.<path> / block.<modid>.<path>
-    lang key. Never overwrites an existing page."""
+def fold_assets():
+    """Folded content pages use PRIMARY_MODID-based ids, and an id doubles
+    as its icon's asset location - so mirror rendered images for any folded
+    namespace into the primary project's asset folder too."""
+    for source_modid in FOLD_MODIDS:
+        src = DOCS_ROOT / "assets" / source_modid
+        if not src.exists():
+            continue
+        dest = DOCS_ROOT / "assets" / PRIMARY_MODID
+        dest.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(src, dest, dirs_exist_ok=True)
+        print(f"[fold]   mirrored assets/{source_modid} -> assets/{PRIMARY_MODID}")
+
+
+def generate_content_stubs(source_modid: str, dest_modid: str, lang_file: Path):
+    """One stub content page per item.<source_modid>.<path> / block.<source_modid>.<path>
+    lang key, written to content/<dest_modid>/<kind>/<path>.mdx. Never
+    overwrites an existing page."""
     if not lang_file.exists():
         return
     lang = json.loads(lang_file.read_text(encoding="utf-8"))
-    content_dir = DOCS_ROOT / "content" / modid
-    content_dir.mkdir(parents=True, exist_ok=True)
+    pattern = re.compile(rf"^(item|block)\.{re.escape(source_modid)}\.(.+)$")
 
-    pattern = re.compile(rf"^(item|block)\.{re.escape(modid)}\.(.+)$")
     for key, name in lang.items():
         m = pattern.match(key)
         if not m:
             continue
         kind, path = m.groups()
+        if f"{source_modid}:{path}" in EXCLUDED_IDS:
+            continue
+
+        content_dir = DOCS_ROOT / "content" / dest_modid / kind
+        content_dir.mkdir(parents=True, exist_ok=True)
         page_file = content_dir / f"{path}.mdx"
         if page_file.exists():
             continue  # don't touch hand-authored pages
         page_file.write_text(
             f"---\n"
-            f"id: {modid}:{path}\n"
+            f"id: {dest_modid}:{path}\n"
             f"type: {kind}\n"
             f"---\n\n"
             f"# {name}\n\n"
@@ -226,45 +294,106 @@ def generate_content_stubs(modid: str, lang_file: Path):
             f"<PrefabUsage/>\n",
             encoding="utf-8",
         )
-        print(f"[page]   generated stub content/{modid}/{path}.mdx")
+        print(f"[page]   generated stub content/{dest_modid}/{kind}/{path}.mdx")
 
 
-def update_content_meta(modid: str, lang_file: Path):
-    """Keeps content/<modid>/_meta.json (page -> display name) in sync, and
-    ensures content/_meta.json (category folder -> display name) has an
-    entry for this modid. Merges with existing entries rather than
-    overwriting, so manual renames/reordering survive re-runs."""
-    if not lang_file.exists():
-        return
-    lang = json.loads(lang_file.read_text(encoding="utf-8"))
-    content_dir = DOCS_ROOT / "content" / modid
-    content_dir.mkdir(parents=True, exist_ok=True)
+def update_content_meta():
+    """Keeps every _meta.json in sync with what's actually on disk under
+    content/<PRIMARY_MODID>/: item/_meta.json, block/_meta.json, the
+    project's own _meta.json (naming the item/block/machine_recipes
+    subfolders), and the top-level content/_meta.json. Only adds missing
+    entries - never overwrites a name you've already customized."""
+    lang_file = DOCS_ROOT / "assets" / PRIMARY_MODID / "lang" / "en_us.json"
+    lang = json.loads(lang_file.read_text(encoding="utf-8")) if lang_file.exists() else {}
+    pattern = re.compile(rf"^(item|block)\.{re.escape(PRIMARY_MODID)}\.(.+)$")
+    name_by_kind_path = {}
+    for key, name in lang.items():
+        m = pattern.match(key)
+        if m:
+            name_by_kind_path[m.groups()] = name
 
-    # Per-category _meta.json: one entry per page file that exists on disk
-    meta_file = content_dir / "_meta.json"
-    meta = json.loads(meta_file.read_text(encoding="utf-8")) if meta_file.exists() else {}
+    project_dir = DOCS_ROOT / "content" / PRIMARY_MODID
+    project_meta_file = project_dir / "_meta.json"
+    project_meta = json.loads(project_meta_file.read_text(encoding="utf-8")) if project_meta_file.exists() else {}
+    project_changed = False
 
-    pattern = re.compile(rf"^(item|block)\.{re.escape(modid)}\.(.+)$")
-    name_by_path = {m.group(2): name for key, name in lang.items() if (m := pattern.match(key))}
+    for kind, folder_title in (("item", "Items"), ("block", "Blocks")):
+        kind_dir = project_dir / kind
+        if not kind_dir.exists():
+            continue
+        if kind not in project_meta:
+            project_meta[kind] = folder_title
+            project_changed = True
 
-    changed = False
-    for page_file in sorted(content_dir.glob("*.mdx")):
-        entry_key = page_file.name  # e.g. "iron_plate.mdx"
-        if entry_key not in meta:
-            display_name = name_by_path.get(page_file.stem, page_file.stem)
-            meta[entry_key] = display_name
-            changed = True
-    if changed:
-        meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-        print(f"[meta]   updated content/{modid}/_meta.json")
+        meta_file = kind_dir / "_meta.json"
+        meta = json.loads(meta_file.read_text(encoding="utf-8")) if meta_file.exists() else {}
+        changed = False
+        for page_file in sorted(kind_dir.glob("*.mdx")):
+            if page_file.name not in meta:
+                meta[page_file.name] = name_by_kind_path.get((kind, page_file.stem), page_file.stem)
+                changed = True
+        if changed:
+            meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+            print(f"[meta]   updated content/{PRIMARY_MODID}/{kind}/_meta.json")
 
-    # Top-level content/_meta.json: one entry per category (modid) folder
+    if project_changed:
+        project_meta_file.write_text(json.dumps(project_meta, indent=2), encoding="utf-8")
+        print(f"[meta]   updated content/{PRIMARY_MODID}/_meta.json")
+
     root_meta_file = DOCS_ROOT / "content" / "_meta.json"
     root_meta = json.loads(root_meta_file.read_text(encoding="utf-8")) if root_meta_file.exists() else {}
-    if modid not in root_meta:
-        root_meta[modid] = modid.replace("_", " ").title()
+    if PRIMARY_MODID not in root_meta:
+        root_meta[PRIMARY_MODID] = PRIMARY_MODID.replace("_", " ").title()
         root_meta_file.write_text(json.dumps(root_meta, indent=2), encoding="utf-8")
-        print(f"[meta]   added '{modid}' to content/_meta.json")
+        print(f"[meta]   added '{PRIMARY_MODID}' to content/_meta.json")
+
+
+def generate_machine_recipe_pages(recipes_by_machine_type: dict):
+    """Writes one overview page per machine type under
+    content/<PRIMARY_MODID>/machine_recipes/, listing every recipe that
+    machine performs. Items belonging to the current project get a
+    <ContentLink/> to their own page; everything else (vanilla, other
+    namespaces) is shown as plain text, since ContentLink only supports
+    linking within the current project or to vanilla items."""
+    if not recipes_by_machine_type:
+        return
+
+    section_dir = DOCS_ROOT / "content" / PRIMARY_MODID / "machine_recipes"
+    section_dir.mkdir(parents=True, exist_ok=True)
+
+    def link(item_id: str) -> str:
+        namespace = item_id.split(":", 1)[0]
+        if namespace in (PRIMARY_MODID, "minecraft"):
+            return f'<ContentLink id="{item_id}"/>'
+        return f"`{item_id}`"  # outside the project - can't be linked
+
+    section_meta = {}
+    for machine_type, recipes in recipes_by_machine_type.items():
+        mt_namespace, mt_path = machine_type.split(":", 1)
+        page_file = section_dir / f"{mt_path}.mdx"
+
+        lines = [f"# {mt_path.replace('_', ' ').title()}\n"]
+        for r in recipes:
+            inputs = ", ".join(f"{count}x {link(i)}" for i, count in r["inputs"])
+            outputs = ", ".join(f"{count}x {link(i)}" for i, count in r["outputs"])
+            lines.append(f"### {r['id'].replace('_', ' ').title()}")
+            lines.append(f"- **Input:** {inputs}")
+            lines.append(f"- **Output:** {outputs}")
+            if r["duration_ticks"]:
+                lines.append(f"- **Duration:** {r['duration_ticks']} ticks")
+            lines.append("")
+
+        page_file.write_text("\n".join(lines), encoding="utf-8")
+        section_meta[f"{mt_path}.mdx"] = mt_path.replace("_", " ").title()
+        print(f"[machine-page] wrote content/{PRIMARY_MODID}/machine_recipes/{mt_path}.mdx")
+
+    (section_dir / "_meta.json").write_text(json.dumps(section_meta, indent=2), encoding="utf-8")
+
+    parent_meta_file = DOCS_ROOT / "content" / PRIMARY_MODID / "_meta.json"
+    parent_meta = json.loads(parent_meta_file.read_text(encoding="utf-8")) if parent_meta_file.exists() else {}
+    if "machine_recipes" not in parent_meta:
+        parent_meta["machine_recipes"] = "Machine Recipes"
+        parent_meta_file.write_text(json.dumps(parent_meta, indent=2), encoding="utf-8")
 
 
 def main():
@@ -273,32 +402,34 @@ def main():
     KNOWN_WORKBENCHES = {}
 
     print(f"Primary modid (from sinytra-wiki.json): {PRIMARY_MODID}")
+    print(f"Folding into primary: {', '.join(FOLD_MODIDS) or '(none)'}")
+    all_machine_recipes = {}  # machine_type -> [recipe_record, ...], across all modules
 
-    for module, modid in MODULES:
-        paths = module_paths(module, modid)
-        print(f"\n=== {module} ({modid}) ===")
-        sync_lang(modid, paths["lang_main"])
-        sync_vanilla_recipes(modid, paths["recipe_dir"])
-        convert_machine_recipes(modid, paths["machine_recipe_dir"])
-        update_workbenches(modid, KNOWN_WORKBENCHES.get(modid, {}))
+    for module, source_modid in MODULES:
+        dest_modid = target_modid(source_modid)
+        paths = module_paths(module, source_modid)
+        print(f"\n=== {module} ({source_modid} -> {dest_modid}) ===")
 
-        if modid == PRIMARY_MODID:
-            generate_content_stubs(modid, paths["lang_main"])
-            update_content_meta(modid, paths["lang_main"])
+        sync_lang(source_modid, dest_modid, paths["lang_main"])
+        sync_vanilla_recipes(source_modid, dest_modid, paths["recipe_dir"])
+        recipes_by_type = convert_machine_recipes(source_modid, dest_modid, paths["machine_recipe_dir"])
+        for machine_type, recipes in recipes_by_type.items():
+            all_machine_recipes.setdefault(machine_type, []).extend(recipes)
+        update_workbenches(source_modid, dest_modid, KNOWN_WORKBENCHES.get(source_modid, {}))
+
+        if dest_modid == PRIMARY_MODID:
+            generate_content_stubs(source_modid, dest_modid, paths["lang_main"])
         else:
-            print(f"[page]   skipping content pages for '{modid}' (not the project's modid)")
+            print(f"[page]   skipping content pages for '{source_modid}' (not the project's modid)")
+
+    update_content_meta()
+
+    print(f"\n=== machine recipe pages ===")
+    generate_machine_recipe_pages(all_machine_recipes)
 
     print(f"\n=== exporter output ===")
     sync_exporter_output()
-
-    print("\nDone. Remaining manual work:")
-    print(" - Add crafting-table workbench mapping if any recipes use crafting_shaped/shapeless:")
-    print(f'     data/{PRIMARY_MODID}/workbenches.json -> {{"minecraft:crafting_shaped": ["minecraft:crafting_table"]}}')
-    print(" - Draw real GUI background images + slot coords for each recipe_type stub")
-    print(" - Fill in workbenches.json for custom machine types")
-    print(" - Flesh out the TODO description in each generated content page")
-    print(f" - Delete content/manifold/*.mdx if you don't intend to register it as its own wiki project")
-
+    fold_assets()
 
 if __name__ == "__main__":
     main()
