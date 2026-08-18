@@ -1,0 +1,9 @@
+{
+  "schema": "1",
+  "id": "satiscraftory",
+  "modid": "satiscraftory",
+  "platforms": {
+    "curseforge": "satiscraftory-mod",
+    "modrinth": "satisfactory-mod"
+  }
+}
