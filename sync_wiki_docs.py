@@ -7,29 +7,43 @@ You shouldn't need to ever use this, as it only exists to save me time for makin
 
 --------------------------------------------------
 
-Syncs Satiscraftory/Manifold datagen output into a format suitable for the wikie
+Syncs Satiscraftory/Manifold datagen output into a format suitable for the wiki
 
 What it does:
   1. Copies lang files
   2. Copies recipes
   3. Converts custom machine_recipes/*.json into the wiki's custom recipe format
-  4. Generates content/*.mdx pages for any item/block that doesn't already have one
-  5. Keeps content/<modid>/_meta.json (page display names) and the
+  4. Copies WikiDataExporter's rendered item images + item properties into main/wiki
+  5. Generates content/*.mdx pages for any item/block that doesn't already have one
+     (only for the primary modid - see PRIMARY_MODID note below)
+  6. Keeps content/<modid>/_meta.json (page display names) and the
      top-level content/_meta.json (category names) in sync with whatever pages exist on disk
 """
 
 import json
 import re
+import shutil
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent  # run from repo root, or edit this
 DOCS_ROOT = REPO_ROOT / "main" / "wiki"
+
+# Where WikiDataExporter writes its output by default (run dir = main/run).
+# Adjust if you set output_path / wiki_exporter.output.path differently.
+EXPORTER_OUTPUT_DIR = REPO_ROOT / "main" / "run" / "wiki_exporter" / "output"
 
 # Each entry: (gradle module dir, resource namespace/modid)
 MODULES = [
     ("main", "satiscraftory"),
     ("engine", "manifold"),
 ]
+
+# A sinytra-wiki.json project only has one modid, and content page IDs must
+# belong to it - pages for other namespaces (e.g. manifold, the engine lib)
+# fail publishing with a namespace mismatch. Only this modid gets content
+# pages generated; other modules still get their lang/recipes synced so
+# their items resolve correctly inside satiscraftory recipes.
+PRIMARY_MODID = json.loads((DOCS_ROOT / "sinytra-wiki.json").read_text(encoding="utf-8"))["modid"]
 
 # Recipe "type" values the wiki can import verbatim (see Game Data docs)
 SUPPORTED_VANILLA_TYPES = {
@@ -153,6 +167,36 @@ def update_workbenches(modid: str, machine_type_to_blocks: dict):
     print(f"[workbenches] updated {dest.relative_to(DOCS_ROOT)}")
 
 
+def sync_exporter_output():
+    """Copies WikiDataExporter's render (item images) and metadata (item
+    properties) output into main/wiki
+
+    NOTE: this assumes the exporter writes to <output>/render/... and
+    <output>/metadata/... - if nothing gets copied, check
+    EXPORTER_OUTPUT_DIR and look at what's actually inside it"""
+    if not EXPORTER_OUTPUT_DIR.exists():
+        print(f"[export] {EXPORTER_OUTPUT_DIR} not found - run the exportClient run config first")
+        return
+
+    render_dir = EXPORTER_OUTPUT_DIR / "render"
+    if render_dir.exists():
+        dest = DOCS_ROOT / "assets"
+        dest.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(render_dir, dest, dirs_exist_ok=True)
+        print(f"[export] copied rendered images: {render_dir} -> assets/")
+    else:
+        print(f"[export] no 'render' folder under {EXPORTER_OUTPUT_DIR}, skipped images")
+
+    metadata_dir = EXPORTER_OUTPUT_DIR / "metadata"
+    if metadata_dir.exists():
+        dest = DOCS_ROOT / "data"
+        dest.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(metadata_dir, dest, dirs_exist_ok=True)
+        print(f"[export] copied item properties: {metadata_dir} -> data/")
+    else:
+        print(f"[export] no 'metadata' folder under {EXPORTER_OUTPUT_DIR}, skipped properties")
+
+
 def generate_content_stubs(modid: str, lang_file: Path):
     """One stub content page per item.<modid>.<path> / block.<modid>.<path>
     lang key. Never overwrites an existing page."""
@@ -228,6 +272,8 @@ def main():
     # e.g. {"manifold:basic_processing": ["satiscraftory:constructor_mk1"]}
     KNOWN_WORKBENCHES = {}
 
+    print(f"Primary modid (from sinytra-wiki.json): {PRIMARY_MODID}")
+
     for module, modid in MODULES:
         paths = module_paths(module, modid)
         print(f"\n=== {module} ({modid}) ===")
@@ -235,16 +281,23 @@ def main():
         sync_vanilla_recipes(modid, paths["recipe_dir"])
         convert_machine_recipes(modid, paths["machine_recipe_dir"])
         update_workbenches(modid, KNOWN_WORKBENCHES.get(modid, {}))
-        generate_content_stubs(modid, paths["lang_main"])
-        update_content_meta(modid, paths["lang_main"])
+
+        if modid == PRIMARY_MODID:
+            generate_content_stubs(modid, paths["lang_main"])
+            update_content_meta(modid, paths["lang_main"])
+        else:
+            print(f"[page]   skipping content pages for '{modid}' (not the project's modid)")
+
+    print(f"\n=== exporter output ===")
+    sync_exporter_output()
 
     print("\nDone. Remaining manual work:")
-    print(" - Add data/<modid>/properties/item.json (or let WikiDataExporter generate it)")
     print(" - Add crafting-table workbench mapping if any recipes use crafting_shaped/shapeless:")
-    print('     data/satiscraftory/workbenches.json -> {"minecraft:crafting_shaped": ["minecraft:crafting_table"]}')
+    print(f'     data/{PRIMARY_MODID}/workbenches.json -> {{"minecraft:crafting_shaped": ["minecraft:crafting_table"]}}')
     print(" - Draw real GUI background images + slot coords for each recipe_type stub")
     print(" - Fill in workbenches.json for custom machine types")
     print(" - Flesh out the TODO description in each generated content page")
+    print(f" - Delete content/manifold/*.mdx if you don't intend to register it as its own wiki project")
 
 
 if __name__ == "__main__":

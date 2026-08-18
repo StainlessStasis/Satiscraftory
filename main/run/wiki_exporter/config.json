@@ -1,5 +1,5 @@
 {
-  "output_path": "wiki_exporter",
+  "output_path": "wiki_exporter/output",
   "enabled": ["metadata", "render"],
   "modules": {
     "render": {
