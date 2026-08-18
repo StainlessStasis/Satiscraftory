@@ -5,6 +5,7 @@ import io.github.stainlessstasis.manifold.factory_component.machine.Machine;
 import io.github.stainlessstasis.manifold.factory_component.machine.MachineBlockEntity;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
+import io.github.stainlessstasis.manifold.util.ItemUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,6 +16,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jspecify.annotations.NonNull;
+
+import java.util.Map;
 
 public record SelectRecipePacket(BlockPos machinePos, Identifier recipeId) implements CustomPacketPayload {
     public static final Type<SelectRecipePacket> TYPE = new Type<>(Manifold.id("select_recipe"));
@@ -46,9 +49,13 @@ public record SelectRecipePacket(BlockPos machinePos, Identifier recipeId) imple
             if (recipe == null) return;
 
             Machine machine = machineBE.getFactoryComponent();
+            if (recipe.id().equals(machine.getRecipe().id())) return;
             if (!recipe.machineType().equals(machine.getRecipe().machineType())) return;
 
-            if (!machine.setRecipe(recipe, machine.getOutputPorts())) return;
+            Map<Identifier, Integer> refund = machine.setRecipeWithRefund(recipe, machine.getOutputPorts());
+            for (Map.Entry<Identifier, Integer> entry : refund.entrySet()) {
+                ItemUtils.giveOrDrop(player, entry.getKey(), entry.getValue());
+            }
 
             // input/output count may have changed - force a fresh menu so slots resync
             player.openMenu(machineBE);
