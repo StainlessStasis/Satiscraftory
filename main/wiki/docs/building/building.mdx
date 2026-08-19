@@ -3,7 +3,7 @@ Factory buildings are placed and dismantled with the [Build Gun](../content/buil
 In survival mode, factory buildings cannot be destroyed by hand and there is no method to directly obtain their blocks, so the Build Gun must be used.
 Creative mode players can directly to place and destroy factory buildings without need for the Build Gun.
 
-# Build Menu
+## Build Menu
 While holding the Build Gun, press **B** to open the build menu. This is where factory buildings can be selected to be built with the Build Gun.
 
 There are currently 4 categories of buildings:
@@ -17,7 +17,7 @@ If the required tier is not yet unlocked, the building will fail to be selected 
 
 <Asset location="screenshots:build_menu" width={1244} height={838} />
 
-# Building Costs
+## Building Costs
 Each factory building has a cost attached to it, which can be seen above the hotbar while holding the Build Gun.
 This shows what, and how many of each item will be taken when placing the building. These costs can be disabled in the [config](../config).
 Creative mode players must meet the minimum cost for each required item if building costs are enabled.
@@ -30,3 +30,23 @@ Each required item will show how many of that item you currently have in your in
 If the required amount is not met, the text will show as red for that item.
 
 <Asset location="screenshots:building_costs" width={395} height={241} />
+
+## Placement
+While looking at a valid surface with the Build Gun in hand, the selected building will be rendered as a translucent preview.
+This preview can be either blue or red, depending on whether the placement for the selected building is valid.
+
+Buildings require a fully clear space for their entire footprint in order for a placement to be valid.
+The placement is invalidated if a block or entity is blocking that space.
+
+[Multiblocks](../multiblocks) require the max extent of their bounds to be clear, even if it appears that nothing is visually intersecting with the previewed model.
+For example, [Miners](../factory_buildings/miners) have a large amount of empty space above their [port](../factory_buildings/info) side.
+However, a stray block placed within that area will still invalidate the placement.
+
+### Special Conditions
+Some buildings have unique conditions for valid placements which may not be accurately depicted by the placement preview.
+For example, Miners are required to be placed near a [Resource Node](../resource_nodes).
+However, in an open area, the preview will still display as a valid blue color, since it otherwise clears all conditions for a valid placement.
+
+<Asset location="screenshots:placement_preview" width={1917} height={1015} />
+
+## Dismantling
