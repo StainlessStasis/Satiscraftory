@@ -434,26 +434,19 @@ def machine_type_title(machine_type: str, machine_type_to_blocks: dict) -> str:
 
 
 def render_recipe_block(recipe: dict, kind_by_path: dict, machine_type_to_blocks: dict) -> str:
-    """Compact one-liner per recipe: amount + items/min for each side, plus
-    duration. Icons/links/amounts are already shown by the wiki's native
-    PrefabObtaining recipe display (data/<modid>/recipe + recipe_type) - this
-    only adds what that system has no field for: rate and craft time."""
     duration = recipe["duration_ticks"]
-
-    def side(items: list[tuple[str, int]]) -> str:
-        parts = []
+    lines = [f"#### {machine_type_title(recipe['machine_type'], machine_type_to_blocks)}", ""]
+    lines.append("| | Item | Amount | Rate |")
+    lines.append("|---|---|---|---|")
+    for direction, items in (("Input", recipe["inputs"]), ("Output", recipe["outputs"])):
         for item_id, amount in items:
-            text = f"{amount}x {item_cell(item_id, kind_by_path)}"
-            if duration:
-                text += f" ({fmt_rate(amount * 1200 / duration)}/min)"
-            parts.append(text)
-        return ", ".join(parts)
-
-    line = f"{side(recipe['inputs'])} → {side(recipe['outputs'])}"
+            rate = f"{fmt_rate(amount * 1200 / duration)}/min" if duration else "—"
+            lines.append(f"| {direction} | {item_cell(item_id, kind_by_path)} | {amount} | {rate} |")
+    lines.append("")
     if duration:
-        line += f" · **{duration} ticks** ({fmt_rate(duration / 20)}s)"
-
-    return f"- **{machine_type_title(recipe['machine_type'], machine_type_to_blocks)}:** {line}"
+        lines.append(f"**Craft time:** {duration} ticks ({fmt_rate(duration / 20)}s)")
+    lines.append("")
+    return "\n".join(lines)
 
 
 def inject_machine_recipes(all_machine_recipes: dict, machine_type_to_blocks: dict):
@@ -484,9 +477,9 @@ def inject_machine_recipes(all_machine_recipes: dict, machine_type_to_blocks: di
             print(f"[recipe-inject] no content page found for {item_id}, skipped")
             continue
 
-        lines = [render_recipe_block(r, kind_by_path, machine_type_to_blocks) for r in recipes]
-        heading = "## Production Rate" if len(lines) == 1 else "## Production Rates"
-        section = "\n".join([MACHINE_RECIPE_MARKER_START, heading, "", *lines, "", MACHINE_RECIPE_MARKER_END])
+        blocks = [render_recipe_block(r, kind_by_path, machine_type_to_blocks) for r in recipes]
+        heading = "## Machine Recipe" if len(blocks) == 1 else "## Machine Recipes"
+        section = "\n".join([MACHINE_RECIPE_MARKER_START, heading, "", *blocks, MACHINE_RECIPE_MARKER_END])
 
         text = page_file.read_text(encoding="utf-8")
         if MACHINE_RECIPE_MARKER_START in text and MACHINE_RECIPE_MARKER_END in text:
