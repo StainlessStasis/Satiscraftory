@@ -18,16 +18,19 @@ What it does:
      into item/block subfolders based on the lang file
   5. Generates content/<modid>/item/*.mdx and content/<modid>/block/*.mdx pages
      for anything that doesn't already have one
-  6. Generates content/<modid>/machine_recipes/*.mdx - one overview page per
-     machine type, listing every recipe it performs (with items/min)
+  6. Injects a "Machine Recipe" section directly onto each output item's own
+     content page (after whatever else is on it), listing every machine
+     recipe that produces that item - icon, amount and items/min for each
+     input/output, plus the recipe's duration in ticks. Safe to re-run: the
+     section lives between HTML comment markers and gets replaced in place.
   7. Keeps every _meta.json (page/folder display names) in sync with what
      actually exists on disk
 """
 
 import json
 import re
-import shutil
 from pathlib import Path
+import shutil
 
 REPO_ROOT = Path(__file__).resolve().parent  # run from repo root, or edit this
 DOCS_ROOT = REPO_ROOT / "main" / "wiki"
@@ -63,6 +66,15 @@ SUPPORTED_VANILLA_TYPES = {
     "minecraft:smoking",
     "minecraft:stonecutting",
 }
+
+# MDX doesn't support HTML comments (`<!-- -->`) - only JS-style `{/* */}`
+# ones - so the markers have to use that syntax or MDX compilation fails.
+MACHINE_RECIPE_MARKER_START = "{/* MACHINE_RECIPES:START */}"
+MACHINE_RECIPE_MARKER_END = "{/* MACHINE_RECIPES:END */}"
+
+# Maps the singular kind used in lang keys/frontmatter (item.<modid>.<path>,
+# type: item) to the plural top-level content folder name.
+KIND_FOLDER = {"item": "items", "block": "blocks"}
 
 
 def target_modid(source_modid: str) -> str:
@@ -146,8 +158,8 @@ def convert_machine_recipes(source_modid: str, dest_modid: str, machine_recipe_d
     Grouped per machineType so you only need one recipe_type file per
     machine, not per recipe.
 
-    Returns {machine_type: [recipe_record, ...]} so callers can build a
-    combined "what does this machine craft" overview page."""
+    Returns {machine_type: [recipe_record, ...]} so callers can build the
+    per-item "Machine Recipe" sections."""
     if not machine_recipe_dir.exists():
         return {}
 
@@ -306,7 +318,7 @@ def generate_content_stubs(source_modid: str, dest_modid: str, lang_file: Path):
         if f"{source_modid}:{path}" in EXCLUDED_IDS:
             continue
 
-        content_dir = DOCS_ROOT / "content" / dest_modid / kind
+        content_dir = DOCS_ROOT / "content" / KIND_FOLDER[kind]
         content_dir.mkdir(parents=True, exist_ok=True)
         page_file = content_dir / f"{path}.mdx"
         if page_file.exists():
@@ -322,15 +334,15 @@ def generate_content_stubs(source_modid: str, dest_modid: str, lang_file: Path):
             f"<PrefabUsage/>\n",
             encoding="utf-8",
         )
-        print(f"[page]   generated stub content/{dest_modid}/{kind}/{path}.mdx")
+        print(f"[page]   generated stub content/{KIND_FOLDER[kind]}/{path}.mdx")
 
 
 def update_content_meta():
     """Keeps every _meta.json in sync with what's actually on disk under
-    content/<PRIMARY_MODID>/: item/_meta.json, block/_meta.json, the
-    project's own _meta.json (naming the item/block/machine_recipes
-    subfolders), and the top-level content/_meta.json. Only adds missing
-    entries - never overwrites a name you've already customized."""
+    content/: items/_meta.json, blocks/_meta.json, and the top-level
+    content/_meta.json (naming the items/blocks folders themselves). Only
+    adds missing entries - never overwrites a name you've already
+    customized."""
     lang_file = DOCS_ROOT / "assets" / PRIMARY_MODID / "lang" / "en_us.json"
     lang = json.loads(lang_file.read_text(encoding="utf-8")) if lang_file.exists() else {}
     pattern = re.compile(rf"^(item|block)\.{re.escape(PRIMARY_MODID)}\.(.+)$")
@@ -340,18 +352,18 @@ def update_content_meta():
         if m:
             name_by_kind_path[m.groups()] = name
 
-    project_dir = DOCS_ROOT / "content" / PRIMARY_MODID
-    project_meta_file = project_dir / "_meta.json"
-    project_meta = json.loads(project_meta_file.read_text(encoding="utf-8")) if project_meta_file.exists() else {}
-    project_changed = False
+    content_dir = DOCS_ROOT / "content"
+    root_meta_file = content_dir / "_meta.json"
+    root_meta = json.loads(root_meta_file.read_text(encoding="utf-8")) if root_meta_file.exists() else {}
+    root_changed = False
 
-    for kind, folder_title in (("item", "Items"), ("block", "Blocks")):
-        kind_dir = project_dir / kind
+    for kind, folder_name, folder_title in (("item", "items", "Items"), ("block", "blocks", "Blocks")):
+        kind_dir = content_dir / folder_name
         if not kind_dir.exists():
             continue
-        if kind not in project_meta:
-            project_meta[kind] = folder_title
-            project_changed = True
+        if folder_name not in root_meta:
+            root_meta[folder_name] = folder_title
+            root_changed = True
 
         meta_file = kind_dir / "_meta.json"
         meta = json.loads(meta_file.read_text(encoding="utf-8")) if meta_file.exists() else {}
@@ -362,81 +374,123 @@ def update_content_meta():
                 changed = True
         if changed:
             meta_file.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-            print(f"[meta]   updated content/{PRIMARY_MODID}/{kind}/_meta.json")
+            print(f"[meta]   updated content/{folder_name}/_meta.json")
 
-    if project_changed:
-        project_meta_file.write_text(json.dumps(project_meta, indent=2), encoding="utf-8")
-        print(f"[meta]   updated content/{PRIMARY_MODID}/_meta.json")
-
-    root_meta_file = DOCS_ROOT / "content" / "_meta.json"
-    root_meta = json.loads(root_meta_file.read_text(encoding="utf-8")) if root_meta_file.exists() else {}
-    if PRIMARY_MODID not in root_meta:
-        root_meta[PRIMARY_MODID] = PRIMARY_MODID.replace("_", " ").title()
+    if root_changed:
         root_meta_file.write_text(json.dumps(root_meta, indent=2), encoding="utf-8")
-        print(f"[meta]   added '{PRIMARY_MODID}' to content/_meta.json")
+        print(f"[meta]   updated content/_meta.json")
 
 
-def generate_machine_recipe_pages(recipes_by_machine_type: dict):
-    """Writes one overview page per machine type under
-    content/<PRIMARY_MODID>/machine_recipes/, listing every recipe that
-    machine performs (with items/min for each input and output, based on
-    the recipe's duration). Items belonging to the current project get a
-    <ContentLink/> to their own page; everything else (vanilla, other
-    namespaces) is shown as plain text, since ContentLink only supports
-    linking within the current project or to vanilla items."""
-    if not recipes_by_machine_type:
+# --- Machine Recipe section injection ---------------------------------------
+
+def find_content_page(item_id: str) -> Path | None:
+    """Locates the content/{items,blocks}/<path>.mdx page for a given
+    '<modid>:<path>' id. Returns None if the item's namespace isn't this
+    project's, or no such page exists yet."""
+    namespace, path = item_id.split(":", 1)
+    if namespace != PRIMARY_MODID:
+        return None
+    for folder_name in ("items", "blocks"):
+        candidate = DOCS_ROOT / "content" / folder_name / f"{path}.mdx"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def icon_ref(item_id: str, kind_by_path: dict) -> str:
+    """Resource location of the item's rendered inventory icon, matching
+    wherever copy_namespaced_tree() actually put the file. Project items use
+    whichever of item/block the lang file says they are; everything else
+    (vanilla, other mods) falls back to the universal 'item/' convention the
+    wiki itself uses for auto-resolved icons."""
+    namespace, path = item_id.split(":", 1)
+    if namespace == PRIMARY_MODID:
+        kind = kind_by_path.get(path, "item")
+        return f"{namespace}:{kind}/{path}"
+    return f"{namespace}:item/{path}"
+
+
+def item_cell(item_id: str, kind_by_path: dict) -> str:
+    """Icon + name, linking to the item's own page. Only items belonging to
+    this project or vanilla have a rendered icon/resolvable link available -
+    anything else (a different mod) is shown as plain text."""
+    namespace, _path = item_id.split(":", 1)
+    if namespace not in (PRIMARY_MODID, "minecraft"):
+        return f"`{item_id}`"
+    icon = icon_ref(item_id, kind_by_path)
+    return f'![](@{icon}) <ContentLink id="{item_id}"/>'
+
+
+def fmt_rate(value: float) -> str:
+    return f"{value:.2f}".rstrip("0").rstrip(".")
+
+
+def machine_type_title(machine_type: str, machine_type_to_blocks: dict) -> str:
+    blocks = machine_type_to_blocks.get(machine_type)
+    if blocks:
+        return " / ".join(f'<ContentLink id="{b}"/>' for b in blocks)
+    _, path = machine_type.split(":", 1)
+    return path.replace("_", " ").title()
+
+
+def render_recipe_block(recipe: dict, kind_by_path: dict, machine_type_to_blocks: dict) -> str:
+    duration = recipe["duration_ticks"]
+    lines = [f"#### {machine_type_title(recipe['machine_type'], machine_type_to_blocks)}", ""]
+    lines.append("| | Item | Amount | Rate |")
+    lines.append("|---|---|---|---|")
+    for direction, items in (("Input", recipe["inputs"]), ("Output", recipe["outputs"])):
+        for item_id, amount in items:
+            rate = f"{fmt_rate(amount * 1200 / duration)}/min" if duration else "—"
+            lines.append(f"| {direction} | {item_cell(item_id, kind_by_path)} | {amount} | {rate} |")
+    lines.append("")
+    if duration:
+        lines.append(f"**Craft time:** {duration} ticks ({fmt_rate(duration / 20)}s)")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def inject_machine_recipes(all_machine_recipes: dict, machine_type_to_blocks: dict):
+    """Adds/updates a 'Machine Recipe' section on each output item's own
+    content page, after whatever else is already on it, showing every
+    machine recipe that produces that item - icon, amount and items/min for
+    each input/output, plus the recipe's duration in ticks.
+
+    Safe to re-run: the section is wrapped in MACHINE_RECIPE_MARKER_START/END
+    HTML comments and replaced in place, so hand-written content elsewhere on
+    the page is left untouched."""
+    if not all_machine_recipes:
         return
 
-    section_dir = DOCS_ROOT / "content" / PRIMARY_MODID / "machine_recipes"
-    section_dir.mkdir(parents=True, exist_ok=True)
+    kind_by_path = classify_paths_by_kind(PRIMARY_MODID)
 
-    def link(item_id: str) -> str:
-        namespace = item_id.split(":", 1)[0]
-        if namespace in (PRIMARY_MODID, "minecraft"):
-            return f'<ContentLink id="{item_id}"/>'
-        return f"`{item_id}`"  # outside the project - can't be linked
-
-    def fmt_rate(rate: float) -> str:
-        return f"{rate:.2f}".rstrip("0").rstrip(".")
-
-    def format_items(items, duration_ticks) -> str:
-        parts = []
-        for item_id, count in items:
-            text = f"{count}x {link(item_id)}"
-            if duration_ticks:
-                rate = count * 1200 / duration_ticks  # 1200 ticks/min @ 20 tps
-                text += f" ({fmt_rate(rate)}/min)"
-            parts.append(text)
-        return ", ".join(parts)
-
-    section_meta = {}
-    for machine_type, recipes in recipes_by_machine_type.items():
-        mt_namespace, mt_path = machine_type.split(":", 1)
-        page_file = section_dir / f"{mt_path}.mdx"
-        title = mt_path.replace("_", " ").title()
-
-        # frontmatter is required for the page to actually render/route -
-        # missing it is why these pages showed in nav but 404'd before
-        lines = [f"---\ntitle: {title}\n---\n", f"# {title}\n"]
+    recipes_by_output_item: dict[str, list[dict]] = {}
+    for machine_type, recipes in all_machine_recipes.items():
         for r in recipes:
-            lines.append(f"### {r['id'].replace('_', ' ').title()}")
-            lines.append(f"- **Input:** {format_items(r['inputs'], r['duration_ticks'])}")
-            lines.append(f"- **Output:** {format_items(r['outputs'], r['duration_ticks'])}")
-            if r["duration_ticks"]:
-                lines.append(f"- **Duration:** {r['duration_ticks']} ticks")
-            lines.append("")
+            for item_id, _amount in r["outputs"]:
+                if item_id.split(":", 1)[0] != PRIMARY_MODID:
+                    continue  # only this project's own pages get a section
+                recipes_by_output_item.setdefault(item_id, []).append({**r, "machine_type": machine_type})
 
-        page_file.write_text("\n".join(lines), encoding="utf-8")
-        section_meta[f"{mt_path}.mdx"] = title
-        print(f"[machine-page] wrote content/{PRIMARY_MODID}/machine_recipes/{mt_path}.mdx")
+    for item_id, recipes in recipes_by_output_item.items():
+        page_file = find_content_page(item_id)
+        if page_file is None:
+            print(f"[recipe-inject] no content page found for {item_id}, skipped")
+            continue
 
-    (section_dir / "_meta.json").write_text(json.dumps(section_meta, indent=2), encoding="utf-8")
+        blocks = [render_recipe_block(r, kind_by_path, machine_type_to_blocks) for r in recipes]
+        heading = "## Machine Recipe" if len(blocks) == 1 else "## Machine Recipes"
+        section = "\n".join([MACHINE_RECIPE_MARKER_START, heading, "", *blocks, MACHINE_RECIPE_MARKER_END])
 
-    parent_meta_file = DOCS_ROOT / "content" / PRIMARY_MODID / "_meta.json"
-    parent_meta = json.loads(parent_meta_file.read_text(encoding="utf-8")) if parent_meta_file.exists() else {}
-    if "machine_recipes" not in parent_meta:
-        parent_meta["machine_recipes"] = "Machine Recipes"
-        parent_meta_file.write_text(json.dumps(parent_meta, indent=2), encoding="utf-8")
+        text = page_file.read_text(encoding="utf-8")
+        if MACHINE_RECIPE_MARKER_START in text and MACHINE_RECIPE_MARKER_END in text:
+            pattern = re.compile(re.escape(MACHINE_RECIPE_MARKER_START) + r".*?" + re.escape(MACHINE_RECIPE_MARKER_END), re.DOTALL)
+            new_text = pattern.sub(section, text)
+        else:
+            new_text = text.rstrip("\n") + "\n\n" + section + "\n"
+
+        if new_text != text:
+            page_file.write_text(new_text, encoding="utf-8")
+            print(f"[recipe-inject] updated {page_file.relative_to(DOCS_ROOT)} ({len(recipes)} recipe(s))")
 
 
 def main():
@@ -447,6 +501,7 @@ def main():
     print(f"Primary modid (from sinytra-wiki.json): {PRIMARY_MODID}")
     print(f"Folding into primary: {', '.join(FOLD_MODIDS) or '(none)'}")
     all_machine_recipes = {}  # machine_type -> [recipe_record, ...], across all modules
+    all_workbenches = {}      # machine_type -> [block_id, ...], folded, across all modules
 
     for module, source_modid in MODULES:
         dest_modid = target_modid(source_modid)
@@ -458,7 +513,10 @@ def main():
         recipes_by_type = convert_machine_recipes(source_modid, dest_modid, paths["machine_recipe_dir"])
         for machine_type, recipes in recipes_by_type.items():
             all_machine_recipes.setdefault(machine_type, []).extend(recipes)
-        update_workbenches(source_modid, dest_modid, KNOWN_WORKBENCHES.get(source_modid, {}))
+
+        module_workbenches = KNOWN_WORKBENCHES.get(source_modid, {})
+        update_workbenches(source_modid, dest_modid, module_workbenches)
+        all_workbenches.update(fold_json(module_workbenches))
 
         if dest_modid == PRIMARY_MODID:
             generate_content_stubs(source_modid, dest_modid, paths["lang_main"])
@@ -467,8 +525,8 @@ def main():
 
     update_content_meta()
 
-    print(f"\n=== machine recipe pages ===")
-    generate_machine_recipe_pages(all_machine_recipes)
+    print(f"\n=== machine recipes ===")
+    inject_machine_recipes(all_machine_recipes, all_workbenches)
 
     print(f"\n=== exporter output ===")
     sync_exporter_output()

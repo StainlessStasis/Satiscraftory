@@ -64,5 +64,11 @@
   "block.satiscraftory.machine": "Machine",
   "block.satiscraftory.container": "Container",
   "block.satiscraftory.consumer": "Consumer",
-  "item.satiscraftory.cable_cutter": "Cable Cutter"
+  "item.satiscraftory.cable_cutter": "Cable Cutter",
+  "manifold.recipe_menu.title": "Select Recipe",
+  "manifold.recipe_menu.inputs": "Inputs",
+  "manifold.recipe_menu.outputs": "Outputs",
+  "manifold.recipe_menu.duration": "%s per craft",
+  "manifold.recipe_menu.ingredient_rate": "x%s (%s/min)",
+  "manifold.recipe_menu.change_recipe": "Change Recipe"
 }
