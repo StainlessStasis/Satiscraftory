@@ -9,14 +9,14 @@ You'll need these to craft a [Build Gun](../content/build_gun), which is used fo
 Factory buildings are not obtainable as placeable blocks (except in creative mode), and can only be placed and removed with the Build Gun.
 
 # Resource Nodes
-Your first factory will begin with a [Resource Node](resource_nodes) - an infinitely renewable ore deposit which [Miners](../content/miner_mk1) can extract from.
+Your first factory will begin with a [Resource Node](resource_nodes) - an infinitely renewable ore deposit which [Miners](factory_buildings/miners) can extract from.
 
 To find a Resource Node, you can:
 1) Find them naturally by exploring the surface of the Overworld
 2) Craft a [Resource Scanner](../content/resource_scanner) to find any nodes within 1000 blocks (only for chunks already generated)
 
 # Extraction & Power
-Once you've found a Resource Node, hold your Build Gun to see the required items needed to build a [Miner](../content/miner_mk1).
+Once you've found a Resource Node, hold your Build Gun to see the required items needed to build a [Miner](factory_buildings/miners).
 Then, aim at the ground near the node, and right click to build it. The Miner requires 5 MW of [power](power) to work, which means the next step is to produce power.
 
 Press **B** while holding the Build Gun to open the [build menu](building/build_menu). Navigate to the Power tab, and select [Biomass Burner](../content/biomass_burner).
@@ -29,7 +29,7 @@ Now your Miner will produce items, as indicated by the [power indicator](power) 
 Once that's confirmed, you'll need a way of moving items from the Miner and into other factory buildings to automate production.
 
 # Belts
-[Belts](factory_buildings/belts) are used to automatically move items from place to place without any power requirements.
+[Belts](factory_buildings/belts) are used to move items between factory buildings, and don't require any power.
 They can input and output items at the designated [ports](factory_buildings/info) of each factory building.
 
 The most basic version of a Belt is a Belt Mk. 1, which can move 60 items/minute. Each Belt Mk. 1 requires a single [iron plate](../content/iron_plate).
@@ -37,5 +37,33 @@ From the build menu, select Belt Mk. 1 and place it in front of your Miner's por
 Raw iron/copper (depending on which node you're at) will start to flow down the Belt.
 Now the items just need somewhere to go.
 
-# Building a Factory
-TODO: Update this section after 0.6.1
+# Machines
+[Machines](factory_buildings/machines/machines) consume resources to produce new ones, using [recipes](../content/basic_machine_recipes).
+By default, a Machine will be set to produce iron ingots - this can be changed in the [menu](factory_buildings/machines/menu).
+
+To get started, build a Machine and connect your Belt of raw ore to its input port, then connect a cable from it to the rest of your power grid.
+You should now see your raw ore being turned into ingots. These ingots can be further refined into all of the other available factory items using multiple Machines.
+
+# Containers & Consumers
+Now you'll need somewhere to store the resources your factory is producing, otherwise the factory will eventually get clogged with hundreds of items.
+This is where [Containers](factory_buildings/containers) and [Consumers](factory_buildings/consumers) come in.
+
+Containers are functionally identical to a vanilla chest, being able to store 27 slots of items and interact with hoppers.
+They also have one input and one output port, allowing Belts to move items in and out of them. This allows Containers to:
+1) Store items produced by your factory
+2) Take manually-inputted items and place them onto Belts (e.g. hooking it up to a Biomass Burner)
+3) Bridge vanilla/other mods and Satiscraftory (e.g. using a vanilla iron farm to use its ingots in your factory)
+
+In most cases, you'll want a Container at the end of your production line, but Consumers offer a more destructive alternative.
+They only have one input port, and anything that enters a Consumer will be instantly deleted. Be careful with them, because there is no recovering an item once it's gone.
+
+# Logistics
+In most cases, single Machines are unable to make full use of a Belt at full throughput.
+For example, to craft iron rods, a single Machine can only use 15/min iron ingots to produce 15/min iron rods.
+The Belt Mk. 1 can move 60 items/min, meaning you need 4 Machines to run at full efficiency.
+
+[Splitters & Mergers](factory_buildings/logistics) can split or merge Belts into more/less new Belts.
+Splitters have one input port and three output ports, letting one Belt be evenly distributed into three.
+Mergers are the opposite; they have three input ports and one output port, merging up to three Belts into one.
+
+Common arrangements for these are [balancers](https://satisfactory.wiki.gg/wiki/Balancer) and [manifolds](https://satisfactory.wiki.gg/wiki/Manifold).

@@ -1,4 +1,9 @@
 {
   "info.mdx": "General Information",
-  "belts.mdx": "Belts"
+  "miners.mdx": "Miners",
+  "belts.mdx": "Belts",
+  "machines": "Machines",
+  "logistics.mdx": "Splitters & Mergers",
+  "containers.mdx": "Containers",
+  "consumers.mdx": "Consumers"
 }
