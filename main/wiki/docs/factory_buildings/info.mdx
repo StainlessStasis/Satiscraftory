@@ -1,0 +1,22 @@
+# General Information
+Factories are composed of a global network of factory buildings.
+They can span across all dimensions, and are not subject to chunk loading, meaning that they run at all times.
+[Power](../power) is also necessary for factories to run, but can be disabled in the [config](../config).
+
+## Factory Buildings
+Factory buildings are blocks/[multiblocks](../multiblocks) that perform one specific function in the process of automating resources.
+Together, they form an entire factory. Factory buildings perform tasks like:
+- Extracting raw resources
+- Moving resources between other factory buildings
+- Transforming resources into different resources, including power
+- Storing or buffering resources
+
+## Simulation vs Interaction
+Factory buildings are composed of two separate layers: the simulation layer, and interaction layer.
+- **Simulation:** Handles all of the work to simulate resources being produced, moved, and transformed.
+Continues to operate across unloaded chunks or other dimensions.
+Completely detached from player/world interaction and rendering.
+- **Interaction:** The blocks/block entities responsible for providing a means to interact with the building in the world, as well as rendering it.
+Provides a bridge between the simulated component of the building, and what the player can see. This layer also contains the menus used to interact with things like [Machines](machines).
+
+
