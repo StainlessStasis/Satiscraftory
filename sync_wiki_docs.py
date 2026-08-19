@@ -11,19 +11,25 @@ Syncs Satiscraftory/Manifold datagen output into a format suitable for the wiki
 
 What it does:
   1. Copies lang files (folding manifold's entries into satiscraftory - see FOLD_MODIDS)
-  2. Copies recipes (same folding applies)
-  3. Converts custom machine_recipes/*.json into the wiki's custom recipe format
+  2. Copies vanilla-type recipes (crafting/smelting/etc, same folding applies)
+  3. Reads custom machine_recipes/*.json and building_costs/*.json purely for
+     the wiki's own custom sections below - NOT copied into data/<modid>/recipe,
+     so they never get auto-picked-up by the wiki's native recipe display
+     (which needs real GUI art + slot coordinates per machine type to render
+     correctly, and we don't have that yet)
   4. Copies WikiDataExporter's rendered item images + item properties into main/wiki,
      folding folded namespaces straight into the primary modid and sorting images
      into item/block subfolders based on the lang file
-  5. Generates content/<modid>/item/*.mdx and content/<modid>/block/*.mdx pages
-     for anything that doesn't already have one
-  6. Injects a "Machine Recipe" section directly onto each output item's own
-     content page (after whatever else is on it), listing every machine
-     recipe that produces that item - icon, amount and items/min for each
-     input/output, plus the recipe's duration in ticks. Safe to re-run: the
-     section lives between HTML comment markers and gets replaced in place.
-  7. Keeps every _meta.json (page/folder display names) in sync with what
+  5. Generates content/items/*.mdx and content/blocks/*.mdx pages for
+     anything that doesn't already have one
+  6. Injects a "Production Rate" section onto each output item's own content
+     page, listing every machine recipe that produces it - icon, amount and
+     items/min for each input/output, plus duration in ticks.
+  7. Injects a "Build Cost" section onto each building's own content page,
+     listing the materials required to place it - icon and amount for each.
+     Both 6 and 7 are safe to re-run: each lives between its own MDX comment
+     markers and gets replaced in place, leaving hand-written content alone.
+  8. Keeps every _meta.json (page/folder display names) in sync with what
      actually exists on disk
 """
 
@@ -68,9 +74,12 @@ SUPPORTED_VANILLA_TYPES = {
 }
 
 # MDX doesn't support HTML comments (`<!-- -->`) - only JS-style `{/* */}`
-# ones - so the markers have to use that syntax or MDX compilation fails.
+# ones - so every injected-section marker has to use that syntax or MDX
+# compilation fails.
 MACHINE_RECIPE_MARKER_START = "{/* MACHINE_RECIPES:START */}"
 MACHINE_RECIPE_MARKER_END = "{/* MACHINE_RECIPES:END */}"
+BUILDING_COST_MARKER_START = "{/* BUILDING_COSTS:START */}"
+BUILDING_COST_MARKER_END = "{/* BUILDING_COSTS:END */}"
 
 # Maps the singular kind used in lang keys/frontmatter (item.<modid>.<path>,
 # type: item) to the plural top-level content folder name.
@@ -110,6 +119,7 @@ def module_paths(module: str, modid: str):
         "lang_main": src / "main" / "resources" / "assets" / modid / "lang" / "en_us.json",
         "recipe_dir": src / "generated" / "resources" / "data" / modid / "recipe",
         "machine_recipe_dir": src / "generated" / "resources" / "data" / modid / "machine_recipes",
+        "building_cost_dir": src / "generated" / "resources" / "data" / modid / "building_costs",
     }
 
 
@@ -152,35 +162,20 @@ def sync_vanilla_recipes(source_modid: str, dest_modid: str, recipe_dir: Path):
         print(f"[recipe] {source_modid}:{f.stem} ({rtype}) -> data/{dest_modid}/recipe/{f.name}")
 
 
-def convert_machine_recipes(source_modid: str, dest_modid: str, machine_recipe_dir: Path):
-    """Convert internal MachineRecipe jsons into the wiki's custom recipe
-    format. Slot names are input_0, input_1... output_0, output_1...
-    Grouped per machineType so you only need one recipe_type file per
-    machine, not per recipe.
+def convert_machine_recipes(source_modid: str, machine_recipe_dir: Path):
+    """Reads internal MachineRecipe jsons purely to build the data the wiki's
+    custom "Production Rate" section needs (see inject_machine_recipes) -
+    nothing gets written to data/<modid>/recipe, so these never get picked up
+    by the wiki's native recipe display.
 
-    Returns {machine_type: [recipe_record, ...]} so callers can build the
-    per-item "Machine Recipe" sections."""
+    Returns {machine_type: [recipe_record, ...]}."""
     if not machine_recipe_dir.exists():
         return {}
 
     recipes_by_machine_type = {}
-    dest_recipe_dir = DOCS_ROOT / "data" / dest_modid / "recipe"
-    dest_recipe_dir.mkdir(parents=True, exist_ok=True)
-
     for f in sorted(machine_recipe_dir.glob("*.json")):
         data = json.loads(f.read_text(encoding="utf-8"))
         machine_type = fold_id(data["machineType"])  # e.g. "manifold:basic_machine" -> "satiscraftory:basic_machine"
-        mt_namespace, mt_path = machine_type.split(":", 1)
-
-        wiki_recipe = {"type": machine_type, "input": {}, "output": {}}
-        for i, inp in enumerate(data.get("inputs", [])):
-            wiki_recipe["input"][f"input_{i}"] = {"id": fold_id(inp["itemId"]), "count": inp.get("amount", 1)}
-        for i, out in enumerate(data.get("outputs", [])):
-            wiki_recipe["output"][f"output_{i}"] = {"id": fold_id(out["itemId"]), "count": out.get("amount", 1)}
-
-        out_path = dest_recipe_dir / f"{mt_path}_{f.stem}.json"
-        out_path.write_text(json.dumps(wiki_recipe, indent=2), encoding="utf-8")
-        print(f"[machine] {source_modid}:{f.stem} ({machine_type}) -> data/{dest_modid}/recipe/{out_path.name}")
 
         recipes_by_machine_type.setdefault(machine_type, []).append({
             "id": f.stem,
@@ -188,44 +183,31 @@ def convert_machine_recipes(source_modid: str, dest_modid: str, machine_recipe_d
             "outputs": [(fold_id(out["itemId"]), out.get("amount", 1)) for out in data.get("outputs", [])],
             "duration_ticks": data.get("durationTicks"),
         })
-
-    # Write/refresh a recipe_type stub per machineType so `input_N`/`output_N`
-    # slot names above have somewhere to resolve to. Coordinates are placeholders.
-    rt_dir = DOCS_ROOT / "data" / dest_modid / "recipe_type"
-    rt_dir.mkdir(parents=True, exist_ok=True)
-    for machine_type in recipes_by_machine_type:
-        mt_namespace, mt_path = machine_type.split(":", 1)
-        if mt_namespace != dest_modid:
-            continue  # recipe_type file lives under its own namespace's data dir
-        rt_file = rt_dir / f"{mt_path}.json"
-        if rt_file.exists():
-            continue  # don't clobber hand-tuned slot coordinates
-        stub = {
-            "background": f"{dest_modid}:gui/{mt_path}",
-            "input_slots": {"input_0": {"x": 16, "y": 16}},
-            "output_slots": {"output_0": {"x": 200, "y": 52}},
-        }
-        rt_file.write_text(json.dumps(stub, indent=2), encoding="utf-8")
-        print(f"[TODO]   wrote placeholder recipe_type {rt_file.relative_to(DOCS_ROOT)}")
-        print(f"         -> add a GUI screenshot at assets/{dest_modid}/gui/{mt_path}.png")
-        print(f"         -> fix slot coords, and add extra input_N/output_N slots if needed")
+        print(f"[machine] read {source_modid}:{f.stem} ({machine_type})")
 
     return recipes_by_machine_type
 
 
-def update_workbenches(source_modid: str, dest_modid: str, machine_type_to_blocks: dict):
-    """machine_type_to_blocks: {"manifold:basic_processing": ["satiscraftory:constructor_mk1"]}
-    Fill this in by hand below once you know which block(s) process which
-    machineType - the datagen files don't currently record that mapping."""
-    if not machine_type_to_blocks:
-        return
-    machine_type_to_blocks = fold_json(machine_type_to_blocks)
-    dest = DOCS_ROOT / "data" / dest_modid / "workbenches.json"
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    existing = json.loads(dest.read_text(encoding="utf-8")) if dest.exists() else {}
-    existing.update(machine_type_to_blocks)
-    dest.write_text(json.dumps(existing, indent=2), encoding="utf-8")
-    print(f"[workbenches] updated {dest.relative_to(DOCS_ROOT)}")
+def convert_building_costs(source_modid: str, building_cost_dir: Path) -> dict:
+    """Reads BuildingCost.Data jsons ({buildingItemId, inputs:[{itemId,amount}]})
+    purely to build the data the wiki's custom "Build Cost" section needs (see
+    inject_building_costs) - nothing gets written into data/<modid>.
+
+    Returns {building_item_id: [(item_id, amount), ...]}."""
+    if not building_cost_dir.exists():
+        return {}
+
+    costs_by_building = {}
+    for f in sorted(building_cost_dir.glob("*.json")):
+        data = json.loads(f.read_text(encoding="utf-8"))
+        building_id = fold_id(data["buildingItemId"])
+        inputs = [(fold_id(inp["itemId"]), inp.get("amount", 1)) for inp in data.get("inputs", [])]
+        if building_id in costs_by_building:
+            print(f"[building] WARNING: multiple building_costs files target {building_id}, last one wins ({f.stem})")
+        costs_by_building[building_id] = inputs
+        print(f"[building] read {source_modid}:{f.stem} ({building_id})")
+
+    return costs_by_building
 
 
 def classify_paths_by_kind(modid: str) -> dict:
@@ -433,31 +415,52 @@ def machine_type_title(machine_type: str, machine_type_to_blocks: dict) -> str:
     return path.replace("_", " ").title()
 
 
-def render_recipe_block(recipe: dict, kind_by_path: dict, machine_type_to_blocks: dict) -> str:
+def upsert_marked_section(page_file: Path, marker_start: str, marker_end: str, section: str) -> bool:
+    """Replaces the text between marker_start/marker_end with `section` if
+    the markers are already present, otherwise appends `section` (which must
+    itself include the markers) to the end of the page. Returns whether the
+    file changed. Used by both the Production Rate and Build Cost injectors
+    so re-running the script updates figures in place without touching
+    anything else hand-written on the page."""
+    text = page_file.read_text(encoding="utf-8")
+    if marker_start in text and marker_end in text:
+        pattern = re.compile(re.escape(marker_start) + r".*?" + re.escape(marker_end), re.DOTALL)
+        new_text = pattern.sub(section, text)
+    else:
+        new_text = text.rstrip("\n") + "\n\n" + section + "\n"
+
+    if new_text == text:
+        return False
+    page_file.write_text(new_text, encoding="utf-8")
+    return True
+
+
+def render_recipe_line(recipe: dict, kind_by_path: dict, machine_type_to_blocks: dict) -> str:
+    """Compact one-liner per recipe: amount + items/min for each side, plus
+    duration."""
     duration = recipe["duration_ticks"]
-    lines = [f"#### {machine_type_title(recipe['machine_type'], machine_type_to_blocks)}", ""]
-    lines.append("| | Item | Amount | Rate |")
-    lines.append("|---|---|---|---|")
-    for direction, items in (("Input", recipe["inputs"]), ("Output", recipe["outputs"])):
+
+    def side(items: list[tuple[str, int]]) -> str:
+        parts = []
         for item_id, amount in items:
-            rate = f"{fmt_rate(amount * 1200 / duration)}/min" if duration else "—"
-            lines.append(f"| {direction} | {item_cell(item_id, kind_by_path)} | {amount} | {rate} |")
-    lines.append("")
+            text = f"{amount}x {item_cell(item_id, kind_by_path)}"
+            if duration:
+                text += f" ({fmt_rate(amount * 1200 / duration)}/min)"
+            parts.append(text)
+        return ", ".join(parts)
+
+    line = f"{side(recipe['inputs'])} → {side(recipe['outputs'])}"
     if duration:
-        lines.append(f"**Craft time:** {duration} ticks ({fmt_rate(duration / 20)}s)")
-    lines.append("")
-    return "\n".join(lines)
+        line += f" · **{duration} ticks** ({fmt_rate(duration / 20)}s)"
+
+    return f"- **{machine_type_title(recipe['machine_type'], machine_type_to_blocks)}:** {line}"
 
 
 def inject_machine_recipes(all_machine_recipes: dict, machine_type_to_blocks: dict):
-    """Adds/updates a 'Machine Recipe' section on each output item's own
+    """Adds/updates a 'Production Rate' section on each output item's own
     content page, after whatever else is already on it, showing every
     machine recipe that produces that item - icon, amount and items/min for
-    each input/output, plus the recipe's duration in ticks.
-
-    Safe to re-run: the section is wrapped in MACHINE_RECIPE_MARKER_START/END
-    HTML comments and replaced in place, so hand-written content elsewhere on
-    the page is left untouched."""
+    each input/output, plus the recipe's duration in ticks."""
     if not all_machine_recipes:
         return
 
@@ -477,31 +480,59 @@ def inject_machine_recipes(all_machine_recipes: dict, machine_type_to_blocks: di
             print(f"[recipe-inject] no content page found for {item_id}, skipped")
             continue
 
-        blocks = [render_recipe_block(r, kind_by_path, machine_type_to_blocks) for r in recipes]
-        heading = "## Machine Recipe" if len(blocks) == 1 else "## Machine Recipes"
-        section = "\n".join([MACHINE_RECIPE_MARKER_START, heading, "", *blocks, MACHINE_RECIPE_MARKER_END])
+        lines = [render_recipe_line(r, kind_by_path, machine_type_to_blocks) for r in recipes]
+        heading = "## Production Rate" if len(lines) == 1 else "## Production Rates"
+        section = "\n".join([MACHINE_RECIPE_MARKER_START, heading, "", *lines, "", MACHINE_RECIPE_MARKER_END])
 
-        text = page_file.read_text(encoding="utf-8")
-        if MACHINE_RECIPE_MARKER_START in text and MACHINE_RECIPE_MARKER_END in text:
-            pattern = re.compile(re.escape(MACHINE_RECIPE_MARKER_START) + r".*?" + re.escape(MACHINE_RECIPE_MARKER_END), re.DOTALL)
-            new_text = pattern.sub(section, text)
-        else:
-            new_text = text.rstrip("\n") + "\n\n" + section + "\n"
-
-        if new_text != text:
-            page_file.write_text(new_text, encoding="utf-8")
+        if upsert_marked_section(page_file, MACHINE_RECIPE_MARKER_START, MACHINE_RECIPE_MARKER_END, section):
             print(f"[recipe-inject] updated {page_file.relative_to(DOCS_ROOT)} ({len(recipes)} recipe(s))")
+
+
+def inject_building_costs(all_building_costs: dict):
+    """Adds/updates a 'Build Cost' section on each building's own content
+    page, listing the materials the build gun needs to place it - icon and
+    amount for each. There's no rate/duration involved, this is a one-time
+    material cost, so it's just a single bullet line."""
+    if not all_building_costs:
+        return
+
+    kind_by_path = classify_paths_by_kind(PRIMARY_MODID)
+
+    for building_id, inputs in all_building_costs.items():
+        if building_id.split(":", 1)[0] != PRIMARY_MODID:
+            continue  # only this project's own pages get a section
+        page_file = find_content_page(building_id)
+        if page_file is None:
+            print(f"[building-inject] no content page found for {building_id}, skipped")
+            continue
+        if not inputs:
+            continue
+
+        materials = ", ".join(f"{amount}x {item_cell(item_id, kind_by_path)}" for item_id, amount in inputs)
+        section = "\n".join([
+            BUILDING_COST_MARKER_START,
+            "## Build Cost",
+            "",
+            f"Requires: {materials}",
+            "",
+            BUILDING_COST_MARKER_END,
+        ])
+
+        if upsert_marked_section(page_file, BUILDING_COST_MARKER_START, BUILDING_COST_MARKER_END, section):
+            print(f"[building-inject] updated {page_file.relative_to(DOCS_ROOT)}")
 
 
 def main():
     # Fill this in as you learn which machine (block) handles which recipe type.
+    # Purely used to give the Production Rate section a friendly name/link -
     # e.g. {"manifold:basic_processing": ["satiscraftory:constructor_mk1"]}
     KNOWN_WORKBENCHES = {}
 
     print(f"Primary modid (from sinytra-wiki.json): {PRIMARY_MODID}")
     print(f"Folding into primary: {', '.join(FOLD_MODIDS) or '(none)'}")
-    all_machine_recipes = {}  # machine_type -> [recipe_record, ...], across all modules
-    all_workbenches = {}      # machine_type -> [block_id, ...], folded, across all modules
+    all_machine_recipes = {}   # machine_type -> [recipe_record, ...], across all modules
+    all_building_costs = {}    # building_item_id -> [(item_id, amount), ...], across all modules
+    all_workbenches = {}       # machine_type -> [block_id, ...], folded, across all modules
 
     for module, source_modid in MODULES:
         dest_modid = target_modid(source_modid)
@@ -510,13 +541,15 @@ def main():
 
         sync_lang(source_modid, dest_modid, paths["lang_main"])
         sync_vanilla_recipes(source_modid, dest_modid, paths["recipe_dir"])
-        recipes_by_type = convert_machine_recipes(source_modid, dest_modid, paths["machine_recipe_dir"])
+
+        recipes_by_type = convert_machine_recipes(source_modid, paths["machine_recipe_dir"])
         for machine_type, recipes in recipes_by_type.items():
             all_machine_recipes.setdefault(machine_type, []).extend(recipes)
 
-        module_workbenches = KNOWN_WORKBENCHES.get(source_modid, {})
-        update_workbenches(source_modid, dest_modid, module_workbenches)
-        all_workbenches.update(fold_json(module_workbenches))
+        costs_by_building = convert_building_costs(source_modid, paths["building_cost_dir"])
+        all_building_costs.update(costs_by_building)
+
+        all_workbenches.update(fold_json(KNOWN_WORKBENCHES.get(source_modid, {})))
 
         if dest_modid == PRIMARY_MODID:
             generate_content_stubs(source_modid, dest_modid, paths["lang_main"])
@@ -525,8 +558,11 @@ def main():
 
     update_content_meta()
 
-    print(f"\n=== machine recipes ===")
+    print(f"\n=== production rate sections ===")
     inject_machine_recipes(all_machine_recipes, all_workbenches)
+
+    print(f"\n=== build cost sections ===")
+    inject_building_costs(all_building_costs)
 
     print(f"\n=== exporter output ===")
     sync_exporter_output()

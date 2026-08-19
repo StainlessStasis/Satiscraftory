@@ -3,5 +3,7 @@
   "building": "Building",
   "factory_buildings": "Factory Buildings",
   "power.mdx": "Power",
-  "resource_nodes.mdx": "Resource Nodes"
+  "resource_nodes.mdx": "Resource Nodes",
+  "progression": "Progression",
+  "config.mdx": "Config"
 }

@@ -1,0 +1,32 @@
+# Building
+Factory buildings are placed and dismantled with the [Build Gun](../content/build_gun).
+In survival mode, factory buildings cannot be destroyed by hand and there is no method to directly obtain their blocks, so the Build Gun must be used.
+Creative mode players can directly to place and destroy factory buildings without need for the Build Gun.
+
+# Build Menu
+While holding the Build Gun, press **B** to open the build menu. This is where factory buildings can be selected to be built with the Build Gun.
+
+There are currently 4 categories of buildings:
+- **Production:** buildings which directly produce or transform resources
+- **Power:** buildings which produce or carry [power](../power)
+- **Logistics:** buildings which move, sort, or perform other logical functions
+- **Organization:** buildings which organize resources and keep your factories tidy
+
+While hovering over an icon of a building, a preview of it will appear in the right panel, alongside its name and [tier](../progression/tiers).
+If the required tier is not yet unlocked, the building will fail to be selected and provide an error message.
+
+<Asset location="screenshots:build_menu" width={1244} height={838} />
+
+# Building Costs
+Each factory building has a cost attached to it, which can be seen above the hotbar while holding the Build Gun.
+This shows what, and how many of each item will be taken when placing the building. These costs can be disabled in the [config](../config).
+Creative mode players must meet the minimum cost for each required item if building costs are enabled.
+However, creative mode players will not have items taken from them when placing a building, even when building costs are enabled.
+
+The cost of each building is refunded when dismantling it (see section below). This can also be configured as a refund percentage in the config.
+Creative mode players will not have items refunded to them.
+
+Each required item will show how many of that item you currently have in your inventory (left number), and how many are required (right number).
+If the required amount is not met, the text will show as red for that item.
+
+<Asset location="screenshots:building_costs" width={395} height={241} />
