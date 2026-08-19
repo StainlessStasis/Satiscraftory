@@ -19,6 +19,8 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static io.github.stainlessstasis.manifold.menu.GuiColors.*;
@@ -45,7 +47,8 @@ public class RecipeSelectScreen extends Screen {
         this.machinePos = machinePos;
         this.currentRecipeId = currentRecipeId;
         this.parentScreen = parentScreen;
-        this.recipes = ManifoldMachineRecipes.recipesForMachineType(machineType);
+        this.recipes = new ArrayList<>(ManifoldMachineRecipes.recipesForMachineType(machineType));
+        this.recipes.sort(Comparator.comparing(recipe -> recipe.mainOutput().itemId().toString()));
     }
 
     @Override
