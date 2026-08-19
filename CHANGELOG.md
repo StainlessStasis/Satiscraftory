@@ -1,3 +1,10 @@
+# 0.6.1-alpha (Aug 18, 2026)
+## New Features
+Added a recipe selection menu to Machines. Forgot that they needed a survival-friendly way to set the recipe...
+
+In the menu, you'll see 3 lines in the top right near the large item. Click this, and from there you can select a recipe, with a menu resembling the build menu. The recipe can be changed while a Machine is actively working and will refund all items stored in its buffers.
+
+
 # 0.6.0-alpha (Aug 17, 2026)
 ## New Features
 Survival-friendly recipes, building, and resource scanning!<br><br>

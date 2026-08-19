@@ -123,13 +123,16 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
 
     @Override
     public void writeClientSideData(@NonNull AbstractContainerMenu menu, @NonNull RegistryFriendlyByteBuf buf) {
+        buf.writeBlockPos(getBlockPos());
         writeRecipe(buf, machine.getRecipe());
+
         for (int i = 0; i < INPUT_X.length; i++) {
             buf.writeVarInt(INPUT_X[i]); buf.writeVarInt(INPUT_Y[i]);
         }
         for (int i = 0; i < OUTPUT_X.length; i++) {
             buf.writeVarInt(OUTPUT_X[i]); buf.writeVarInt(OUTPUT_Y[i]);
         }
+
         buf.writeDouble(getPowerDemand());
         buf.writeVarInt(PLAYER_INV_X);
         buf.writeVarInt(PLAYER_INV_Y);
@@ -158,7 +161,8 @@ public class MachineBlockEntity extends PowerConsumingFactoryBlockEntity<Machine
                 containerId, playerInventory, machine, getPowerDemand(),
                 INPUT_X, INPUT_Y, OUTPUT_X, OUTPUT_Y, PLAYER_INV_X, PLAYER_INV_Y,
                 ContainerLevelAccess.create(serverLevel, getBlockPos()),
-                new MachineContainerData(machine, serverLevel::getGameTime)
+                new MachineContainerData(machine, serverLevel::getGameTime),
+                getBlockPos()
         );
     }
 

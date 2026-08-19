@@ -290,6 +290,42 @@ public class Machine implements PowerConsumingFactoryComponent {
         outputCounts[index] = amount;
     }
 
+    public Map<Identifier, Integer> setRecipeWithRefund(MachineRecipe newRecipe, List<Port> newOutputPorts) {
+        if (newOutputPorts.size() != newRecipe.outputCount()) {
+            throw new IllegalArgumentException("Expected " + newRecipe.outputCount() + " output ports, got " + newOutputPorts.size());
+        }
+
+        Map<Identifier, Integer> refund = new HashMap<>();
+
+        for (int i = 0; i < inputCounts.length; i++) {
+            int amount = inputCounts[i];
+            if (crafting && !stalled) amount += recipe.inputs().get(i).amount(); // in-progress craft's already-consumed inputs
+            if (amount > 0) refund.merge(recipe.inputs().get(i).itemId(), amount, Integer::sum);
+        }
+        for (int i = 0; i < outputCounts.length; i++) {
+            int amount = outputCounts[i];
+            if (stalled) amount += recipe.outputs().get(i).amount(); // finished craft stuck waiting for output room
+            if (amount > 0) refund.merge(recipe.outputs().get(i).itemId(), amount, Integer::sum);
+        }
+
+        if (craftTask != null) {
+            craftTask.cancel();
+            craftTask = null;
+        }
+        crafting = false;
+        stalled = false;
+        craftCompletionTick = -1;
+        pausedRemainingTicks = -1;
+
+        recipe = newRecipe;
+        inputCounts = new int[newRecipe.inputCount()];
+        outputCounts = new int[newRecipe.outputCount()];
+        outputPorts.clear();
+        outputPorts.addAll(newOutputPorts);
+
+        return refund;
+    }
+
     public boolean setRecipe(MachineRecipe newRecipe, List<Port> newOutputPorts) {
         if (crafting || stalled) return false;
         for (int count : inputCounts) if (count > 0) return false;

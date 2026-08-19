@@ -1,6 +1,6 @@
 package io.github.stainlessstasis.manifold.client.factory_power;
 
-import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
+import io.github.stainlessstasis.manifold.network.clientbound.PowerGridSyncPacket;
 
 import java.util.List;
 

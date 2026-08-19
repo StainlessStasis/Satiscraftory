@@ -10,6 +10,7 @@ import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlocks;
 import io.github.stainlessstasis.manifold.registry.ManifoldMenus;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,25 +37,23 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     private final int inputCount;
     private final int outputCount;
     private final double powerDemandMw;
+    private final BlockPos blockPos;
 
     /**
      * Clientside dummy constructor
      */
     public MachineMenu(
             int containerId, Inventory playerInventory, Machine dummyMachine, double powerDemandMw,
-            int[] inputX, int[] inputY,
-            int[] outputX, int[] outputY,
-            int playerInvX, int playerInvY
+            int[] inputX, int[] inputY, int[] outputX, int[] outputY,
+            int playerInvX, int playerInvY, BlockPos blockPos
     ) {
-        this(
-                containerId, playerInventory, dummyMachine, powerDemandMw,
+        this(containerId, playerInventory, dummyMachine, powerDemandMw,
                 inputX, inputY, outputX, outputY, playerInvX, playerInvY,
-                ContainerLevelAccess.NULL,
-                new SimpleContainerData(DATA_SIZE)
-        );
+                ContainerLevelAccess.NULL, new SimpleContainerData(DATA_SIZE), blockPos);
     }
 
     public static MachineMenu fromNetwork(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
+        BlockPos pos = buf.readBlockPos();
         MachineRecipe recipe = readRecipe(buf);
 
         int inputCount = recipe.inputCount();
@@ -77,7 +76,7 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
         Machine dummyMachine = new Machine(recipe, new Scheduler(), dummyPorts);
 
         return new MachineMenu(containerId, playerInventory, dummyMachine, powerDemandMw,
-                inputX, inputY, outputX, outputY, playerInvX, playerInvY);
+                inputX, inputY, outputX, outputY, playerInvX, playerInvY, pos);
     }
 
     private static MachineRecipe readRecipe(RegistryFriendlyByteBuf buf) {
@@ -101,10 +100,9 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     // SERVER STUFF
     public MachineMenu(
             int containerId, Inventory playerInventory, Machine machine, double powerDemandMw,
-            int[] inputX, int[] inputY,
-            int[] outputX, int[] outputY,
+            int[] inputX, int[] inputY, int[] outputX, int[] outputY,
             int playerInvX, int playerInvY,
-            ContainerLevelAccess access, ContainerData serverData
+            ContainerLevelAccess access, ContainerData serverData, BlockPos blockPos
     ) {
         super(ManifoldMenus.MACHINE.get(), containerId, machine.inputSlotCount() + machine.outputSlotCount());
         this.machine = machine;
@@ -112,6 +110,7 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
         this.access = access;
         this.inputCount = machine.inputSlotCount();
         this.outputCount = machine.outputSlotCount();
+        this.blockPos = blockPos;
 
         checkContainerDataCount(serverData, DATA_SIZE);
         this.data = serverData;
@@ -169,4 +168,6 @@ public class MachineMenu extends AbstractFactoryMenu implements ProgressBar {
     }
 
     public Machine getMachine() { return machine; }
+
+    public BlockPos getBlockPos() { return blockPos; }
 }

@@ -13,8 +13,8 @@ import io.github.stainlessstasis.manifold.factory_component.power_producer.Power
 import io.github.stainlessstasis.manifold.factory_component.producer.Producer;
 import io.github.stainlessstasis.manifold.factory_component.splitter.Splitter;
 import io.github.stainlessstasis.manifold.factory_power.network.PowerGrid;
-import io.github.stainlessstasis.manifold.network.BeltSyncPacket;
-import io.github.stainlessstasis.manifold.network.PowerGridSyncPacket;
+import io.github.stainlessstasis.manifold.network.clientbound.BeltSyncPacket;
+import io.github.stainlessstasis.manifold.network.clientbound.PowerGridSyncPacket;
 import io.github.stainlessstasis.manifold.recipe.MachineRecipe;
 import io.github.stainlessstasis.manifold.recipe.ManifoldMachineRecipes;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;

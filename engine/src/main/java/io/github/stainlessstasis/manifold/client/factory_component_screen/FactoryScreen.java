@@ -86,7 +86,7 @@ public abstract class FactoryScreen<T extends AbstractContainerMenu & ProgressBa
     /**
      * Formats a per-minute rate as a whole number when it lands on an integer, or to one decimal place otherwise
      */
-    protected String formatRate(double perMinute) {
+    public static String formatRate(double perMinute) {
         return (perMinute == Math.floor(perMinute))
                 ? String.valueOf((int) perMinute)
                 : String.format("%.1f", perMinute);

@@ -1,4 +1,4 @@
-package io.github.stainlessstasis.manifold.network;
+package io.github.stainlessstasis.manifold.network.clientbound;
 
 import io.github.stainlessstasis.manifold.Manifold;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
