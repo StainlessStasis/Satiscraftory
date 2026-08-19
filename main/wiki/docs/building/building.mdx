@@ -1,10 +1,10 @@
 # Building
 Factory buildings are placed and dismantled with the [Build Gun](../content/build_gun).
 In survival mode, factory buildings cannot be destroyed by hand and there is no method to directly obtain their blocks, so the Build Gun must be used.
-Creative mode players can directly to place and destroy factory buildings without need for the Build Gun.
+Creative mode players can directly to place and destroy factory buildings without need for the Build Gun. These blocks can be found under the `Factory Components` creative tab.
 
 ## Build Menu
-While holding the Build Gun, press **B** to open the build menu. This is where factory buildings can be selected to be built with the Build Gun.
+While holding the Build Gun, press **B** to open the build menu. Click on a building's icon to select it to be built with the Build Gun.
 
 There are currently 4 categories of buildings:
 - **Production:** buildings which directly produce or transform resources
@@ -42,11 +42,20 @@ The placement is invalidated if a block or entity is blocking that space.
 For example, [Miners](../factory_buildings/miners) have a large amount of empty space above their [port](../factory_buildings/info) side.
 However, a stray block placed within that area will still invalidate the placement.
 
+<Asset location="screenshots:placement_preview" width={1917} height={1015} />
+
 ### Special Conditions
 Some buildings have unique conditions for valid placements which may not be accurately depicted by the placement preview.
 For example, Miners are required to be placed near a [Resource Node](../resource_nodes).
-However, in an open area, the preview will still display as a valid blue color, since it otherwise clears all conditions for a valid placement.
+However, in an open area, the preview may still display as a valid blue color if it otherwise clears all conditions for a valid placement.
 
-<Asset location="screenshots:placement_preview" width={1917} height={1015} />
+## Demolition
+While holding the Build Gun, left click on a factory building to mark it to be demolished. A red box will surround the building and the HUD will show how many buildings you have marked.
+Up to 50 buildings can be marked for demolition at a time. The cumulative items to be refunded for all marked buildings will be shown, based on the configured refund percentage.
+- *Note: creative mode players cannot directly break buildings while holding the Build Gun.*
 
-## Dismantling
+To demolish all marked buildings, hold left click while looking away from any other blocks.
+A bar will start to fill and a sound will play during the in-progress demolition. Once this bar is filled, the demolition of all marked buildings is finalized, and **cannot be undone**.
+If left click is released before the bar fills, this action will be cancelled.
+
+<Asset location="screenshots:demolition" width={1920} height={1017} />
