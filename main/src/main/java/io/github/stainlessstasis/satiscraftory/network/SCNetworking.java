@@ -60,6 +60,10 @@ public final class SCNetworking {
                 LaneBuildModeSyncPacket.TYPE, LaneBuildModeSyncPacket.STREAM_CODEC,
                 LaneBuildModeSyncPacket::handleClient
         );
+        registrar.playToClient(
+                LaneStartSyncPacket.TYPE, LaneStartSyncPacket.STREAM_CODEC,
+                LaneStartSyncPacket::handleClient
+        );
 
         // demolition
         registrar.playToServer(

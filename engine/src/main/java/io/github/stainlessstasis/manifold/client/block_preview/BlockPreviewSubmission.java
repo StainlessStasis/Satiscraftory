@@ -18,7 +18,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
+import net.minecraft.resources.Identifier;
+import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3fc;
 
@@ -59,6 +63,57 @@ public final class BlockPreviewSubmission {
         );
         poseStack.popPose();
         return true;
+    }
+    
+    public static void submitBox(PoseStack poseStack, SubmitNodeCollector collector, BlockPos origin, Color tint) {
+        Vec3 camPos = Minecraft.getInstance().gameRenderer.getMainCamera().position();
+
+        poseStack.pushPose();
+        poseStack.translate(origin.getX() - camPos.x, origin.getY() - camPos.y, origin.getZ() - camPos.z);
+        collector.submitCustomGeometry(
+                poseStack,
+                RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS, false),
+                (pose, buffer) -> emitBoxQuads(pose, buffer, FULL_CUBE, tint)
+        );
+        poseStack.popPose();
+    }
+
+    private static final AABB FULL_CUBE = new AABB(0, 0, 0, 1, 1, 1);
+    private static final Identifier BOX_TEX = Identifier.withDefaultNamespace("block/white_concrete");
+
+    private static void emitBoxQuads(PoseStack.Pose pose, VertexConsumer buffer, AABB box, Color color) {
+        SpriteId spriteId = new SpriteId(TextureAtlas.LOCATION_BLOCKS, BOX_TEX);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().get(spriteId);
+
+        int a = color.getAlpha(), r = color.getRed(), g = color.getGreen(), b = color.getBlue();
+        float u = sprite.getU0(), v = sprite.getV0();
+        float x0 = (float) box.minX, y0 = (float) box.minY, z0 = (float) box.minZ;
+        float x1 = (float) box.maxX, y1 = (float) box.maxY, z1 = (float) box.maxZ;
+
+        emitFace(pose, buffer, u, v, r, g, b, a, x0, y0, z0, x1, y0, z0, x1, y1, z0, x0, y1, z0, 0, 0, -1);  // north
+        emitFace(pose, buffer, u, v, r, g, b, a, x1, y0, z1, x0, y0, z1, x0, y1, z1, x1, y1, z1, 0, 0, 1);   // south
+        emitFace(pose, buffer, u, v, r, g, b, a, x0, y0, z1, x0, y0, z0, x0, y1, z0, x0, y1, z1, -1, 0, 0);  // west
+        emitFace(pose, buffer, u, v, r, g, b, a, x1, y0, z0, x1, y0, z1, x1, y1, z1, x1, y1, z0, 1, 0, 0);   // east
+        emitFace(pose, buffer, u, v, r, g, b, a, x0, y1, z0, x1, y1, z0, x1, y1, z1, x0, y1, z1, 0, 1, 0);   // top
+        emitFace(pose, buffer, u, v, r, g, b, a, x0, y0, z1, x1, y0, z1, x1, y0, z0, x0, y0, z0, 0, -1, 0);  // bottom
+    }
+
+    private static void emitFace(
+            PoseStack.Pose pose, VertexConsumer buffer,
+            float u, float v,
+            int r, int g, int b, int a,
+            float x0, float y0, float z0, float x1, float y1, float z1,
+            float x2, float y2, float z2, float x3, float y3, float z3,
+            float nx, float ny, float nz
+    ) {
+        buffer.addVertex(pose, x0, y0, z0).setColor(r, g, b, a).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightCoordsUtil.FULL_BRIGHT).setNormal(pose, nx, ny, nz);
+        buffer.addVertex(pose, x1, y1, z1).setColor(r, g, b, a).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightCoordsUtil.FULL_BRIGHT).setNormal(pose, nx, ny, nz);
+        buffer.addVertex(pose, x2, y2, z2).setColor(r, g, b, a).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightCoordsUtil.FULL_BRIGHT).setNormal(pose, nx, ny, nz);
+        buffer.addVertex(pose, x3, y3, z3).setColor(r, g, b, a).setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightCoordsUtil.FULL_BRIGHT).setNormal(pose, nx, ny, nz);
     }
 
     private static boolean hasAnyQuads(List<BlockStateModelPart> parts) {

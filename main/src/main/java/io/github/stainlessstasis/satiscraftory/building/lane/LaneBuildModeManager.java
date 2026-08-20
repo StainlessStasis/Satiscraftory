@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public final class LaneBuildModeManager {
     private static final LaneBuildMode DEFAULT_MODE = LaneBuildMode.LANE;
+
     private static final Map<UUID, LaneBuildMode> MODE_BY_PLAYER = new HashMap<>();
     private static LaneBuildMode clientMode = DEFAULT_MODE;
 
@@ -23,6 +24,7 @@ public final class LaneBuildModeManager {
         LaneBuildMode next = get(player).toggled();
         MODE_BY_PLAYER.put(player.getUUID(), next);
         sync(player, next);
+        LaneMarker.clear(player);
     }
 
     public static void syncToPlayer(ServerPlayer player) {

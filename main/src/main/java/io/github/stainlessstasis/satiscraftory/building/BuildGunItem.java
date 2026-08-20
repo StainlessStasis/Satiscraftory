@@ -1,11 +1,18 @@
 package io.github.stainlessstasis.satiscraftory.building;
 
+import io.github.stainlessstasis.manifold.factory.LaneManager;
+import io.github.stainlessstasis.manifold.factory_component.Laneable;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLaneRouter;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.util.MessageUtil;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildMode;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneMarker;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.SelectedBuildingSyncPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -22,6 +29,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -52,7 +60,58 @@ public class BuildGunItem extends Item {
             return InteractionResult.SUCCESS_SERVER;
         }
 
+        BlockItem selected = getSelectedBlockItem(serverPlayer);
+        if (selected.getBlock() instanceof Laneable && LaneBuildModeManager.get(serverPlayer) == LaneBuildMode.LANE) {
+            return handleLaneClick(context, serverPlayer, selected);
+        }
+
         return placeSelected(context, serverPlayer);
+    }
+
+    private InteractionResult handleLaneClick(UseOnContext context, ServerPlayer player, BlockItem selected) {
+        ItemStack dummyStack = new ItemStack(selected);
+        BlockPlaceContext placeContext = new BlockPlaceContext(
+                context.getLevel(), context.getPlayer(), context.getHand(), dummyStack, context.getHitResult()
+        );
+        if (!placeContext.canPlace()) return InteractionResult.FAIL;
+
+        BlockPos clickedPos = placeContext.getClickedPos();
+        GlobalPos markedPos = LaneMarker.get(player);
+
+        if (markedPos == null || !markedPos.dimension().equals(player.level().dimension())) {
+            LaneMarker.mark(player, clickedPos);
+            player.sendOverlayMessage(Component.translatable(Satiscraftory.MODID + ".build_gun.lane_start_marked"));
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(markedPos.pos(), clickedPos);
+        LaneMarker.clear(player);
+
+        if (!route.feasible() || route.length() > LaneManager.MAX_LANE_LENGTH) {
+            MessageUtil.warnPlayer(player, Satiscraftory.MODID + ".build_gun.lane_invalid");
+            return InteractionResult.FAIL;
+        }
+
+        boolean allPlaceable = true;
+        for (BlockPos pos : route.positions()) {
+            if (!canPlaceBeltAt(context.getLevel(), pos)) {
+                allPlaceable = false;
+                break;
+            }
+        }
+
+        if (!allPlaceable) {
+            MessageUtil.warnPlayer(player, Satiscraftory.MODID + ".build_gun.lane_invalid");
+            return InteractionResult.FAIL;
+        }
+
+        player.sendOverlayMessage(Component.translatable(Satiscraftory.MODID + ".build_gun.lane_preview_valid", route.length()));
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static boolean canPlaceBeltAt(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        return state.isAir() || state.canBeReplaced();
     }
 
     private InteractionResult placeSelected(UseOnContext context, ServerPlayer player) {
@@ -160,6 +219,7 @@ public class BuildGunItem extends Item {
         Identifier nextId = buildingEntries.get(nextIndex).id();
         selectedBlockByPlayer.put(uuid, nextId);
         syncSelection(player, nextId);
+        LaneMarker.clear(player);
     }
 
     private static int indexOf(Identifier id) {
@@ -173,6 +233,7 @@ public class BuildGunItem extends Item {
     public static void setSelectedBlock(ServerPlayer player, Identifier buildingItemId) {
         selectedBlockByPlayer.put(player.getUUID(), buildingItemId);
         syncSelection(player, buildingItemId);
+        LaneMarker.clear(player);
     }
 
     public static void syncSelection(ServerPlayer player) {
@@ -201,7 +262,7 @@ public class BuildGunItem extends Item {
         Identifier selectedId = BuiltInRegistries.ITEM.getKey(getSelectedBlockItem(player));
         return BuildingCosts.get(selectedId);
     }
-    
+
     public static void applyClientSync(Identifier selectedId) {
         clientSelectedId = selectedId;
     }
