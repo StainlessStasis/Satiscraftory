@@ -7,7 +7,6 @@ import io.github.stainlessstasis.manifold.factory_component.Laneable;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltLaneRouter;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
-import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildMode;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneMarker;
 import net.minecraft.client.Minecraft;
@@ -43,7 +42,7 @@ public final class LaneRoutePreviewRenderer {
         if (start == null) return;
 
         if (!(player.getMainHandItem().getItem() instanceof BuildGunItem)) return;
-        if (LaneBuildModeManager.getClientSide() != LaneBuildMode.LANE) return;
+        if (!LaneBuildModeManager.getClientSide().isLane()) return;
 
         BlockItem selected = BuildGunItem.getSelectedBlockItemClientSide();
         if (!(selected.getBlock() instanceof Laneable)) return;

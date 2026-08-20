@@ -85,4 +85,75 @@ public final class BeltLaneRouter {
 
         return new LaneRoute(path, current.equals(end));
     }
+
+    public record CellPlacement(BeltShape shape, boolean reversed) {}
+
+    /**
+     * Computes the shape and flow direction for the belt at path index {@code i}
+     * @param laneReversed true for the "Lane Reversed" placement mode
+     */
+    public static CellPlacement deriveCellPlacement(List<BlockPos> path, int i, boolean laneReversed) {
+        BlockPos current = path.get(i);
+        BlockPos previous = i > 0 ? path.get(i - 1) : null;
+        BlockPos next = i < path.size() - 1 ? path.get(i + 1) : null;
+
+        Direction directionToPrevious = previous != null ? horizontalDirectionTo(current, previous) : null;
+        Direction directionToNext = next != null ? horizontalDirectionTo(current, next) : null;
+
+        boolean nextIsHigher = next != null && next.getY() == current.getY() + 1;
+        boolean previousIsHigher = previous != null && previous.getY() == current.getY() + 1;
+
+        BeltShape shape;
+        if (nextIsHigher) {
+            shape = ascendingTowards(directionToNext);
+        } else if (previousIsHigher) {
+            shape = ascendingTowards(directionToPrevious);
+        } else if (directionToPrevious != null && directionToNext != null) {
+            shape = (directionToPrevious.getAxis() == directionToNext.getAxis()) ? straightAlong(directionToPrevious) : cornerFor(directionToPrevious, directionToNext);
+        } else {
+            // only one neighbor, so this is one end of the lane
+            Direction knownDirection = directionToPrevious != null ? directionToPrevious : directionToNext;
+            shape = knownDirection != null ? straightAlong(knownDirection) : BeltShape.NORTH_SOUTH;
+        }
+
+        Direction flowDirection = next != null ? directionToNext : (previous != null ? directionToPrevious.getOpposite() : null);
+        boolean reversed = flowDirection != null && shape.defaultOutputDirection() != flowDirection;
+        if (laneReversed) reversed = !reversed;
+
+        return new CellPlacement(shape, reversed);
+    }
+
+    private static BeltShape ascendingTowards(Direction uphillDirection) {
+        return switch (uphillDirection) {
+            case NORTH -> BeltShape.ASCENDING_NORTH;
+            case SOUTH -> BeltShape.ASCENDING_SOUTH;
+            case EAST -> BeltShape.ASCENDING_EAST;
+            case WEST -> BeltShape.ASCENDING_WEST;
+            default -> throw new IllegalArgumentException("Belts can't run vertically: " + uphillDirection);
+        };
+    }
+
+    private static BeltShape straightAlong(Direction direction) {
+        return direction.getAxis() == Direction.Axis.Z ? BeltShape.NORTH_SOUTH : BeltShape.EAST_WEST;
+    }
+
+    private static BeltShape cornerFor(Direction directionA, Direction directionB) {
+        Direction northSouth = (directionA == Direction.NORTH || directionA == Direction.SOUTH) ? directionA : directionB;
+        Direction eastWest = (directionA == Direction.EAST || directionA == Direction.WEST) ? directionA : directionB;
+        return switch (northSouth) {
+            case NORTH -> eastWest == Direction.EAST ? BeltShape.NORTH_EAST : BeltShape.NORTH_WEST;
+            case SOUTH -> eastWest == Direction.EAST ? BeltShape.SOUTH_EAST : BeltShape.SOUTH_WEST;
+            default -> throw new IllegalArgumentException("Not a flat corner pairing: " + directionA + ", " + directionB);
+        };
+    }
+
+    private static Direction horizontalDirectionTo(BlockPos from, BlockPos to) {
+        int dx = to.getX() - from.getX();
+        int dz = to.getZ() - from.getZ();
+        if (dx == 1) return Direction.EAST;
+        if (dx == -1) return Direction.WEST;
+        if (dz == 1) return Direction.SOUTH;
+        if (dz == -1) return Direction.NORTH;
+        throw new IllegalArgumentException("Not a horizontal neighbor: " + from + " -> " + to);
+    }
 }

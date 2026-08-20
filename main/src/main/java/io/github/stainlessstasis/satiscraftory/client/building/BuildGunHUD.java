@@ -102,13 +102,19 @@ public final class BuildGunHUD implements GuiLayer {
         renderSwapModePrompt(graphics, mc, selected, screenWidth, screenHeight);
     }
 
+    private static String modeLabelKey(LaneBuildMode mode) {
+        return switch (mode) {
+            case SINGLE -> Satiscraftory.MODID + ".build_gun.mode_single";
+            case LANE -> Satiscraftory.MODID + ".build_gun.mode_lane";
+            case LANE_REVERSED -> Satiscraftory.MODID + ".build_gun.mode_lane_reversed";
+        };
+    }
+
     private Component buildingNameWithMode(BlockItem selected) {
         Component name = Component.translatable(selected.getDescriptionId());
         if (!(selected.getBlock() instanceof Laneable)) return name;
 
-        Component modeLabel = Component.translatable(LaneBuildModeManager.getClientSide() == LaneBuildMode.LANE
-                ? Satiscraftory.MODID + ".build_gun.mode_lane"
-                : Satiscraftory.MODID + ".build_gun.mode_single");
+        Component modeLabel = Component.translatable(modeLabelKey(LaneBuildModeManager.getClientSide()));
         return Component.translatable(Satiscraftory.MODID + ".build_gun.name_with_mode", name, modeLabel);
     }
 
@@ -116,9 +122,7 @@ public final class BuildGunHUD implements GuiLayer {
         if (!(selected.getBlock() instanceof Laneable)) return;
 
         LaneBuildMode current = LaneBuildModeManager.getClientSide();
-        Component targetModeLabel = Component.translatable(current == LaneBuildMode.LANE
-                ? Satiscraftory.MODID + ".build_gun.mode_single"
-                : Satiscraftory.MODID + ".build_gun.mode_lane");
+        Component targetModeLabel = Component.translatable(modeLabelKey(current.toggled()));
 
         Component prompt = Component.translatable(
                 Satiscraftory.MODID + ".build_gun.swap_mode_prompt",

@@ -1,7 +1,9 @@
 package io.github.stainlessstasis.manifold.factory_component.belt;
 
+import com.mojang.serialization.Codec;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
@@ -13,6 +15,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -27,6 +32,11 @@ public class BeltBlockEntity extends BlockEntity {
     private boolean frontJammed;
     private float baseScrollOffset;
     private List<BlockPos> syncedLaneBlocks = List.of();
+
+    /**
+     * This belt's share of whatever it cost to place (for lane placement in SC)
+     */
+    private List<RecipeIngredient> refundShare = List.of();
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(ManifoldBlockEntities.BELT.get(), pos, state);
@@ -217,6 +227,31 @@ public class BeltBlockEntity extends BlockEntity {
 
     public List<BlockPos> getSyncedLaneBlocks() {
         return syncedLaneBlocks;
+    }
+
+    public List<RecipeIngredient> getRefundShare() {
+        return refundShare;
+    }
+
+    public void setRefundShare(List<RecipeIngredient> refundShare) {
+        this.refundShare = List.copyOf(refundShare);
+        setChanged();
+    }
+
+    private static final Codec<List<RecipeIngredient>> REFUND_SHARE_CODEC = RecipeIngredient.CODEC.listOf();
+
+    @Override
+    protected void saveAdditional(@NonNull ValueOutput output) {
+        super.saveAdditional(output);
+        if (!refundShare.isEmpty()) {
+            output.store("RefundShare", REFUND_SHARE_CODEC, refundShare);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(@NonNull ValueInput input) {
+        super.loadAdditional(input);
+        refundShare = input.read("RefundShare", REFUND_SHARE_CODEC).orElse(List.of());
     }
 
     public void applySync(List<BlockPos> laneBlocks, List<BeltLane.ItemSnapshot> items, long syncTick, boolean frontJammed) {
