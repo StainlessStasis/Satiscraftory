@@ -1,6 +1,7 @@
 package io.github.stainlessstasis.manifold.factory_component.belt;
 
 import io.github.stainlessstasis.manifold.factory_component.AbstractFactoryBlock;
+import io.github.stainlessstasis.manifold.factory_component.Laneable;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
@@ -31,7 +32,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-public class BeltBlock extends AbstractFactoryBlock {
+public class BeltBlock extends AbstractFactoryBlock implements Laneable {
     public static final EnumProperty<BeltShape> SHAPE = EnumProperty.create("shape", BeltShape.class);
     public static final BooleanProperty REVERSED = BooleanProperty.create("reversed");
 
