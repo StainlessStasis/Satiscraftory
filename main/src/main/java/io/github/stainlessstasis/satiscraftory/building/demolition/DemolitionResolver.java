@@ -1,7 +1,9 @@
 package io.github.stainlessstasis.satiscraftory.building.demolition;
 
+import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
 import io.github.stainlessstasis.manifold.factory_component.Laneable;
 import io.github.stainlessstasis.manifold.factory_component.belt.BeltBlockEntity;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLane;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockControllerAccess;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerBlock;
 import io.github.stainlessstasis.manifold.multiblock.MultiblockFillerRegistry;
@@ -10,8 +12,10 @@ import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -28,7 +32,7 @@ import java.util.Map;
  */
 public final class DemolitionResolver {
     private DemolitionResolver() {}
-
+    
     public static @Nullable DemolitionTarget resolve(Level level, BlockPos targetPos, boolean groupAsLane) {
         BlockState targetState = level.getBlockState(targetPos);
         if (targetState.isAir()) return null;
@@ -64,11 +68,22 @@ public final class DemolitionResolver {
     }
 
     private static @Nullable List<BlockPos> laneBlockPositionsFor(Level level, BlockPos pos) {
-        if (!(level.getBlockEntity(pos) instanceof BeltBlockEntity beltEntity)) return null;
-        List<BlockPos> laneBlocks = beltEntity.getSyncedLaneBlocks();
-        return laneBlocks.isEmpty() ? null : laneBlocks;
+        if (level instanceof ServerLevel serverLevel) {
+            GlobalPos globalPos = GlobalPos.of(serverLevel.dimension(), pos);
+            BeltLane lane = FactoryNetwork.get(serverLevel).getLaneManager().laneAt(globalPos);
+            if (lane == null) return null;
+            List<BlockPos> blocks = lane.getBlocks().stream().map(GlobalPos::pos).toList();
+            return blocks.isEmpty() ? null : blocks;
+        }
+
+        if (level.getBlockEntity(pos) instanceof BeltBlockEntity beltEntity) {
+            List<BlockPos> laneBlocks = beltEntity.getSyncedLaneBlocks();
+            return laneBlocks.isEmpty() ? null : laneBlocks;
+        }
+
+        return null;
     }
-    
+
     public static List<RecipeIngredient> computeRefund(Level level, DemolitionTarget target) {
         if (target.targetType() != DemolitionTarget.TargetType.LANE) {
             return target.cost() != null ? target.cost().inputs() : List.of();
