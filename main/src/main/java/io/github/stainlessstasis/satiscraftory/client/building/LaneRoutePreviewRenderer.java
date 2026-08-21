@@ -25,12 +25,16 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
 
 @EventBusSubscriber(modid = Satiscraftory.MODID, value = Dist.CLIENT)
 public final class LaneRoutePreviewRenderer {
     private LaneRoutePreviewRenderer() {}
+
+    private static @Nullable BlockPos hysteresisStart;
+    private static @Nullable Boolean hysteresisPrimaryIsX;
 
     @SubscribeEvent
     static void render(SubmitCustomGeometryEvent event) {
@@ -39,7 +43,11 @@ public final class LaneRoutePreviewRenderer {
         if (player == null || !(player.level() instanceof ClientLevel level)) return;
 
         BlockPos start = LaneMarker.getClientSide();
-        if (start == null) return;
+        if (start == null) {
+            hysteresisStart = null;
+            hysteresisPrimaryIsX = null;
+            return;
+        }
 
         if (!(player.getMainHandItem().getItem() instanceof BuildGunItem)) return;
         if (!LaneBuildModeManager.getClientSide().isLane()) return;
@@ -56,7 +64,14 @@ public final class LaneRoutePreviewRenderer {
 
         BlockPos end = placeContext.getClickedPos();
 
-        BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(start, end);
+        if (!start.equals(hysteresisStart)) {
+            hysteresisStart = start;
+            hysteresisPrimaryIsX = null;
+        }
+
+        BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(start, end, hysteresisPrimaryIsX);
+        hysteresisPrimaryIsX = route.primaryIsX();
+
         boolean routeOk = route.feasible() && route.length() <= LaneManager.MAX_LANE_LENGTH;
 
         for (BlockPos pos : route.positions()) {

@@ -2,6 +2,7 @@ package io.github.stainlessstasis.manifold.factory_component.belt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +13,11 @@ import java.util.List;
  * No obstacle avoidance or terrain awareness.
  */
 public final class BeltLaneRouter {
+    public static final int AXIS_HYSTERESIS_MARGIN = 2;
+
     private BeltLaneRouter() {}
 
-    public record LaneRoute(List<BlockPos> positions, boolean feasible) {
+    public record LaneRoute(List<BlockPos> positions, boolean feasible, boolean primaryIsX) {
         public int length() {
             return positions.size();
         }
@@ -25,15 +28,19 @@ public final class BeltLaneRouter {
      * @param end the position of the last belt (inclusive)
      */
     public static LaneRoute route(BlockPos start, BlockPos end) {
+        return route(start, end, null);
+    }
+
+    public static LaneRoute route(BlockPos start, BlockPos end, @Nullable Boolean preferredPrimaryIsX) {
         int dx = end.getX() - start.getX();
         int dy = end.getY() - start.getY();
         int dz = end.getZ() - start.getZ();
 
         if (dx == 0 && dy == 0 && dz == 0) {
-            return new LaneRoute(List.of(start), true);
+            return new LaneRoute(List.of(start), true, true);
         }
 
-        boolean primaryIsX = Math.abs(dx) >= Math.abs(dz);
+        boolean primaryIsX = choosePrimaryAxis(Math.abs(dx), Math.abs(dz), preferredPrimaryIsX);
         int primaryLength = primaryIsX ? Math.abs(dx) : Math.abs(dz);
         int secondaryLength = primaryIsX ? Math.abs(dz) : Math.abs(dx);
 
@@ -53,15 +60,16 @@ public final class BeltLaneRouter {
         int climbInSecondary;
         if (secondaryLength > 0) {
             climbInPrimary = 0;
-            climbInSecondary = totalClimb;
-            if (climbInSecondary > secondaryLength) {
-                return new LaneRoute(List.of(), false);
+            int availableForClimb = secondaryLength - 1; // reserve the cell right after the corner
+            if (totalClimb > availableForClimb) {
+                return new LaneRoute(List.of(), false, primaryIsX);
             }
+            climbInSecondary = totalClimb;
         } else {
             climbInPrimary = totalClimb;
             climbInSecondary = 0;
             if (climbInPrimary > primaryLength) {
-                return new LaneRoute(List.of(), false);
+                return new LaneRoute(List.of(), false, primaryIsX);
             }
         }
 
@@ -70,20 +78,31 @@ public final class BeltLaneRouter {
         path.add(current);
 
         for (int i = 1; i <= primaryLength; i++) {
-            current = i <= climbInPrimary
+            boolean climbingThisStep = i > (primaryLength - climbInPrimary);
+            current = climbingThisStep
                     ? current.relative(primaryDir).above(climbSign)
                     : current.relative(primaryDir);
             path.add(current);
         }
 
         for (int i = 1; i <= secondaryLength; i++) {
-            current = i <= climbInSecondary
+            boolean climbingThisStep = i > (secondaryLength - climbInSecondary);
+            current = climbingThisStep
                     ? current.relative(secondaryDir).above(climbSign)
                     : current.relative(secondaryDir);
             path.add(current);
         }
 
-        return new LaneRoute(path, current.equals(end));
+        return new LaneRoute(path, current.equals(end), primaryIsX);
+    }
+
+    private static boolean choosePrimaryAxis(int absDx, int absDz, @Nullable Boolean preferredPrimaryIsX) {
+        if (preferredPrimaryIsX == null) {
+            return absDx >= absDz;
+        }
+        return preferredPrimaryIsX
+                ? absDz <= absDx + AXIS_HYSTERESIS_MARGIN
+                : absDx > absDz + AXIS_HYSTERESIS_MARGIN;
     }
 
     public record CellPlacement(BeltShape shape, boolean reversed) {}
