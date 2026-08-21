@@ -1,0 +1,18 @@
+# Multiblocks
+Multiblocks are structures composed of multiple blocks which combine to form a single unified [factory building](factory_buildings/info).
+They contain a single controller, with the rest of the structure being filled with invisible filler blocks.
+Some examples of multiblocks include [Miners](factory_buildings/miners), [Biomass Burners](../content/biomass_burner), and [Power Poles](../content/power_pole_mk1)
+
+When [building](building/building) a multiblock, its placement will be invalidated if any block position within its bounds is occupied by another block or entity.
+This should be taken into account when building structures such as Miners, where the max-extent of the building's bounds is drastically different than its visual model.
+
+If any part of a multiblock is broken (i.e. by a creative mode player), the whole structure will tear down and remove every associated block.
+
+# Controller & Filler Blocks
+Each multiblock has one controller block entity which is responsible for factory simulation, interaction, and rendering of the building.
+The controller is often found at one of the building's [ports](factory_buildings/info), if it has one.
+Otherwise, the controller will often be at the base of the building in cases like Power Poles.
+
+The remaining blocks in a multiblock structure are invisible filler blocks.
+These filler blocks fill out a rough shape which approximates the building's model to give the building collision and interaction.
+Interacting with a filler block will delegate the interaction the controller block, meaning that any block within a multiblock can be interacted with as if it were the controller.
