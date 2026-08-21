@@ -11,6 +11,7 @@ import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCatalog;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneCosts;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,7 +33,7 @@ import java.util.Map;
  */
 public final class DemolitionResolver {
     private DemolitionResolver() {}
-    
+
     public static @Nullable DemolitionTarget resolve(Level level, BlockPos targetPos, boolean groupAsLane) {
         BlockState targetState = level.getBlockState(targetPos);
         if (targetState.isAir()) return null;
@@ -85,14 +86,23 @@ public final class DemolitionResolver {
     }
 
     public static List<RecipeIngredient> computeRefund(Level level, DemolitionTarget target) {
-        if (target.targetType() != DemolitionTarget.TargetType.LANE) {
-            return target.cost() != null ? target.cost().inputs() : List.of();
+        if (target.cost() == null) return List.of();
+
+        if (target.targetType() == DemolitionTarget.TargetType.MULTIBLOCK) {
+            return target.cost().inputs();
         }
 
+        if (target.targetType() == DemolitionTarget.TargetType.LANE) {
+            return sumRefundForBlocks(level, target.allPositions(), target.cost());
+        }
+
+        return refundForSingleBlock(level, target.primaryPos(), target.cost());
+    }
+
+    private static List<RecipeIngredient> sumRefundForBlocks(Level level, List<BlockPos> positions, BuildingCost cost) {
         Map<Identifier, Integer> totals = new LinkedHashMap<>();
-        for (BlockPos pos : target.allPositions()) {
-            List<RecipeIngredient> contribution = refundContributionFor(level, pos, target.cost());
-            for (RecipeIngredient ingredient : contribution) {
+        for (BlockPos pos : positions) {
+            for (RecipeIngredient ingredient : refundForSingleBlock(level, pos, cost)) {
                 totals.merge(ingredient.itemId(), ingredient.amount(), Integer::sum);
             }
         }
@@ -101,12 +111,17 @@ public final class DemolitionResolver {
         totals.forEach((itemId, amount) -> result.add(new RecipeIngredient(itemId, amount)));
         return result;
     }
-
-    private static List<RecipeIngredient> refundContributionFor(Level level, BlockPos pos, @Nullable BuildingCost fallbackCost) {
+    
+    private static List<RecipeIngredient> refundForSingleBlock(Level level, BlockPos pos, BuildingCost cost) {
         if (level.getBlockEntity(pos) instanceof BeltBlockEntity beltEntity && !beltEntity.getRefundShare().isEmpty()) {
             return beltEntity.getRefundShare();
         }
-        return fallbackCost != null ? fallbackCost.inputs() : List.of();
+
+        if (level.getBlockState(pos).getBlock() instanceof Laneable) {
+            return LaneCosts.perBlockFallbackCost(cost);
+        }
+
+        return cost.inputs();
     }
 
     private static @Nullable BlockPos controllerPosFor(Level level, BlockPos pos, BlockState state) {

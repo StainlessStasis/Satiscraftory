@@ -6,10 +6,7 @@ import io.github.stainlessstasis.satiscraftory.building.BuildingCosts;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.*;
-import io.github.stainlessstasis.satiscraftory.network.serverbound.DemolitionHoldPingPacket;
-import io.github.stainlessstasis.satiscraftory.network.serverbound.LaneBuildModeTogglePacket;
-import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectBuildingPacket;
-import io.github.stainlessstasis.satiscraftory.network.serverbound.SelectScanTargetPacket;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.*;
 import io.github.stainlessstasis.satiscraftory.progression.TierUnlocks;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -55,6 +52,10 @@ public final class SCNetworking {
         registrar.playToServer(
                 LaneBuildModeTogglePacket.TYPE, LaneBuildModeTogglePacket.STREAM_CODEC,
                 LaneBuildModeTogglePacket::handleServer
+        );
+        registrar.playToServer(
+                LaneAxisHintPacket.TYPE, LaneAxisHintPacket.STREAM_CODEC,
+                LaneAxisHintPacket::handleServer
         );
         registrar.playToClient(
                 LaneBuildModeSyncPacket.TYPE, LaneBuildModeSyncPacket.STREAM_CODEC,

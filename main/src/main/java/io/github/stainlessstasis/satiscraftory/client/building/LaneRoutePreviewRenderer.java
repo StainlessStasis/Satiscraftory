@@ -9,6 +9,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneMarker;
+import io.github.stainlessstasis.satiscraftory.network.serverbound.LaneAxisHintPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -18,13 +19,13 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.awt.Color;
@@ -35,6 +36,7 @@ public final class LaneRoutePreviewRenderer {
 
     private static @Nullable BlockPos hysteresisStart;
     private static @Nullable Boolean hysteresisPrimaryIsX;
+    private static @Nullable Boolean lastSentPrimaryIsX;
 
     @SubscribeEvent
     static void render(SubmitCustomGeometryEvent event) {
@@ -46,6 +48,7 @@ public final class LaneRoutePreviewRenderer {
         if (start == null) {
             hysteresisStart = null;
             hysteresisPrimaryIsX = null;
+            lastSentPrimaryIsX = null;
             return;
         }
 
@@ -64,7 +67,7 @@ public final class LaneRoutePreviewRenderer {
 
         BlockPos end = placeContext.getClickedPos();
 
-        if (!start.equals(hysteresisStart)) {
+        if (hysteresisStart == null || !start.equals(hysteresisStart)) {
             hysteresisStart = start;
             hysteresisPrimaryIsX = null;
         }
@@ -72,16 +75,16 @@ public final class LaneRoutePreviewRenderer {
         BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(start, end, hysteresisPrimaryIsX);
         hysteresisPrimaryIsX = route.primaryIsX();
 
+        if (!hysteresisPrimaryIsX.equals(lastSentPrimaryIsX)) {
+            lastSentPrimaryIsX = hysteresisPrimaryIsX;
+            ClientPacketDistributor.sendToServer(new LaneAxisHintPacket(hysteresisPrimaryIsX));
+        }
+
         boolean routeOk = route.feasible() && route.length() <= LaneManager.MAX_LANE_LENGTH;
 
         for (BlockPos pos : route.positions()) {
-            Color tint = (routeOk && canPlaceBeltAt(level, pos)) ? PlacementPreview.VALID_COLOR : PlacementPreview.INVALID_COLOR;
+            Color tint = (routeOk && BeltLaneRouter.canOccupy(level, pos)) ? PlacementPreview.VALID_COLOR : PlacementPreview.INVALID_COLOR;
             BlockPreviewSubmission.submitBox(event.getPoseStack(), event.getSubmitNodeCollector(), pos, tint);
         }
-    }
-
-    private static boolean canPlaceBeltAt(ClientLevel level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        return state.isAir() || state.canBeReplaced();
     }
 }

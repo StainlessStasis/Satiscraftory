@@ -21,6 +21,13 @@ public final class LaneCosts {
     }
 
     /**
+     * The cost of a single belt block when no refund share is available for it
+     */
+    public static List<RecipeIngredient> perBlockFallbackCost(BuildingCost baseCost) {
+        return computeLaneCost(baseCost, 1);
+    }
+
+    /**
      * Distributes a lane's total ingredient cost evenly across {@code beltCount} belts.
      * Guarantees that the sum of all belt refunds equals the original lane cost,
      * preventing duplication exploits (due to rounding) when belts are demolished individually

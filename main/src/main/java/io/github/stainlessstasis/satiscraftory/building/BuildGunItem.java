@@ -15,7 +15,6 @@ import io.github.stainlessstasis.satiscraftory.building.lane.LaneCosts;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneMarker;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.SelectedBuildingSyncPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +24,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +35,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.NonNull;
@@ -93,7 +90,8 @@ public class BuildGunItem extends Item {
             return InteractionResult.SUCCESS_SERVER;
         }
 
-        BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(markedPos.pos(), clickedPos);
+        Boolean axisHint = LaneMarker.getAxisHint(player);
+        BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(markedPos.pos(), clickedPos, axisHint);
         LaneMarker.clear(player);
 
         if (!route.feasible() || route.length() > LaneManager.MAX_LANE_LENGTH) {
@@ -105,8 +103,7 @@ public class BuildGunItem extends Item {
         List<BlockPos> positions = route.positions();
 
         for (BlockPos pos : positions) {
-            BlockPlaceContext cellContext = createPlaceContext(level, player, context.getHand(), new ItemStack(selected), pos);
-            if (!cellContext.canPlace()) {
+            if (!BeltLaneRouter.canOccupy(level, pos)) {
                 MessageUtil.warnPlayer(player, Satiscraftory.MODID + ".build_gun.lane_invalid");
                 return InteractionResult.FAIL;
             }
@@ -155,14 +152,6 @@ public class BuildGunItem extends Item {
         player.sendOverlayMessage(Component.translatable(Satiscraftory.MODID + ".build_gun.lane_placed", positions.size()));
 
         return InteractionResult.SUCCESS_SERVER;
-    }
-
-    private static BlockPlaceContext createPlaceContext(
-            ServerLevel level, ServerPlayer player, InteractionHand hand, ItemStack stack, BlockPos pos
-    ) {
-        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
-        UseOnContext useContext = new UseOnContext(level, player, hand, stack, hit);
-        return new BlockPlaceContext(useContext);
     }
 
     private static void playPlacementSound(ServerPlayer player, BlockPos blockPos) {

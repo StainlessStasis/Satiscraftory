@@ -2,6 +2,8 @@ package io.github.stainlessstasis.manifold.factory_component.belt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -103,6 +105,11 @@ public final class BeltLaneRouter {
         return preferredPrimaryIsX
                 ? absDz <= absDx + AXIS_HYSTERESIS_MARGIN
                 : absDx > absDz + AXIS_HYSTERESIS_MARGIN;
+    }
+
+    public static boolean canOccupy(LevelReader level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        return state.isAir() || state.canBeReplaced();
     }
 
     public record CellPlacement(BeltShape shape, boolean reversed) {}
