@@ -9,9 +9,17 @@ import java.util.List;
 
 public record DemolitionTarget(
         BlockPos primaryPos, BlockPos canonicalPos, List<BlockPos> allPositions,
-        Item canonicalItem, @Nullable BuildingCost cost
+        Item canonicalItem, @Nullable BuildingCost cost, TargetType targetType
 ) {
+    public enum TargetType {
+        SINGLE, MULTIBLOCK, LANE
+    }
+
     public boolean isMultiblock() {
-        return allPositions.size() > 1;
+        return targetType == TargetType.MULTIBLOCK;
+    }
+
+    public boolean isLane() {
+        return targetType == TargetType.LANE;
     }
 }

@@ -5,6 +5,7 @@ import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionTarget;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.TriState;
@@ -32,7 +33,7 @@ public final class BuildGunEvents {
         if (!(event.getPlayer().getMainHandItem().getItem() instanceof BuildGunItem)) {
             return;
         }
-        if (DemolitionResolver.resolve(level, event.getPos()) != null) {
+        if (DemolitionResolver.resolve(level, event.getPos(), false) != null) {
             event.setCanceled(true);
         }
     }
@@ -41,11 +42,11 @@ public final class BuildGunEvents {
     static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
-
-        DemolitionTarget target = DemolitionResolver.resolve(level, event.getPos());
-        if (target == null) return;
-
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        boolean groupAsLane = LaneBuildModeManager.get(player).isLane();
+        DemolitionTarget target = DemolitionResolver.resolve(level, event.getPos(), groupAsLane);
+        if (target == null) return;
 
         if (!player.isCreative()) {
             event.setCanceled(true); // factory buildings are never mined normally, regardless of tool

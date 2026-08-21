@@ -38,7 +38,7 @@ public final class BuildGunClientEvents {
 
         if (!(mc.hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return;
 
-        DemolitionTarget target = DemolitionResolver.resolve(level, blockHit.getBlockPos());
+        DemolitionTarget target = DemolitionResolver.resolve(level, blockHit.getBlockPos(), false);
         if (target == null) return;
 
         event.setCanceled(true);

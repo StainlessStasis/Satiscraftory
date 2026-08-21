@@ -87,7 +87,7 @@ public final class BuildGunHUD implements GuiLayer {
         DemolitionTarget hovered = resolveHoveredDemolitionTarget(mc.hitResult, level);
         if (hovered != null) {
             Component title = Component.translatable(Satiscraftory.MODID + ".build_gun.mark_for_demolition");
-            renderPanel(graphics, mc.font, screenHeight, centerX, title, buildRefundItemBoxes(mc.font, hovered.cost()));
+            renderPanel(graphics, mc.font, screenHeight, centerX, title, buildRefundItemBoxes(mc.font, level, hovered));
             return;
         }
 
@@ -137,7 +137,7 @@ public final class BuildGunHUD implements GuiLayer {
 
     private @Nullable DemolitionTarget resolveHoveredDemolitionTarget(HitResult hitResult, ClientLevel level) {
         if (!(hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return null;
-        return DemolitionResolver.resolve(level, blockHit.getBlockPos());
+        return DemolitionResolver.resolve(level, blockHit.getBlockPos(), LaneBuildModeManager.getClientSide().isLane());
     }
 
     private void renderHoldProgressBar(GuiGraphicsExtractor graphics, int centerX, int screenHeight) {
@@ -215,9 +215,9 @@ public final class BuildGunHUD implements GuiLayer {
         return boxes;
     }
 
-    private List<ItemBox> buildRefundItemBoxes(Font font, @Nullable BuildingCost cost) {
-        List<RecipeIngredient> inputs = (cost != null && SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean())
-                ? cost.inputs() : List.of();
+    private List<ItemBox> buildRefundItemBoxes(Font font, ClientLevel level, DemolitionTarget target) {
+        List<RecipeIngredient> inputs = SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()
+                ? DemolitionResolver.computeRefund(level, target) : List.of();
         return refundBoxesFor(font, inputs);
     }
 
@@ -227,11 +227,12 @@ public final class BuildGunHUD implements GuiLayer {
     private List<ItemBox> buildAggregatedRefundItemBoxes(Font font, ClientLevel level, Set<BlockPos> marked) {
         if (!SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()) return List.of();
 
+        boolean groupAsLane = LaneBuildModeManager.getClientSide().isLane();
         Map<Identifier, Integer> totals = new LinkedHashMap<>();
         for (BlockPos pos : marked) {
-            DemolitionTarget target = DemolitionResolver.resolve(level, pos);
-            if (target == null || target.cost() == null) continue;
-            for (RecipeIngredient ingredient : target.cost().inputs()) {
+            DemolitionTarget target = DemolitionResolver.resolve(level, pos, groupAsLane);
+            if (target == null) continue;
+            for (RecipeIngredient ingredient : DemolitionResolver.computeRefund(level, target)) {
                 totals.merge(ingredient.itemId(), ingredient.amount(), Integer::sum);
             }
         }

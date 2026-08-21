@@ -48,7 +48,7 @@ public class SatiscraftoryClient {
         });
 
         PlacementPreviewChecker.register((context) -> {
-            if (!context.isValid() && DemolitionResolver.resolve(context.level(), context.pos()) != null) {
+            if (!context.isValid() && DemolitionResolver.resolve(context.level(), context.pos(), false) != null) {
                 return false;
             }
             return true;
