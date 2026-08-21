@@ -111,13 +111,10 @@ public final class DemolitionResolver {
         totals.forEach((itemId, amount) -> result.add(new RecipeIngredient(itemId, amount)));
         return result;
     }
-    
-    private static List<RecipeIngredient> refundForSingleBlock(Level level, BlockPos pos, BuildingCost cost) {
-        if (level.getBlockEntity(pos) instanceof BeltBlockEntity beltEntity && !beltEntity.getRefundShare().isEmpty()) {
-            return beltEntity.getRefundShare();
-        }
 
-        if (level.getBlockState(pos).getBlock() instanceof Laneable) {
+    private static List<RecipeIngredient> refundForSingleBlock(Level level, BlockPos pos, BuildingCost cost) {
+        if (level.getBlockEntity(pos) instanceof BeltBlockEntity beltEntity) {
+            if (beltEntity.hasRefundShare()) return beltEntity.getRefundShare();
             return LaneCosts.perBlockFallbackCost(cost);
         }
 

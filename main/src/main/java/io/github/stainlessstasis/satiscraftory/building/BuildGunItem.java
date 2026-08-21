@@ -86,7 +86,6 @@ public class BuildGunItem extends Item {
 
         if (markedPos == null || !markedPos.dimension().equals(player.level().dimension())) {
             LaneMarker.mark(player, clickedPos);
-            player.sendOverlayMessage(Component.translatable(Satiscraftory.MODID + ".build_gun.lane_start_marked"));
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -149,8 +148,6 @@ public class BuildGunItem extends Item {
         }
 
         playPlacementSound(player, positions.getFirst());
-        player.sendOverlayMessage(Component.translatable(Satiscraftory.MODID + ".build_gun.lane_placed", positions.size()));
-
         return InteractionResult.SUCCESS_SERVER;
     }
 

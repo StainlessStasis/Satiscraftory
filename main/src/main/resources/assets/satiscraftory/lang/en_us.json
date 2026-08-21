@@ -44,9 +44,7 @@
   "satiscraftory.build_gun.mode_lane": "Lane",
   "satiscraftory.build_gun.mode_lane_reversed": "Lane Reversed",
   "satiscraftory.build_gun.swap_mode_prompt": "Press %s to switch to %s mode",
-  "satiscraftory.build_gun.lane_start_marked": "Lane start marked - walk to the end and click again",
   "satiscraftory.build_gun.lane_invalid": "Lane route invalid",
-  "satiscraftory.build_gun.lane_placed": "Lane placed (%s belts)",
 
   "satiscraftory.build_menu.category.production": "Production",
   "satiscraftory.build_menu.category.power": "Power",
