@@ -37,9 +37,16 @@ public final class LaneRoutePreviewRenderer {
     private static @Nullable BlockPos hysteresisStart;
     private static @Nullable Boolean hysteresisPrimaryIsX;
     private static @Nullable Boolean lastSentPrimaryIsX;
+    
+    private static BeltLaneRouter.@Nullable LaneRoute previewedRoute;
+    public static BeltLaneRouter.@Nullable LaneRoute currentPreview() {
+        return previewedRoute;
+    }
 
     @SubscribeEvent
     static void render(SubmitCustomGeometryEvent event) {
+        previewedRoute = null;
+
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || !(player.level() instanceof ClientLevel level)) return;
@@ -67,6 +74,7 @@ public final class LaneRoutePreviewRenderer {
 
         BlockPos end = placeContext.getClickedPos();
 
+        //noinspection PointlessNullCheck
         if (hysteresisStart == null || !start.equals(hysteresisStart)) {
             hysteresisStart = start;
             hysteresisPrimaryIsX = null;
@@ -74,6 +82,7 @@ public final class LaneRoutePreviewRenderer {
 
         BeltLaneRouter.LaneRoute route = BeltLaneRouter.route(start, end, hysteresisPrimaryIsX);
         hysteresisPrimaryIsX = route.primaryIsX();
+        previewedRoute = route;
 
         if (!hysteresisPrimaryIsX.equals(lastSentPrimaryIsX)) {
             lastSentPrimaryIsX = hysteresisPrimaryIsX;

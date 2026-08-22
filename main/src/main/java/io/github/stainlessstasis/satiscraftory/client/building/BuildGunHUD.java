@@ -2,6 +2,7 @@ package io.github.stainlessstasis.satiscraftory.client.building;
 
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
 import io.github.stainlessstasis.manifold.factory_component.Laneable;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLaneRouter;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
@@ -10,6 +11,7 @@ import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildMode;
 import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneCosts;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionTarget;
@@ -93,13 +95,24 @@ public final class BuildGunHUD implements GuiLayer {
 
         BlockItem selected = BuildGunItem.getSelectedBlockItemClientSide();
         BuildingCost cost = BuildGunItem.getSelectedBuildingCostClientSide();
-        List<RecipeIngredient> inputs = cost != null ? cost.inputs() : List.of();
+        List<RecipeIngredient> inputs = currentPlacementCost(cost);
 
         Component buildingTitle = Component.translatable(Satiscraftory.MODID + ".build_gun.currently_building");
         Component buildingName = buildingNameWithMode(selected);
         renderPanel(graphics, mc.font, screenHeight, centerX, buildingTitle, buildingName, buildItemBoxes(mc.font, player, inputs));
 
         renderSwapModePrompt(graphics, mc, selected, screenWidth, screenHeight);
+    }
+    
+    private List<RecipeIngredient> currentPlacementCost(@Nullable BuildingCost cost) {
+        if (cost == null) return List.of();
+
+        BeltLaneRouter.LaneRoute previewedRoute = LaneRoutePreviewRenderer.currentPreview();
+        if (previewedRoute != null && previewedRoute.length() > 0) {
+            return LaneCosts.computeLaneCost(cost, previewedRoute.length());
+        }
+
+        return cost.inputs();
     }
 
     private static String modeLabelKey(LaneBuildMode mode) {

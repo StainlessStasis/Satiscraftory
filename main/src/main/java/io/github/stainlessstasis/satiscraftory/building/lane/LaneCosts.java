@@ -12,6 +12,8 @@ public final class LaneCosts {
     private LaneCosts() {}
 
     public static List<RecipeIngredient> computeLaneCost(BuildingCost baseCost, int laneLength) {
+        if (laneLength <= 0) return List.of();
+
         List<RecipeIngredient> result = new ArrayList<>(baseCost.inputs().size());
         for (RecipeIngredient ingredient : baseCost.inputs()) {
             int amount = Math.ceilDivExact(ingredient.amount() * laneLength, LANE_COST_UNIT_LENGTH);
