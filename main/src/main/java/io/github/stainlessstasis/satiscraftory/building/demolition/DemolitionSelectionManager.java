@@ -1,5 +1,6 @@
 package io.github.stainlessstasis.satiscraftory.building.demolition;
 
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import io.github.stainlessstasis.satiscraftory.network.clientbound.DemolitionSelectionSyncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -71,8 +72,9 @@ public final class DemolitionSelectionManager {
         SELECTIONS.remove(player.getUUID());
         LAST_PING_TICK.remove(player.getUUID());
 
+        boolean groupAsLane = LaneBuildModeManager.get(player).isLane();
         for (BlockPos pos : selection) {
-            BuildGunDemolition.tryDemolish(player, level, pos);
+            BuildGunDemolition.tryDemolish(player, level, pos, groupAsLane);
         }
 
         sync(player, Set.of());

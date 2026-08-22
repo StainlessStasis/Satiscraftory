@@ -39,6 +39,12 @@
   "satiscraftory.build_gun.mark_for_demolition": "Click to mark for demolition:",
   "satiscraftory.build_gun.marked_for_demolition": "Marked for demolition (%s/%s):",
   "satiscraftory.build_gun.selection_full": "Selection limit reached (%s)",
+  "satiscraftory.build_gun.name_with_mode": "%s (%s)",
+  "satiscraftory.build_gun.mode_single": "Single",
+  "satiscraftory.build_gun.mode_lane": "Lane",
+  "satiscraftory.build_gun.mode_lane_reversed": "Lane Reversed",
+  "satiscraftory.build_gun.swap_mode_prompt": "Press %s to switch to %s mode",
+  "satiscraftory.build_gun.lane_invalid": "Lane route invalid",
 
   "satiscraftory.build_menu.category.production": "Production",
   "satiscraftory.build_menu.category.power": "Power",

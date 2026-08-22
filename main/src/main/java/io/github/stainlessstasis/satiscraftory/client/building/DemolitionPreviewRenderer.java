@@ -6,6 +6,7 @@ import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionTarget;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -35,24 +36,33 @@ public final class DemolitionPreviewRenderer {
         if (player == null || !(player.level() instanceof ClientLevel level)) return;
         if (!(player.getMainHandItem().getItem() instanceof BuildGunItem)) return;
 
+        boolean groupAsLane = LaneBuildModeManager.getClientSide().isLane();
+
         Set<BlockPos> marked = DemolitionSelectionManager.clientSelection();
         for (BlockPos canonicalPos : marked) {
-            DemolitionTarget target = DemolitionResolver.resolve(level, canonicalPos);
+            DemolitionTarget target = DemolitionResolver.resolve(level, canonicalPos, groupAsLane);
             if (target == null) continue;
-            renderOutline(event, target.allPositions(), MARKED_COLOR);
+            renderOutline(event, target, MARKED_COLOR);
         }
 
         if (mc.hitResult instanceof BlockHitResult blockHit && blockHit.getType() == HitResult.Type.BLOCK) {
-            DemolitionTarget hovered = DemolitionResolver.resolve(level, blockHit.getBlockPos());
+            DemolitionTarget hovered = DemolitionResolver.resolve(level, blockHit.getBlockPos(), groupAsLane);
             if (hovered != null && !marked.contains(hovered.canonicalPos())) {
-                renderOutline(event, hovered.allPositions(), HOVER_COLOR);
+                renderOutline(event, hovered, HOVER_COLOR);
             }
         }
     }
+    
+    private static void renderOutline(SubmitCustomGeometryEvent event, DemolitionTarget target, Color color) {
+        if (target.isLane()) {
+            for (BlockPos pos : target.allPositions()) {
+                BoxOutlineRenderer.render(event.getPoseStack(), event.getSubmitNodeCollector(), pos, pos, color);
+            }
+            return;
+        }
 
-    private static void renderOutline(SubmitCustomGeometryEvent event, List<BlockPos> positions, Color color) {
-        BlockPos min = boundsMin(positions);
-        BlockPos max = boundsMax(positions);
+        BlockPos min = boundsMin(target.allPositions());
+        BlockPos max = boundsMax(target.allPositions());
         BoxOutlineRenderer.render(event.getPoseStack(), event.getSubmitNodeCollector(), min, max, color);
     }
 

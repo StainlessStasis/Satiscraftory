@@ -1,12 +1,17 @@
 package io.github.stainlessstasis.satiscraftory.client.building;
 
 import io.github.stainlessstasis.manifold.client.util.GuiRenderUtils;
+import io.github.stainlessstasis.manifold.factory_component.Laneable;
+import io.github.stainlessstasis.manifold.factory_component.belt.BeltLaneRouter;
 import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.satiscraftory.Satiscraftory;
 import io.github.stainlessstasis.satiscraftory.SatiscraftoryConfig;
 import io.github.stainlessstasis.satiscraftory.client.HudColors;
 import io.github.stainlessstasis.satiscraftory.building.BuildGunItem;
 import io.github.stainlessstasis.satiscraftory.building.BuildingCost;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildMode;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneBuildModeManager;
+import io.github.stainlessstasis.satiscraftory.building.lane.LaneCosts;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionResolver;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionSelectionManager;
 import io.github.stainlessstasis.satiscraftory.building.demolition.DemolitionTarget;
@@ -84,22 +89,72 @@ public final class BuildGunHUD implements GuiLayer {
         DemolitionTarget hovered = resolveHoveredDemolitionTarget(mc.hitResult, level);
         if (hovered != null) {
             Component title = Component.translatable(Satiscraftory.MODID + ".build_gun.mark_for_demolition");
-            renderPanel(graphics, mc.font, screenHeight, centerX, title, buildRefundItemBoxes(mc.font, hovered.cost()));
+            renderPanel(graphics, mc.font, screenHeight, centerX, title, buildRefundItemBoxes(mc.font, level, hovered));
             return;
         }
 
         BlockItem selected = BuildGunItem.getSelectedBlockItemClientSide();
         BuildingCost cost = BuildGunItem.getSelectedBuildingCostClientSide();
-        List<RecipeIngredient> inputs = cost != null ? cost.inputs() : List.of();
+        List<RecipeIngredient> inputs = currentPlacementCost(cost, selected);
 
         Component buildingTitle = Component.translatable(Satiscraftory.MODID + ".build_gun.currently_building");
-        Component buildingName = Component.translatable(selected.getDescriptionId());
+        Component buildingName = buildingNameWithMode(selected);
         renderPanel(graphics, mc.font, screenHeight, centerX, buildingTitle, buildingName, buildItemBoxes(mc.font, player, inputs));
+
+        renderSwapModePrompt(graphics, mc, selected, screenWidth, screenHeight);
+    }
+    
+    private List<RecipeIngredient> currentPlacementCost(@Nullable BuildingCost cost, BlockItem selected) {
+        if (cost == null) return List.of();
+
+        BeltLaneRouter.LaneRoute previewedRoute = LaneRoutePreviewRenderer.currentPreview();
+        if (previewedRoute != null && previewedRoute.length() > 0) {
+            return LaneCosts.computeLaneCost(cost, previewedRoute.length());
+        }
+
+        if (selected.getBlock() instanceof Laneable) {
+            return LaneCosts.perBlockFallbackCost(cost);
+        }
+
+        return cost.inputs();
+    }
+
+    private static String modeLabelKey(LaneBuildMode mode) {
+        return switch (mode) {
+            case SINGLE -> Satiscraftory.MODID + ".build_gun.mode_single";
+            case LANE -> Satiscraftory.MODID + ".build_gun.mode_lane";
+            case LANE_REVERSED -> Satiscraftory.MODID + ".build_gun.mode_lane_reversed";
+        };
+    }
+
+    private Component buildingNameWithMode(BlockItem selected) {
+        Component name = Component.translatable(selected.getDescriptionId());
+        if (!(selected.getBlock() instanceof Laneable)) return name;
+
+        Component modeLabel = Component.translatable(modeLabelKey(LaneBuildModeManager.getClientSide()));
+        return Component.translatable(Satiscraftory.MODID + ".build_gun.name_with_mode", name, modeLabel);
+    }
+
+    private void renderSwapModePrompt(GuiGraphicsExtractor graphics, Minecraft mc, BlockItem selected, int screenWidth, int screenHeight) {
+        if (!(selected.getBlock() instanceof Laneable)) return;
+
+        LaneBuildMode current = LaneBuildModeManager.getClientSide();
+        Component targetModeLabel = Component.translatable(modeLabelKey(current.toggled()));
+
+        Component prompt = Component.translatable(
+                Satiscraftory.MODID + ".build_gun.swap_mode_prompt",
+                mc.options.keySwapOffhand.getTranslatedKeyMessage(),
+                targetModeLabel
+        );
+
+        int x = screenWidth - mc.font.width(prompt) - 10;
+        int y = screenHeight - 10 - mc.font.lineHeight;
+        GuiRenderUtils.text(graphics, mc.font, prompt, x, y, HudColors.LABEL_COLOR);
     }
 
     private @Nullable DemolitionTarget resolveHoveredDemolitionTarget(HitResult hitResult, ClientLevel level) {
         if (!(hitResult instanceof BlockHitResult blockHit) || blockHit.getType() != HitResult.Type.BLOCK) return null;
-        return DemolitionResolver.resolve(level, blockHit.getBlockPos());
+        return DemolitionResolver.resolve(level, blockHit.getBlockPos(), LaneBuildModeManager.getClientSide().isLane());
     }
 
     private void renderHoldProgressBar(GuiGraphicsExtractor graphics, int centerX, int screenHeight) {
@@ -177,9 +232,9 @@ public final class BuildGunHUD implements GuiLayer {
         return boxes;
     }
 
-    private List<ItemBox> buildRefundItemBoxes(Font font, @Nullable BuildingCost cost) {
-        List<RecipeIngredient> inputs = (cost != null && SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean())
-                ? cost.inputs() : List.of();
+    private List<ItemBox> buildRefundItemBoxes(Font font, ClientLevel level, DemolitionTarget target) {
+        List<RecipeIngredient> inputs = SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()
+                ? DemolitionResolver.computeRefund(level, target) : List.of();
         return refundBoxesFor(font, inputs);
     }
 
@@ -189,11 +244,12 @@ public final class BuildGunHUD implements GuiLayer {
     private List<ItemBox> buildAggregatedRefundItemBoxes(Font font, ClientLevel level, Set<BlockPos> marked) {
         if (!SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean()) return List.of();
 
+        boolean groupAsLane = LaneBuildModeManager.getClientSide().isLane();
         Map<Identifier, Integer> totals = new LinkedHashMap<>();
         for (BlockPos pos : marked) {
-            DemolitionTarget target = DemolitionResolver.resolve(level, pos);
-            if (target == null || target.cost() == null) continue;
-            for (RecipeIngredient ingredient : target.cost().inputs()) {
+            DemolitionTarget target = DemolitionResolver.resolve(level, pos, groupAsLane);
+            if (target == null) continue;
+            for (RecipeIngredient ingredient : DemolitionResolver.computeRefund(level, target)) {
                 totals.merge(ingredient.itemId(), ingredient.amount(), Integer::sum);
             }
         }

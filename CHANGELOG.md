@@ -1,3 +1,10 @@
+# 0.6.2-alpha (Aug 21, 2026)
+## Belt Building & Balancing Changes
+Building belts has been reworked to be less tedious and more balanced for survival gameplay:
+- Belts can now be built in 3 different modes; Lane, Lane Reversed, and Single. A belt lane is a single contiguous line of belts which can be up to 16 belts long. This allows up to 16 belts to be placed by the Build Gun in one motion. The belts will automatically curve and slop to reach the destination. Placement is invalidated if a belt would pass through a solid block
+- The cost to place belts has been drastically reduced; a single lane (16 belts) will cost the full amount, while a single belt will cost 1/16, two belts 2/16, and so on. The cost for each required material will always be at least 1. Example: a Belt Mk. 2 costs 6 iron plates and 12 screws for a full lane of 16, while half a lane (8 belts) would only cost 3 iron plates and 6 screws. A single belt would only cost 1 of each
+- Entire belt lanes can now be demolished as a single object while the Build Gun is in Lane or Lane Reversed mode. Each belt in the lane will be highlighted, and clicking on any belt in the lane will mark the entire lane to be demolished. You may still want to only remove individual belts, so Single mode will work exactly the same as before this update, but with fractional material refunds as per the changes to building costs
+
 # 0.6.1-alpha (Aug 18, 2026)
 ## New Features
 Added a recipe selection menu to Machines. Forgot that they needed a survival-friendly way to set the recipe...

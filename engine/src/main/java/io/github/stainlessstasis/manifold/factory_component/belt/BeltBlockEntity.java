@@ -1,18 +1,28 @@
 package io.github.stainlessstasis.manifold.factory_component.belt;
 
+import com.mojang.serialization.Codec;
 import io.github.stainlessstasis.manifold.factory.FactoryLinking;
 import io.github.stainlessstasis.manifold.factory.FactoryNetwork;
+import io.github.stainlessstasis.manifold.recipe.RecipeIngredient;
 import io.github.stainlessstasis.manifold.registry.ManifoldBlockEntities;
 import io.github.stainlessstasis.manifold.util.BeltConstants;
 import io.github.stainlessstasis.manifold.util.FactoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -27,6 +37,11 @@ public class BeltBlockEntity extends BlockEntity {
     private boolean frontJammed;
     private float baseScrollOffset;
     private List<BlockPos> syncedLaneBlocks = List.of();
+
+    /**
+     * This belt's share of whatever it cost to place (for lane placement in SC)
+     */
+    private @Nullable List<RecipeIngredient> refundShare = null;
 
     public BeltBlockEntity(BlockPos pos, BlockState state) {
         super(ManifoldBlockEntities.BELT.get(), pos, state);
@@ -217,6 +232,48 @@ public class BeltBlockEntity extends BlockEntity {
 
     public List<BlockPos> getSyncedLaneBlocks() {
         return syncedLaneBlocks;
+    }
+
+    public boolean hasRefundShare() {
+        return refundShare != null;
+    }
+
+    public List<RecipeIngredient> getRefundShare() {
+        return refundShare != null ? refundShare : List.of();
+    }
+
+    public void setRefundShare(List<RecipeIngredient> refundShare) {
+        this.refundShare = List.copyOf(refundShare);
+        setChanged();
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    private static final Codec<List<RecipeIngredient>> REFUND_SHARE_CODEC = RecipeIngredient.CODEC.listOf();
+
+    @Override
+    protected void saveAdditional(@NonNull ValueOutput output) {
+        super.saveAdditional(output);
+        if (refundShare != null) {
+            output.store("RefundShare", REFUND_SHARE_CODEC, refundShare);
+        }
+    }
+
+    @Override
+    protected void loadAdditional(@NonNull ValueInput input) {
+        super.loadAdditional(input);
+        refundShare = input.read("RefundShare", REFUND_SHARE_CODEC).orElse(null);
+    }
+
+    @Override
+    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public @NonNull CompoundTag getUpdateTag(HolderLookup.@NonNull Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 
     public void applySync(List<BlockPos> laneBlocks, List<BeltLane.ItemSnapshot> items, long syncTick, boolean frontJammed) {
