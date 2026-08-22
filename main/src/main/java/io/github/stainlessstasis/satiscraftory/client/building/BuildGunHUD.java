@@ -95,7 +95,7 @@ public final class BuildGunHUD implements GuiLayer {
 
         BlockItem selected = BuildGunItem.getSelectedBlockItemClientSide();
         BuildingCost cost = BuildGunItem.getSelectedBuildingCostClientSide();
-        List<RecipeIngredient> inputs = currentPlacementCost(cost);
+        List<RecipeIngredient> inputs = currentPlacementCost(cost, selected);
 
         Component buildingTitle = Component.translatable(Satiscraftory.MODID + ".build_gun.currently_building");
         Component buildingName = buildingNameWithMode(selected);
@@ -104,12 +104,16 @@ public final class BuildGunHUD implements GuiLayer {
         renderSwapModePrompt(graphics, mc, selected, screenWidth, screenHeight);
     }
     
-    private List<RecipeIngredient> currentPlacementCost(@Nullable BuildingCost cost) {
+    private List<RecipeIngredient> currentPlacementCost(@Nullable BuildingCost cost, BlockItem selected) {
         if (cost == null) return List.of();
 
         BeltLaneRouter.LaneRoute previewedRoute = LaneRoutePreviewRenderer.currentPreview();
         if (previewedRoute != null && previewedRoute.length() > 0) {
             return LaneCosts.computeLaneCost(cost, previewedRoute.length());
+        }
+
+        if (selected.getBlock() instanceof Laneable) {
+            return LaneCosts.perBlockFallbackCost(cost);
         }
 
         return cost.inputs();

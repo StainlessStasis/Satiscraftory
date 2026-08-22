@@ -172,10 +172,13 @@ public class BuildGunItem extends Item {
 
         BuildingCost cost = BuildingCosts.get(selectedId);
         boolean buildingCostsEnabled = SatiscraftoryConfig.BUILDING_COSTS.getAsBoolean();
+        boolean isLaneable = selected.getBlock() instanceof Laneable;
 
-        boolean canPlace = !buildingCostsEnabled || cost == null || hasRequiredItems(player, cost);
+        List<RecipeIngredient> inputs = (buildingCostsEnabled && cost != null)
+                ? (isLaneable ? LaneCosts.perBlockFallbackCost(cost) : cost.inputs())
+                : List.of();
 
-        if (!canPlace) {
+        if (!inputs.isEmpty() && !hasRequiredItems(player, inputs)) {
             MessageUtil.warnPlayer(player, Satiscraftory.MODID+".build_gun.missing_materials", Component.translatable(selected.getDescriptionId()));
             return InteractionResult.FAIL;
         }
@@ -190,12 +193,18 @@ public class BuildGunItem extends Item {
         );
 
         InteractionResult result = selected.place(placeContext);
-        if (cost != null && result.consumesAction() && !player.isCreative() && buildingCostsEnabled) {
-            consumeRequiredItems(player, cost);
+        if (!inputs.isEmpty() && result.consumesAction() && !player.isCreative()) {
+            consumeRequiredItems(player, inputs);
         }
 
         if (result.consumesAction()) {
             BlockPos placedPos = placeContext.getClickedPos();
+
+            if (isLaneable && !inputs.isEmpty() && context.getLevel() instanceof ServerLevel serverLevel
+                    && serverLevel.getBlockEntity(placedPos) instanceof BeltBlockEntity beltEntity) {
+                beltEntity.setRefundShare(inputs);
+            }
+
             playPlacementSound(player, placedPos);
             return InteractionResult.SUCCESS_SERVER;
         }
