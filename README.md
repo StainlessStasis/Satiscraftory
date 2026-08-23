@@ -13,15 +13,7 @@ This mod operates entirely on its own simulation layer so that it is not reliant
 ![Factory](https://private-user-images.githubusercontent.com/99687421/627061696-ba870e98-3533-4dd5-b9fa-008cf4897b24.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3ODUxNDU1NzksIm5iZiI6MTc4NTE0NTI3OSwicGF0aCI6Ii85OTY4NzQyMS82MjcwNjE2OTYtYmE4NzBlOTgtMzUzMy00ZGQ1LWI5ZmEtMDA4Y2Y0ODk3YjI0LmdpZj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNjA3MjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjYwNzI3VDA5NDExOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWVmYjdmYzYxODAyZDAwYjBmZmU5MWM2MzZhMWQ0OTk5ZmQ3ZWUxNTViNGQzZTJkNmY4OGU5ZDBjOTMyYjUyMGImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1pbWFnZSUyRmdpZiJ9.wokmhXYRLZVU5FnQqwcoHexGdB4GjQf4oePONZ2HOeM)
 
 ## Getting Started
-1. **Locate a Resource Node:** Explore the world to find Iron or Copper resource nodes (or use `/findnode`).
-2. **Place a Miner:** Build a Miner on top of the node. Miners output raw ore at a rate based on node purity.
-3. **Build a Power Grid:**
-   * Place a **Biomass Burner** and load it with organic fuel (leaves, wood, etc.).
-   * Use **Cables** to connect your Miner to the Biomass Burner. Use **Cable Cutters** to cut any misplaced cables.
-   * Place **Power Poles** to expand your power grid and link multiple factory components together.
-4. **Build Your Factory:** Connect **Belts** from your Miner going to **Machines** to automate production lines. Use **Splitters** and **Mergers** for more complex logistics.
-
-> For more detailed documentation, see the **[Satiscraftory Wiki](https://github.com/StainlessStasis/Satiscraftory/wiki/1.-Getting-Started)**.
+See the **[wiki](https://moddedmc.wiki/en/project/satiscraftory/latest/docs/getting_started)**.
 
 ## Recommended Mods
 - [Sodium](https://modrinth.com/mod/sodium): Massively increases FPS with large amounts of factory components/belt items on screen. In some extreme cases, FPS can be more than doubled. In my testing with 5000 belt items (2500 belts), FPS went from ~22 to ~48
@@ -73,4 +65,4 @@ When reporting rendering performance issues, include:
 - GPU specs
 
 ## Credits
-Some assets (mainly models and sounds) are derivatives of other works. For more information, see [ATTRIBUTIONS.md](https://github.com/StainlessStasis/Satiscraftory/blob/main/ATTRIBUTIONS.md)
+Some assets (mainly models and sounds) are derivatives of other works. For more information, see `ATTRIBUTIONS.md` on [GitHub](https://github.com/StainlessStasis/Satiscraftory/blob/main/ATTRIBUTIONS.md)
