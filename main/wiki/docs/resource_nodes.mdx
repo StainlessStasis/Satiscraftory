@@ -1,0 +1,41 @@
+# Resource Nodes
+Resource Nodes are small patches of resources that spawn throughout the world.
+They are infinitely renewable, and can be extracted by specialized factory buildings, such as [Miners](factory_buildings/miners).
+
+## Finding Nodes
+Iron and copper nodes (the only two currently available) spawn about every 500 blocks in the Overworld.
+They can appear as single nodes, or as small clusters of 2-4.
+The [Resource Scanner](../content/resource_scanner) can also be used to find nearby nodes instead of manually searching.
+
+**Creative Tools:**
+- `/findnode <type>` lists the 5 nearest nodes of that type, no matter the distance
+- `/place feature <id>` can be used to manually place a node. Only `resource_node_replaceable` blocks (e.g. stone) will work with this command
+
+## Purity
+Resource Nodes have 3 purities which determine the resource extraction rate:
+- Impure (0.5x)
+- Normal (1x)
+- Pure (2x)
+
+For example, a [Miner Mk. 1](../content/miner_mk1) will extract 60/min from a Normal node, and 120/min from a Pure node.
+
+**Creative Tools:**
+- A few blocks under the center of the node is the controlling block for the node, denoted by an untextured (pink/black), block.
+Right click it to change its purity, then replace whatever is extracting from it, or restart the world
+
+## Configuration
+Resource Nodes can be configured as datapacks under `data/your_namespace`.
+The config is split into 3 categories: `worldgen/configured_feature`, `worldgen/placed_feature`, and `tags/block`.
+
+**Configured Features:**
+- Cluster size: how many nodes spawn can in a cluster
+- Cluster spread: how far apart the nodes in a cluster spawn from each other
+- Radius: the size of the node; does not affect Miner placement radius, only how many decorative blocks spawn around the center
+- Node state: the blockstate of the actual node block. Probably shouldn't touch this
+- Resource state: the blockstate of the decorative resource block which spawns around the center
+
+**Placed Features:**
+- Chance: how often the node should spawn; for example 500 = spawn a node about every 500 blocks
+
+**Block Tags:** `resource_nodes` simply defines which blocks are considered to be Resource Nodes. `resource_node_replaceable` defines which blocks can be replaced by a spawned node.
+Includes things like dirt, grass, stone, stand, etc.
