@@ -4,8 +4,23 @@ type: item
 ---
 
 # Cable
+Cables are used to connect [factory buildings](../docs/factory_buildings/info) to each other to form [power](../docs/power) grids.
+They have no limit on capacity/throughput.
 
-TODO: write a short description of Cable.
+## Placing Connections
+To place a cable, right-click on any valid building to start a cable chain.
+A preview will then appear when looking at a block, showing whether the connection is allowed. Right-click again to place the cable.
+The start of the chain will now be the previous endpoint. Right-click while sneaking to reset the chain.
+
+### Limitations
+- Cables can be no longer than 32 blocks
+- All buildings have a limit to how many cables can be connected to them (2, unless otherwise stated). [Power Poles](../content/power_pole_mk1) serve to mitigate this
+
+## Removing Connections
+[Cable Cutters](../content/cable_cutters) can be used to sever unwanted cable connections between two endpoints.
+Cables exist purely as data and thus cannot be demolished using the [Build Gun](../content/build_gun).
+
+Cutting cables functions identically to placing them, *except* the previous endpoint will not become the current endpoint; both ends must be selected again to cut another cable.
 
 <PrefabObtaining/>
 
