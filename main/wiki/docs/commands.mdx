@@ -1,0 +1,12 @@
+# Commands
+| Command | Description |
+| :--- | :--- |
+| `/factory count [factory_component]` | Outputs the tracked amount of all factory components across the global factory network |
+| `/factory loaded [factory_component]` | Outputs the tracked amount of all factory components across the global factory network, but only those which are in loaded chunks |
+| `/factory loaded [factory_component]` | Outputs the tracked amount of factory components which are loaded in the client's chunks |
+| `/factory setrecipe <recipe> [at\|force] <pos>` | Sets a [Machine's](factory_buildings/machines/machines) recipe, optionally at a specific block position within the current dimension. The `force` option will force the Machine to clear its buffers and stop processing resources, so that it can immediately set the recipe. Otherwise, the command may fail |
+| `/factory presetrecipe <recipe\|clear>` | Sets a Machine recipe preset which is automatically applied to all future placed Machines. The `clear` option will reset the selected preset back to the default value of `manifold:basic_processing`. Does not persist between restarting the game
+| `/factory <freeze\|unfreeze>` | Freezes the ticking of all factories across the global factory network |
+| `/findnode <type>` | Locates the nearest known [Resource Nodes](resource_nodes) of the specified type, regardless of distance. Does not load or generate any chunks |
+| `/manifold preview` | **Dev tool** - previews the model of the held [multiblock](multiblocks) at the player's position
+| `/manifold captureshape` | **Dev tool** - captures the previewed model as a `Set<BlockPos>` containing every position containing air. Used to build a solid structure for a multiblock to determine where filler blocks should be
