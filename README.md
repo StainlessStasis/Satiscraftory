@@ -1,4 +1,10 @@
 # READ THIS PLEASE
+## Important Update
+As of November 13, 2026, I've decided to put this project on indefinite hiatus for numerous personal reasons - mainly lack of motivation regarding modding in general. I have adjusted the license to be MIT. You are free to carry on the project with your own fork, or borrow any other assets, I don't mind. Credit would be appreciated but not strictly required. Keep in mind that some assets (sounds, and the resource scanner shader) are derivative works which I myself had to provide credit for, and you should also credit accordingly if you use them.
+
+Will I ever come back to this project? I'm not sure. Maybe some day. But it won't be any time soon. It is what it is. 
+
+With that being said:
 This mod is currently a very early **alpha/technical demo**. Do not expect a feature-complete or survival-friendly experience. Expect bugs, crashes, save instability (between mod versions), and general lack of polish. Things **will** break.
 
 # What is Satiscraftory?
@@ -37,6 +43,9 @@ While 5000 on-screen items is still pushing the upper bounds of what's normally 
 - Occasional minor visual glitches with belt items, most often when handing off from one belt line to the next
 
 # Roadmap
+## Deprecated due to indefinite hiatus
+Please see top of page
+
 Listed approximately in order; things may change, and small patches may fall in between
 - **0.7.0:** Smelters and Constructors to replace generic Machine
 - **0.8.0:** Assemblers (the first multi-input machine) and more items that require the Assembler, such as reinforced iron plates
@@ -44,13 +53,8 @@ Listed approximately in order; things may change, and small patches may fall in 
 - **Other:** Expect more items or smaller features from Satisfactory (e.g. Blade Runners, AWESOME Sink). The goal is to fully flesh out tier 1 & 2 progression, and have some elements of tier 3, for the mod to be considered ready for a full release. Also Space Elevator to come eventually...
 - **Future:** In the future, I would like to add some more Minecraft elements to the mod, and not just copy Satisfactory 1:1. For example, automating common vanilla building blocks, adding biome-specific and dimension-specific custom resources, and maybe reworking progression a bit to utilize more vanilla stuff. But that's far away, and for now the focus is making a functional factory game
 
-# Get Involved
-## Help Needed!
-Currently, the bottleneck of the mod is art. I am not an artist by any means, but I do what I can to make things not just boring placeholders. However, trying to develop the mod while also handling all of the art is quite a large task which slows down development tremendously
-
-So, if you are an artist, animator, or sound designer, and you want to help out, please join the [Discord server](https://discord.gg/A7nnazW8gX) or message me directly (stasis_the_shattered)
-## Feedback
-Having other people stress test their system, report bugs, and any other feedback is incredibly valuable! Please feel free to share **any** thoughts - whether it's an issue, feature request, something you like or don't like, whatever. This mod is still in its early stages so I'm open to pretty much anything
+# Discord
+Despite the indefinite hiatus, I'm still active in the [Discord server](https://discord.gg/A7nnazW8gX) if you want to talk about anything regarding the project
 
 ## Reporting Issues
 When reporting logical (CPU, RAM) performance issues, include:
