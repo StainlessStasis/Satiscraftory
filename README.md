@@ -1,6 +1,6 @@
 # READ THIS PLEASE
 ## Important Update
-As of November 13, 2026, I've decided to put this project on indefinite hiatus for numerous personal reasons - mainly lack of motivation regarding modding in general. I have adjusted the license to be MIT. You are free to carry on the project with your own fork, or borrow any other assets, I don't mind. Credit would be appreciated but not strictly required. Keep in mind that some assets (sounds, and the resource scanner shader) are derivative works which I myself had to provide credit for, and you should also credit accordingly if you use them.
+As of November 13, 2026, I've decided to put this project on indefinite hiatus for numerous personal reasons - mainly lack of motivation regarding modding in general. You are free to carry on the project with your own fork, or borrow any other assets, I don't mind. Credit would be appreciated but not strictly required. Keep in mind that some assets (sounds, and the resource scanner shader) are derivative works which I myself had to provide credit for, and you should also credit accordingly if you use them.
 
 Will I ever come back to this project? I'm not sure. Maybe some day. But it won't be any time soon. It is what it is. 
 
